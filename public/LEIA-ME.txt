@@ -1,0 +1,16 @@
+SETUPDT LIGHT MULTI-EXCHANGE V1.3 — RENDER
+
+Arquivos que devem ficar no GitHub:
+
+server.js
+package.json
+public/index.html
+
+No Render:
+- Build Command: npm install
+- Start Command: npm start
+
+Depois do deploy, abra /api/health. Deve aparecer "ok": true e "proxy": true.
+Esta versão consulta Binance e MEXC pelo servidor para evitar o erro "Failed to fetch" do navegador.
+A Binance usa endereços alternativos se o principal falhar.
+O ativo OIL usa a referência Brent BZ=F, pois OIL/USDT não é uma criptomoeda Spot comum.
