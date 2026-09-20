@@ -1,1 +1,0 @@
-{"name":"setupdt-render","version":"1.9.1","private":true,"scripts":{"start":"node server.js"},"dependencies":{"express":"^4.21.2"},"engines":{"node":">=20"}}
