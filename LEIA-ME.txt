@@ -1,14 +1,19 @@
-SETUPDT LIGHT MULTI-EXCHANGE V1.2 — RENDER
+SETUPDT LIGHT MULTI-EXCHANGE V1.9.1 — AUTO MERCADO + AGORACRYPTO + TELEGRAM
 
-Arquivos que devem ficar no GitHub:
+CORREÇÃO PRINCIPAL
+- O botão Analisar agora tenta o mercado escolhido e, se o par não existir, procura automaticamente em MEXC Futuros, MEXC Spot e Binance Spot.
+- Exemplo: GRAM/USDT é localizado em MEXC Futuros quando disponível.
+- Corrigido intervalo 1h da MEXC Spot (60m).
+- Se a consulta direta da corretora falhar, o HTML tenta o proxy do servidor Render.
+- O servidor aceita o HTML baixado (Origin null) nas rotas do SetupDT, sem expor o token do Telegram.
 
-server.js
-package.json
-public/index.html
+AGORACRYPTO
+- Acompanha ativos no servidor em 15m + 1h + 4h + 1D.
+- Telegram envia mudanças relevantes e o SetupDT continua cuidando de 6/6, entrada, STOP e alvos.
+- Para o AgoraCrypto funcionar pelo HTML local, publique este pacote no Render.
 
-No Render:
-- Build Command: npm install
-- Start Command: npm start
-
-Depois do deploy, abra /api/health. Deve aparecer "ok": true e "proxy": true.
-Esta versão consulta Binance e MEXC pelo servidor para evitar o erro "Failed to fetch" do navegador.
+TESTE RÁPIDO
+1. Abra public/index.html ou o HTML avulso V1.9.1.
+2. Digite GRAM e toque em Analisar.
+3. Se GRAM não estiver no mercado selecionado, o app tenta os demais e muda automaticamente para o mercado onde encontrar dados.
+4. Para Telegram/AgoraCrypto servidor, faça deploy deste pacote no Render mantendo TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID(S).
