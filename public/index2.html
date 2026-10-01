@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<title>Radar Volatilidade EGI</title>
+<style>
+:root{--bg:#07101d;--card:#101d31;--card2:#0b1728;--line:#28415f;--txt:#edf6ff;--muted:#9fb7d2;--cyan:#39d7ef;--green:#49e29b;--yellow:#ffd45a;--orange:#ff9c52;--red:#ff6c76;--blue:#6fa8ff}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#07101d,#0a1525 55%,#07101d);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:14px}.hero{border:1px solid var(--line);background:linear-gradient(135deg,#10213a,#0b1728);border-radius:18px;padding:16px;box-shadow:0 14px 40px #0005;margin-bottom:12px}
+h1{font-size:22px;margin:0 0 5px}.sub{color:var(--muted);font-size:13px}.toolbar{display:grid;grid-template-columns:1.2fr 1fr .8fr auto;gap:8px;margin-top:13px}.toolbar2{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:8px}
+select,input,button{border:1px solid #355273;border-radius:12px;background:#0b1728;color:var(--txt);padding:11px 12px;font:inherit}button{font-weight:800;cursor:pointer}.primary{background:var(--cyan);color:#05131b;border-color:transparent}.secondary{background:#142842}.danger{background:#3a1720;border-color:#67303c}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}.kpi b{display:block;font-size:19px;margin-top:2px}.kpi small{color:var(--muted)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px}.panel h2{font-size:16px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line)}
+.tableWrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:940px}.table th,.table td{padding:9px 8px;border-bottom:1px solid #1c3048;text-align:right;white-space:nowrap}.table th{color:#bcd0e8;font-size:12px;position:sticky;top:0;background:#102038;z-index:1}.table th:first-child,.table td:first-child{text-align:left;position:sticky;left:0;background:#101d31;z-index:1}.table th:first-child{z-index:2}.sym{font-weight:900}.rank{color:#90a9c5;margin-right:6px}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-weight:800;font-size:12px}.v-low{background:#102d43;color:#9fd5ff}.v-mid{background:#4a4115;color:#ffe789}.v-high{background:#5a3215;color:#ffc18c}.v-fire{background:#5b1f27;color:#ffadb4}.q-good{color:var(--green)}.q-mid{color:var(--yellow)}.q-bad{color:var(--red)}
+.note{padding:12px 14px;color:var(--muted);font-size:13px}.status{font-weight:800}.status.ok{color:var(--green)}.status.warn{color:var(--yellow)}.status.err{color:var(--red)}
+.detail{display:none;padding:14px;border-top:1px solid var(--line);background:#0a1626}.detail.open{display:block}.detailGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.box{background:#0f2035;border:1px solid #29445f;border-radius:12px;padding:10px}.box span{display:block;color:var(--muted);font-size:12px}.box b{font-size:17px}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer{color:#8198b3;text-align:center;padding:18px 8px;font-size:12px}
+.manualBar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.manualBar select{min-width:105px}.manualPanel{display:none;margin-top:12px;background:#0b1728;border:1px solid #355273;border-radius:16px;overflow:hidden}.manualPanel.open{display:block}.manualHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:#102038}.manualHead h2{margin:0;font-size:17px}.manualBody{padding:14px;color:#dcecff}.manualBody h3{margin:14px 0 6px;font-size:15px;color:#fff}.manualBody p{margin:6px 0;color:#bfd1e6}.manualBody ul{margin:6px 0 10px 18px;padding:0}.manualBody li{margin:5px 0}.manualTip{border-left:3px solid var(--cyan);background:#10213a;padding:10px 12px;border-radius:8px;margin:10px 0}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#07111f;border:1px solid #28415f;padding:8px 10px;border-radius:9px;overflow:auto}.manualClose{padding:7px 10px}.tiny{font-size:12px;color:var(--muted)}
+@media(max-width:760px){.toolbar{grid-template-columns:1fr 1fr}.toolbar .primary{grid-column:1/-1}.toolbar2{grid-template-columns:1fr 1fr}.toolbar2 input{grid-column:1/-1}.grid{grid-template-columns:1fr 1fr}.detailGrid{grid-template-columns:1fr 1fr}.wrap{padding:9px}.hero{padding:13px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>🔥 Radar Volatilidade EGI</h1>
+    <div class="sub">Mede volatilidade e qualidade operacional. Volatilidade alta não significa automaticamente boa operação.</div>
+    <div class="toolbar">
+      <select id="market">
+        <option value="binance-spot">Binance Spot</option>
+        <option value="binance-futures">Binance Futures USDT</option>
+        <option value="mexc-spot">MEXC Spot</option>
+      </select>
+      <select id="tf">
+        <option value="5m">5m</option>
+        <option value="15m" selected>15m</option>
+        <option value="1h">1h</option>
+      </select>
+      <select id="topn"><option>10</option><option selected>20</option><option>30</option></select>
+      <button class="primary" id="scanBtn">ANALISAR AGORA</button>
+    </div>
+    <div class="toolbar2">
+      <input id="symbol" placeholder="Analisar moeda específica, ex.: LINKUSDT">
+      <button class="secondary" id="oneBtn">🔎 MOEDA</button>
+      <button class="secondary" id="autoBtn">⏱ Auto 1m: OFF</button>
+    </div>
+    <div class="manualBar">
+      <button class="secondary" id="manualBtn">📘 MANUAL</button>
+      <button class="secondary" id="speakManualBtn">🔊 OUVIR MANUAL</button>
+      <button class="danger" id="stopSpeakBtn">⏹ PARAR ÁUDIO</button>
+      <select id="ttsSpeed" title="Velocidade do áudio">
+        <option value="0.8">0,8×</option><option value="1" selected>1,0×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option>
+      </select>
+    </div>
+    <div class="legend">
+      <span class="pill v-low">0–40 baixa</span><span class="pill v-mid">41–60 moderada</span><span class="pill v-high">61–80 alta</span><span class="pill v-fire">81–100 muito alta</span>
+    </div>
+  </section>
+
+  <section id="manualPanel" class="manualPanel" aria-hidden="true">
+    <div class="manualHead">
+      <h2>📘 Manual — Radar Volatilidade EGI</h2>
+      <button class="secondary manualClose" id="manualClose">Fechar</button>
+    </div>
+    <div class="manualBody" id="manualText">
+      <div class="manualTip"><b>Objetivo:</b> encontrar criptomoedas que estejam se movimentando bastante, sem confundir volatilidade com qualidade de execução. O radar não é um sinal automático de compra ou venda.</div>
+
+      <h3>1. Como a lista é escolhida</h3>
+      <p>O radar primeiro busca pares em USDT e ordena pelo <b>volume negociado em USDT nas últimas 24 horas</b>. Depois analisa apenas o Top 10, 20 ou 30 escolhido no seletor.</p>
+      <p>Isso funciona como um filtro inicial de liquidez: moedas praticamente sem negociação tendem a ficar fora da amostra.</p>
+
+      <h3>2. Ordem do ranking</h3>
+      <p>A tabela final é ordenada pela nota <b>Vol 0–100</b>, do maior para o menor. Portanto, a primeira moeda é a mais volátil dentro do grupo analisado — não necessariamente a melhor para operar.</p>
+
+      <h3>3. Índice de Volatilidade 0–100</h3>
+      <div class="formula">Volatilidade = ATR 30% + Amplitude 24h 25% + Desvio dos retornos 20% + Largura de Bollinger 15% + Impulso de volume 10%</div>
+      <ul>
+        <li><b>0–40:</b> 🔵 baixa — pouco movimento.</li>
+        <li><b>41–60:</b> 🟡 moderada.</li>
+        <li><b>61–80:</b> 🟠 alta.</li>
+        <li><b>81–100:</b> 🔥 muito alta.</li>
+      </ul>
+
+      <h3>4. O que cada indicador mede</h3>
+      <ul>
+        <li><b>ATR %:</b> tamanho médio do movimento recente em relação ao preço.</li>
+        <li><b>Amplitude 24h:</b> distância entre máxima e mínima das últimas 24 horas.</li>
+        <li><b>σ retorno:</b> dispersão dos retornos recentes; quanto maior, mais irregular é a oscilação.</li>
+        <li><b>BB largura:</b> largura das Bandas de Bollinger; expansão costuma indicar aumento da volatilidade.</li>
+        <li><b>Vol/média:</b> volume do candle atual dividido pela média recente. Acima de 1,0× significa volume acima da média.</li>
+      </ul>
+
+      <h3>5. Liquidez, spread e Qualidade Operacional</h3>
+      <p>A <b>Qualidade 0–100</b> não mede direção. Ela procura indicar quão fácil é executar uma operação sem sofrer tanto com spread e baixa liquidez.</p>
+      <div class="formula">Qualidade = Spread 58% + Liquidez relativa 42%</div>
+      <p><b>Spread:</b> diferença entre melhor compra e melhor venda. Quanto menor, melhor. <b>Liquidez relativa:</b> posição do ativo pelo volume 24h dentro do grupo Top 10/20/30 analisado.</p>
+      <p>Assim, uma moeda pode ter Volatilidade 90 e Qualidade 40: ela mexe muito, mas pode ser ruim de executar. Outra pode ter Volatilidade 65 e Qualidade 90: menos explosiva, porém mais limpa operacionalmente.</p>
+
+      <h3>6. “Mais volátil” x “Melhor operacional”</h3>
+      <p><b>Mais volátil</b> mostra a maior nota de volatilidade. <b>Melhor operacional</b> combina 60% da nota de volatilidade com 40% da Qualidade Operacional.</p>
+      <div class="formula">Melhor operacional = Volatilidade × 0,60 + Qualidade × 0,40</div>
+
+      <h3>7. Como usar no dia a dia</h3>
+      <ul>
+        <li>Escolha Binance Spot, Binance Futures ou MEXC Spot.</li>
+        <li>Escolha 5m, 15m ou 1h.</li>
+        <li>Use Top 20 como ponto de partida.</li>
+        <li>Toque em <b>ANALISAR AGORA</b>.</li>
+        <li>Priorize moedas com volatilidade suficiente e Qualidade alta; depois confirme tendência, entrada, stop e relação risco/retorno no SetupDT.</li>
+        <li>Toque na moeda para abrir os detalhes.</li>
+      </ul>
+
+      <h3>8. Auto 1 minuto</h3>
+      <p>Com <b>Auto 1m: ON</b>, o radar refaz a leitura aproximadamente a cada 60 segundos enquanto a página estiver ativa. No celular, o sistema pode reduzir ou pausar atualizações em segundo plano.</p>
+
+      <h3>9. Regra principal</h3>
+      <div class="manualTip"><b>Volatilidade mostra movimento. Liquidez e spread mostram executabilidade. Nenhuma dessas notas, sozinha, confirma LONG ou SHORT.</b></div>
+      <p class="tiny">As notas são índices internos do Radar Volatilidade EGI e dependem das fórmulas e limites definidos nesta versão do app.</p>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="kpi"><small>Status</small><b id="status" class="status">Aguardando</b></div>
+    <div class="kpi"><small>Mais volátil</small><b id="bestVol">—</b></div>
+    <div class="kpi"><small>Melhor operacional</small><b id="bestOp">—</b></div>
+    <div class="kpi"><small>Última leitura</small><b id="updated">—</b></div>
+  </div>
+
+  <section class="panel">
+    <h2>Ranking — clique em uma moeda para ver os detalhes</h2>
+    <div class="tableWrap">
+      <table class="table">
+        <thead><tr>
+          <th># Ativo</th><th>Preço</th><th>Vol 0–100</th><th>Qualidade</th><th>ATR %</th><th>Amplitude 24h</th><th>σ retorno</th><th>BB largura</th><th>Vol/média</th><th>Spread</th><th>Volume 24h</th><th>Leitura</th>
+        </tr></thead>
+        <tbody id="rows"><tr><td colspan="12" style="text-align:center;color:#9fb7d2;padding:24px">Toque em <b>ANALISAR AGORA</b>.</td></tr></tbody>
+      </table>
+    </div>
+    <div id="detail" class="detail"></div>
+    <div class="note">Índice Volatilidade: ATR 30% + amplitude 24h 25% + desvio dos retornos 20% + largura de Bollinger 15% + impulso de volume 10%. Qualidade operacional considera principalmente spread e liquidez relativa. É um radar técnico, não uma ordem de compra ou venda.</div>
+  </section>
+  <div class="footer">Radar Volatilidade EGI • Index 2 do SetupDT • Manual + áudio</div>
+</div>
+<script>
+const $=s=>document.querySelector(s); let autoTimer=null; let lastRows=[];
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const fmt=(n,d=4)=>Number.isFinite(n)?Number(n).toLocaleString('pt-BR',{maximumFractionDigits:d}):'—';
+const pct=n=>Number.isFinite(n)?fmt(n,2)+'%':'—';
+const compact=n=>Number.isFinite(n)?new Intl.NumberFormat('pt-BR',{notation:'compact',maximumFractionDigits:2}).format(n):'—';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function cfg(){const m=$('#market').value;if(m==='binance-futures')return{base:'https://fapi.binance.com',ticker:'/fapi/v1/ticker/24hr',klines:'/fapi/v1/klines',book:'/fapi/v1/ticker/bookTicker'};if(m==='mexc-spot')return{base:'https://api.mexc.com',ticker:'/api/v3/ticker/24hr',klines:'/api/v3/klines',book:'/api/v3/ticker/bookTicker'};return{base:'https://api.binance.com',ticker:'/api/v3/ticker/24hr',klines:'/api/v3/klines',book:'/api/v3/ticker/bookTicker'};}
+async function jget(url){const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);try{const r=await fetch(url,{cache:'no-store',signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}finally{clearTimeout(t)}}
+function ema(vals,p){const k=2/(p+1);let e=vals[0];for(let i=1;i<vals.length;i++)e=vals[i]*k+e*(1-k);return e}
+function sma(vals,p){if(vals.length<p)return NaN;let a=vals.slice(-p);return a.reduce((x,y)=>x+y,0)/a.length}
+function sd(vals){if(vals.length<2)return 0;const m=vals.reduce((a,b)=>a+b,0)/vals.length;return Math.sqrt(vals.reduce((a,b)=>a+(b-m)**2,0)/(vals.length-1))}
+function calcKlines(k){const rows=k.map(x=>({o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]})).filter(x=>Number.isFinite(x.c));if(rows.length<25)throw new Error('candles insuficientes');const trs=[];for(let i=1;i<rows.length;i++){const p=rows[i-1].c,r=rows[i];trs.push(Math.max(r.h-r.l,Math.abs(r.h-p),Math.abs(r.l-p)))}const atr=trs.slice(-14).reduce((a,b)=>a+b,0)/14;const price=rows.at(-1).c;const atrPct=atr/price*100;const rets=[];for(let i=1;i<rows.length;i++)rets.push((rows[i].c/rows[i-1].c-1)*100);const stdPct=sd(rets.slice(-30));const closes=rows.map(x=>x.c);const mid=sma(closes,20);const bbSd=sd(closes.slice(-20));const bbWidthPct=((mid+2*bbSd)-(mid-2*bbSd))/mid*100;const vols=rows.map(x=>x.v);const vm=sma(vols.slice(0,-1),20);const volRatio=vm?vols.at(-1)/vm:0;return{atrPct,stdPct,bbWidthPct,volRatio,price,ema9:ema(closes.slice(-40),9),ema14:ema(closes.slice(-40),14),ema200:rows.length>=200?ema(closes,200):NaN};}
+function volScore(x){const a=clamp((x.atrPct-.15)/2.85*100),r=clamp((x.range24-1)/14*100),s=clamp((x.stdPct-.12)/2.1*100),b=clamp((x.bbWidthPct-.8)/13.2*100),v=clamp((x.volRatio-.6)/2.4*100);return Math.round(a*.30+r*.25+s*.20+b*.15+v*.10)}
+function volClass(v){return v>=81?'v-fire':v>=61?'v-high':v>=41?'v-mid':'v-low'}
+function volLabel(v){return v>=81?'🔥 Muito alta':v>=61?'🟠 Alta':v>=41?'🟡 Moderada':'🔵 Baixa'}
+function qualityLabel(v){return v>=75?'🟢 Boa':v>=55?'🟡 Média':'🔴 Baixa'}
+function reading(x){if(x.vol>=70&&x.quality>=70)return'🔥 Volátil + líquida';if(x.vol>=70&&x.quality<55)return'⚠️ Volátil, execução ruim';if(x.vol>=55&&x.quality>=70)return'✅ Boa operacional';if(x.vol<40)return'💤 Pouco movimento';return'👀 Acompanhar'}
+function normalizeSymbol(s){return s.toUpperCase().replace(/[^A-Z0-9]/g,'').replace('/','')}
+function isEligible(s){if(!s.endsWith('USDT'))return false;const base=s.slice(0,-4);const blocked=['USDC','FDUSD','TUSD','USDP','DAI','BUSD','EUR','TRY','BRL','GBP','AUD','BIDR','AEUR','PAXG'];if(blocked.includes(base))return false;if(/(UP|DOWN|BULL|BEAR)$/.test(base))return false;return true}
+async function analyzeOne(ticker,liqRank,total){const c=cfg(),sym=ticker.symbol;const k=await jget(c.base+c.klines+'?symbol='+encodeURIComponent(sym)+'&interval='+$('#tf').value+'&limit=80');let book;try{book=await jget(c.base+c.book+'?symbol='+encodeURIComponent(sym))}catch{book={bidPrice:0,askPrice:0}}const q=calcKlines(k);const high=+ticker.highPrice,low=+ticker.lowPrice,last=+ticker.lastPrice||q.price;const range24=last>0?(high-low)/last*100:0;const bid=+(book.bidPrice||0),ask=+(book.askPrice||0);const spread=(bid>0&&ask>0)?(ask-bid)/((ask+bid)/2)*100:NaN;const spreadScore=Number.isFinite(spread)?clamp((.35-spread)/.35*100):55;const liqScore=total<=1?80:clamp((1-liqRank/(total-1))*100);const quality=Math.round(spreadScore*.58+liqScore*.42);const data={symbol:sym,price:last,range24,quoteVolume:+ticker.quoteVolume||0,spread,quality,...q};data.vol=volScore(data);data.reading=reading(data);return data}
+async function pool(items,limit,fn){const out=new Array(items.length);let idx=0;async function worker(){while(true){const i=idx++;if(i>=items.length)return;try{out[i]=await fn(items[i],i,items.length)}catch(e){out[i]={symbol:items[i].symbol,error:e.message}}await sleep(35)}}await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));return out}
+function render(arr){lastRows=arr.filter(x=>!x.error).sort((a,b)=>b.vol-a.vol);const tb=$('#rows');if(!lastRows.length){tb.innerHTML='<tr><td colspan="12" style="text-align:center;padding:24px">Sem dados válidos.</td></tr>';return}tb.innerHTML=lastRows.map((x,i)=>`<tr data-s="${x.symbol}"><td><span class="rank">${i+1}</span><span class="sym">${x.symbol}</span></td><td>${fmt(x.price,8)}</td><td><span class="pill ${volClass(x.vol)}">${x.vol}</span></td><td class="${x.quality>=75?'q-good':x.quality>=55?'q-mid':'q-bad'}"><b>${x.quality}</b></td><td>${pct(x.atrPct)}</td><td>${pct(x.range24)}</td><td>${pct(x.stdPct)}</td><td>${pct(x.bbWidthPct)}</td><td>${fmt(x.volRatio,2)}x</td><td>${pct(x.spread)}</td><td>${compact(x.quoteVolume)}</td><td>${x.reading}</td></tr>`).join('');tb.querySelectorAll('tr[data-s]').forEach(tr=>tr.onclick=()=>showDetail(tr.dataset.s));const best=lastRows[0];$('#bestVol').textContent=best.symbol+' '+best.vol;const op=[...lastRows].sort((a,b)=>(b.vol*.6+b.quality*.4)-(a.vol*.6+a.quality*.4))[0];$('#bestOp').textContent=op.symbol+' '+Math.round(op.vol*.6+op.quality*.4);}
+function showDetail(sym){const x=lastRows.find(r=>r.symbol===sym);if(!x)return;const d=$('#detail');d.classList.add('open');d.innerHTML=`<h3 style="margin:0 0 10px">${x.symbol} — ${volLabel(x.vol)} | Qualidade ${x.quality}/100</h3><div class="detailGrid"><div class="box"><span>ATR</span><b>${pct(x.atrPct)}</b></div><div class="box"><span>Amplitude 24h</span><b>${pct(x.range24)}</b></div><div class="box"><span>Desvio retorno</span><b>${pct(x.stdPct)}</b></div><div class="box"><span>Bollinger largura</span><b>${pct(x.bbWidthPct)}</b></div><div class="box"><span>Volume / média</span><b>${fmt(x.volRatio,2)}x</b></div><div class="box"><span>Spread</span><b>${pct(x.spread)}</b></div><div class="box"><span>Volume 24h</span><b>${compact(x.quoteVolume)}</b></div><div class="box"><span>Leitura</span><b>${x.reading}</b></div></div><p class="sub" style="margin:12px 0 0">Interpretação: ${qualityLabel(x.quality)} qualidade operacional. Quanto maior o ATR, amplitude, desvio e largura das Bandas de Bollinger, maior a oscilação. Spread baixo e volume alto melhoram a qualidade de execução.</p>`;d.scrollIntoView({behavior:'smooth',block:'nearest'})}
+async function scan(){const btn=$('#scanBtn');btn.disabled=true;$('#status').textContent='Buscando…';$('#status').className='status warn';try{const c=cfg(),all=await jget(c.base+c.ticker);let arr=(Array.isArray(all)?all:[all]).filter(x=>x&&x.symbol&&isEligible(x.symbol)&&(+x.quoteVolume||0)>0);arr.sort((a,b)=>(+b.quoteVolume||0)-(+a.quoteVolume||0));arr=arr.slice(0,+$('#topn').value);$('#status').textContent='Calculando '+arr.length+'…';const res=await pool(arr,5,analyzeOne);render(res);$('#status').textContent='Atualizado';$('#status').className='status ok';$('#updated').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){$('#status').textContent='Erro de conexão';$('#status').className='status err';$('#rows').innerHTML=`<tr><td colspan="12" style="text-align:center;color:#ff9ea7;padding:24px">${e.message}. Se estiver abrindo por arquivo local, teste pelo Render.</td></tr>`}finally{btn.disabled=false}}
+async function single(){const sym=normalizeSymbol($('#symbol').value);if(!sym){alert('Digite uma moeda, por exemplo LINKUSDT.');return}const c=cfg();$('#status').textContent='Analisando '+sym+'…';$('#status').className='status warn';try{const t=await jget(c.base+c.ticker+'?symbol='+encodeURIComponent(sym));const x=await analyzeOne(t,0,1);render([x]);showDetail(sym);$('#status').textContent='Atualizado';$('#status').className='status ok';$('#updated').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){$('#status').textContent='Falha em '+sym;$('#status').className='status err';alert('Não consegui analisar '+sym+': '+e.message)}}
+function toggleManual(force){const p=$('#manualPanel');const open=typeof force==='boolean'?force:!p.classList.contains('open');p.classList.toggle('open',open);p.setAttribute('aria-hidden',open?'false':'true');if(open)p.scrollIntoView({behavior:'smooth',block:'start'});}
+function speakManual(){if(!('speechSynthesis' in window)){alert('Este navegador não oferece leitura em voz alta.');return}speechSynthesis.cancel();const txt=$('#manualText').innerText.replace(/\s+/g,' ').trim();const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.rate=parseFloat($('#ttsSpeed').value)||1;speechSynthesis.speak(u)}
+$('#manualBtn').onclick=()=>toggleManual();$('#manualClose').onclick=()=>toggleManual(false);$('#speakManualBtn').onclick=speakManual;$('#stopSpeakBtn').onclick=()=>{if('speechSynthesis' in window)speechSynthesis.cancel()};
+$('#scanBtn').onclick=scan;$('#oneBtn').onclick=single;$('#symbol').addEventListener('keydown',e=>{if(e.key==='Enter')single()});$('#autoBtn').onclick=()=>{if(autoTimer){clearInterval(autoTimer);autoTimer=null;$('#autoBtn').textContent='⏱ Auto 1m: OFF'}else{scan();autoTimer=setInterval(scan,60000);$('#autoBtn').textContent='⏱ Auto 1m: ON'}};
+try{$('#market').value=localStorage.getItem('egiVolMarket')||'binance-spot';$('#tf').value=localStorage.getItem('egiVolTf')||'15m';$('#topn').value=localStorage.getItem('egiVolTop')||'20'}catch{}
+['market','tf','topn'].forEach(id=>$('#'+id).addEventListener('change',()=>{try{localStorage.setItem('egiVolMarket',$('#market').value);localStorage.setItem('egiVolTf',$('#tf').value);localStorage.setItem('egiVolTop',$('#topn').value)}catch{}}));
+</script>
+</body></html>
