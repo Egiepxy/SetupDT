@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AgoraCrypto LINK — Não Perder Entrada V3</title>
+<style>
+:root{
+  --bg:#08101f;--panel:#111b31;--panel2:#16243f;--text:#eef4ff;--muted:#96a8c6;
+  --green:#35d07f;--red:#ff6574;--yellow:#ffd05a;--blue:#59a9ff;--cyan:#35d4e8;--line:#293b60;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#07101e,#0a1224);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:12px}
+h1{font-size:clamp(25px,5vw,40px);margin:4px 0}
+h2{font-size:20px;margin:0 0 12px}
+.sub,.muted{color:var(--muted)} .small{font-size:12px}
+.card{background:rgba(17,27,49,.97);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:760px){.grid4{grid-template-columns:repeat(4,1fr)}}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.field{flex:1;min-width:145px}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+input,select,button{border-radius:10px;border:1px solid var(--line);background:#0e172a;color:var(--text);padding:10px;font-size:14px}
+button{cursor:pointer;font-weight:750}
+button.primary{background:#1f6feb;border-color:#1f6feb}
+button.ok{background:#157d4d;border-color:#157d4d}
+button.warn{background:#87610b;border-color:#87610b}
+button.danger{background:#8d2a38;border-color:#8d2a38}
+.bigSignal{font-size:clamp(23px,5vw,34px);font-weight:900;line-height:1.15;margin:5px 0}
+.kpi{font-size:22px;font-weight:850}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:850}
+.green{color:#7bf0b4;background:rgba(53,208,127,.14)}
+.red{color:#ff9aa4;background:rgba(255,101,116,.14)}
+.yellow{color:#ffe185;background:rgba(255,208,90,.14)}
+.blue{color:#91c7ff;background:rgba(89,169,255,.14)}
+.gray{color:#bdc9dd;background:rgba(150,168,198,.12)}
+.cyan{color:#85ecf6;background:rgba(53,212,232,.12)}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.notice{padding:10px;border-radius:10px;background:#0d1628;border:1px dashed var(--line);font-size:12px;color:#bdc9dd}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.log,.report{white-space:pre-wrap;background:#0a1324;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;line-height:1.45}
+.log{max-height:260px;overflow:auto}
+.switchline{display:flex;gap:8px;align-items:center}
+.switchline input{width:auto}
+.topline{padding:11px 12px;border:1px solid #38527f;background:#0b1529;border-radius:12px;font-weight:800;margin-top:12px}
+.progress{height:9px;background:#0a1324;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress>div{height:100%;background:linear-gradient(90deg,#59a9ff,#35d4e8);width:0}
+.statusdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7f8da8;margin-right:5px}
+.statusdot.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+details{margin-top:10px}
+summary{cursor:pointer;font-weight:800}
+.hidden{display:none}
+.topStartArea{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.topStartArea #startBtn{font-size:16px;padding:13px 16px}
+.helpText{font-size:13px;line-height:1.55;color:#d9e5f8}
+.helpText h3{font-size:15px;margin:13px 0 5px;color:#eef4ff}
+.helpText ul{margin:6px 0 8px;padding-left:20px}
+.helpText li{margin:5px 0}
+@media(max-width:620px){.topStartArea{grid-template-columns:1fr}.topStartArea select{width:100%}}
+@media(max-width:620px){
+  .wrap{padding:8px}.card{padding:12px}.grid{grid-template-columns:1fr}
+  .row.actions button{flex:1}.scroll{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="small cyan badge">AGORACRYPTO — MODO NÃO PERDER ENTRADA</div>
+    <h1>LINK/USDT</h1>
+    <div class="sub">Preço ao vivo avisa aproximação • candle 15m fechado confirma • 1h/4h dão contexto • ntfy + áudio</div>
+    <div class="topline" id="oneLine">LINKUSDT • ⚪ aguardando atualização</div>
+
+    <div class="topStartArea">
+      <button class="primary" id="startBtn">▶ INICIAR MONITOR</button>
+      <select id="manualRate" aria-label="Velocidade da leitura">
+        <option value="0.8">Áudio 0,8×</option>
+        <option value="1" selected>Áudio 1,0×</option>
+        <option value="1.2">Áudio 1,2×</option>
+        <option value="1.4">Áudio 1,4×</option>
+        <option value="1.6">Áudio 1,6×</option>
+      </select>
+    </div>
+    <div class="row actions" style="margin-top:8px">
+      <button id="manualBtn">📘 Manual</button>
+      <button id="functionsBtn">⚙️ Funcionalidades</button>
+      <button id="manualSpeakBtn">🔊 Ouvir manual</button>
+    </div>
+  </div>
+
+  <div id="manualCard" class="card hidden" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between">
+      <h2>📘 Manual rápido — Não Perder Entrada</h2>
+      <button id="closeManual">Fechar</button>
+    </div>
+    <div id="manualText" class="helpText">
+      <h3>Regra principal</h3>
+      <p><b>Preço ao vivo avisa aproximação; candle de 15m fechado confirma; 1h e 4h dão o contexto.</b> O app não compra nem vende.</p>
+      <h3>Estados do monitor</h3>
+      <ul>
+        <li><b>⚪ Aguardando dados:</b> monitor ainda não iniciou ou está buscando informações.</li>
+        <li><b>🔵 Aproximando:</b> o preço está perto da neckline/gatilho. É aviso antecipado, ainda não é confirmação.</li>
+        <li><b>🟡 Testando / rompeu sem confirmação:</b> o preço tocou ou ultrapassou a região, mas falta fechamento ou confirmação técnica.</li>
+        <li><b>🟢 Gatilho confirmado:</b> o candle de 15m fechou de acordo com as regras configuradas, com volume e contexto exigidos.</li>
+        <li><b>🔴 Invalidado:</b> o preço perdeu o nível de invalidação da figura; a leitura anterior precisa ser reavaliada.</li>
+      </ul>
+      <h3>Como usar</h3>
+      <p>1. Toque em <b>INICIAR MONITOR</b>. 2. Confira os níveis de gatilho, confirmação e invalidação. 3. Deixe áudio e ntfy ativados se quiser avisos. 4. Quando houver aproximação, acompanhe. 5. Considere confirmação somente depois do fechamento do 15m.</p>
+      <h3>Indicadores</h3>
+      <ul>
+        <li><b>EMA 9 e EMA 14:</b> direção e impulso de curto prazo.</li>
+        <li><b>EMA 200:</b> referência da tendência mais ampla.</li>
+        <li><b>RSI 15m:</b> força do movimento e possíveis zonas de excesso.</li>
+        <li><b>MACD + histograma:</b> aceleração ou perda de impulso.</li>
+        <li><b>Volume / média:</b> verifica se o movimento tem participação suficiente.</li>
+        <li><b>1h e 4h:</b> contexto para evitar tratar um gatilho isolado como tendência completa.</li>
+      </ul>
+      <h3>Importante</h3>
+      <p>Os níveis são editáveis. O monitor é uma ferramenta de acompanhamento técnico; stop, tamanho da posição e decisão de operar continuam separados do alerta.</p>
+    </div>
+  </div>
+
+  <div id="functionsCard" class="card hidden" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between">
+      <h2>⚙️ Funcionalidades</h2>
+      <button id="closeFunctions">Fechar</button>
+    </div>
+    <div class="helpText">
+      <ul>
+        <li>Preço ao vivo para detectar aproximação do gatilho.</li>
+        <li>Candle fechado de 15m como referência principal de confirmação.</li>
+        <li>EMA 9, EMA 14, EMA 200, RSI, MACD e volume.</li>
+        <li>Confirmação multi-timeframe em 15m, 1h e 4h.</li>
+        <li>Progresso visual até neckline/gatilho.</li>
+        <li>Níveis editáveis: gatilho, confirmação, invalidação e stop técnico de referência.</li>
+        <li>Alertas de aproximação, teste, confirmação e invalidação.</li>
+        <li>Áudio e envio pelo ntfy, com cooldown para não repetir avisos sem necessidade.</li>
+        <li>Botão para manter a tela ativa enquanto o navegador estiver em primeiro plano.</li>
+        <li>Resumo simples, relatório inteligente para ChatGPT e histórico de mudanças.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <div class="muted small">ESTADO AGORA</div>
+        <div id="signal" class="bigSignal">⚪ Aguardando dados</div>
+        <div id="reason" class="muted">Clique em “Iniciar monitor”.</div>
+      </div>
+      <div style="text-align:right">
+        <div class="muted small">Preço ao vivo</div>
+        <div id="price" class="kpi">—</div>
+        <div id="distTrigger" class="small muted">Gatilho: —</div>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="muted small">Progresso até a neckline / gatilho</div>
+    <div class="progress" style="margin-top:6px"><div id="progressBar"></div></div>
+  </div>
+
+  <div class="grid4" style="margin-top:10px">
+    <div class="card"><div class="muted small">Último 15m fechado</div><div id="closed15" class="kpi">—</div><div id="closed15time" class="small muted">—</div></div>
+    <div class="card"><div class="muted small">RSI 15m</div><div id="rsi15" class="kpi">—</div></div>
+    <div class="card"><div class="muted small">Volume / média</div><div id="volRatio" class="kpi">—</div></div>
+    <div class="card"><div class="muted small">MACD 15m</div><div id="macd15" class="kpi">—</div><div id="macdHist" class="small muted">Hist: —</div></div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between">
+      <h2>Confirmação multi-timeframe</h2>
+      <span id="runningBadge" class="badge gray"><span class="statusdot"></span> PARADO</span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>TF</th><th>EMA9</th><th>EMA14</th><th>EMA200</th><th>RSI</th><th>MACD hist.</th><th>Tendência</th></tr></thead>
+        <tbody>
+          <tr><td>15m fechado</td><td id="e9_15">—</td><td id="e14_15">—</td><td id="e200_15">—</td><td id="r_15">—</td><td id="mh_15">—</td><td id="t_15">—</td></tr>
+          <tr><td>1h fechado</td><td id="e9_1h">—</td><td id="e14_1h">—</td><td id="e200_1h">—</td><td id="r_1h">—</td><td id="mh_1h">—</td><td id="t_1h">—</td></tr>
+          <tr><td>4h fechado</td><td id="e9_4h">—</td><td id="e14_4h">—</td><td id="e200_4h">—</td><td id="r_4h">—</td><td id="mh_4h">—</td><td id="t_4h">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="whatMissing" class="notice" style="margin-top:10px">O que falta para confirmar: aguardando dados.</div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <h2>🎯 Modo “Não perder entrada”</h2>
+    <div class="grid">
+      <div class="field"><label>Neckline / gatilho inicial</label><input id="trigger" type="number" step="0.0001" value="14.7700"></div>
+      <div class="field"><label>Confirmação 15m</label><input id="confirmLevel" type="number" step="0.0001" value="14.8000"></div>
+      <div class="field"><label>Avisar quando faltar até (%)</label><input id="approachPct" type="number" step="0.1" value="1.0"></div>
+      <div class="field"><label>Volume mínimo na confirmação</label><input id="minVol" type="number" step="0.05" value="1.00"></div>
+      <div class="field"><label>Invalidação da figura</label><input id="invalidate" type="number" step="0.0001" value="14.0800"></div>
+      <div class="field"><label>Stop técnico de referência</label><input id="stopRef" type="number" step="0.0001" value="14.5900"></div>
+    </div>
+    <div class="notice" style="margin-top:10px">
+      Preset da análise de 01/10/2026. Os níveis são editáveis. O app <b>não compra nem vende</b>; ele só avisa e confirma condições técnicas.
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <h2>Monitoramento</h2>
+    <div class="grid">
+      <div class="field"><label>Corretora de dados</label>
+        <select id="exchange"><option value="binance" selected>Binance Spot</option><option value="mexc">MEXC Spot</option></select>
+      </div>
+      <div class="field"><label>Ativo</label><input id="symbol" value="LINKUSDT"></div>
+      <div class="field"><label>Atualização</label>
+        <select id="interval"><option value="15000">15 segundos</option><option value="30000" selected>30 segundos</option><option value="60000">1 minuto</option></select>
+      </div>
+      <div class="field"><label>Cooldown do mesmo alerta</label>
+        <select id="cooldown"><option value="300000">5 min</option><option value="900000" selected>15 min</option><option value="1800000">30 min</option></select>
+      </div>
+    </div>
+
+    <div class="row actions" style="margin-top:10px">
+      <button id="refreshBtn">↻ Atualizar agora</button>
+      <button class="danger" id="stopBtn">■ Parar</button>
+      <button id="wakeBtn">💡 Manter tela ativa</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label class="switchline"><input type="checkbox" id="audioApproach" checked> áudio ao aproximar</label>
+      <label class="switchline"><input type="checkbox" id="audioConfirm" checked> áudio na confirmação</label>
+      <label class="switchline"><input type="checkbox" id="require1h" checked> confirmação exige 1h não baixista</label>
+    </div>
+    <div id="wakeStatus" class="small muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <h2>📲 Alertas ntfy</h2>
+    <div class="grid">
+      <div class="field"><label>Tópico ntfy</label><input id="ntfyTopic" placeholder="seu-topico-ntfy"></div>
+      <div class="field"><label>Alertas</label>
+        <select id="alertMode">
+          <option value="all" selected>Aproximação + teste + confirmação + invalidação</option>
+          <option value="important">Aproximação + confirmação + invalidação</option>
+          <option value="confirm">Somente confirmação + invalidação</option>
+        </select>
+      </div>
+    </div>
+    <div class="row actions" style="margin-top:10px">
+      <button class="ok" id="testNtfy">Enviar teste</button>
+      <button id="speakBtn">🔊 Ouvir parecer</button>
+    </div>
+    <div id="ntfyStatus" class="small muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <h2>👤 Meu resumo</h2>
+    <div id="userReport" class="report">Atualize os dados para gerar o resumo.</div>
+    <div class="row actions" style="margin-top:10px">
+      <button id="copyUser">📋 Copiar resumo</button>
+      <button id="shareUser">📤 Compartilhar</button>
+    </div>
+
+    <details>
+      <summary>🤖 Relatório inteligente para ChatGPT</summary>
+      <div id="gptReport" class="report" style="margin-top:10px">Atualize os dados para gerar o relatório inteligente.</div>
+      <div class="row actions" style="margin-top:10px">
+        <button id="copyGPT">📋 Copiar para ChatGPT</button>
+        <button id="shareGPT">📤 Compartilhar relatório</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between">
+      <h2>Histórico de mudanças</h2>
+      <button class="danger" id="clearLog">Limpar</button>
+    </div>
+    <div id="log" class="log">Nenhum sinal registrado.</div>
+  </div>
+
+  <div class="notice" style="margin:10px 0 24px">
+    <b>Importante:</b> esta versão roda no navegador/PWA. Para receber alertas, a página precisa continuar executando.
+    Android pode suspender páginas em segundo plano. O ntfy recebe o aviso apenas quando este monitor consegue rodar.
+    Para vigilância realmente 24h com o app fechado, é necessário mover o monitor para um serviço no servidor.
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const SETTINGS='AgoraCrypto_LINK_NaoPerder_V2_settings';
+const LOGKEY='AgoraCrypto_LINK_NaoPerder_V2_log';
+const STATEKEY='AgoraCrypto_LINK_NaoPerder_V2_state';
+let timer=null, running=false, lastSnapshot=null, wakeLock=null;
+let runtime={lastState:'',lastAlertAt:{},hadConfirmed:false};
+
+function fmt(n,d=4){
+  if(!Number.isFinite(n)) return '—';
+  let dec=d;
+  if(Math.abs(n)>=100) dec=2;
+  else if(Math.abs(n)>=10) dec=Math.min(d,3);
+  return n.toFixed(dec).replace('.',',');
+}
+function pct(n){return Number.isFinite(n)?(n>=0?'+':'')+n.toFixed(2).replace('.',',')+'%':'—'}
+function now(){return new Date().toLocaleString('pt-BR')}
+function n(id){return parseFloat($(id).value)}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:NaN}
+
+function ema(values,period){
+  if(values.length<period) return NaN;
+  const k=2/(period+1);
+  let e=avg(values.slice(0,period));
+  for(let i=period;i<values.length;i++) e=values[i]*k+e*(1-k);
+  return e;
+}
+function emaSeries(values,period){
+  const out=new Array(values.length).fill(NaN);
+  if(values.length<period) return out;
+  let e=avg(values.slice(0,period));
+  out[period-1]=e;
+  const k=2/(period+1);
+  for(let i=period;i<values.length;i++){e=values[i]*k+e*(1-k);out[i]=e}
+  return out;
+}
+function rsi(values,period=14){
+  if(values.length<period+1)return NaN;
+  let gains=0,losses=0;
+  for(let i=values.length-period;i<values.length;i++){
+    const d=values[i]-values[i-1];
+    if(d>=0)gains+=d;else losses-=d;
+  }
+  if(losses===0)return 100;
+  const rs=(gains/period)/(losses/period);
+  return 100-(100/(1+rs));
+}
+function macd(values){
+  if(values.length<40)return {macd:NaN,signal:NaN,hist:NaN};
+  const e12=emaSeries(values,12), e26=emaSeries(values,26);
+  const line=values.map((_,i)=>Number.isFinite(e12[i])&&Number.isFinite(e26[i])?e12[i]-e26[i]:NaN);
+  const clean=line.filter(Number.isFinite);
+  const sig=ema(clean,9);
+  const m=clean.at(-1);
+  return {macd:m,signal:sig,hist:Number.isFinite(m)&&Number.isFinite(sig)?m-sig:NaN};
+}
+function trend(x){
+  const p=x.close;
+  if(p>x.e9 && x.e9>x.e14 && x.e14>x.e200) return '🟢 Alta';
+  if(p<x.e9 && x.e9<x.e14 && x.e14<x.e200) return '🔴 Baixa';
+  if(p>x.e200 && x.e9>x.e14) return '🟢 Alta curta';
+  if(p<x.e200 && x.e9<x.e14) return '🔴 Baixa curta';
+  return '🟡 Mista';
+}
+function base(){return $('exchange').value==='mexc'?'https://api.mexc.com':'https://api.binance.com'}
+async function getJSON(url){
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return await r.json();
+}
+function parseClosed(rows){
+  const closed=rows.slice(0,-1); // último registro é o candle ainda aberto
+  const closes=closed.map(x=>+x[4]), vols=closed.map(x=>+x[5]);
+  const last=closed.at(-1);
+  const prevVols=vols.slice(-21,-1);
+  const m=macd(closes);
+  return {
+    close:+last[4],
+    open:+last[1],
+    high:+last[2],
+    low:+last[3],
+    closeTime:+last[6],
+    e9:ema(closes,9),e14:ema(closes,14),e200:ema(closes,200),
+    rsi:rsi(closes,14),macd:m.macd,macdSignal:m.signal,macdHist:m.hist,
+    vol:+last[5],volAvg:avg(prevVols),volRatio:avg(prevVols)>0?(+last[5]/avg(prevVols)):NaN
+  };
+}
+async function marketData(){
+  const b=base(), symbol=$('symbol').value.trim().toUpperCase();
+  const [k15,k1,k4,t24]=await Promise.all([
+    getJSON(`${b}/api/v3/klines?symbol=${encodeURIComponent(symbol)}&interval=15m&limit=250`),
+    getJSON(`${b}/api/v3/klines?symbol=${encodeURIComponent(symbol)}&interval=1h&limit=250`),
+    getJSON(`${b}/api/v3/klines?symbol=${encodeURIComponent(symbol)}&interval=4h&limit=250`),
+    getJSON(`${b}/api/v3/ticker/24hr?symbol=${encodeURIComponent(symbol)}`)
+  ]);
+  return {
+    symbol,
+    live:+t24.lastPrice,change24:+t24.priceChangePercent,high24:+t24.highPrice,low24:+t24.lowPrice,quoteVol:+t24.quoteVolume,
+    p15:parseClosed(k15),p1:parseClosed(k1),p4:parseClosed(k4)
+  };
+}
+function stateInfo(d){
+  const trig=n('trigger'), conf=n('confirmLevel'), ap=n('approachPct'), minVol=n('minVol'), inv=n('invalidate');
+  const dist=(trig-d.live)/trig*100;
+  const near=d.live>=trig*(1-ap/100) && d.live<trig;
+  const testing=d.live>=trig && d.p15.close<conf;
+  const oneHourNotBear=!trend(d.p1).includes('Baixa');
+  const contextOK=!$('require1h').checked || oneHourNotBear;
+  const closedConfirmed=d.p15.close>=conf && d.p15.volRatio>=minVol && contextOK;
+  const brokeButWeak=d.p15.close>=conf && (!contextOK || d.p15.volRatio<minVol);
+
+  if(d.live<inv){
+    return {key:'INVALIDADO',cls:'red',title:'🔴 FIGURA INVALIDADA',reason:`Preço ao vivo abaixo da invalidação ${fmt(inv)}. Reavaliar a tese antes de qualquer nova entrada.`};
+  }
+  if(closedConfirmed){
+    runtime.hadConfirmed=true;
+    return {key:'CONFIRMADO',cls:'green',title:'🟢 GATILHO CONFIRMADO',
+      reason:`15m fechou em ${fmt(d.p15.close)} acima de ${fmt(conf)}, volume ${d.p15.volRatio.toFixed(2)}x e 1h não está baixista.`};
+  }
+  if(brokeButWeak){
+    const faltas=[];
+    if(d.p15.volRatio<minVol)faltas.push(`volume ${d.p15.volRatio.toFixed(2)}x < ${minVol.toFixed(2)}x`);
+    if(!contextOK)faltas.push('1h ainda baixista');
+    return {key:'ROMPEU_SEM_CONFIRMACAO',cls:'yellow',title:'🟡 ROMPEU, MAS NÃO CONFIRMOU',reason:`O 15m fechou acima do nível, porém falta ${faltas.join(' e ')}.`};
+  }
+  if(runtime.hadConfirmed && d.live>=trig*0.995 && d.live<=conf*1.005){
+    return {key:'PULLBACK_POS_ROMPIMENTO',cls:'blue',title:'🔵 PULLBACK PÓS-ROMPIMENTO',reason:'O gatilho já foi confirmado antes e o preço voltou à região da neckline. Observar reação; não assumir entrada automaticamente.'};
+  }
+  if(testing){
+    return {key:'TESTANDO',cls:'yellow',title:'🟡 TESTANDO A NECKLINE',reason:`Preço ao vivo está acima de ${fmt(trig)}, mas ainda falta um candle 15m fechado acima de ${fmt(conf)} com volume.`};
+  }
+  if(near){
+    return {key:'APROXIMANDO',cls:'blue',title:'🔵 APROXIMANDO DO GATILHO',reason:`Faltam aproximadamente ${Math.max(0,dist).toFixed(2)}% para ${fmt(trig)}. Este é o aviso antecipado para você não perder o movimento.`};
+  }
+  const rising=d.live>d.p15.close && d.p15.macdHist>0;
+  return {key:'ACOMPANHAR',cls:'gray',title:'⚪ ACOMPANHAR',reason:rising?'Ainda distante do gatilho, mas o impulso de 15m está melhorando.':'Ainda não chegou à zona de aproximação do gatilho.'};
+}
+function missing(d,s){
+  const conf=n('confirmLevel'),minVol=n('minVol');
+  const items=[];
+  if(d.p15.close<conf)items.push(`15m fechar ≥ ${fmt(conf)}`);
+  if(d.p15.volRatio<minVol)items.push(`volume ≥ ${minVol.toFixed(2)}x`);
+  if($('require1h').checked && trend(d.p1).includes('Baixa'))items.push('1h deixar de estar baixista');
+  if(d.p15.macdHist<0)items.push('MACD 15m melhorar');
+  if(!items.length)return 'O que falta: critérios principais atendidos. Verifique preço real, R:R e risco antes de decidir.';
+  return 'O que falta: '+items.join(' • ');
+}
+function render(d,s){
+  $('price').textContent=fmt(d.live);
+  $('closed15').textContent=fmt(d.p15.close);
+  $('closed15time').textContent=new Date(d.p15.closeTime).toLocaleString('pt-BR');
+  $('rsi15').textContent=fmt(d.p15.rsi,1);
+  $('volRatio').textContent=Number.isFinite(d.p15.volRatio)?d.p15.volRatio.toFixed(2)+'x':'—';
+  $('macd15').textContent=fmt(d.p15.macd,4);
+  $('macdHist').textContent='Hist: '+fmt(d.p15.macdHist,4);
+
+  const tfs=[['15',d.p15],['1h',d.p1],['4h',d.p4]];
+  for(const [suf,x] of tfs){
+    $('e9_'+suf).textContent=fmt(x.e9);
+    $('e14_'+suf).textContent=fmt(x.e14);
+    $('e200_'+suf).textContent=fmt(x.e200);
+    $('r_'+suf).textContent=fmt(x.rsi,1);
+    $('mh_'+suf).textContent=fmt(x.macdHist,4);
+    $('t_'+suf).textContent=trend(x);
+  }
+  $('signal').textContent=s.title;
+  $('signal').className='bigSignal '+s.cls;
+  $('reason').textContent=s.reason;
+  $('whatMissing').textContent=missing(d,s);
+
+  const trig=n('trigger');
+  const dist=(trig-d.live)/trig*100;
+  $('distTrigger').textContent=dist>0?`Faltam ${dist.toFixed(2).replace('.',',')}% para ${fmt(trig)}`:`Preço ${Math.abs(dist).toFixed(2).replace('.',',')}% acima de ${fmt(trig)}`;
+  const inv=n('invalidate'), span=Math.max(.000001,trig-inv);
+  const prog=Math.max(0,Math.min(100,(d.live-inv)/span*100));
+  $('progressBar').style.width=prog+'%';
+
+  $('oneLine').textContent=`${d.symbol} • ${s.title} • 15m ${trend(d.p15)} • 1h ${trend(d.p1)} • 4h ${trend(d.p4)} • Vol ${d.p15.volRatio.toFixed(2)}x`;
+  generateReports(d,s);
+}
+function generateReports(d,s){
+  const trig=n('trigger'),conf=n('confirmLevel'),inv=n('invalidate'),stop=n('stopRef');
+  const dist=(trig-d.live)/trig*100;
+  const summary=[
+    `LINKUSDT — ${s.title}`,
+    `Preço: ${fmt(d.live)} | Gatilho: ${fmt(trig)} | ${dist>0?'faltam '+dist.toFixed(2)+'%':'gatilho sendo/testado'}`,
+    `15m: ${trend(d.p15)} | RSI ${fmt(d.p15.rsi,1)} | volume ${d.p15.volRatio.toFixed(2)}x | MACD hist ${fmt(d.p15.macdHist,4)}`,
+    `1h: ${trend(d.p1)} | 4h: ${trend(d.p4)}`,
+    `${missing(d,s)}`,
+    `Invalidação da figura: ${fmt(inv)}.`,
+    `Parecer: ${s.reason}`
+  ].join('\n');
+  $('userReport').textContent=summary;
+
+  const gpt=[
+    'RELATÓRIO INTELIGENTE GPT — AGORACRYPTO LINK / NÃO PERDER ENTRADA V2',
+    `Gerado: ${now()}`,
+    `Ativo: ${d.symbol} | Fonte: ${$('exchange').value.toUpperCase()} Spot`,
+    '',
+    '1) ESTADO ATUAL',
+    `Estado: ${s.title}`,
+    `Preço ao vivo: ${fmt(d.live)} | 24h: ${pct(d.change24)}`,
+    `Motivo: ${s.reason}`,
+    '',
+    '2) NÍVEIS CONFIGURADOS',
+    `Neckline/gatilho inicial: ${fmt(trig)}`,
+    `Confirmação por fechamento 15m: ${fmt(conf)}`,
+    `Invalidação: ${fmt(inv)}`,
+    `Stop técnico apenas de referência: ${fmt(stop)}`,
+    `Alerta de aproximação: ${n('approachPct').toFixed(2)}% antes do gatilho`,
+    `Volume mínimo na confirmação: ${n('minVol').toFixed(2)}x`,
+    '',
+    '3) 15m — GATILHO (ÚLTIMO CANDLE FECHADO)',
+    `Fechamento: ${fmt(d.p15.close)} | Hora: ${new Date(d.p15.closeTime).toLocaleString('pt-BR')}`,
+    `EMA9 ${fmt(d.p15.e9)} | EMA14 ${fmt(d.p15.e14)} | EMA200 ${fmt(d.p15.e200)}`,
+    `RSI14 ${fmt(d.p15.rsi,1)} | MACD ${fmt(d.p15.macd,4)} | Hist ${fmt(d.p15.macdHist,4)}`,
+    `Volume: ${d.p15.volRatio.toFixed(2)}x a média das 20 velas anteriores`,
+    `Tendência: ${trend(d.p15)}`,
+    '',
+    '4) 1h — CONFIRMAÇÃO',
+    `Fechamento: ${fmt(d.p1.close)} | EMA9 ${fmt(d.p1.e9)} | EMA14 ${fmt(d.p1.e14)} | EMA200 ${fmt(d.p1.e200)}`,
+    `RSI14 ${fmt(d.p1.rsi,1)} | MACD hist ${fmt(d.p1.macdHist,4)} | Tendência ${trend(d.p1)}`,
+    '',
+    '5) 4h — CONTEXTO',
+    `Fechamento: ${fmt(d.p4.close)} | EMA9 ${fmt(d.p4.e9)} | EMA14 ${fmt(d.p4.e14)} | EMA200 ${fmt(d.p4.e200)}`,
+    `RSI14 ${fmt(d.p4.rsi,1)} | MACD hist ${fmt(d.p4.macdHist,4)} | Tendência ${trend(d.p4)}`,
+    '',
+    '6) O QUE FALTA',
+    missing(d,s),
+    '',
+    '7) REGRA',
+    'Preço ao vivo serve para aviso antecipado. Confirmação usa apenas candle 15m já fechado.',
+    '1h e 4h são contexto/confirmação e não bloqueiam o aviso de aproximação.',
+    'Não executar operação automaticamente. Recalcular risco/retorno e níveis com os dados atuais.',
+    '',
+    '8) PEDIDO AO CHATGPT',
+    'Reavalie se houve melhora, piora ou nenhuma mudança material; valide o gatilho; confira volume, RSI, MACD e MMEs; identifique possível W/M ou outra figura; atualize suportes, resistências, invalidação e R:R; não invente dados ausentes.'
+  ].join('\n');
+  $('gptReport').textContent=gpt;
+}
+function addLog(d,s){
+  const line=`${now()} | ${d.symbol} | ${s.title}\nPreço ${fmt(d.live)} | 15m fechado ${fmt(d.p15.close)} | RSI ${fmt(d.p15.rsi,1)} | Vol ${d.p15.volRatio.toFixed(2)}x\n${s.reason}\n`;
+  const old=localStorage.getItem(LOGKEY)||'';
+  const next=(line+'\n'+old).slice(0,40000);
+  localStorage.setItem(LOGKEY,next);$('log').textContent=next;
+}
+function tagsFor(key){
+  if(key==='CONFIRMADO')return ['green_circle','bell','chart_with_upwards_trend'];
+  if(key==='APROXIMANDO')return ['large_blue_circle','eyes'];
+  if(key==='INVALIDADO')return ['red_circle','warning'];
+  if(key==='TESTANDO'||key==='ROMPEU_SEM_CONFIRMACAO')return ['warning','eyes'];
+  return ['information_source'];
+}
+async function sendNtfy(title,message,priority=4,tags=['bell']){
+  const topic=$('ntfyTopic').value.trim();
+  if(!topic)throw new Error('Informe o tópico ntfy.');
+  const r=await fetch('https://ntfy.sh',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({topic,title,message,priority,tags})});
+  if(!r.ok)throw new Error('ntfy HTTP '+r.status);
+}
+function alertAllowed(key){
+  const m=$('alertMode').value;
+  if(m==='confirm')return ['CONFIRMADO','INVALIDADO'].includes(key);
+  if(m==='important')return ['APROXIMANDO','CONFIRMADO','INVALIDADO','PULLBACK_POS_ROMPIMENTO'].includes(key);
+  return !['ACOMPANHAR'].includes(key);
+}
+function speak(text,rate=1){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=Number(rate)||1;
+  speechSynthesis.speak(u);
+}
+async function maybeAlert(d,s,changed){
+  if(!changed||!alertAllowed(s.key))return;
+  const cd=+$('cooldown').value, nowms=Date.now(), last=runtime.lastAlertAt[s.key]||0;
+  if(nowms-last<cd)return;
+  const msg=`${d.symbol} | preço ${fmt(d.live)}\n${s.reason}\n15m fechado ${fmt(d.p15.close)} | RSI ${fmt(d.p15.rsi,1)} | Vol ${d.p15.volRatio.toFixed(2)}x\n1h ${trend(d.p1)} | 4h ${trend(d.p4)}`;
+  try{
+    await sendNtfy('AgoraCrypto LINK - '+s.key.replaceAll('_',' '),msg,s.key==='CONFIRMADO'?5:4,tagsFor(s.key));
+    runtime.lastAlertAt[s.key]=nowms;
+    $('ntfyStatus').textContent='Último alerta enviado: '+now();
+  }catch(e){$('ntfyStatus').textContent='Falha no ntfy: '+e.message}
+
+  if(s.key==='APROXIMANDO' && $('audioApproach').checked)speak('LINK aproximando do gatilho. '+s.reason);
+  if(s.key==='CONFIRMADO' && $('audioConfirm').checked)speak('Atenção. LINK com gatilho confirmado. '+s.reason);
+  if(s.key==='INVALIDADO')speak('Atenção. A figura da LINK foi invalidada. '+s.reason);
+}
+async function refresh(){
+  try{
+    $('reason').textContent='Atualizando dados...';
+    const d=await marketData(), s=stateInfo(d);
+    render(d,s);
+    const changed=s.key!==runtime.lastState;
+    if(changed){addLog(d,s);await maybeAlert(d,s,true)}
+    runtime.lastState=s.key;
+    localStorage.setItem(STATEKEY,JSON.stringify(runtime));
+    lastSnapshot={d,s};
+  }catch(e){
+    $('signal').textContent='⚠️ ERRO DE DADOS';$('signal').className='bigSignal red';
+    $('reason').textContent=e.message+'. Confira ativo, internet e corretora selecionada.';
+  }
+}
+function setRunUI(on){
+  $('runningBadge').className='badge '+(on?'green':'gray');
+  $('runningBadge').innerHTML=`<span class="statusdot ${on?'on':''}"></span> ${on?'MONITORANDO':'PARADO'}`;
+  $('startBtn').textContent=on?'↻ REINICIAR MONITOR':'▶ INICIAR MONITOR';
+}
+function stop(){if(timer)clearInterval(timer);timer=null;running=false;setRunUI(false)}
+function start(){stop();running=true;setRunUI(true);refresh();timer=setInterval(refresh,+$('interval').value)}
+async function toggleWake(){
+  try{
+    if(!('wakeLock' in navigator)){ $('wakeStatus').textContent='Wake Lock não disponível neste navegador.'; return; }
+    if(wakeLock){await wakeLock.release();wakeLock=null;$('wakeStatus').textContent='Tela pode apagar normalmente.';$('wakeBtn').textContent='💡 Manter tela ativa';}
+    else{wakeLock=await navigator.wakeLock.request('screen');$('wakeStatus').textContent='Tela mantida ativa enquanto esta página estiver em primeiro plano.';$('wakeBtn').textContent='🌙 Liberar tela';}
+  }catch(e){$('wakeStatus').textContent='Não foi possível manter a tela ativa: '+e.message}
+}
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState==='visible' && wakeLock===null && $('wakeBtn').textContent.includes('Liberar')){
+    try{wakeLock=await navigator.wakeLock.request('screen')}catch{}
+  }
+});
+function save(){
+  const ids=['exchange','symbol','interval','cooldown','trigger','confirmLevel','approachPct','minVol','invalidate','stopRef','ntfyTopic','alertMode','audioApproach','audioConfirm','require1h','manualRate'];
+  const o={};for(const id of ids)o[id]=$(id).type==='checkbox'?$(id).checked:$(id).value;
+  localStorage.setItem(SETTINGS,JSON.stringify(o));
+}
+function load(){
+  try{
+    const o=JSON.parse(localStorage.getItem(SETTINGS)||'{}');
+    for(const [id,v] of Object.entries(o))if($(id))$(id).type==='checkbox'?$(id).checked=!!v:$(id).value=v;
+    runtime={...runtime,...JSON.parse(localStorage.getItem(STATEKEY)||'{}')};
+  }catch{}
+  $('log').textContent=localStorage.getItem(LOGKEY)||'Nenhum sinal registrado.';
+}
+async function copyText(id,msg){
+  const t=$(id).innerText;
+  try{await navigator.clipboard.writeText(t);alert(msg||'Copiado.')}catch{prompt('Copie:',t)}
+}
+async function shareText(id,title){
+  const t=$(id).innerText;
+  if(navigator.share){try{await navigator.share({title,text:t})}catch{}}
+  else copyText(id,'Compartilhamento indisponível; texto copiado.');
+}
+
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>{save();if(running && el.id==='interval')start()}));
+$('startBtn').onclick=start;$('stopBtn').onclick=stop;$('refreshBtn').onclick=refresh;$('wakeBtn').onclick=toggleWake;
+$('manualBtn').onclick=()=>{$('manualCard').classList.toggle('hidden');$('functionsCard').classList.add('hidden');if(!$('manualCard').classList.contains('hidden'))$('manualCard').scrollIntoView({behavior:'smooth',block:'start'});};
+$('functionsBtn').onclick=()=>{$('functionsCard').classList.toggle('hidden');$('manualCard').classList.add('hidden');if(!$('functionsCard').classList.contains('hidden'))$('functionsCard').scrollIntoView({behavior:'smooth',block:'start'});};
+$('closeManual').onclick=()=>$('manualCard').classList.add('hidden');
+$('closeFunctions').onclick=()=>$('functionsCard').classList.add('hidden');
+$('manualSpeakBtn').onclick=()=>speak($('manualText').innerText,$('manualRate').value);
+$('testNtfy').onclick=async()=>{
+  try{await sendNtfy('AgoraCrypto LINK - teste','Teste recebido. O modo Não Perder Entrada está configurado para LINKUSDT.',3,['white_check_mark']);$('ntfyStatus').textContent='Teste enviado: '+now()}
+  catch(e){$('ntfyStatus').textContent='Falha no ntfy: '+e.message}
+};
+$('speakBtn').onclick=()=>{if(lastSnapshot)speak(lastSnapshot.s.title+'. '+lastSnapshot.s.reason+'. '+missing(lastSnapshot.d,lastSnapshot.s));else alert('Atualize os dados primeiro.')};
+$('copyUser').onclick=()=>copyText('userReport','Resumo copiado.');
+$('copyGPT').onclick=()=>copyText('gptReport','Relatório inteligente copiado para o ChatGPT.');
+$('shareUser').onclick=()=>shareText('userReport','LINKUSDT — Resumo');
+$('shareGPT').onclick=()=>shareText('gptReport','LINKUSDT — Relatório GPT');
+$('clearLog').onclick=()=>{if(confirm('Limpar histórico?')){localStorage.removeItem(LOGKEY);$('log').textContent='Nenhum sinal registrado.'}};
+load();setRunUI(false);
+</script>
+</body>
+</html>
