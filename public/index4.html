@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RadarEgi Viradas 15m V1.3</title>
+<style>
+:root{
+  --bg:#08111f;--panel:#101a2c;--panel2:#162237;--text:#e8eef8;--muted:#98a8bd;
+  --line:#26364d;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--blue:#38bdf8;--violet:#a78bfa;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1380px;margin:auto;padding:16px}
+h1{font-size:30px;margin:0 0 6px}
+.sub{color:var(--muted);line-height:1.45;margin-bottom:12px}
+.panel,.controls,.headline,.card,.report{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.controls{padding:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);font-weight:700}
+input,select{background:#0c1626;color:var(--text);border:1px solid #33445e;border-radius:9px;padding:10px 11px;font-size:16px;min-height:44px}
+button{border:0;border-radius:10px;padding:11px 14px;font-size:16px;font-weight:800;cursor:pointer;min-height:44px}
+.primary{background:#2563eb;color:white}.stop{background:#7f1d1d;color:white}.ghost{background:#1e293b;color:var(--text)}
+.longBtn{background:#14532d;color:#dcfce7}.shortBtn{background:#7f1d1d;color:#fee2e2}
+.headline{margin-top:12px;padding:14px 16px;font-weight:900;font-size:18px}
+.summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:12px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.metric b{display:block;font-size:22px}.metric span{color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tab{background:#1e293b;color:#dbeafe}.tab.active{outline:2px solid #60a5fa}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-top:12px}
+.card{padding:14px}
+.card.long{border-color:#166534}.card.short{border-color:#991b1b}.card.wait{border-color:#7c3aed}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.sym{font-size:22px;font-weight:900}.side{font-size:13px;font-weight:900;padding:5px 8px;border-radius:999px;background:#1e293b}
+.status{font-weight:900;margin-top:8px;font-size:17px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.meta div{background:var(--panel2);padding:8px;border-radius:8px;font-size:14px;line-height:1.35}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.actions a,.actions button{font-size:14px;padding:8px 10px;min-height:36px}
+a{color:#93c5fd;text-decoration:none}
+.report{margin-top:14px;padding:14px}
+textarea{width:100%;min-height:270px;background:#07101d;color:#dbeafe;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px;line-height:1.5}
+.progress{height:7px;background:#1e293b;border-radius:99px;overflow:hidden;margin-top:10px}.progress div{height:100%;background:#3b82f6;width:0}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;font-size:12px;margin:3px 4px 0 0}
+.green{color:#4ade80}.red{color:#f87171}.orange{color:#fbbf24}.blue{color:#38bdf8}.violet{color:#c4b5fd}
+@media(max-width:900px){.summary{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){
+ .wrap{padding:10px}h1{font-size:27px}.controls{display:grid;grid-template-columns:1fr}.controls>*{width:100%}
+ .summary{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.meta{grid-template-columns:1fr}
+ button{font-size:17px}textarea{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RadarEgi Viradas 15m V1.3</h1>
+  <div class="sub">Garimpo Day Trade • W/M + estruturas gráficas em formação • ⭐ Favorita do momento • confirmação 1h + 4h • contexto BTC • Binance Spot USDT</div>
+  <div class="sub">Finalidade: <b>garimpar</b> candidatos e preparar uma lista curta para análise final no SetupDT. O radar não executa ordens.</div>
+
+  <div class="controls">
+    <label>Top por volume
+      <select id="limit"><option>30</option><option selected>60</option><option>100</option></select>
+    </label>
+    <label>Volume mínimo 24h (USDT)
+      <input id="minVol" type="number" value="3000000" step="1000000">
+    </label>
+    <label>Tolerância W/M (%)
+      <input id="tol" type="number" value="2.5" step="0.1">
+    </label>
+    <label>Separação mínima (candles)
+      <input id="sep" type="number" value="8" min="4" max="40">
+    </label>
+    <label>Máx. por lado p/ SetupDT
+      <select id="topN"><option>3</option><option selected>5</option><option>8</option></select>
+    </label>
+    <button class="primary" id="scan">🔎 Garimpar mercado</button>
+    <button class="stop" id="stop">⏹ Parar</button>
+    <button class="ghost" id="reportBtn">🧠 Relatório</button>
+    <button class="ghost" id="copyGptBtn">📋 Copiar para GPT</button>
+    <button class="ghost" id="shareBtn">📤 Compartilhar</button>
+  </div>
+
+  <div id="btcBox" class="headline">₿ BTC: aguardando leitura.</div>
+  <div id="headline" class="headline">⚪ Aguardando primeira varredura.</div>
+  <div id="favoriteBox" class="headline">⭐ Favorita: aguardando varredura.</div>
+
+  <div class="summary">
+    <div class="metric"><b id="nW">0</b><span>Fundos W</span></div>
+    <div class="metric"><b id="nM">0</b><span>Topos M</span></div>
+    <div class="metric"><b id="nLong">0</b><span>Candidatos LONG</span></div>
+    <div class="metric"><b id="nShort">0</b><span>Candidatos SHORT</span></div>
+    <div class="metric"><b id="nConflict">0</b><span>Conflitos</span></div>
+    <div class="metric"><b id="nScan">0</b><span>Analisadas</span></div>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div id="msg" class="muted" style="margin-top:8px">Pronto.</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="best">🔥 Melhores agora</button>
+    <button class="tab" data-tab="long">🟢 Fundos / LONG</button>
+    <button class="tab" data-tab="short">🔴 Topos / SHORT</button>
+    <button class="tab" data-tab="conflict">⚪ Indefinidas</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <div class="report">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+      <b>📦 Lista para SetupDT</b>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="longBtn" id="sendLong">🟢 Preparar LONG → SetupDT</button>
+        <button class="shortBtn" id="sendShort">🔴 Preparar SHORT → SetupDT</button>
+        <button class="ghost" id="sendBoth">📦 Preparar ambos</button>
+      </div>
+    </div>
+    <textarea id="setupList" placeholder="Depois do garimpo, a lista curta aparecerá aqui."></textarea>
+  </div>
+
+  <div class="report">
+    <b>🧠 Relatório inteligente — RadarEgi Viradas</b>
+    <textarea id="report" placeholder="Toque em Relatório depois da varredura."></textarea>
+  </div>
+</div>
+
+<script>
+let running=false, allResults=[], activeTab="best", scanned=0;
+let symbolsTotal=0, scanErrors=0, failed15m=0, contextErrors=0, rawLong=0, rawShort=0, rawSymbols=0, scanFatalError="";
+let btc={state:"NEUTRO",label:"⚪ NEUTRO",longAdj:0,shortAdj:0,detail:"sem ajuste"};
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
+const fmt=n=>{
+  if(!isFinite(n))return "-";
+  if(n>=1000)return n.toLocaleString("pt-BR",{maximumFractionDigits:2});
+  if(n>=1)return n.toLocaleString("pt-BR",{maximumFractionDigits:6});
+  return n.toLocaleString("pt-BR",{maximumSignificantDigits:7});
+};
+const pct=n=>isFinite(n)?Number(n).toFixed(2)+"%":"-";
+
+function ema(v,p){
+  if(v.length<p)return [];
+  const k=2/(p+1),out=[]; let prev=v.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for(let i=0;i<v.length;i++){
+    if(i<p-1)out.push(null);
+    else if(i===p-1)out.push(prev);
+    else{prev=v[i]*k+prev*(1-k);out.push(prev)}
+  }
+  return out;
+}
+function rsi(v,p=14){
+  if(v.length<=p)return Array(v.length).fill(null);
+  let gain=0,loss=0,out=Array(p).fill(null);
+  for(let i=1;i<=p;i++){const d=v[i]-v[i-1];if(d>=0)gain+=d;else loss-=d}
+  gain/=p;loss/=p;let rs=loss===0?100:gain/loss;out.push(100-100/(1+rs));
+  for(let i=p+1;i<v.length;i++){
+    const d=v[i]-v[i-1],g=Math.max(d,0),l=Math.max(-d,0);
+    gain=(gain*(p-1)+g)/p;loss=(loss*(p-1)+l)/p;rs=loss===0?100:gain/loss;out.push(100-100/(1+rs));
+  }
+  return out;
+}
+function macdHist(v){
+  const e12=ema(v,12),e26=ema(v,26),m=v.map((_,i)=>(e12[i]!=null&&e26[i]!=null)?e12[i]-e26[i]:null);
+  const valid=m.map(x=>x==null?0:x),sig=ema(valid,9);
+  return m.map((x,i)=>(x!=null&&sig[i]!=null)?x-sig[i]:null);
+}
+async function jfetch(url){
+  const r=await fetch(url,{cache:"no-store"}); if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
+}
+async function klines(symbol,interval,limit=180){
+  const a=await jfetch(`https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}`);
+  return a.map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}));
+}
+function pivots(c,type){
+  const arr=[];
+  for(let i=3;i<c.length-3;i++){
+    let ok=true;
+    for(let k=1;k<=3;k++){
+      if(type==="low" && !(c[i].l<=c[i-k].l && c[i].l<=c[i+k].l))ok=false;
+      if(type==="high"&& !(c[i].h>=c[i-k].h && c[i].h>=c[i+k].h))ok=false;
+    }
+    if(ok)arr.push(i);
+  }
+  return arr;
+}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function tfContext(c,side){
+  const close=c.map(x=>x.c),e21=ema(close,21),e50=ema(close,50);
+  const p=close.at(-1),a=e21.at(-1),b=e50.at(-1);
+  if(a==null||b==null)return {state:"Neutro"};
+  if(side==="LONG"){
+    if(p>a&&a>b)return {state:"Favorável"};
+    if(p<a&&a<b)return {state:"Contra"};
+  }else{
+    if(p<a&&a<b)return {state:"Favorável"};
+    if(p>a&&a>b)return {state:"Contra"};
+  }
+  return {state:"Neutro"};
+}
+function ctxBonus(t1,t4){
+  let q=0;
+  if(t1.state==="Favorável")q+=7;if(t4.state==="Favorável")q+=9;
+  if(t1.state==="Contra")q-=7;if(t4.state==="Contra")q-=10;
+  return q;
+}
+async function readBTC(){
+  try{
+    const [c15,c1]=await Promise.all([klines("BTCUSDT","15m",80),klines("BTCUSDT","1h",80)]);
+    const ch15=(c15.at(-1).c/c15.at(-5).c-1)*100;
+    const ch1=(c1.at(-1).c/c1.at(-3).c-1)*100;
+    let score=0;
+    if(ch15>0.25)score++; if(ch1>0.35)score++;
+    if(ch15<-0.25)score--; if(ch1<-0.35)score--;
+    if(score>=2)btc={state:"UP_STRONG",label:"🟢 ALTA FORTE",longAdj:14,shortAdj:-14,detail:`15m ${pct(ch15)} | 1h ${pct(ch1)}`};
+    else if(score===1)btc={state:"UP",label:"🟢 ALTA",longAdj:7,shortAdj:-7,detail:`15m ${pct(ch15)} | 1h ${pct(ch1)}`};
+    else if(score<=-2)btc={state:"DOWN_STRONG",label:"🔴 BAIXA FORTE",longAdj:-14,shortAdj:14,detail:`15m ${pct(ch15)} | 1h ${pct(ch1)}`};
+    else if(score===-1)btc={state:"DOWN",label:"🔴 BAIXA",longAdj:-7,shortAdj:7,detail:`15m ${pct(ch15)} | 1h ${pct(ch1)}`};
+    else btc={state:"NEUTRO",label:"⚪ NEUTRO",longAdj:0,shortAdj:0,detail:`15m ${pct(ch15)} | 1h ${pct(ch1)}`};
+  }catch(e){btc={state:"NEUTRO",label:"⚪ NEUTRO",longAdj:0,shortAdj:0,detail:"leitura indisponível"}}
+  $("#btcBox").textContent=`₿ Contexto BTC: ${btc.label} • ${btc.detail} • ajuste LONG ${btc.longAdj>0?"+":""}${btc.longAdj} • SHORT ${btc.shortAdj>0?"+":""}${btc.shortAdj}`;
+}
+
+
+function classifyStructure(c){
+  const hi=pivots(c,"high"),lo=pivots(c,"low");
+  if(hi.length<2||lo.length<2)return {label:"Estrutura insuficiente",score:0};
+  const h1=c[hi.at(-2)].h,h2=c[hi.at(-1)].h,l1=c[lo.at(-2)].l,l2=c[lo.at(-1)].l;
+  const hchg=(h2/h1-1)*100,lchg=(l2/l1-1)*100;
+  const eqH=Math.abs(hchg)<=0.8,eqL=Math.abs(lchg)<=0.8;
+  if(lchg>0.35&&eqH)return {label:"Triângulo ascendente / pressão compradora",score:78};
+  if(hchg<-0.35&&eqL)return {label:"Triângulo descendente / pressão vendedora",score:78};
+  if(hchg<-0.35&&lchg>0.35)return {label:"Triângulo simétrico / compressão",score:70};
+  if(hchg>0.35&&lchg>0.35)return {label:"Canal de alta / Higher Low",score:74};
+  if(hchg<-0.35&&lchg<-0.35)return {label:"Canal de baixa / Lower High",score:74};
+  if(lchg>0.35)return {label:"Higher Low em formação",score:66};
+  if(hchg<-0.35)return {label:"Lower High em formação",score:66};
+  return {label:"Lateral / sem figura adicional clara",score:45};
+}
+
+function detectBottom(c,tol,minSep){
+  if(c.length<80)return null;
+  const lows=pivots(c,"low"),cl=c.map(x=>x.c),R=rsi(cl),H=macdHist(cl);
+  let best=null;
+  for(let a=0;a<lows.length-1;a++)for(let b=a+1;b<lows.length;b++){
+    const i=lows[a],j=lows[b]; if(j-i<minSep||j-i>70)continue;
+    const f1=c[i].l,f2=c[j].l,dif=Math.abs(f2-f1)/((f1+f2)/2)*100;if(dif>tol)continue;
+    let neck=-Infinity,ni=i;
+    for(let k=i;k<=j;k++)if(c[k].h>neck){neck=c[k].h;ni=k}
+    if(!isFinite(neck)||neck<=Math.max(f1,f2))continue;
+    const price=c.at(-1).c,dist=(neck-price)/neck*100,post=price>neck?(price-neck)/neck*100:null;
+    const vr=avg(c.slice(-3).map(x=>x.v))/(avg(c.slice(-23,-3).map(x=>x.v))||1);
+    const div=(R[i]!=null&&R[j]!=null&&f2<=f1*1.01&&R[j]>R[i]+2);
+    const macdBetter=(H.at(-1)!=null&&H.at(-3)!=null&&H.at(-1)>H.at(-3));
+    let pattern=55+(tol-dif)/tol*25+(div?12:0)+(macdBetter?8:0); pattern=clamp(Math.round(pattern));
+    let entry=35;
+    if(price>=neck)entry+=22;
+    else if(dist<=1.5)entry+=18;
+    else if(dist<=3.5)entry+=8;
+    if(vr>=1.25)entry+=16; else if(vr>=1)entry+=8; else entry-=8;
+    if(div)entry+=8;if(macdBetter)entry+=6;
+    let status="🔵 POSSÍVEL FUNDO DUPLO",stage="WATCH";
+    if(price>=neck&&post<=3){status=vr>=1?"🟢 ROMPIMENTO LONG":"🟠 ROMPEU SEM VOLUME";stage="CONFIRMED"}
+    else if(dist<=1.5){status="🟠 PRÉ-GATILHO LONG";stage="PRE"}
+    else if(dist<=3.5){status="🟡 FUNDO DUPLO REAGINDO";stage="NEAR"}
+    else if(post!=null&&post>3){status="🔴 LONG TARDIO";stage="STRETCHED"}
+    const extra=classifyStructure(c);
+    const cand={side:"LONG",pattern:"W",i1:i,i2:j,p1:f1,p2:f2,neck,price,dif,dist,post,vr,div,macd:macdBetter,patternQ:pattern,baseEntry:entry,status,stage,rsi1:R[i],rsi2:R[j],rsiNow:R.at(-1),extraStructure:extra.label,extraScore:extra.score};
+    if(!best||cand.patternQ>best.patternQ)best=cand;
+  }
+  return best;
+}
+function detectTop(c,tol,minSep){
+  if(c.length<80)return null;
+  const highs=pivots(c,"high"),cl=c.map(x=>x.c),R=rsi(cl),H=macdHist(cl);
+  let best=null;
+  for(let a=0;a<highs.length-1;a++)for(let b=a+1;b<highs.length;b++){
+    const i=highs[a],j=highs[b];if(j-i<minSep||j-i>70)continue;
+    const t1=c[i].h,t2=c[j].h,dif=Math.abs(t2-t1)/((t1+t2)/2)*100;if(dif>tol)continue;
+    let neck=Infinity,ni=i;
+    for(let k=i;k<=j;k++)if(c[k].l<neck){neck=c[k].l;ni=k}
+    if(!isFinite(neck)||neck>=Math.min(t1,t2))continue;
+    const price=c.at(-1).c,dist=(price-neck)/neck*100,post=price<neck?(neck-price)/neck*100:null;
+    const vr=avg(c.slice(-3).map(x=>x.v))/(avg(c.slice(-23,-3).map(x=>x.v))||1);
+    const div=(R[i]!=null&&R[j]!=null&&t2>=t1*.99&&R[j]<R[i]-2);
+    const macdWeak=(H.at(-1)!=null&&H.at(-3)!=null&&H.at(-1)<H.at(-3));
+    let pattern=55+(tol-dif)/tol*25+(div?12:0)+(macdWeak?8:0);pattern=clamp(Math.round(pattern));
+    let entry=35;
+    if(price<=neck)entry+=22;
+    else if(dist<=1.5)entry+=18;
+    else if(dist<=3.5)entry+=8;
+    if(vr>=1.25)entry+=16; else if(vr>=1)entry+=8; else entry-=8;
+    if(div)entry+=8;if(macdWeak)entry+=6;
+    let status="🔵 POSSÍVEL TOPO DUPLO",stage="WATCH";
+    if(price<=neck&&post<=3){status=vr>=1?"🔴 ROMPIMENTO SHORT":"🟠 ROMPEU SEM VOLUME";stage="CONFIRMED"}
+    else if(dist<=1.5){status="🟠 PRÉ-GATILHO SHORT";stage="PRE"}
+    else if(dist<=3.5){status="🟡 TOPO DUPLO REAGINDO";stage="NEAR"}
+    else if(post!=null&&post>3){status="🔴 SHORT TARDIO";stage="STRETCHED"}
+    const extra=classifyStructure(c);
+    const cand={side:"SHORT",pattern:"M",i1:i,i2:j,p1:t1,p2:t2,neck,price,dif,dist,post,vr,div,macd:macdWeak,patternQ:pattern,baseEntry:entry,status,stage,rsi1:R[i],rsi2:R[j],rsiNow:R.at(-1),extraStructure:extra.label,extraScore:extra.score};
+    if(!best||cand.patternQ>best.patternQ)best=cand;
+  }
+  return best;
+}
+
+function scoreFinal(r,t1,t4){
+  const btcAdj=r.side==="LONG"?btc.longAdj:btc.shortAdj;
+  r.t1=t1;r.t4=t4;
+  r.entryQ=clamp(Math.round(r.baseEntry+ctxBonus(t1,t4)+btcAdj));
+  r.finalScore=clamp(Math.round(r.patternQ*.42+r.entryQ*.48+(r.vr>=1?10:3)));
+  if(r.stage==="STRETCHED")r.entryQ=Math.min(r.entryQ,25);
+  return r;
+}
+function resolvePair(symbol,w,m){
+  if(!w&&!m)return [];
+  if(w&&!m)return [{...w,symbol}];
+  if(m&&!w)return [{...m,symbol}];
+  const strengthW=w.patternQ*.45+w.entryQ*.55;
+  const strengthM=m.patternQ*.45+m.entryQ*.55;
+  if(Math.abs(strengthW-strengthM)<12 || (w.stage==="PRE"&&m.stage==="PRE")){
+    return [{symbol,side:"CONFLICT",pattern:"W/M",status:"⚪ INDEFINIDA — W e M em conflito",stage:"CONFLICT",
+      patternQ:Math.round((w.patternQ+m.patternQ)/2),entryQ:Math.round((w.entryQ+m.entryQ)/2),
+      finalScore:Math.round((w.finalScore+m.finalScore)/2),price:w.price,neck:null,vr:Math.max(w.vr,m.vr),w,m}];
+  }
+  return [strengthW>strengthM?{...w,symbol}:{...m,symbol}];
+}
+function eligible(r){
+  return r.side!=="CONFLICT" && r.stage!=="STRETCHED" &&
+    (r.stage==="CONFIRMED"||r.stage==="PRE"||r.stage==="NEAR") &&
+    r.entryQ>=45 && r.finalScore>=52;
+}
+function ranked(side){
+  return allResults.filter(r=>r.side===side&&eligible(r))
+    .sort((a,b)=>{
+      const stageWeight={CONFIRMED:3,PRE:2,NEAR:1,WATCH:0}[b.stage]-({CONFIRMED:3,PRE:2,NEAR:1,WATCH:0}[a.stage]);
+      return stageWeight || b.entryQ-a.entryQ || b.finalScore-a.finalScore;
+    });
+}
+function setupTop(side){return ranked(side).slice(0,+$("#topN").value||5)}
+function favorite(){
+  const pool=[...ranked("LONG"),...ranked("SHORT")];
+  if(!pool.length)return null;
+  const stageBonus={CONFIRMED:12,PRE:8,NEAR:4,WATCH:0};
+  return pool.sort((a,b)=>((b.finalScore+(stageBonus[b.stage]||0)+(b.extraScore||0)*.08)- (a.finalScore+(stageBonus[a.stage]||0)+(a.extraScore||0)*.08)))[0];
+}
+
+function card(r){
+  if(r.side==="CONFLICT"){
+    return `<article class="card wait"><div class="top"><div class="sym">${r.symbol}</div><span class="side violet">⚪ INDEFINIDA</span></div>
+    <div class="status">${r.status}</div><div class="meta"><div>W: ${r.w.patternQ}/100 • Entrada ${r.w.entryQ}/100</div><div>M: ${r.m.patternQ}/100 • Entrada ${r.m.entryQ}/100</div></div>
+    <div class="actions"><a target="_blank" href="https://www.tradingview.com/chart/?symbol=BINANCE:${r.symbol}">📈 TradingView</a></div></article>`;
+  }
+  const cls=r.side==="LONG"?"long":"short",sideLabel=r.side==="LONG"?"🟢 LONG":"🔴 SHORT";
+  const dlabel=r.stage==="CONFIRMED"&&r.post!=null?`Pós-neckline ${pct(r.post)}`:`Dist. neckline ${pct(r.dist)}`;
+  return `<article class="card ${cls}"><div class="top"><div class="sym">${r.symbol}</div><span class="side">${sideLabel}</span></div>
+  <div class="status">${r.status}</div>
+  <div class="meta">
+    <div><b>${r.pattern}</b> ${r.patternQ}/100<br><span class="muted">Entrada ${r.entryQ}/100</span></div>
+    <div>Nota final <b>${r.finalScore}/100</b><br><span class="muted">${dlabel}</span></div>
+    <div>Preço ${fmt(r.price)}<br>Neckline ${fmt(r.neck)}</div>
+    <div>Volume ${r.vr.toFixed(2)}x<br>RSI atual ${r.rsiNow==null?"-":r.rsiNow.toFixed(1)}</div>
+    <div>1h ${r.t1.state}<br>4h ${r.t4.state}</div>
+    <div>Figura extra<br><span class="muted">${r.extraStructure||"-"}</span></div>
+    <div>BTC ${btc.label}<br>${r.side==="LONG"?"LONG":"SHORT"} ${r.side==="LONG"?btc.longAdj:btc.shortAdj} pts</div>
+  </div>
+  <div><span class="badge">${r.div?"Divergência SIM":"Sem divergência"}</span><span class="badge">${r.macd?"MACD confirma":"MACD fraco"}</span></div>
+  <div class="actions"><a target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol=BINANCE:${r.symbol}">📈 TradingView</a>
+  <button class="ghost" onclick="copyOne('${r.symbol}','${r.side}')">📋 SetupDT</button></div></article>`;
+}
+function render(){
+  let rows=[];
+  if(activeTab==="long")rows=ranked("LONG");
+  else if(activeTab==="short")rows=ranked("SHORT");
+  else if(activeTab==="conflict")rows=allResults.filter(r=>r.side==="CONFLICT");
+  else rows=[...setupTop("LONG"),...setupTop("SHORT")].sort((a,b)=>b.finalScore-a.finalScore);
+  $("#grid").innerHTML=rows.length?rows.map(card).join(""):`<div class="panel" style="padding:20px">Nenhum candidato nesta categoria.</div>`;
+  $("#nW").textContent=allResults.filter(r=>r.side==="LONG").length;
+  $("#nM").textContent=allResults.filter(r=>r.side==="SHORT").length;
+  $("#nLong").textContent=ranked("LONG").length;
+  $("#nShort").textContent=ranked("SHORT").length;
+  $("#nConflict").textContent=allResults.filter(r=>r.side==="CONFLICT").length;
+  $("#nScan").textContent=scanned;
+  const L=setupTop("LONG"),S=setupTop("SHORT");
+  const bL=L[0]?.symbol||"nenhum",bS=S[0]?.symbol||"nenhum";
+  const fav=favorite();
+  $("#headline").textContent=`🔥 Garimpo: LONG ${L.length} • SHORT ${S.length} • Melhor LONG ${bL} • Melhor SHORT ${bS} • BTC ${btc.label}`;
+  $("#favoriteBox").textContent=fav?`⭐ FAVORITA DO MOMENTO: ${fav.symbol} • ${fav.side} • ${fav.status} • Final ${fav.finalScore}/100 • ${fav.extraStructure||"sem figura extra"}`:"⭐ Favorita: nenhuma candidata elegível ainda.";
+  buildSetupList();
+}
+function buildSetupList(){
+  const L=setupTop("LONG"),S=setupTop("SHORT");
+  const lines=["RADAREGI VIRADAS 15m V1.3 → SETUPDT",`Gerado: ${new Date().toLocaleString("pt-BR")}`,`BTC: ${btc.label} | ${btc.detail}`,"",
+    "🟢 CANDIDATAS LONG"];
+  if(L.length)L.forEach((r,i)=>lines.push(`${i+1}. ${r.symbol} | ${r.status} | W ${r.patternQ}/100 | Entrada ${r.entryQ}/100 | Neckline ${fmt(r.neck)}`));
+  else lines.push("Nenhuma.");
+  lines.push("","🔴 CANDIDATAS SHORT");
+  if(S.length)S.forEach((r,i)=>lines.push(`${i+1}. ${r.symbol} | ${r.status} | M ${r.patternQ}/100 | Entrada ${r.entryQ}/100 | Neckline ${fmt(r.neck)}`));
+  else lines.push("Nenhuma.");
+  lines.push("","Finalidade: enviar ao SetupDT para confirmação final de entrada, stop e alvos.");
+  $("#setupList").value=lines.join("\n");
+  return $("#setupList").value;
+}
+function report(){
+  const L=ranked("LONG"),S=ranked("SHORT"),C=allResults.filter(r=>r.side==="CONFLICT");
+  const rejected={late:0,outOfWindow:0,entryScore:0,finalScore:0};
+  for(const r of allResults){
+    if(r.side==="CONFLICT"||eligible(r))continue;
+    if(r.stage==="STRETCHED")rejected.late++;
+    else if(!["CONFIRMED","PRE","NEAR"].includes(r.stage))rejected.outOfWindow++;
+    else if(r.entryQ<45)rejected.entryScore++;
+    else if(r.finalScore<52)rejected.finalScore++;
+  }
+  const completedAttempts=scanned+failed15m;
+  const scanState=running?"EM ANDAMENTO":symbolsTotal===0?(scanFatalError?"FALHA ANTES DA LISTA":"SEM MOEDAS SELECIONADAS"):completedAttempts<symbolsTotal?"INCOMPLETA / INTERROMPIDA":scanErrors?"CONCLUÍDA COM FALHAS":"COMPLETA";
+  let t=`RADAREGI VIRADAS 15m V1.3 — RELATÓRIO GPT\nData/Hora: ${new Date().toLocaleString("pt-BR")}\nFinalidade: garimpo Day Trade em 15m para alimentar o SetupDT.\nBTC: ${btc.label} | ${btc.detail} | ajuste LONG ${btc.longAdj} | SHORT ${btc.shortAdj}\n\n`;
+  t+=`DIAGNÓSTICO DA VARREDURA\nEstado: ${scanState}\nPares selecionados: ${symbolsTotal}\nConsultas 15m bem-sucedidas: ${scanned}\nFalhas ao consultar 15m: ${failed15m}\nFalhas ao buscar contexto 1h/4h: ${contextErrors}\nMoedas com estrutura W/M bruta: ${rawSymbols}\nSem estrutura W/M entre as consultas 15m bem-sucedidas: ${Math.max(0,scanned-rawSymbols)}\nPadrões brutos encontrados: W/LONG ${rawLong} • M/SHORT ${rawShort}\nEstruturas após desempate W/M: ${allResults.length}\n`;
+  if(scanFatalError)t+=`Falha geral: ${scanFatalError}\n`;
+  const fav=favorite();
+  t+=`\nRESUMO\nPadrões LONG elegíveis: ${L.length}\nPadrões SHORT elegíveis: ${S.length}\nConflitos W/M: ${C.length}\nDescartes por critério principal: tardio ${rejected.late} • fora da janela ${rejected.outOfWindow} • nota de entrada <45 ${rejected.entryScore} • nota final <52 ${rejected.finalScore}\n`;
+  t+=fav?`\n⭐ FAVORITA DO MOMENTO\n${fav.symbol} | ${fav.side} | ${fav.status} | W/M ${fav.patternQ}/100 | Entrada ${fav.entryQ}/100 | Final ${fav.finalScore}/100\nFigura complementar: ${fav.extraStructure||"-"} | Compatibilidade ${fav.extraScore||0}/100\nVolume ${fav.vr.toFixed(2)}x | 1h ${fav.t1.state} | 4h ${fav.t4.state}\n\n`:`\n⭐ FAVORITA DO MOMENTO\nNenhuma candidata elegível.\n\n`;
+  t+="🟢 MELHORES LONG\n";
+  if(L.length)L.slice(0,8).forEach((r,i)=>t+=`${i+1}. ${r.symbol} | ${r.status} | W ${r.patternQ}/100 | Entrada ${r.entryQ}/100 | Vol ${r.vr.toFixed(2)}x | 1h ${r.t1.state} | 4h ${r.t4.state} | Figura ${r.extraStructure||"-"}\n`);
+  else t+="Nenhum.\n";
+  t+="\n🔴 MELHORES SHORT\n";
+  if(S.length)S.slice(0,8).forEach((r,i)=>t+=`${i+1}. ${r.symbol} | ${r.status} | M ${r.patternQ}/100 | Entrada ${r.entryQ}/100 | Vol ${r.vr.toFixed(2)}x | 1h ${r.t1.state} | 4h ${r.t4.state} | Figura ${r.extraStructure||"-"}\n`);
+  else t+="Nenhum.\n";
+  if(C.length){t+="\n⚪ INDEFINIDAS / CONFLITO\n";C.slice(0,8).forEach(r=>t+=`• ${r.symbol}: W e M simultâneos; não enviar ao SetupDT até desempatar.\n`)}
+  t+="\nREGRA\nO RadarEgi Viradas apenas garimpa. A Favorita e as figuras gráficas são camadas de prioridade/compatibilidade, não autorização de entrada. A decisão operacional final pertence ao SetupDT, que deve confirmar tendência, gatilho, liquidez, stop e relação risco/retorno.";
+  $("#report").value=t;return t;
+}
+async function robustCopy(text,box){
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true}}catch(e){}
+  try{
+    const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    const ok=document.execCommand("copy");ta.remove();if(ok)return true;
+  }catch(e){}
+  if(box){box.focus();box.select()}return false;
+}
+async function shareText(text,title,box){
+  if(navigator.share){try{await navigator.share({title,text});return true}catch(e){if(e?.name==="AbortError")return false}}
+  const ok=await robustCopy(text,box);$("#msg").textContent=ok?"✅ Copiado.":"⚠️ Texto selecionado; use Ctrl+C.";return ok;
+}
+async function prepareSetup(side){
+  const longs=setupTop("LONG"), shorts=setupTop("SHORT");
+  const arr=side==="LONG"?longs:side==="SHORT"?shorts:[...longs,...shorts];
+  if(!arr.length){
+    const emptyTab=window.open("https://setupdt.onrender.com/","_blank");
+    if(emptyTab)emptyTab.opener=null;
+    $("#msg").textContent=emptyTab
+      ?`SetupDT aberto. Não há candidata ${side==="BOTH"?"LONG ou SHORT":"para "+side} elegível para transportar neste relatório.`
+      :`Não há candidata ${side==="BOTH"?"LONG ou SHORT":"para "+side} elegível; o navegador também bloqueou a abertura do SetupDT. Libere pop-ups e tente novamente.`;
+    return;
+  }
+
+  const symbols=arr.map(r=>r.symbol.replace(/USDT$/,""));
+  const url=new URL("https://setupdt.onrender.com/");
+  url.searchParams.set("viradas",symbols.join(","));
+  url.searchParams.set("origem","RadarEgiViradas");
+  url.searchParams.set("lado",side);
+  if(longs.length) url.searchParams.set("long",longs.map(r=>r.symbol.replace(/USDT$/,"")).join(","));
+  if(shorts.length) url.searchParams.set("short",shorts.map(r=>r.symbol.replace(/USDT$/,"")).join(","));
+
+  // Abre durante o clique, antes de qualquer await, para evitar bloqueio de pop-up.
+  const appWindow=window.open(url.toString(),"_blank");
+  if(appWindow)appWindow.opener=null;
+  let copied=false;
+  try{copied=await robustCopy(symbols.join("\n"),$("#setupList"));}catch(e){}
+  try{localStorage.setItem("RadarEgiViradas_SetupDT",JSON.stringify({
+    generatedAt:new Date().toISOString(),side,
+    symbols,
+    long:longs.map(r=>r.symbol.replace(/USDT$/,"")),
+    short:shorts.map(r=>r.symbol.replace(/USDT$/,""))
+  }));}catch(e){}
+
+  $("#msg").textContent=appWindow
+    ?`✅ ${symbols.length} moeda(s) enviadas ao SetupDT no Render.${copied?" Lista também copiada para o campo de apoio.":""}`
+    :`⚠ O navegador bloqueou a nova aba. Libere pop-ups para este Radar e toque novamente. A lista está no campo “Lista para SetupDT”${copied?" e foi copiada.":"."}`;
+}
+async function copyOne(sym,side){
+  await robustCopy(sym,null);$("#msg").textContent=`✅ ${sym} (${side}) copiada. Abra/cole no SetupDT.`;
+}
+window.copyOne=copyOne;
+
+async function scan(){
+  if(running)return;running=true;allResults=[];scanned=0;symbolsTotal=0;scanErrors=0;failed15m=0;contextErrors=0;rawLong=0;rawShort=0;rawSymbols=0;scanFatalError="";render();
+  $("#msg").textContent="Lendo BTC e mercado...";$("#bar").style.width="0%";
+  try{
+    await readBTC();
+    const tick=await jfetch("https://api.binance.com/api/v3/ticker/24hr");
+    const stable=/^(USDC|FDUSD|TUSD|USDP|DAI|EUR|BRL|TRY|BIDR|AEUR|EURI|USD1|BFUSD)USDT$/;
+    const bad=/(UP|DOWN|BULL|BEAR)USDT$/;
+    const minVol=+$("#minVol").value||0,limit=+$("#limit").value||60,tol=+$("#tol").value||2.5,sep=+$("#sep").value||8;
+    const symbols=tick.filter(x=>x.symbol.endsWith("USDT")&&!stable.test(x.symbol)&&!bad.test(x.symbol)&&+x.quoteVolume>=minVol)
+      .sort((a,b)=>+b.quoteVolume-+a.quoteVolume).slice(0,limit).map(x=>x.symbol);
+    symbolsTotal=symbols.length;
+    for(let z=0;z<symbols.length&&running;z++){
+      const sym=symbols[z];$("#msg").textContent=`Analisando ${sym} (${z+1}/${symbols.length})...`;$("#bar").style.width=((z+1)/symbols.length*100).toFixed(1)+"%";
+      let phase="15m";
+      try{
+        const c15=await klines(sym,"15m",180);scanned++;
+        let w=detectBottom(c15,tol,sep),m=detectTop(c15,tol,sep);
+        if(w||m){
+          rawSymbols++;if(w)rawLong++;if(m)rawShort++;
+          phase="1h/4h";
+          const [c1,c4]=await Promise.all([klines(sym,"1h",120),klines(sym,"4h",120)]);
+          if(w)w=scoreFinal(w,tfContext(c1,"LONG"),tfContext(c4,"LONG"));
+          if(m)m=scoreFinal(m,tfContext(c1,"SHORT"),tfContext(c4,"SHORT"));
+          allResults.push(...resolvePair(sym,w,m));render();
+        }
+      }catch(e){scanErrors++;if(phase==="15m")failed15m++;else contextErrors++;console.warn(sym,e)}
+      await sleep(70);
+    }
+    $("#bar").style.width="100%";render();report();
+    $("#msg").textContent=running?`Concluído: ${scanned} consultas 15m concluídas • ${rawSymbols} moedas com estrutura bruta • ${allResults.length} estruturas após desempate${scanErrors?` • ${scanErrors} falhas`:""}.`:"Varredura interrompida.";
+  }catch(e){scanFatalError=e.message;$("#msg").textContent="Erro na varredura: "+e.message}
+  finally{running=false}
+}
+
+$("#scan").onclick=scan;
+$("#stop").onclick=()=>{running=false;$("#msg").textContent="Parando varredura..."};
+$("#reportBtn").onclick=()=>{report();$("#report").scrollIntoView({behavior:"smooth"})};
+$("#copyGptBtn").onclick=async()=>{
+  const txt=report();
+  const ok=await robustCopy(txt,$("#report"));
+  $("#msg").textContent=ok
+    ?"✅ Relatório copiado para o GPT. Abra o ChatGPT e cole."
+    :"⚠️ Relatório selecionado automaticamente. Use Ctrl+C.";
+  $("#report").scrollIntoView({behavior:"smooth",block:"start"});
+};
+$("#shareBtn").onclick=async()=>shareText(report(),"RadarEgi Viradas 15m",$("#report"));
+$("#sendLong").onclick=()=>prepareSetup("LONG");
+$("#sendShort").onclick=()=>prepareSetup("SHORT");
+$("#sendBoth").onclick=()=>prepareSetup("BOTH");
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeTab=b.dataset.tab;render();
+});
+$("#topN").onchange=render;
+render();
+</script>
+</body>
+</html>
