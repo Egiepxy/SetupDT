@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Egi Apps V1.4</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1f2630; --text:#f0f6fc; --muted:#8b949e;
+    --line:#30363d; --accent:#58a6ff; --green:#3fb950; --yellow:#d29922; --red:#f85149;
+    --blue:#1f6feb; --shadow:0 8px 24px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0f14,#0d1117 30%,#0d1117);color:var(--text);
+       font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+  .wrap{max-width:1200px;margin:auto;padding:18px}
+  .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  h1{font-size:28px;margin:0}.version{color:var(--muted);font-size:13px}
+  .toolbar{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}
+  input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);
+      background:#0d1117;color:var(--text);outline:none}
+  textarea{min-height:84px;resize:vertical}
+  button,.btn{border:1px solid var(--line);background:var(--card2);color:var(--text);padding:10px 13px;
+      border-radius:10px;cursor:pointer;font-weight:700;text-decoration:none;display:inline-flex;gap:7px;align-items:center;justify-content:center}
+  button:hover,.btn:hover{filter:brightness(1.14)}
+  .primary{background:var(--blue);border-color:#388bfd}
+  .green{background:#238636;border-color:#2ea043}.danger{background:#6e1f1f}
+  .tabs{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:12px}
+  .tab{white-space:nowrap}.tab.active{background:var(--blue)}
+  .section-title{font-size:18px;margin:18px 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .card{background:linear-gradient(180deg,var(--card),#11161d);border:1px solid var(--line);border-radius:14px;
+        padding:14px;box-shadow:var(--shadow)}
+  .cardhead{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+  .name{font-size:18px;font-weight:800}.meta{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.45}
+  .desc{font-size:14px;color:#c9d1d9;margin:10px 0;min-height:38px}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:12px}
+  .badge{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .ok{color:#7ee787}.test{color:#e3b341}.arch{color:#8b949e}
+  .fav{background:none;border:none;font-size:22px;padding:0;line-height:1}
+  .empty{color:var(--muted);padding:24px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:18px}
+  .formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .span2{grid-column:1/-1}
+  .footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 0}
+  .hidden{display:none!important}
+  .mini{font-size:12px;padding:7px 9px}
+  .recent{display:flex;gap:8px;overflow:auto;padding-bottom:5px}
+  .recent button{white-space:nowrap}
+  @media(max-width:700px){
+    .toolbar{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.span2{grid-column:auto}
+    .actions{grid-template-columns:1fr 1fr}.actions .wide{grid-column:1/-1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>🧭 Central Egi Apps</h1>
+      <div class="version">V1.4 • Virada integrada + atalhos R, GH, WA e GPT</div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+      <button class="primary" onclick="showForm()">➕ Cadastrar app</button>
+      <button class="green" title="Abrir RadarEgi Viradas 15m" onclick="openViradaQuick()">🔄 Virada</button>
+      <button class="mini" title="Abrir Render" onclick="window.open('https://dashboard.render.com/','_blank')">R</button>
+      <button class="mini" title="Abrir GitHub" onclick="window.open('https://github.com/','_blank')">GH</button>
+      <button class="mini" title="Abrir WhatsApp Web" onclick="window.open('https://web.whatsapp.com/','_blank')">WA</button>
+      <button class="mini" title="Abrir ChatGPT" onclick="window.open('https://chatgpt.com/','_blank')">GPT</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" placeholder="🔎 Procurar app..." oninput="render()">
+    <button onclick="exportBackup()">💾 Backup</button>
+    <label class="btn">📥 Restaurar<input id="importFile" type="file" accept=".json" hidden onchange="importBackup(event)"></label>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="recentBox">
+    <div class="section-title">🕘 Últimos usados</div>
+    <div class="recent" id="recent"></div>
+  </div>
+
+  <div class="section-title" id="sectionTitle">Todos os apps</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="panel hidden" id="formPanel">
+    <div class="section-title" style="margin-top:0">Cadastrar / editar aplicativo</div>
+    <div class="formgrid">
+      <input id="fName" placeholder="Nome do app">
+      <select id="fCategory">
+        <option>Trading / Setup</option>
+        <option>Radar</option>
+        <option>Bitcoin / Mercado</option>
+        <option>Hold / Carteira</option>
+        <option>Ferramentas</option>
+        <option>Outros</option>
+      </select>
+      <input id="fVersion" placeholder="Versão (ex.: V1.8)">
+      <select id="fStatus">
+        <option value="Funcionando">🟢 Funcionando</option>
+        <option value="Em teste">🟡 Em teste</option>
+        <option value="Arquivado">⚪ Arquivado</option>
+      </select>
+      <div class="span2" style="display:grid;gap:8px">
+        <input id="fUrl" placeholder="Cole aqui um link Render/GitHub (opcional)">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="btn">📂 Procurar arquivo HTML
+            <input id="fLocalFile" type="file" accept=".html,.htm,text/html" hidden onchange="localFileChosen(event)">
+          </label>
+          <span id="localFileName" class="meta">Nenhum arquivo local selecionado</span>
+          <button type="button" class="mini" onclick="clearLocalFile()">Limpar arquivo</button>
+        </div>
+        <div class="meta">Você pode usar um link da internet OU escolher um arquivo HTML salvo no computador.</div>
+      </div>
+      <textarea class="span2" id="fNotes" placeholder="Observações / para que serve"></textarea>
+      <label><input type="checkbox" id="fFav" style="width:auto"> ⭐ Favorito</label>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="hideForm()">Cancelar</button>
+        <button class="green" onclick="saveApp()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Os dados ficam salvos neste navegador usando localStorage. Faça backup regularmente.</div>
+</div>
+
+<script>
+const KEY='centralEgiApps_v1';
+const RECENT='centralEgiApps_recent_v1';
+let currentFilter='Todos';
+let editingId=null;
+let pendingLocalFile=null;
+
+const DB_NAME='CentralEgiFilesDB';
+const DB_STORE='appFiles';
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function dbPutFile(id,file){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(DB_STORE,'readwrite');
+    tx.objectStore(DB_STORE).put(file,id);
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function dbGetFile(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(DB_STORE,'readonly').objectStore(DB_STORE).get(id);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function dbDeleteFile(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(DB_STORE,'readwrite');
+    tx.objectStore(DB_STORE).delete(id);
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+function localFileChosen(ev){
+  pendingLocalFile=ev.target.files[0]||null;
+  document.getElementById('localFileName').textContent=pendingLocalFile?('Selecionado: '+pendingLocalFile.name):'Nenhum arquivo local selecionado';
+}
+function clearLocalFile(){
+  pendingLocalFile=null;
+  const i=document.getElementById('fLocalFile'); if(i)i.value='';
+  document.getElementById('localFileName').textContent='Nenhum arquivo local selecionado';
+}
+
+
+const seed=[
+  {id:crypto.randomUUID(),name:'SetupDT',category:'Trading / Setup',version:'MultiExchange',status:'Funcionando',url:'',notes:'Setup principal para análise e sinais.',fav:true},
+  {id:crypto.randomUUID(),name:'RadarEgi Viradas',category:'Radar',version:'V1.1',status:'Funcionando',url:'RadarEgi_Viradas_15m_V1_1_Envio_SetupDT_GPT.html',notes:'Viradas 15m: fundo/topo, rompimentos e envio para SetupDT/GPT.',fav:true,sourceType:'url'},
+  {id:crypto.randomUUID(),name:'Radar Arrancada',category:'Radar',version:'V3',status:'Em teste',url:'',notes:'Busca moedas acelerando e favoritas.',fav:true},
+  {id:crypto.randomUUID(),name:'Radar Ciclo do Mercado',category:'Bitcoin / Mercado',version:'V1.3',status:'Em teste',url:'',notes:'Regime de mercado, macro e correlação.',fav:true},
+  {id:crypto.randomUUID(),name:'RadarMME1',category:'Radar',version:'Light',status:'Em teste',url:'',notes:'Robô essencial com médias e registro de sinais.',fav:false},
+  {id:crypto.randomUUID(),name:'Radar Recompra Short',category:'Trading / Setup',version:'V1',status:'Em teste',url:'',notes:'Acompanha oportunidade de recompra após venda parcial.',fav:false},
+  {id:crypto.randomUUID(),name:'CryptoM',category:'Hold / Carteira',version:'V1',status:'Em teste',url:'',notes:'Carteira Hold, alvos e acompanhamento.',fav:false},
+  {id:crypto.randomUUID(),name:'TextEgi',category:'Ferramentas',version:'',status:'Funcionando',url:'',notes:'Textos, busca, áudio e backup.',fav:false},
+  {id:crypto.randomUUID(),name:'AlugaEgi',category:'Outros',version:'',status:'Funcionando',url:'',notes:'Imóveis, contratos, recibos e caixa.',fav:false}
+];
+
+function migrateApps(apps){
+  let changed=false;
+  // Remove o atalho antigo de Fundo/Fundo Duplo, conforme a nova organização da Central.
+  const cleaned=apps.filter(a=>{
+    const n=(a.name||'').trim().toLowerCase();
+    const old=n==='fundo' || n.includes('fundo duplo');
+    if(old) changed=true;
+    return !old;
+  });
+  let virada=cleaned.find(a=>(a.name||'').toLowerCase().includes('virada'));
+  if(!virada){
+    virada={id:crypto.randomUUID(),name:'RadarEgi Viradas',category:'Radar',version:'V1.1',status:'Funcionando',
+      url:'RadarEgi_Viradas_15m_V1_1_Envio_SetupDT_GPT.html',
+      notes:'Viradas 15m: fundo/topo, rompimentos e envio para SetupDT/GPT.',fav:true,sourceType:'url'};
+    cleaned.unshift(virada); changed=true;
+  }else{
+    if(!virada.url || /fundo/i.test(virada.url)){ virada.url='RadarEgi_Viradas_15m_V1_1_Envio_SetupDT_GPT.html'; changed=true; }
+    virada.name='RadarEgi Viradas';
+    virada.version='V1.1';
+    virada.status='Funcionando';
+    virada.category='Radar';
+    virada.fav=true;
+    virada.sourceType='url';
+  }
+  if(changed) localStorage.setItem(KEY,JSON.stringify(cleaned));
+  return cleaned;
+}
+function load(){
+  const x=localStorage.getItem(KEY);
+  if(!x){ const first=migrateApps([...seed]); localStorage.setItem(KEY,JSON.stringify(first)); return first; }
+  try{return migrateApps(JSON.parse(x))}catch{return migrateApps([...seed])}
+}
+function openViradaQuick(){
+  const apps=load();
+  const a=apps.find(x=>(x.name||'').toLowerCase().includes('virada'));
+  if(a){ openApp(a.id); return; }
+  window.open('RadarEgi_Viradas_15m_V1_1_Envio_SetupDT_GPT.html','_blank');
+}
+function saveAll(apps){localStorage.setItem(KEY,JSON.stringify(apps))}
+function getRecent(){try{return JSON.parse(localStorage.getItem(RECENT)||'[]')}catch{return[]}}
+function setRecent(ids){localStorage.setItem(RECENT,JSON.stringify(ids.slice(0,6)))}
+function cats(){
+  const apps=load();
+  return ['Todos','⭐ Favoritos',...Array.from(new Set(apps.map(a=>a.category))),'📦 Arquivados'];
+}
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=cats().map(c=>
+    `<button class="tab ${c===currentFilter?'active':''}" onclick="setFilter('${esc(c)}')">${esc(c)}</button>`
+  ).join('');
+}
+function setFilter(c){currentFilter=c;render()}
+function filteredApps(){
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  return load().filter(a=>{
+    let ok=true;
+    if(currentFilter==='⭐ Favoritos') ok=!!a.fav;
+    else if(currentFilter==='📦 Arquivados') ok=a.status==='Arquivado';
+    else if(currentFilter!=='Todos') ok=a.category===currentFilter;
+    if(!ok)return false;
+    return !q || [a.name,a.category,a.version,a.status,a.notes].join(' ').toLowerCase().includes(q);
+  });
+}
+function statusBadge(s){
+  const cls=s==='Funcionando'?'ok':s==='Em teste'?'test':'arch';
+  const icon=s==='Funcionando'?'🟢':s==='Em teste'?'🟡':'⚪';
+  return `<span class="badge ${cls}">${icon} ${esc(s)}</span>`;
+}
+function render(){
+  renderTabs();
+  const apps=filteredApps();
+  document.getElementById('sectionTitle').textContent=currentFilter==='Todos'?'Todos os apps':currentFilter;
+  document.getElementById('grid').innerHTML=apps.length?apps.map(card).join(''):
+    `<div class="empty">Nenhum aplicativo encontrado neste filtro.</div>`;
+  renderRecent();
+}
+function card(a){
+  const urlok=(a.sourceType==='file') || (a.url||'').trim();
+  return `<div class="card">
+    <div class="cardhead">
+      <div><div class="name">${esc(a.name)}</div>
+      <div class="meta">${esc(a.category)}${a.version?' • '+esc(a.version):''}</div></div>
+      <button class="fav" title="Favorito" onclick="toggleFav('${a.id}')">${a.fav?'⭐':'☆'}</button>
+    </div>
+    <div class="desc">${esc(a.notes||'Sem observações.')}</div>
+    <div>${statusBadge(a.status)}</div>
+    <div class="actions">
+      <button class="green wide" onclick="openApp('${a.id}')" ${urlok?'':'title="Edite o app e informe o link/arquivo"'}>▶ ABRIR</button>
+      <button onclick="editApp('${a.id}')">✏ Editar</button>
+      <button onclick="deleteApp('${a.id}')">🗑 Excluir</button>
+    </div>
+  </div>`;
+}
+function renderRecent(){
+  const apps=load(), ids=getRecent();
+  const rec=ids.map(id=>apps.find(a=>a.id===id)).filter(Boolean);
+  const box=document.getElementById('recentBox');
+  if(!rec.length){box.classList.add('hidden');return}
+  box.classList.remove('hidden');
+  document.getElementById('recent').innerHTML=rec.map(a=>
+    `<button class="mini" onclick="openApp('${a.id}')">${a.fav?'⭐ ':''}${esc(a.name)}</button>`).join('');
+}
+async function openApp(id){
+  const apps=load(), a=apps.find(x=>x.id===id); if(!a)return;
+
+  const r=getRecent().filter(x=>x!==id); r.unshift(id); setRecent(r); renderRecent();
+
+  if(a.sourceType==='file'){
+    const w=window.open('about:blank','_blank');
+    try{
+      const file=await dbGetFile(id);
+      if(!file){
+        if(w) w.close();
+        alert('O arquivo local não foi encontrado. Edite o app e selecione o HTML novamente.');
+        return;
+      }
+      const url=URL.createObjectURL(file);
+      if(w) w.location.href=url;
+      else window.open(url,'_blank');
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+    }catch(e){
+      if(w) w.close();
+      alert('Não foi possível abrir o arquivo local neste navegador.');
+    }
+    return;
+  }
+
+  const url=(a.url||'').trim();
+  if(!url){alert('Este app ainda está sem link ou arquivo. Clique em EDITAR e escolha um HTML ou cole um link.');return}
+  window.open(url,'_blank');
+}
+function toggleFav(id){
+  const apps=load(), a=apps.find(x=>x.id===id); if(a)a.fav=!a.fav;
+  saveAll(apps); render();
+}
+function showForm(){editingId=null; pendingLocalFile=null; clearForm(); document.getElementById('formPanel').classList.remove('hidden');document.getElementById('fName').focus()}
+function hideForm(){document.getElementById('formPanel').classList.add('hidden');editingId=null}
+function clearForm(){
+  ['fName','fVersion','fUrl','fNotes'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('fCategory').value='Trading / Setup';
+  document.getElementById('fStatus').value='Funcionando';
+  document.getElementById('fFav').checked=false;
+  const fi=document.getElementById('fLocalFile'); if(fi)fi.value='';
+  document.getElementById('localFileName').textContent='Nenhum arquivo local selecionado';
+}
+function editApp(id){
+  const a=load().find(x=>x.id===id);if(!a)return;editingId=id;
+  document.getElementById('fName').value=a.name||'';
+  document.getElementById('fCategory').value=a.category||'Trading / Setup';
+  document.getElementById('fVersion').value=a.version||'';
+  document.getElementById('fStatus').value=a.status||'Funcionando';
+  document.getElementById('fUrl').value=a.url||'';
+  document.getElementById('fNotes').value=a.notes||'';
+  document.getElementById('fFav').checked=!!a.fav;
+  pendingLocalFile=null;
+  const fi=document.getElementById('fLocalFile'); if(fi)fi.value='';
+  document.getElementById('localFileName').textContent=
+    a.sourceType==='file' && a.localFileName ? ('Arquivo atual: '+a.localFileName) : 'Nenhum arquivo local selecionado';
+  document.getElementById('formPanel').classList.remove('hidden');
+  document.getElementById('formPanel').scrollIntoView({behavior:'smooth'});
+}
+async function saveApp(){
+  const name=document.getElementById('fName').value.trim();
+  if(!name){alert('Informe o nome do aplicativo.');return}
+
+  const apps=load();
+  let id=editingId || crypto.randomUUID();
+  const old=apps.find(x=>x.id===id);
+
+  const data={
+    name,
+    category:document.getElementById('fCategory').value,
+    version:document.getElementById('fVersion').value.trim(),
+    status:document.getElementById('fStatus').value,
+    url:document.getElementById('fUrl').value.trim(),
+    notes:document.getElementById('fNotes').value.trim(),
+    fav:document.getElementById('fFav').checked,
+    sourceType: old?.sourceType || 'url',
+    localFileName: old?.localFileName || ''
+  };
+
+  if(pendingLocalFile){
+    try{
+      await dbPutFile(id,pendingLocalFile);
+      data.sourceType='file';
+      data.localFileName=pendingLocalFile.name;
+      data.url='';
+    }catch(e){
+      alert('Não foi possível guardar o arquivo HTML neste navegador.');
+      return;
+    }
+  }else if(data.url){
+    data.sourceType='url';
+    data.localFileName='';
+    try{ await dbDeleteFile(id); }catch(e){}
+  }
+
+  if(editingId){
+    const i=apps.findIndex(x=>x.id===editingId); if(i>=0)apps[i]={...apps[i],...data};
+  }else apps.unshift({id,...data});
+
+  saveAll(apps);pendingLocalFile=null;hideForm();render();
+}
+async function deleteApp(id){
+  const apps=load(), a=apps.find(x=>x.id===id);
+  if(!a || !confirm(`Excluir "${a.name}" da Central?
+
+O arquivo original do seu computador não será apagado.`))return;
+  try{await dbDeleteFile(id)}catch(e){}
+  saveAll(apps.filter(x=>x.id!==id));
+  setRecent(getRecent().filter(x=>x!==id));render();
+}
+function exportBackup(){
+  const payload={app:'Central Egi Apps',version:'1.0',exportadoEm:new Date().toISOString(),apps:load(),recent:getRecent()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=u;a.download='Central_Egi_Apps_Backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  const hasLocal=load().some(x=>x.sourceType==='file');
+  if(hasLocal) setTimeout(()=>alert('Backup da lista criado. Observação: os arquivos HTML locais não vão dentro do JSON; guarde também seus HTMLs originais.'),100);
+  URL.revokeObjectURL(u);
+}
+function importBackup(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result), apps=Array.isArray(d)?d:d.apps;
+      if(!Array.isArray(apps))throw new Error();
+      if(!confirm(`Restaurar ${apps.length} aplicativos? Isso substituirá a lista atual.`))return;
+      saveAll(apps); if(d.recent)setRecent(d.recent); render(); alert('Backup restaurado com sucesso.');
+    }catch{alert('Arquivo de backup inválido.')}
+    ev.target.value='';
+  };
+  r.readAsText(f);
+}
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+render();
+</script>
+</body>
+</html>
