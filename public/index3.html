@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<title>Radar Máxima/Mínima EGI</title>
+<style>
+:root{color-scheme:dark;--bg:#08111f;--card:#111f34;--card2:#0d192b;--border:#304968;--text:#eef6ff;--muted:#9eb2cd;--cyan:#39d8ef;--green:#49dda0;--yellow:#ffd46f;--orange:#ff9b52;--red:#ff7188}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07111f,#09172a);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding-bottom:24px}main{width:min(100%,760px);margin:auto;padding:12px}.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;margin:12px 0;box-shadow:0 8px 30px #0002}.hero{border:1px solid #355777;background:linear-gradient(135deg,#10233a,#0e1b31)}h1{font-size:clamp(24px,7vw,34px);line-height:1.05;margin:8px 0}.eyebrow{color:#8df2ff;font-weight:900;letter-spacing:.04em;font-size:12px}.heroTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.heroTop .eyebrow{flex:1 1 280px}.topRefresh{min-height:36px;padding:7px 11px;border-radius:10px;background:#16bfd7;color:#06151c;border-color:#56efff;font-size:12px;font-weight:950;white-space:nowrap}.topRefresh:disabled{opacity:.55;cursor:wait}.muted{color:var(--muted)}.pairTop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;cursor:pointer;width:max-content;max-width:100%;border-radius:10px;padding:2px 4px;margin-left:-4px}.pairTop:active{background:#17314d}.pairTop h1{margin:8px 0}.pairTopPrice{font-size:clamp(18px,5.2vw,27px);font-weight:950;color:#8df2ff;white-space:nowrap}.pairTopHint{font-size:10px;color:#8fb6d8;font-weight:800;white-space:nowrap}.statusline{display:flex;align-items:center;gap:8px;font-weight:800}.dot{width:12px;height:12px;border-radius:50%;background:#8a96a8}.dot.ok{background:var(--green)}.dot.busy{background:var(--yellow)}
+.semaforo{display:flex;align-items:center;gap:13px;margin-top:12px;padding:12px;background:#091727;border:1px solid #335270;border-radius:14px}.lights{display:flex;gap:6px;background:#050b12;border:1px solid #243a53;border-radius:999px;padding:7px}.lamp{width:17px;height:17px;border-radius:50%;opacity:.18;box-shadow:none}.lamp.red{background:var(--red)}.lamp.yellow{background:var(--yellow)}.lamp.green{background:var(--green)}.lamp.on{opacity:1;box-shadow:0 0 14px currentColor}.semaforoText{font-weight:950;font-size:17px}.semaforoSub{font-size:12px;color:var(--muted)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.controls.three{grid-template-columns:repeat(3,1fr)}.controls>*{min-width:0}button,select,input{font:inherit;color:var(--text);background:#182b47;border:1px solid #4f739c;border-radius:12px;padding:11px;min-height:44px}button{font-weight:850;cursor:pointer;touch-action:manipulation}.primary{background:#16bfd7;color:#06151c;border-color:#56efff}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.quick button{padding:8px 4px;min-height:50px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;white-space:nowrap;overflow:hidden}.quick button.active{outline:2px solid var(--cyan);background:#21415f}.coinName{font-weight:950}.coinQuote{font-size:10px;color:#9feeff;font-weight:800;white-space:nowrap}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:var(--card2);border:1px solid #2f4968;border-radius:14px;padding:12px;min-width:0}.metric small{display:block;color:var(--muted);margin-bottom:5px}.metric strong{font-size:clamp(18px,5vw,25px);overflow-wrap:anywhere}.high{border-color:#7b4650}.low{border-color:#2f6c5c}.high strong{color:#ffb1bc}.low strong{color:#9ff7cf}.bar{height:11px;background:#081424;border:1px solid #2d4767;border-radius:99px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#49dda0,#ffd46f,#ff7188);transition:width .35s ease}.rangeLabels{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:5px}.scoreRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.score{border-radius:15px;padding:14px;background:#0d192b;border:1px solid #304968}.score .value{font-size:32px;font-weight:950;line-height:1}.score .label{font-size:13px;color:var(--muted);margin-top:5px}.pill{display:inline-block;padding:5px 9px;border-radius:99px;font-weight:900;font-size:12px;margin-top:7px;background:#283c57}.pill.red{background:#582735;color:#ffc4cf}.pill.green{background:#16483a;color:#b6ffe0}.pill.yellow{background:#51411f;color:#ffe29a}.tech{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.tech .metric strong{font-size:18px}.reason{padding:8px 0;border-bottom:1px solid #263e5d}.reason:last-child{border:0}.notice{border-left:4px solid var(--yellow);background:#2b2a20;border-radius:9px;padding:10px;color:#ffe9b1}.spike{border-left-color:var(--orange);background:#2d2119;color:#ffd8b7}.stamp{font-size:12px;color:#b9cae0}.structureGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.structureGrid .metric strong{font-size:17px}.swingGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.swingBox{background:var(--card2);border:1px solid #304968;border-radius:14px;padding:10px}.swingBox h3{margin:0 0 7px;font-size:15px}.swingItem{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid #243a54}.swingItem:last-child{border:0}.swingPrice{font-weight:900}.swingTime{color:var(--muted);font-size:11px}.manual h3{margin:14px 0 5px;font-size:15px}.manual p{margin:5px 0;color:#c4d4e8}.audioRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.audioRow button,.audioRow select{flex:1 1 130px}details{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px;margin:12px 0}summary{font-weight:900;cursor:pointer}.wide{width:100%}@media(max-width:470px){.controls.three{grid-template-columns:1fr}.swingGrid{grid-template-columns:1fr}}@media(max-width:380px){.controls{grid-template-columns:1fr}.grid2,.scoreRow{grid-template-columns:1fr}.quick{grid-template-columns:repeat(2,1fr)}}
+
+
+.actionBox{margin-top:12px;padding:13px;border-radius:14px;border:1px solid #42688e;background:#0b1a2d}.actionLabel{font-size:11px;color:#9eb2cd;font-weight:900;letter-spacing:.05em}.actionMain{font-size:18px;font-weight:950;margin-top:4px}.actionSub{font-size:12px;color:#c5d5e8;margin-top:4px}.actionBox.green{border-color:#2b765f;background:#0c2a24}.actionBox.red{border-color:#7a3b4a;background:#2a121a}.actionBox.yellow{border-color:#78642e;background:#2b2513}.nextTriggerBox{margin-top:10px;padding:12px;border-radius:14px;border:1px solid #35688d;background:#0a2033}.nextTriggerText{font-size:13px;line-height:1.5;color:#d9f4ff;font-weight:750;margin-top:4px}.reportGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.reportBox{background:#0b1728;border:1px solid #304968;border-radius:14px;padding:11px;min-width:0}.reportBox h3{margin:0 0 6px}.reportText{white-space:pre-wrap;word-break:break-word;max-height:330px;overflow:auto;font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;color:#dcecff;background:#07111f;border:1px solid #243b58;border-radius:10px;padding:10px}.reportBtns{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.reportBtns button{flex:1 1 120px;padding:8px;min-height:40px;font-size:12px}@media(max-width:600px){.reportGrid{grid-template-columns:1fr}}
+.chartPanel canvas{display:block;width:100%;background:#081424;border:1px solid #2a4464;border-radius:12px}.chartTitle{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.chartTitle b{font-size:15px}.chartLegend{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}.chartStack{display:grid;gap:10px}.chartHint{font-size:11px;color:#9fc2df;margin-top:6px}.chartBadge{display:inline-block;padding:3px 7px;border:1px solid #355777;border-radius:999px;background:#0d192b;color:#bfefff;font-size:11px;font-weight:800}
+
+.buySellSystem{margin-top:12px;padding:13px;border-radius:15px;border:1px solid #3b5d7d;background:linear-gradient(135deg,#0b1b2f,#0b1728)}
+.buySellHeader{font-size:12px;font-weight:950;letter-spacing:.035em;color:#dff7ff;margin-bottom:9px}
+.buySellGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.buySide,.sellSide{border-radius:13px;padding:11px;background:#091727;border:1px solid #2f4968}
+.buySide{border-color:#286854;background:#0b261f}
+.sellSide{border-color:#743746;background:#28131a}
+.bsTitle{font-size:11px;font-weight:900;letter-spacing:.03em}
+.buySide .bsTitle{color:#9ff7cf}.sellSide .bsTitle{color:#ffc0ca}
+.bsStatus{font-size:16px;font-weight:950;margin-top:4px}
+.bsReason{font-size:11px;color:#bfd0e4;line-height:1.45;margin-top:4px}
+.rangeDecision{grid-column:1/-1;border-radius:12px;padding:10px 11px;font-size:13px;font-weight:900;border:1px solid #6f6034;background:#292414;color:#ffe39b}
+.rangeDecision.buy{border-color:#2d735e;background:#0c2b24;color:#baffdf}
+.rangeDecision.sell{border-color:#7b3d4b;background:#2c151d;color:#ffc6d0}
+.rangeDecision.wait{border-color:#6f6034;background:#292414;color:#ffe39b}
+.bsNote{grid-column:1/-1;color:#8fa9c5;font-size:10px;line-height:1.4}
+@media(max-width:470px){.buySellGrid{grid-template-columns:1fr}.rangeDecision,.bsNote{grid-column:1}}
+
+</style>
+</head>
+<body><main>
+<section class="panel hero">
+  <div class="heroTop">
+    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V15 COMPRA EMBAIXO / VENDA EM CIMA</div>
+    <button class="topRefresh" id="topRefreshBtn" onclick="refreshAll()" title="Forçar nova leitura agora">🔄 ATUALIZAR</button>
+  </div>
+  <div class="pairTop" id="pairTop" role="button" tabindex="0" title="Abrir a moeda selecionada no TradingView" onclick="openTradingView()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTradingView();}">
+    <h1 id="pairTitle">BTC/USDT</h1>
+    <span id="pairTopPrice" class="pairTopPrice">—</span>
+    <span class="pairTopHint">📊 TradingView</span>
+  </div>
+  <div class="muted">Máxima/mínima móvel de 24h + análise técnica no timeframe escolhido + topos e fundos estruturais fixos do 15m.</div>
+  <div id="buySellSystem" class="buySellSystem">
+    <div class="buySellHeader">🎯 SISTEMA EGI — COMPRAR EMBAIXO / VENDER EM CIMA</div>
+    <div class="buySellGrid">
+      <div class="buySide">
+        <div class="bsTitle">🟢 COMPRA — REGIÃO BAIXA</div>
+        <div id="buyStatus" class="bsStatus">AGUARDAR</div>
+        <div id="buyReason" class="bsReason">O radar vai procurar fundo, suporte, reação e confirmação.</div>
+      </div>
+      <div class="sellSide">
+        <div class="bsTitle">🔴 VENDA — REGIÃO ALTA</div>
+        <div id="sellStatus" class="bsStatus">AGUARDAR</div>
+        <div id="sellReason" class="bsReason">O radar vai procurar topo, resistência, rejeição e confirmação.</div>
+      </div>
+      <div id="rangeDecision" class="rangeDecision wait">🟡 MEIO DA FAIXA — AGUARDAR</div>
+      <div class="bsNote">Regra do app: verde = procurar oportunidade de compra em região baixa; vermelho = procurar oportunidade de venda em região alta. “Venda” aqui significa realizar/reduzir posição Spot — não abrir Short automaticamente.</div>
+    </div>
+  </div>
+  <div class="semaforo">
+    <div class="lights"><span id="lampRed" class="lamp red"></span><span id="lampYellow" class="lamp yellow on"></span><span id="lampGreen" class="lamp green"></span></div>
+    <div><div id="semaforoText" class="semaforoText">🟡 AGUARDANDO</div><div id="semaforoSub" class="semaforoSub">Semáforo de região, não é ordem de compra ou venda.</div></div>
+  </div>
+  <div id="actionBox" class="actionBox yellow">
+    <div class="actionLabel">O QUE FAZER AGORA</div>
+    <div id="actionMain" class="actionMain">🟡 AGUARDAR LEITURA</div>
+    <div id="actionSub" class="actionSub">Atualize o radar. Quando ficar verde, esta linha dirá exatamente o que conferir antes de considerar a reação confirmada.</div>
+  </div>
+  <div id="nextTriggerBox" class="nextTriggerBox">
+    <div class="actionLabel">🎯 PRÓXIMO GATILHO</div>
+    <div id="nextTriggerText" class="nextTriggerText">Atualize o radar para calcular o próximo gatilho técnico.</div>
+  </div>
+  <div class="statusline" style="margin-top:10px"><span id="dot" class="dot"></span><span id="statusText">Aguardando atualização</span></div>
+</section>
+
+<section class="panel">
+  <div class="controls three">
+    <select id="market" title="Corretora/mercado">
+      <option value="binance_spot">Binance Spot</option>
+      <option value="binance_futures">Binance Futures</option>
+      <option value="mexc_spot">MEXC Spot</option>
+    </select>
+    <select id="timeframe" title="Timeframe da análise">
+      <option value="1m">TF 1m</option>
+      <option value="5m">TF 5m</option>
+      <option value="15m" selected>TF 15m</option>
+      <option value="30m">TF 30m</option>
+      <option value="1h">TF 1h</option>
+      <option value="4h">TF 4h</option>
+    </select>
+    <select id="refreshEvery" title="Tempo de atualização">
+      <option value="0">Atualização manual</option>
+      <option value="5000">Auto 5 segundos</option>
+      <option value="10000">Auto 10 segundos</option>
+      <option value="15000" selected>Auto 15 segundos</option>
+      <option value="30000">Auto 30 segundos</option>
+      <option value="60000">Auto 1 minuto</option>
+    </select>
+  </div>
+  <div class="quick" id="coinButtons">
+    <button data-coin="BTC" class="active"><span class="coinName">BTC</span><span class="coinQuote" id="quote-BTC">—</span></button><button data-coin="ETH"><span class="coinName">ETH</span><span class="coinQuote" id="quote-ETH">—</span></button><button data-coin="SOL"><span class="coinName">SOL</span><span class="coinQuote" id="quote-SOL">—</span></button><button data-coin="LINK"><span class="coinName">LINK</span><span class="coinQuote" id="quote-LINK">—</span></button><button data-coin="SUI"><span class="coinName">SUI</span><span class="coinQuote" id="quote-SUI">—</span></button><button data-coin="ENA"><span class="coinName">ENA</span><span class="coinQuote" id="quote-ENA">—</span></button>
+  </div>
+  <div class="stamp" style="margin-top:7px;color:#8df2ff">✅ Toque nos botões BTC, ETH, SOL, LINK, SUI ou ENA para selecionar sem sair do app. Para abrir o TradingView, toque no nome/cotação grande do ativo no topo.</div>
+  <div class="controls" style="margin-top:10px">
+    <button class="primary" id="refreshBtn" onclick="refreshAll()">⟳ ATUALIZAR AGORA</button>
+    <button id="autoBtn" onclick="toggleAuto()">▶ Iniciar auto</button>
+  </div>
+  <div class="controls" style="margin-top:9px"><button onclick="$('chartPanel').scrollIntoView({behavior:'smooth',block:'start'})">📊 Ver gráfico interno</button><button onclick="speakSummary()">🔊 Ouvir leitura</button></div>
+  <div class="controls" style="margin-top:9px"><button onclick="stopSpeech()">⏹ Parar áudio</button><button onclick="refreshAll()">⟳ Recarregar moeda atual</button></div>
+  <div class="stamp" id="modeHint" style="margin-top:8px">TF: 15m • Auto: 15 segundos. O candle 15m em formação é acompanhado para detectar agulhadas; o gráfico interno acompanha a moeda e o TF selecionados.</div>
+  <div class="stamp" id="autoStatus" style="margin-top:5px;color:#8df2ff">Auto ainda não iniciado.</div>
+</section>
+
+<section class="panel">
+  <div class="grid2">
+    <div class="metric"><small>Preço ao vivo</small><strong id="price">—</strong><div class="stamp" id="lastCandle">—</div></div>
+    <div class="metric"><small>Posição dentro da faixa móvel 24h</small><strong id="rangePos">—</strong><div class="stamp">0% = mínima • 100% = máxima</div></div>
+  </div>
+  <div style="margin-top:12px" class="bar"><div id="rangeFill" class="fill"></div></div>
+  <div class="rangeLabels"><span id="barLow">mín —</span><span id="barHigh">máx —</span></div>
+</section>
+
+<section class="panel">
+  <div class="grid2">
+    <div class="metric high"><small>📈 MÁXIMA móvel 24h</small><strong id="high24">—</strong><div id="distHigh" class="stamp">Distância: —</div></div>
+    <div class="metric low"><small>📉 MÍNIMA móvel 24h</small><strong id="low24">—</strong><div id="distLow" class="stamp">Distância: —</div></div>
+  </div>
+  <div id="spikeReading" class="notice" style="margin-top:12px">⚡ Monitor de agulhada 15m aguardando dados.</div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">Exaustão no timeframe selecionado</h2>
+  <div class="scoreRow">
+    <div class="score"><div class="value" id="topScore">—</div><div class="label">Possível topo / exaustão de alta</div><span class="pill" id="topState">Aguardando</span></div>
+    <div class="score"><div class="value" id="bottomScore">—</div><div class="label">Possível fundo / exaustão de baixa</div><span class="pill" id="bottomState">Aguardando</span></div>
+  </div>
+  <div id="mainReading" class="notice" style="margin-top:12px">Atualize para gerar a leitura.</div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">Confirmações — <span id="tfLabel">15m</span></h2>
+  <div class="tech">
+    <div class="metric"><small>RSI 14 fechado</small><strong id="rsi">—</strong></div><div class="metric"><small>MACD hist.</small><strong id="macd">—</strong></div><div class="metric"><small>ATR 14</small><strong id="atr">—</strong></div><div class="metric"><small>Volume / média 20</small><strong id="volRatio">—</strong></div><div class="metric"><small>EMA 9 / 14</small><strong id="emaFast">—</strong></div><div class="metric"><small>EMA 200</small><strong id="ema200">—</strong></div>
+  </div>
+</section>
+
+<section class="panel chartPanel" id="chartPanel">
+  <div class="chartTitle"><div><h2 style="margin:0">📊 Gráfico interno — <span id="chartPair">BTC/USDT</span></h2><div class="muted">Candles + EMA 9/14/200 • RSI 14 • MACD 12/26/9</div></div><span id="chartTf" class="chartBadge">15m</span></div>
+  <div class="chartStack">
+    <div><div class="chartLegend"><span>🕯️ Candles</span><span>EMA 9</span><span>EMA 14</span><span>EMA 200</span></div><canvas id="candleChart" height="300"></canvas></div>
+    <div><div class="chartLegend"><span>RSI 14</span><span>30 = sobrevenda</span><span>70 = sobrecompra</span></div><canvas id="rsiChart" height="135"></canvas></div>
+    <div><div class="chartLegend"><span>MACD</span><span>Sinal</span><span>Histograma</span></div><canvas id="macdChart" height="165"></canvas></div>
+  </div>
+  <div class="chartHint">O último candle pode estar em formação. A mensagem branca e a legenda 'RSI ao vivo' do gráfico agora usam exatamente o MESMO valor calculado na mesma atualização. 'Fechado' mostra o RSI do último candle encerrado e é o usado na pontuação de exaustão.</div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">O que o radar encontrou</h2><div id="reasons"><div class="muted">Aguardando dados.</div></div>
+</section>
+
+<section class="panel" id="reportPanel">
+  <h2 style="margin-top:0">🧠 Relatórios inteligentes</h2>
+  <div class="muted" style="margin-bottom:10px">Dois formatos gerados com a mesma leitura: um resumido para você e outro técnico para compartilhar comigo no ChatGPT.</div>
+  <div class="reportGrid">
+    <div class="reportBox">
+      <h3>👤 Meu relatório — resumido</h3>
+      <div id="userReport" class="reportText">Atualize o radar para gerar.</div>
+      <div class="reportBtns"><button onclick="copyReport('user')">📋 Copiar</button><button onclick="shareReport('user')">↗ Compartilhar</button><button onclick="speakUserReport()">🔊 Ouvir</button></div>
+    </div>
+    <div class="reportBox">
+      <h3>🤖 Relatório para ChatGPT — completo</h3>
+      <div id="gptReport" class="reportText">Atualize o radar para gerar.</div>
+      <div class="reportBtns"><button onclick="copyReport('gpt')">📋 Copiar GPT</button><button onclick="shareReport('gpt')">↗ Compartilhar</button><button onclick="downloadGptReport()">💾 Salvar .txt</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">📐 Estrutura gráfica — 15m</h2>
+  <div class="muted" style="margin-bottom:10px">Relaciona os pivôs de 15m para reconhecer compressão, triângulos, teste de suporte/resistência, rompimento fechado e falsa saída/agulhada.</div>
+  <div class="structureGrid">
+    <div class="metric"><small>Estrutura principal</small><strong id="structureType">—</strong></div>
+    <div class="metric"><small>Compressão</small><strong id="compression">—</strong></div>
+    <div class="metric"><small>Topos 15m</small><strong id="topsDirection">—</strong></div>
+    <div class="metric"><small>Fundos 15m</small><strong id="bottomsDirection">—</strong></div>
+    <div class="metric"><small>Resistência projetada</small><strong id="resistance15">—</strong><div id="nearResistance" class="stamp">—</div></div>
+    <div class="metric"><small>Suporte projetado</small><strong id="support15">—</strong><div id="nearSupport" class="stamp">—</div></div>
+    <div class="metric"><small>Rompimento fechado</small><strong id="closedBreakout">—</strong></div>
+    <div class="metric"><small>Agulhada estrutural</small><strong id="structureSpike">—</strong></div>
+  </div>
+  <div id="structureReading" class="notice" style="margin-top:12px">Atualize para analisar a estrutura de 15m.</div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">Topos e fundos recentes — 15m</h2>
+  <div class="muted" style="margin-bottom:10px">Lista estrutural dos últimos pivôs confirmados no 15m. Serve para enxergar níveis que o preço já respeitou.</div>
+  <div class="swingGrid">
+    <div class="swingBox"><h3>📈 Topos 15m</h3><div id="swingHighs" class="muted">Aguardando…</div></div>
+    <div class="swingBox"><h3>📉 Fundos 15m</h3><div id="swingLows" class="muted">Aguardando…</div></div>
+  </div>
+</section>
+
+<details>
+  <summary>📘 Manual — semáforo, estrutura, tempo e timeframe</summary>
+  <div class="manual" id="manualText">
+    <h3>1. Semáforo no topo</h3><p>🔴 indica região com evidências maiores de topo/exaustão; 🟢 indica região com evidências maiores de fundo/reação; 🟡 indica leitura neutra ou ainda insuficiente. É um aviso de região, não uma ordem operacional.</p>
+    <h3>2. Tempo de atualização</h3><p>Você pode escolher manual, 5s, 10s, 15s, 30s ou 1 minuto. Para acompanhar agulhadas rápidas, 5s ou 10s são mais adequados. Como a máxima/mínima do candle em formação fica registrada, o radar consegue reconhecer a agulhada na atualização seguinte mesmo se o preço já tiver voltado.</p>
+    <h3>3. Timeframe livre</h3><p>Você pode analisar 1m, 5m, 15m, 30m, 1h ou 4h. RSI, MACD, ATR, volume e médias passam a usar o timeframe escolhido.</p><h3>4. Gráfico interno</h3><p>Ao tocar em BTC, ETH, SOL, LINK, SUI ou ENA, o app apenas troca a moeda e atualiza os candles dentro da própria página. O gráfico interno acompanha o timeframe escolhido e mostra candles, EMA 9/14/200, RSI 14 e MACD 12/26/9. Não é necessário abrir o TradingView para a conferência visual. Se quiser conferir externamente, toque no nome/cotação do ativo no topo; o TradingView abrirá a moeda atualmente selecionada e o mesmo timeframe.</p>
+    <h3>4. Máxima e mínima 24h</h3><p>Esses dois valores vêm da faixa móvel de 24 horas da corretora. Assim eles continuam comparáveis mesmo quando você troca o timeframe técnico.</p>
+    <h3>5. Agulhada 15m</h3><p>O app acompanha também o candle 15m em formação. Se ele ultrapassar um topo/fundo anterior e voltar para dentro da faixa, aparece um alerta de possível agulhada/rejeição.</p>
+    <h3>7. Estrutura gráfica 15m</h3><p>É uma confirmação secundária importante, principalmente perto de máximas, mínimas, suportes e resistências. O radar relaciona os pivôs confirmados para verificar se os topos estão descendentes, horizontais ou ascendentes e se os fundos estão ascendentes, horizontais ou descendentes. A combinação permite marcar compressões e triângulos em formação. A figura não decide sozinha: preço, fechamento do candle, volume, RSI/MACD e distância do extremo continuam tendo prioridade. As linhas de suporte e resistência são projeções técnicas dos pivôs recentes, não níveis garantidos.</p>
+    <h3>7. Teste, rompimento e agulhada estrutural</h3><p>Quando o preço fica muito perto da resistência ou do suporte projetado, o painel informa TESTANDO. Rompimento fechado exige o último candle de 15m encerrado além da linha projetada. Se o candle em formação atravessa a linha e o preço volta para dentro, o app marca possível agulhada/falsa saída.</p>
+    <h3>8. Topos e fundos 15m</h3><p>No final do app são listados pivôs recentes confirmados do 15m, com horário, preço e distância até o preço atual. Eles ajudam a identificar regiões repetidas de reação.</p>
+    <h3>10. Índice de exaustão</h3><p>A nota de 0 a 100 combina proximidade do extremo de 24h, RSI, MACD, volume, candle de rejeição e divergência. É uma pontuação de evidências, não uma probabilidade garantida.</p>
+    <h3>10. Regra prática</h3><p>Agulhada, triângulo ou nota alta não garantem reversão nem rompimento. Use o semáforo para chamar atenção e confirme contexto, volume e fechamento dos candles antes de qualquer decisão.</p>
+    <h3>11. O que fazer quando ficar verde</h3><p>Verde significa região de possível fundo/reação, não compra automática. A caixa O QUE FAZER AGORA orienta a sequência: conferir a reação, observar RSI/MACD/volume, aguardar o fechamento de 15m quando necessário e marcar invalidado se o preço fechar abaixo do suporte relevante. O relatório resumido repete essa orientação.</p>
+    <h3>12. Relatórios inteligentes</h3><p>Meu relatório é curto e feito para leitura rápida/áudio. O relatório para ChatGPT leva preço, máximas/mínimas, RSI ao vivo e fechado, MACD, volume, notas de exaustão, estrutura de 15m, suporte/resistência e a ação atual. Use Copiar/Compartilhar para enviar a análise sem precisar tirar print.</p>
+  </div>
+  <div class="audioRow"><button onclick="speakManual()">🔊 Ouvir manual</button><button onclick="stopSpeech()">⏹ Parar</button><select id="speechRate"><option value="0.8">0,8×</option><option value="1" selected>1,0×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option></select></div>
+</details>
+<div class="stamp" style="text-align:center;margin:14px 0">Radar técnico educativo • não executa ordens.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let coin='BTC',autoTimer=null,lastData=null,lastReports={user:'',gpt:''},isAuto=false,refreshRunning=false,nextDue=0,countdownTimer=null,lastChartRows=[],lastChartTf='15m',lastChartLiveRsi=null,lastChartClosedRsi=null,chartResizeTimer=null;
+function fmt(v){if(!Number.isFinite(v))return '—';let d=v>=1000?2:v>=1?4:v>=0.01?6:8;return v.toLocaleString('pt-BR',{maximumFractionDigits:d});}
+function pct(v){return Number.isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%':'—';}
+function setStatus(t,c=''){ $('statusText').textContent=t;$('dot').className='dot '+c; }
+function ema(arr,p){if(arr.length<p)return null;const k=2/(p+1);let e=arr.slice(0,p).reduce((a,b)=>a+b,0)/p;for(let i=p;i<arr.length;i++)e=arr[i]*k+e*(1-k);return e;}
+function emaSeries(arr,p){let out=Array(arr.length).fill(null);if(arr.length<p)return out;let e=arr.slice(0,p).reduce((a,b)=>a+b,0)/p;out[p-1]=e;const k=2/(p+1);for(let i=p;i<arr.length;i++){e=arr[i]*k+e*(1-k);out[i]=e;}return out;}
+function rsi(arr,p=14){const s=rsiSeries(arr,p);for(let i=s.length-1;i>=0;i--){if(Number.isFinite(s[i]))return s[i];}return null;}
+function atr(rows,p=14){if(rows.length<=p)return null;let tr=[];for(let i=1;i<rows.length;i++)tr.push(Math.max(rows[i].h-rows[i].l,Math.abs(rows[i].h-rows[i-1].c),Math.abs(rows[i].l-rows[i-1].c)));return tr.slice(-p).reduce((a,b)=>a+b,0)/p;}
+function macdHist(arr){const e12=emaSeries(arr,12),e26=emaSeries(arr,26),m=arr.map((_,i)=>e12[i]!=null&&e26[i]!=null?e12[i]-e26[i]:null);const vals=m.filter(x=>x!=null);if(vals.length<10)return {now:null,prev:null};const sig=emaSeries(vals,9),hist=vals.map((v,i)=>sig[i]!=null?v-sig[i]:null).filter(x=>x!=null);return {now:hist.at(-1),prev:hist.at(-2)};}
+function emaFull(arr,p){if(!arr.length)return[];const k=2/(p+1),out=[];let e=arr[0];for(let i=0;i<arr.length;i++){if(i===0)e=arr[0];else e=arr[i]*k+e*(1-k);out.push(e);}return out;}
+function rsiSeries(arr,p=14){const out=Array(arr.length).fill(null);if(arr.length<=p)return out;let gain=0,loss=0;for(let i=1;i<=p;i++){const d=arr[i]-arr[i-1];if(d>=0)gain+=d;else loss-=d;}let ag=gain/p,al=loss/p;out[p]=al===0?100:100-100/(1+ag/al);for(let i=p+1;i<arr.length;i++){const d=arr[i]-arr[i-1],g=d>0?d:0,l=d<0?-d:0;ag=(ag*(p-1)+g)/p;al=(al*(p-1)+l)/p;out[i]=al===0?100:100-100/(1+ag/al);}return out;}
+function macdSeries(arr){const e12=emaFull(arr,12),e26=emaFull(arr,26),macd=arr.map((_,i)=>e12[i]-e26[i]),signal=emaFull(macd,9),hist=macd.map((v,i)=>v-signal[i]);return{macd,signal,hist};}
+function prepCanvas(id,cssH){const c=$(id);if(!c)return null;const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1)),w=Math.max(280,c.clientWidth||320);c.style.height=cssH+'px';c.width=Math.round(w*dpr);c.height=Math.round(cssH*dpr);const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{c,ctx,w,h:cssH};}
+function grid(ctx,w,h,l=42,r=46,t=12,b=22,rows=4){ctx.strokeStyle='#1b3552';ctx.lineWidth=1;ctx.fillStyle='#7892af';ctx.font='10px system-ui';for(let i=0;i<=rows;i++){const y=t+(h-t-b)*i/rows;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(w-r,y);ctx.stroke();}return{l,r,t,b,pw:w-l-r,ph:h-t-b};}
+function drawSeries(ctx,vals,xOf,yOf,stroke,width=1.5){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.beginPath();let started=false;vals.forEach((v,i)=>{if(!Number.isFinite(v))return;const x=xOf(i),y=yOf(v);if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);});if(started)ctx.stroke();}
+function drawMarketCharts(rows,tf,liveRsiValue=null,closedRsiValue=null){if(!rows||rows.length<30)return;lastChartRows=rows.slice();lastChartTf=tf;lastChartLiveRsi=liveRsiValue;lastChartClosedRsi=closedRsiValue;$('chartPair').textContent=coin+'/USDT';$('chartTf').textContent=tf;const n=Math.min(72,rows.length),start=rows.length-n,vis=rows.slice(start),closes=rows.map(x=>x.c),e9=emaFull(closes,9).slice(start),e14=emaFull(closes,14).slice(start),e200=emaFull(closes,200).slice(start);const mac=macdSeries(closes),rsiS=rsiSeries(closes,14).slice(start);drawCandles(vis,e9,e14,e200);drawRsi(rsiS,liveRsiValue,closedRsiValue);drawMacd(mac.macd.slice(start),mac.signal.slice(start),mac.hist.slice(start));}
+function drawCandles(rows,e9,e14,e200){const z=prepCanvas('candleChart',300);if(!z)return;const{ctx,w,h}=z;ctx.clearRect(0,0,w,h);const g=grid(ctx,w,h,42,54,12,24,5),vals=rows.flatMap(x=>[x.h,x.l]).concat(e9,e14,e200).filter(Number.isFinite);let min=Math.min(...vals),max=Math.max(...vals);let pad=(max-min)*.06||max*.001||1;min-=pad;max+=pad;const y=v=>g.t+(max-v)/(max-min)*g.ph,x=i=>g.l+(i+.5)*g.pw/rows.length,cw=Math.max(2,Math.min(8,g.pw/rows.length*.62));ctx.fillStyle='#7892af';ctx.font='10px system-ui';for(let i=0;i<=5;i++){const v=max-(max-min)*i/5;ctx.fillText(fmt(v),w-51,g.t+g.ph*i/5+3);}rows.forEach((r,i)=>{const xx=x(i),up=r.c>=r.o,col=up?'#49dda0':'#ff7188';ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,y(r.h));ctx.lineTo(xx,y(r.l));ctx.stroke();const yo=y(r.o),yc=y(r.c),top=Math.min(yo,yc),bh=Math.max(1,Math.abs(yc-yo));ctx.fillRect(xx-cw/2,top,cw,bh);});drawSeries(ctx,e9,x,y,'#39d8ef',1.6);drawSeries(ctx,e14,x,y,'#ffd46f',1.5);drawSeries(ctx,e200,x,y,'#c99cff',1.4);const last=rows.at(-1)?.c;if(Number.isFinite(last)){ctx.strokeStyle='#9feeff';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(g.l,y(last));ctx.lineTo(w-g.r,y(last));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#9feeff';ctx.fillText(fmt(last),w-51,y(last)-3);}ctx.fillStyle='#7892af';const first=new Date(rows[0].t),lastT=new Date(rows.at(-1).t);ctx.fillText(first.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),g.l,h-6);ctx.fillText(lastT.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),w-g.r-35,h-6);}
+function drawRsi(vals,liveRsiValue=null,closedRsiValue=null){const z=prepCanvas('rsiChart',135);if(!z)return;const{ctx,w,h}=z;ctx.clearRect(0,0,w,h);const g=grid(ctx,w,h,35,38,8,18,4),x=i=>g.l+(i+.5)*g.pw/vals.length,y=v=>g.t+(100-v)/100*g.ph;[30,50,70].forEach(v=>{ctx.strokeStyle=v===50?'#294661':'#5b4a37';ctx.setLineDash(v===50?[]:[4,4]);ctx.beginPath();ctx.moveTo(g.l,y(v));ctx.lineTo(w-g.r,y(v));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#7892af';ctx.fillText(String(v),w-31,y(v)+3);});drawSeries(ctx,vals,x,y,'#39d8ef',1.8);const plotted=[...vals].reverse().find(Number.isFinite),live=Number.isFinite(liveRsiValue)?liveRsiValue:plotted;ctx.fillStyle='#9feeff';if(Number.isFinite(live))ctx.fillText('RSI ao vivo '+live.toFixed(1),g.l+4,g.t+11);if(Number.isFinite(closedRsiValue)){ctx.fillStyle='#9eb2cd';ctx.fillText('Fechado '+closedRsiValue.toFixed(1),g.l+112,g.t+11);}}
+function drawMacd(macd,signal,hist){const z=prepCanvas('macdChart',165);if(!z)return;const{ctx,w,h}=z;ctx.clearRect(0,0,w,h);const g=grid(ctx,w,h,35,45,10,18,4),all=macd.concat(signal,hist).filter(Number.isFinite);let mx=Math.max(...all.map(v=>Math.abs(v)),1e-9)*1.15;const x=i=>g.l+(i+.5)*g.pw/macd.length,y=v=>g.t+(mx-v)/(2*mx)*g.ph,y0=y(0),bw=Math.max(1,Math.min(6,g.pw/macd.length*.6));ctx.strokeStyle='#516b86';ctx.beginPath();ctx.moveTo(g.l,y0);ctx.lineTo(w-g.r,y0);ctx.stroke();hist.forEach((v,i)=>{if(!Number.isFinite(v))return;ctx.fillStyle=v>=0?'#49dda0':'#ff7188';const yy=y(v);ctx.fillRect(x(i)-bw/2,Math.min(yy,y0),bw,Math.max(1,Math.abs(y0-yy)));});drawSeries(ctx,macd,x,y,'#39d8ef',1.5);drawSeries(ctx,signal,x,y,'#ffd46f',1.5);const lastH=[...hist].reverse().find(Number.isFinite);if(Number.isFinite(lastH)){ctx.fillStyle='#9eb2cd';ctx.fillText('Hist '+fmt(lastH),g.l+4,g.t+11);}}
+function marketInterval(tf){if($('market').value==='mexc_spot'&&tf==='1h')return '60m';return tf;}
+function parseRaw(raw){return raw.filter(Array.isArray).map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5],end:+x[6]})).filter(x=>[x.o,x.h,x.l,x.c,x.v].every(Number.isFinite));}
+async function fetchJson(url){const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),10000);try{const r=await fetch(url,{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json();}finally{clearTimeout(to)}}
+function baseUrls(){const m=$('market').value;if(m==='binance_spot')return {k:'https://api.binance.com/api/v3/klines',t:'https://api.binance.com/api/v3/ticker/24hr'};if(m==='binance_futures')return {k:'https://fapi.binance.com/fapi/v1/klines',t:'https://fapi.binance.com/fapi/v1/ticker/24hr'};return {k:'https://api.mexc.com/api/v3/klines',t:'https://api.mexc.com/api/v3/ticker/24hr'};}
+async function getCandles(tf,limit=260){const s=coin+'USDT',u=baseUrls().k+'?symbol='+s+'&interval='+marketInterval(tf)+'&limit='+limit;return parseRaw(await fetchJson(u));}
+async function getTicker24(){const s=coin+'USDT',x=await fetchJson(baseUrls().t+'?symbol='+s);return {last:+x.lastPrice,high:+x.highPrice,low:+x.lowPrice,quoteVolume:+(x.quoteVolume??x.amount??0)};}
+const quickCoins=['BTC','ETH','SOL','LINK','SUI','ENA'];
+async function getTicker24For(c){const s=c+'USDT',x=await fetchJson(baseUrls().t+'?symbol='+s);return {last:+x.lastPrice,high:+x.highPrice,low:+x.lowPrice,quoteVolume:+(x.quoteVolume??x.amount??0)};}
+async function updateQuickQuotes(){
+  const marketNow=$('market').value;
+  const jobs=quickCoins.map(async c=>{
+    const el=$('quote-'+c); if(el)el.textContent='…';
+    try{
+      const t=await getTicker24For(c);
+      // ignora resposta que chegou depois de o usuário trocar o mercado
+      if($('market').value!==marketNow)return;
+      if(el)el.textContent=Number.isFinite(t.last)?fmt(t.last):'—';
+    }catch(e){if(el)el.textContent='—';}
+  });
+  await Promise.allSettled(jobs);
+}
+function splitClosedLive(rows){const now=Date.now();if(!rows.length)return {closed:[],live:null};const last=rows.at(-1);if(last.end>now-500)return {closed:rows.slice(0,-1),live:last};return {closed:rows,live:last};}
+function divergence(rows,side){const w=rows.slice(-30);if(w.length<24)return false;const half=Math.floor(w.length/2),a=w.slice(0,half),b=w.slice(half);if(side==='top'){const pa=Math.max(...a.map(x=>x.h)),pb=Math.max(...b.map(x=>x.h)),ra=rsi(a.map(x=>x.c)),rb=rsi(b.map(x=>x.c));return pb>pa&&ra!=null&&rb!=null&&rb<ra-2;}const pa=Math.min(...a.map(x=>x.l)),pb=Math.min(...b.map(x=>x.l)),ra=rsi(a.map(x=>x.c)),rb=rsi(b.map(x=>x.c));return pb<pa&&ra!=null&&rb!=null&&rb>ra+2;}
+function candleReject(last,side){const range=Math.max(last.h-last.l,1e-12),body=Math.max(Math.abs(last.c-last.o),range*.06),upper=last.h-Math.max(last.o,last.c),lower=Math.min(last.o,last.c)-last.l;return side==='top'?upper>body*1.25:lower>body*1.25;}
+function state(score,side){if(score>=75)return {t:'FORTE ATENÇÃO',c:side==='top'?'red':'green'};if(score>=55)return {t:'ATENÇÃO',c:'yellow'};if(score>=35)return {t:'OBSERVAR',c:'yellow'};return {t:'SEM EXAUSTÃO FORTE',c:''};}
+function scoreSide(side,x){let s=0,r=[];const near=side==='top'?x.dHigh:x.dLow;if(near<=.25){s+=30;r.push('Extremamente perto do extremo (≤0,25%)');}else if(near<=.6){s+=22;r.push('Perto do extremo (≤0,60%)');}else if(near<=1.5){s+=10;r.push('Dentro de 1,5% do extremo');}if(side==='top'){if(x.r>=72){s+=20;r.push('RSI elevado');}else if(x.r>=65){s+=12;r.push('RSI pressionado');}if(x.macd.now!=null&&x.macd.prev!=null&&x.macd.now<x.macd.prev){s+=14;r.push('MACD hist. perdendo força');}if(x.divTop){s+=20;r.push('Divergência baixista simples');}if(x.rejTop){s+=12;r.push('Candle com rejeição superior');}}else{if(x.r<=28){s+=20;r.push('RSI muito baixo');}else if(x.r<=35){s+=12;r.push('RSI pressionado para baixo');}if(x.macd.now!=null&&x.macd.prev!=null&&x.macd.now>x.macd.prev){s+=14;r.push('MACD hist. recuperando força');}if(x.divBottom){s+=20;r.push('Divergência altista simples');}if(x.rejBottom){s+=12;r.push('Candle com rejeição inferior');}}if(x.volRatio>=1.2){s+=6;r.push('Volume acima da média');}return {score:Math.min(100,s),reasons:r};}
+function setSemaphore(kind,text,sub){['Red','Yellow','Green'].forEach(k=>$('lamp'+k).classList.remove('on'));if(kind==='red')$('lampRed').classList.add('on');else if(kind==='green')$('lampGreen').classList.add('on');else $('lampYellow').classList.add('on');$('semaforoText').textContent=text;$('semaforoSub').textContent=sub;}
+function detectSpike(rows15,price){const {closed,live}=splitClosedLive(rows15);const base=closed.slice(-96);if(base.length<20||!live)return {type:'none'};const prevHigh=Math.max(...base.map(x=>x.h)),prevLow=Math.min(...base.map(x=>x.l));const atr15=atr(closed,14)||Math.max(prevHigh-prevLow,1e-12)/20;const topBreak=live.h>prevHigh,botBreak=live.l<prevLow;const topReject=topBreak&&price<prevHigh&&live.h-price>=atr15*.15;const botReject=botBreak&&price>prevLow&&price-live.l>=atr15*.15;if(topReject)return {type:'top',high:live.h,level:prevHigh,text:'⚡ Agulhada superior 15m: rompeu o topo anterior e voltou para dentro da faixa.'};if(botReject)return {type:'bottom',low:live.l,level:prevLow,text:'⚡ Agulhada inferior 15m: rompeu o fundo anterior e voltou para dentro da faixa.'};if(topBreak)return {type:'topBreak',high:live.h,level:prevHigh,text:'⚡ Rompimento superior 15m em andamento — ainda sem retorno para dentro da faixa.'};if(botBreak)return {type:'bottomBreak',low:live.l,level:prevLow,text:'⚡ Rompimento inferior 15m em andamento — ainda sem retorno para dentro da faixa.'};return {type:'none',text:'⚡ Nenhuma agulhada 15m relevante detectada no candle atual.'};}
+function swingPoints(rows){const c=splitClosedLive(rows).closed.slice(-180),tops=[],bottoms=[],n=2;for(let i=n;i<c.length-n;i++){let top=true,bot=true;for(let j=1;j<=n;j++){if(c[i].h<=c[i-j].h||c[i].h<=c[i+j].h)top=false;if(c[i].l>=c[i-j].l||c[i].l>=c[i+j].l)bot=false;}if(top)tops.push({t:c[i].t,p:c[i].h});if(bot)bottoms.push({t:c[i].t,p:c[i].l});}return {tops:tops.slice(-5).reverse(),bottoms:bottoms.slice(-5).reverse()};}
+function renderSwings(rows15,price){const s=swingPoints(rows15);const item=x=>`<div class="swingItem"><div><div class="swingPrice">${fmt(x.p)}</div><div class="swingTime">${new Date(x.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div><div class="stamp">${pct((x.p-price)/price*100)}</div></div>`;$('swingHighs').innerHTML=s.tops.length?s.tops.map(item).join(''):'Nenhum topo confirmado recente.';$('swingLows').innerHTML=s.bottoms.length?s.bottoms.map(item).join(''):'Nenhum fundo confirmado recente.';}
+function allSwingPoints(rows){
+  const c=splitClosedLive(rows).closed.slice(-180),tops=[],bottoms=[],n=2;
+  for(let i=n;i<c.length-n;i++){
+    let top=true,bot=true;
+    for(let j=1;j<=n;j++){
+      if(c[i].h<=c[i-j].h||c[i].h<=c[i+j].h)top=false;
+      if(c[i].l>=c[i-j].l||c[i].l>=c[i+j].l)bot=false;
+    }
+    if(top)tops.push({i,t:c[i].t,p:c[i].h});
+    if(bot)bottoms.push({i,t:c[i].t,p:c[i].l});
+  }
+  return {c,tops,bottoms};
+}
+function lineFit(points){
+  if(points.length<2)return null;
+  const mx=points.reduce((a,x)=>a+x.i,0)/points.length,my=points.reduce((a,x)=>a+x.p,0)/points.length;
+  let num=0,den=0;
+  for(const x of points){num+=(x.i-mx)*(x.p-my);den+=(x.i-mx)*(x.i-mx);}
+  const slope=den?num/den:0,intercept=my-slope*mx;
+  return {slope,intercept,at:i=>intercept+slope*i};
+}
+function directionLabel(points,tol){
+  if(points.length<3)return 'poucos pivôs';
+  const a=points.slice(-3),d1=a[1].p-a[0].p,d2=a[2].p-a[1].p;
+  if(Math.abs(d1)<=tol&&Math.abs(d2)<=tol)return 'horizontais';
+  if(d1>tol*.15&&d2>tol*.15)return 'ascendentes';
+  if(d1<-tol*.15&&d2<-tol*.15)return 'descendentes';
+  const net=a[2].p-a[0].p;
+  if(Math.abs(net)<=tol)return 'quase horizontais';
+  return net>0?'tendência ascendente':'tendência descendente';
+}
+function analyzeStructure15(rows15,price){
+  const a=allSwingPoints(rows15),closed=a.c,live=splitClosedLive(rows15).live;
+  if(closed.length<40||a.tops.length<2||a.bottoms.length<2)return {ready:false,type:'Estrutura insuficiente',reading:'Ainda há poucos pivôs confirmados para classificar a estrutura de 15m.'};
+  const atr15=atr(closed,14)||price*.003,tol=atr15*.45;
+  const tops=a.tops.slice(-4),bottoms=a.bottoms.slice(-4);
+  const topDir=directionLabel(tops,tol),botDir=directionLabel(bottoms,tol);
+  const rt=lineFit(tops.slice(-3)),rs=lineFit(bottoms.slice(-3)),idx=closed.length-1;
+  const res=rt?rt.at(idx):tops.at(-1).p,sup=rs?rs.at(idx):bottoms.at(-1).p;
+  const gapNow=res-sup,oldIdx=Math.max(0,idx-16);
+  const gapOld=(rt&&rs)?rt.at(oldIdx)-rs.at(oldIdx):gapNow;
+  const narrowing=gapNow>0&&gapOld>0&&gapNow<gapOld*.92;
+  const topDesc=topDir.includes('descendente'),topFlat=topDir.includes('horizontal');
+  const botAsc=botDir.includes('ascendente'),botFlat=botDir.includes('horizontal');
+  let type='Estrutura sem padrão claro';
+  if(topDesc&&botAsc)type='Triângulo / compressão simétrica';
+  else if(topDesc&&botFlat)type='Triângulo descendente / compressão';
+  else if(topFlat&&botAsc)type='Triângulo ascendente / compressão';
+  else if(narrowing)type='Compressão em formação';
+  const nearPct=Math.max(.18,(atr15/price*100)*.8);
+  const dRes=(res-price)/price*100,dSup=(price-sup)/price*100;
+  const nearRes=Math.abs(dRes)<=nearPct,nearSup=Math.abs(dSup)<=nearPct;
+  const last=closed.at(-1),resLast=rt?rt.at(idx):res,supLast=rs?rs.at(idx):sup;
+  let breakout='NÃO';
+  const closeTol=Math.max(price*.0004,atr15*.06);
+  if(last.c>resLast+closeTol)breakout='SIM — acima da resistência';
+  else if(last.c<supLast-closeTol)breakout='SIM — abaixo do suporte';
+  let structuralSpike='NÃO';
+  if(live){
+    const liveIdx=idx+1,resLive=rt?rt.at(liveIdx):res,supLive=rs?rs.at(liveIdx):sup;
+    if(live.h>resLive&&price<resLive)structuralSpike='SUPERIOR — saiu e voltou';
+    else if(live.l<supLive&&price>supLive)structuralSpike='INFERIOR — saiu e voltou';
+  }
+  const compression=(type.includes('Triângulo')||narrowing)?'SIM':'NÃO/FRACA';
+  let reading='⚖️ Estrutura 15m sem teste decisivo agora.';
+  if(structuralSpike.startsWith('SUPERIOR'))reading='⚡ Possível falsa saída/agulhada acima da resistência projetada; o preço voltou para dentro da estrutura.';
+  else if(structuralSpike.startsWith('INFERIOR'))reading='⚡ Possível falsa saída/agulhada abaixo do suporte projetado; o preço voltou para dentro da estrutura.';
+  else if(breakout.startsWith('SIM'))reading='✅ '+breakout+' no último candle 15m fechado. Confirme volume e continuidade antes de interpretar como rompimento sustentado.';
+  else if(nearRes)reading='🟡 TESTANDO RESISTÊNCIA 15m — preço muito próximo da linha superior projetada; aguarde fechamento ou rejeição.';
+  else if(nearSup)reading='🟡 TESTANDO SUPORTE 15m — preço muito próximo da linha inferior projetada; aguarde fechamento ou reação.';
+  else if(compression==='SIM')reading='📐 '+type+' — distância entre suporte e resistência está comprimindo.';
+  return {ready:true,type,compression,topDir,botDir,res,sup,dRes,dSup,nearRes,nearSup,breakout,structuralSpike,reading,nearPct};
+}
+function renderStructure(rows15,price){
+  const z=analyzeStructure15(rows15,price);
+  $('structureType').textContent=z.type||'—';
+  $('compression').textContent=z.compression||'—';
+  $('topsDirection').textContent=z.topDir||'—';
+  $('bottomsDirection').textContent=z.botDir||'—';
+  $('resistance15').textContent=z.ready?fmt(z.res):'—';
+  $('support15').textContent=z.ready?fmt(z.sup):'—';
+  $('nearResistance').textContent=z.ready?(z.nearRes?'TESTANDO • distância '+pct(z.dRes):'distância '+pct(z.dRes)):'—';
+  $('nearSupport').textContent=z.ready?(z.nearSup?'TESTANDO • distância '+pct(z.dSup):'distância '+pct(z.dSup)):'—';
+  $('closedBreakout').textContent=z.breakout||'—';
+  $('structureSpike').textContent=z.structuralSpike||'—';
+  $('structureReading').textContent=z.reading||'—';
+  $('structureReading').className='notice '+((z.structuralSpike&&z.structuralSpike!=='NÃO')?'spike':'');
+  return z;
+}
+
+
+function updateBuySellSystem({structure,spike,bot,top,price,hi,lo}){
+  const pos=(Number.isFinite(hi)&&Number.isFinite(lo)&&hi>lo)?(price-lo)/(hi-lo)*100:50;
+  const greenSpike=(structure?.structuralSpike||'').startsWith('INFERIOR')||spike?.type==='bottom';
+  const redSpike=(structure?.structuralSpike||'').startsWith('SUPERIOR')||spike?.type==='top';
+  const nearSup=!!structure?.nearSup, nearRes=!!structure?.nearRes;
+
+  let buyStatus='⚪ AGUARDAR', buyReason='Preço ainda sem evidência suficiente de fundo/reação.';
+  if(greenSpike){
+    buyStatus='🟢 CONFERIR COMPRA';
+    buyReason='Agulhada/reação na região de fundo ou suporte. Confirmar fechamento 15m, RSI, MACD e volume.';
+  }else if(bot.score>=65&&bot.score>=top.score+10){
+    buyStatus='🟢 COMPRA EM OBSERVAÇÃO';
+    buyReason='Exaustão de fundo predominante. Falta validar a reação pelo fechamento do 15m e pelas confirmações.';
+  }else if(nearSup||bot.score>=35||pos<=30){
+    buyStatus='🟡 PREPARAR / OBSERVAR FUNDO';
+    buyReason='Preço está na parte baixa ou perto do suporte, mas ainda não há confirmação suficiente para a compra.';
+  }else{
+    buyStatus='⚪ LONGE DA COMPRA';
+    buyReason='O preço não está em uma região baixa suficientemente interessante agora.';
+  }
+
+  let sellStatus='⚪ AGUARDAR', sellReason='Preço ainda sem evidência suficiente de topo/rejeição.';
+  if(redSpike){
+    sellStatus='🔴 CONFERIR VENDA';
+    sellReason='Agulhada/rejeição na região de topo ou resistência. Confirmar fechamento 15m, RSI, MACD e volume.';
+  }else if(top.score>=65&&top.score>=bot.score+10){
+    sellStatus='🔴 VENDA EM OBSERVAÇÃO';
+    sellReason='Exaustão de topo predominante. Falta validar a rejeição pelo fechamento do 15m e pelas confirmações.';
+  }else if(nearRes||top.score>=35||pos>=70){
+    sellStatus='🟡 PREPARAR / OBSERVAR TOPO';
+    sellReason='Preço está na parte alta ou perto da resistência, mas ainda não há confirmação suficiente para a venda.';
+  }else{
+    sellStatus='⚪ LONGE DA VENDA';
+    sellReason='O preço não está em uma região alta suficientemente interessante agora.';
+  }
+
+  let focus='🟡 MEIO DA FAIXA — AGUARDAR', focusClass='wait';
+  if(greenSpike||(bot.score>=65&&bot.score>=top.score+10)){
+    focus='🟢 FOCO AGORA: POSSÍVEL COMPRA EMBAIXO — conferir reação e fechamento 15m';
+    focusClass='buy';
+  }else if(redSpike||(top.score>=65&&top.score>=bot.score+10)){
+    focus='🔴 FOCO AGORA: POSSÍVEL VENDA EM CIMA — conferir rejeição e fechamento 15m';
+    focusClass='sell';
+  }else if(pos<=30){
+    focus='🟢 PREÇO NA PARTE BAIXA DA FAIXA — radar procurando confirmação de COMPRA';
+    focusClass='buy';
+  }else if(pos>=70){
+    focus='🔴 PREÇO NA PARTE ALTA DA FAIXA — radar procurando confirmação de VENDA';
+    focusClass='sell';
+  }
+
+  $('buyStatus').textContent=buyStatus;
+  $('buyReason').textContent=buyReason;
+  $('sellStatus').textContent=sellStatus;
+  $('sellReason').textContent=sellReason;
+  const rd=$('rangeDecision'); rd.textContent=focus; rd.className='rangeDecision '+focusClass;
+  return {buyStatus,buyReason,sellStatus,sellReason,focus,position24:pos};
+}
+
+function setAction(kind,main,sub){
+  const box=$('actionBox');box.className='actionBox '+kind;$('actionMain').textContent=main;$('actionSub').textContent=sub;
+  return {kind,main,sub};
+}
+function decideAction({structure,spike,bot,top,rr,prevRsi,liveRsi,mh,liveMacd,vr,liveVr,lastClosed,live,price}){
+  const rsiUp=Number.isFinite(prevRsi)&&Number.isFinite(rr)&&rr>prevRsi;
+  const liveRsiUp=Number.isFinite(liveRsi)&&Number.isFinite(rr)&&liveRsi>rr;
+  const macdUp=Number.isFinite(mh.now)&&Number.isFinite(mh.prev)&&mh.now>mh.prev;
+  const liveMacdUp=Number.isFinite(liveMacd)&&Number.isFinite(mh.now)&&liveMacd>mh.now;
+  const volOk=(Number.isFinite(liveVr)?liveVr:vr)>=1.0;
+  const bullCandle=live&&live.c>live.o;
+  const bearCandle=live&&live.c<live.o;
+  const supportLost=structure?.ready&&structure.breakout&&structure.breakout.includes('abaixo do suporte');
+  const resistanceBroken=structure?.ready&&structure.breakout&&structure.breakout.includes('acima da resistência');
+  if(supportLost)return setAction('red','🔴 INVALIDADO / PRESSÃO BAIXISTA','O último candle 15m fechou abaixo do suporte projetado. Não trate o verde anterior como confirmação; aguarde nova recuperação da estrutura.');
+  if(resistanceBroken)return setAction('green','🟢 ROMPIMENTO FECHADO — CONFERIR CONTINUIDADE','O 15m fechou acima da resistência. Confira volume e continuidade; rompimento fechado não garante continuação.');
+  const greenSpike=(structure?.structuralSpike||'').startsWith('INFERIOR')||spike?.type==='bottom';
+  const redSpike=(structure?.structuralSpike||'').startsWith('SUPERIOR')||spike?.type==='top';
+  if(greenSpike){
+    const confirmations=[liveRsiUp||rsiUp,liveMacdUp||macdUp,volOk,bullCandle].filter(Boolean).length;
+    if(confirmations>=3)return setAction('green','🟢 CONFERIR REAÇÃO — 3+ confirmações','Agulhada no suporte/fundo com RSI/MACD/volume/candle reagindo. A confirmação principal continua sendo o fechamento do 15m de volta dentro/acima do suporte.');
+    return setAction('green','🟢 CONFERIR REAÇÃO — AGUARDAR FECHAMENTO 15m','Agulhada no suporte/fundo detectada. Confira RSI subindo, MACD melhorando e volume; não considere confirmado antes do fechamento relevante.');
+  }
+  if(redSpike)return setAction('red','🔴 CONFERIR REJEIÇÃO — AGUARDAR FECHAMENTO 15m','Agulhada na resistência/topo detectada. Confira RSI/MACD/volume e se o 15m fecha novamente dentro da estrutura.');
+  if(structure?.nearSup)return setAction('yellow','🟡 SUPORTE EM TESTE — AGUARDAR','Preço perto do suporte projetado. Observe reação do candle, RSI, MACD e volume antes de interpretar como fundo.');
+  if(structure?.nearRes)return setAction('yellow','🟡 RESISTÊNCIA EM TESTE — AGUARDAR','Preço perto da resistência projetada. Observe rejeição/rompimento, RSI, MACD e volume antes de interpretar como topo.');
+  if(bot.score>=65&&bot.score>=top.score+10){
+    const confirms=[rsiUp,macdUp,vr>=1].filter(Boolean).length;
+    if(confirms>=2)return setAction('green','🟢 FUNDO EM CONFIRMAÇÃO TÉCNICA','Exaustão de fundo predominante e pelo menos duas confirmações melhoraram. Verifique o candle e a estrutura antes de qualquer decisão.');
+    return setAction('green','🟢 FUNDO EM OBSERVAÇÃO — CONFERIR','Exaustão de fundo predominante, mas ainda faltam confirmações de RSI/MACD/volume.');
+  }
+  if(top.score>=65&&top.score>=bot.score+10)return setAction('red','🔴 TOPO EM OBSERVAÇÃO — CONFERIR','Exaustão de topo predominante. Verifique rejeição, RSI/MACD e volume antes de interpretar reversão.');
+  return setAction('yellow','🟡 AGUARDAR / OBSERVAR','Sem extremo suficientemente confirmado agora. Continue acompanhando a próxima atualização.');
+}
+function buildNextTrigger(d){
+  const n=v=>Number.isFinite(v)?fmt(v):'—';
+  const breakout=String(d.breakout||'').toLowerCase();
+  const topDir=String(d.topDir||'').toLowerCase();
+  const botDir=String(d.botDir||'').toLowerCase();
+  const bullStructure=topDir.includes('ascendente')&&botDir.includes('ascendente');
+  const bearStructure=topDir.includes('descendente')&&botDir.includes('descendente');
+  const res=Number.isFinite(d.resistance)?d.resistance:null;
+  const sup=Number.isFinite(d.support)?d.support:null;
+  const ema200=Number.isFinite(d.ema200)?d.ema200:null;
+  const high=Number.isFinite(d.hi)?d.hi:null;
+  const near=(a,b,p=0.35)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)/Math.max(Math.abs(a),1)*100<=p;
+  let strong='';
+  if(res!=null&&ema200!=null&&ema200>res){
+    strong=' Confirmação mais forte acima da EMA200 em '+n(ema200);
+    if(high!=null&&near(high,ema200)) strong+=' / máxima 24h '+n(high);
+    strong+='.';
+  }else if(res!=null&&high!=null&&high>res&&near(high,res,0.8)){
+    strong=' Confirmação mais forte acima da máxima 24h em '+n(high)+'.';
+  }
+  if(breakout.includes('acima da resistência')){
+    return 'Rompimento já fechado. Agora conferir se o próximo 15m mantém acima de '+n(res)+' com RSI fechado > 50, MACD hist. fechado positivo e volume ≥ 1,0×.'+strong;
+  }
+  if(breakout.includes('abaixo do suporte')){
+    return 'Estrutura perdeu o suporte. Para recuperação, aguardar fechamento de 15m novamente acima de '+n(sup)+' com RSI fechado recuperando 50, MACD melhorando e volume de confirmação.';
+  }
+  if((d.structureSpike||'').startsWith('INFERIOR')||d.spike==='bottom'){
+    return 'Confirmar a reação somente com fechamento de 15m de volta acima do suporte/estrutura ('+n(sup)+'), RSI fechado subindo, MACD melhorando e volume ≥ 1,0×.';
+  }
+  if((d.structureSpike||'').startsWith('SUPERIOR')||d.spike==='top'){
+    return 'Confirmar a rejeição somente se o 15m fechar novamente abaixo da resistência ('+n(res)+'), com RSI fechado perdendo força, MACD enfraquecendo e volume compatível.';
+  }
+  if(bullStructure&&res!=null){
+    return 'Fechamento de 15m acima de '+n(res)+' + RSI fechado > 50 + MACD hist. fechado positivo + volume ≥ 1,0×.'+strong;
+  }
+  if(bearStructure&&sup!=null){
+    return 'Fechamento de 15m abaixo de '+n(sup)+' + RSI fechado < 50 + MACD hist. fechado negativo + volume ≥ 1,0× para confirmar continuidade baixista.';
+  }
+  if(res!=null&&sup!=null){
+    return 'Aguardar definição da faixa: fechamento de 15m acima de '+n(res)+' confirma força; abaixo de '+n(sup)+' confirma fraqueza. Validar sempre com RSI fechado, MACD e volume.';
+  }
+  return 'Aguardar novo fechamento de 15m com estrutura definida; use RSI fechado, MACD e volume como confirmação, não o candle em formação isoladamente.';
+}
+function buildReports(d){
+  const when=new Date().toLocaleString('pt-BR');
+  const fmtN=v=>Number.isFinite(v)?fmt(v):'—';
+  const pctN=v=>Number.isFinite(v)?v.toFixed(2).replace('.',',')+'%':'—';
+  const rsiLive=Number.isFinite(d.liveRsi)?d.liveRsi.toFixed(1):'—',rsiClosed=Number.isFinite(d.rsi)?d.rsi.toFixed(1):'—';
+  const nextTrigger=buildNextTrigger(d); d.nextTrigger=nextTrigger; const nt=$('nextTriggerText'); if(nt)nt.textContent=nextTrigger;
+  const user=`RELATÓRIO RÁPIDO — RADAR MÁX/MÍN EGI\n${when}\nAtivo: ${d.coin}/USDT | TF: ${d.tf}\n\n${d.semaphore}\nO QUE FAZER AGORA: ${d.action.main}\n${d.action.sub}\n\nPRÓXIMO GATILHO: ${nextTrigger}\n\nPreço: ${fmtN(d.price)}\nMáxima 24h: ${fmtN(d.hi)} | distância ${pctN(d.dHigh)}\nMínima 24h: ${fmtN(d.lo)} | distância ${pctN(d.dLow)}\nRSI: ao vivo ${rsiLive} | fechado ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nVolume/média: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nExaustão: topo ${d.top}/100 | fundo ${d.bottom}/100\nEstrutura 15m: ${d.structureType}\nSuporte: ${fmtN(d.support)} | Resistência: ${fmtN(d.resistance)}\nAgulhada: ${d.structureSpike||d.spike||'NÃO'}\n\nRegra: verde = procurar COMPRA em região baixa; vermelho = procurar VENDA em região alta. Sempre confirmar pelo fechamento do 15m, RSI fechado, MACD, volume e estrutura. Venda Spot não significa abrir Short.`;
+  const gpt=`RELATÓRIO INTELIGENTE PARA CHATGPT — RADAR MÁXIMA/MÍNIMA EGI\nGerado em: ${when}\n\nATIVO / MERCADO\nAtivo: ${d.coin}/USDT\nMercado: ${d.marketLabel}\nTimeframe técnico: ${d.tf}\nPreço atual: ${fmtN(d.price)}\n\nESTADO OPERACIONAL\nSemáforo: ${d.semaphore}\nO que fazer agora: ${d.action.main}\nOrientação do app: ${d.action.sub}\n\nPRÓXIMO GATILHO\n${nextTrigger}\n\nEXTREMOS 24H\nMáxima: ${fmtN(d.hi)} | distância até a máxima: ${pctN(d.dHigh)}\nMínima: ${fmtN(d.lo)} | distância até a mínima: ${pctN(d.dLow)}\n\nINDICADORES\nRSI 14 ao vivo: ${rsiLive}\nRSI 14 último candle fechado: ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nMACD hist. ao vivo: ${fmtN(d.liveMacd)}\nVolume último fechado / média 20: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nVolume candle em formação / média 20: ${Number.isFinite(d.liveVolRatio)?d.liveVolRatio.toFixed(2)+'×':'—'}\nATR 14: ${fmtN(d.atr)}\nEMA 9: ${fmtN(d.ema9)} | EMA 14: ${fmtN(d.ema14)} | EMA 200: ${fmtN(d.ema200)}\n\nEXAUSTÃO\nTopo: ${d.top}/100\nFundo: ${d.bottom}/100\n\nESTRUTURA 15m\nTipo: ${d.structureType}\nCompressão: ${d.compression}\nTopos: ${d.topDir}\nFundos: ${d.botDir}\nResistência projetada: ${fmtN(d.resistance)}\nSuporte projetado: ${fmtN(d.support)}\nRompimento fechado: ${d.breakout}\nAgulhada estrutural: ${d.structureSpike}\nAgulhada 15m: ${d.spike}\n\nPEDIDO AO CHATGPT\nAnalise esta leitura como confirmação técnica, não como ordem automática. Diga: (1) o que está confirmado, (2) o que ainda falta confirmar, (3) o que invalidaria a reação/estrutura, e (4) quais níveis técnicos merecem acompanhamento, e (5) se o PRÓXIMO GATILHO calculado pelo app está coerente com os dados. Diferencie RSI ao vivo do RSI fechado e dê prioridade ao fechamento do candle e à estrutura de 15m.`;
+  lastReports={user,gpt};$('userReport').textContent=user;$('gptReport').textContent=gpt;
+}
+async function copyReport(kind){const t=lastReports[kind]||'';if(!t)return alert('Atualize o radar primeiro.');try{await navigator.clipboard.writeText(t);alert('Relatório copiado.');}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Relatório copiado.');}}
+async function shareReport(kind){const t=lastReports[kind]||'';if(!t)return alert('Atualize o radar primeiro.');if(navigator.share){try{await navigator.share({title:kind==='gpt'?'Relatório para ChatGPT':'Relatório EGI',text:t});return;}catch(e){if(e.name==='AbortError')return;}}copyReport(kind);}
+function downloadGptReport(){const t=lastReports.gpt||'';if(!t)return alert('Atualize o radar primeiro.');const blob=new Blob([t],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Radar_MaxMin_${coin}_${$('timeframe').value}_GPT.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function speakUserReport(){if(!lastReports.user)return say('Atualize o radar primeiro.');say(lastReports.user);}
+
+function render(ticker,rowsTf,rows15){const tf=$('timeframe').value,{closed,live}=splitClosedLive(rowsTf);if(closed.length<205)throw Error('Poucos candles fechados recebidos para '+tf+'.');const lastClosed=closed.at(-1),cl=closed.map(x=>x.c),price=Number.isFinite(ticker.last)?ticker.last:(live?.c??lastClosed.c),hi=ticker.high,lo=ticker.low;if(![price,hi,lo].every(Number.isFinite))throw Error('Ticker 24h inválido.');const dHigh=(hi-price)/price*100,dLow=(price-lo)/price*100,pos=hi>lo?(price-lo)/(hi-lo)*100:50;const rrS=rsiSeries(cl,14),rr=[...rrS].reverse().find(Number.isFinite),prevRsi=rrS.slice(0,-1).reverse().find(Number.isFinite),liveRsiSeries=rsiSeries(rowsTf.map(x=>x.c),14),liveRsi=[...liveRsiSeries].reverse().find(Number.isFinite)??rr,mh=macdHist(cl),liveMacdObj=macdHist(rowsTf.map(x=>x.c)),liveMacd=liveMacdObj.now,a=atr(closed),volAvg=closed.slice(-20).reduce((q,x)=>q+x.v,0)/20,vr=volAvg?lastClosed.v/volAvg:0,liveVr=volAvg&&live?live.v/volAvg:vr,e9=ema(cl,9),e14=ema(cl,14),e200=ema(cl,200);const x={dHigh,dLow,r:rr,macd:mh,volRatio:vr,divTop:divergence(closed,'top'),divBottom:divergence(closed,'bottom'),rejTop:candleReject(lastClosed,'top'),rejBottom:candleReject(lastClosed,'bottom')};const top=scoreSide('top',x),bot=scoreSide('bottom',x),spike=detectSpike(rows15,price),structure=renderStructure(rows15,price);drawMarketCharts(rowsTf,tf,liveRsi,rr);
+$('pairTitle').textContent=coin+'/USDT';$('pairTopPrice').textContent=fmt(price);$('price').textContent=fmt(price);$('lastCandle').textContent='Último '+tf+' fechado: '+new Date(lastClosed.end).toLocaleString('pt-BR');$('high24').textContent=fmt(hi);$('low24').textContent=fmt(lo);$('distHigh').textContent='Distância: '+pct(dHigh);$('distLow').textContent='Distância: '+pct(dLow);$('rangePos').textContent=pct(pos);$('rangeFill').style.width=Math.max(0,Math.min(100,pos))+'%';$('barLow').textContent='mín '+fmt(lo);$('barHigh').textContent='máx '+fmt(hi);$('rsi').textContent=rr?.toFixed(1)??'—';$('macd').textContent=fmt(mh.now);$('atr').textContent=fmt(a)+' ('+pct(a/price*100)+')';$('volRatio').textContent=vr.toFixed(2)+'×';$('emaFast').textContent=fmt(e9)+' / '+fmt(e14);$('ema200').textContent=fmt(e200);$('tfLabel').textContent=tf;$('topScore').textContent=top.score+'/100';$('bottomScore').textContent=bot.score+'/100';const ts=state(top.score,'top'),bs=state(bot.score,'bottom');$('topState').textContent=ts.t;$('topState').className='pill '+ts.c;$('bottomState').textContent=bs.t;$('bottomState').className='pill '+bs.c;
+let reading;if(top.score>=bot.score+15)reading='📈 Leitura mais concentrada em TOPO/EXAUSTÃO no '+tf+'. Atenção à perda de força; não é ordem de venda.';else if(bot.score>=top.score+15)reading='📉 Leitura mais concentrada em FUNDO/EXAUSTÃO no '+tf+'. Atenção à reação; não é ordem de compra.';else reading='⚖️ Sem vantagem clara entre topo e fundo no '+tf+' agora.';$('mainReading').textContent=reading;$('spikeReading').textContent=spike.text;$('spikeReading').className='notice '+(spike.type!=='none'?'spike':'');
+if(structure.structuralSpike&&structure.structuralSpike.startsWith('SUPERIOR')){setSemaphore('red','🔴 POSSÍVEL VENDA — AGULHADA NA RESISTÊNCIA 15m','Saiu acima da linha projetada e voltou para dentro; confirme o fechamento e o volume.');}else if(structure.structuralSpike&&structure.structuralSpike.startsWith('INFERIOR')){setSemaphore('green','🟢 POSSÍVEL COMPRA — AGULHADA NO SUPORTE 15m','Saiu abaixo da linha projetada e voltou para dentro; confirme o fechamento e o volume.');}else if(spike.type==='top'){setSemaphore('red','🔴 POSSÍVEL VENDA — AGULHADA NO TOPO 15m','Rejeição rápida acima do topo anterior; confirme o contexto antes de agir.');}else if(spike.type==='bottom'){setSemaphore('green','🟢 POSSÍVEL COMPRA — AGULHADA NO FUNDO 15m','Rejeição rápida abaixo do fundo anterior; confirme o contexto antes de agir.');}else if(structure.nearRes&&(!structure.breakout||structure.breakout==='NÃO')){setSemaphore('yellow','🟡 TESTANDO RESISTÊNCIA 15m','Preço encostando na linha superior da estrutura; aguardando fechamento ou rejeição.');}else if(structure.nearSup&&(!structure.breakout||structure.breakout==='NÃO')){setSemaphore('yellow','🟡 TESTANDO SUPORTE 15m','Preço encostando na linha inferior da estrutura; aguardando fechamento ou reação.');}else if(top.score>=65&&top.score>=bot.score+10){setSemaphore('red','🔴 POSSÍVEL VENDA NO TOPO','Exaustão de topo predominante no '+tf+'.');}else if(bot.score>=65&&bot.score>=top.score+10){setSemaphore('green','🟢 POSSÍVEL COMPRA NO FUNDO','Exaustão de fundo predominante no '+tf+'.');}else{setSemaphore('yellow','🟡 AGUARDAR / OBSERVAR','Sem confirmação forte de extremo neste momento.');}
+const action=decideAction({structure,spike,bot,top,rr,prevRsi,liveRsi,mh,liveMacd,vr,liveVr,lastClosed,live,price});
+const buySell=updateBuySellSystem({structure,spike,bot,top,price,hi,lo});
+const semaphore=$('semaforoText').textContent;
+lastData={coin,tf,price,hi,lo,dHigh,dLow,top:top.score,bottom:bot.score,rsi:rr,liveRsi,macd:mh.now,liveMacd,volRatio:vr,liveVolRatio:liveVr,atr:a,ema9:e9,ema14:e14,ema200:e200,spike:spike.type,structure:structure.type,structureType:structure.type,compression:structure.compression||'—',topDir:structure.topDir||'—',botDir:structure.botDir||'—',resistance:structure.res,support:structure.sup,breakout:structure.breakout||'—',structureSpike:structure.structuralSpike||'—',semaphore,action,buySell,marketLabel:$('market').selectedOptions[0]?.textContent||$('market').value};
+buildReports(lastData);
+$('reasons').innerHTML=[['TOPO',top.reasons,top.score],['FUNDO',bot.reasons,bot.score]].map(([n,rs,sc])=>'<div class="reason"><b>'+n+' '+sc+'/100</b><div class="muted">'+(rs.length?rs.join(' • '):'Poucas evidências neste momento.')+'</div></div>').join('');renderSwings(rows15,price);setStatus('Atualizado '+new Date().toLocaleTimeString('pt-BR')+' • TF '+tf+' • RSI ao vivo '+(liveRsi!=null?liveRsi.toFixed(1):'—'),'ok');}
+function setAutoUi(){
+  const ms=+$('refreshEvery').value;
+  $('autoBtn').textContent=isAuto&&ms?'⏸ Parar auto ('+(ms/1000)+'s)':'▶ Iniciar auto';
+  updateAutoCountdown();
+}
+function updateAutoCountdown(){
+  const el=$('autoStatus'); if(!el)return;
+  const ms=+$('refreshEvery').value;
+  if(!isAuto||!ms){el.textContent='Auto parado • use Atualizar agora ou escolha um intervalo automático.';return;}
+  const left=Math.max(0,Math.ceil((nextDue-Date.now())/1000));
+  el.textContent=refreshRunning?'Atualizando agora…':'Auto ATIVO • próxima leitura em '+left+'s';
+}
+function stopAuto(){
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  isAuto=false;nextDue=0;setAutoUi();
+}
+function scheduleNext(){
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  const ms=+$('refreshEvery').value;
+  if(!isAuto||!ms){setAutoUi();return;}
+  nextDue=Date.now()+ms;
+  autoTimer=setTimeout(()=>{autoTimer=null;refreshAll();},ms);
+  setAutoUi();
+}
+async function refreshAll(){
+  if(refreshRunning)return;
+  refreshRunning=true;
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  const b=$('refreshBtn'),tb=$('topRefreshBtn');b.disabled=true;if(tb){tb.disabled=true;tb.textContent='⏳ ATUALIZANDO';}const tf=$('timeframe').value;
+  setStatus('Buscando '+coin+' • '+tf+' + estrutura 15m…','busy');updateAutoCountdown();
+  try{
+    const pTicker=getTicker24(),pTf=getCandles(tf,280),p15=tf==='15m'?null:getCandles('15m',280);
+    const [ticker,rowsTf,other15]=await Promise.all([pTicker,pTf,p15]);
+    render(ticker,rowsTf,tf==='15m'?rowsTf:other15);
+    const q=$('quote-'+coin); if(q&&Number.isFinite(ticker.last))q.textContent=fmt(ticker.last); if(Number.isFinite(ticker.last))$('pairTopPrice').textContent=fmt(ticker.last);
+  }catch(e){
+    setStatus('Erro: '+(e.message||e));
+    $('mainReading').textContent='Não foi possível atualizar. Verifique internet/corretora e tente novamente.';
+  }finally{
+    b.disabled=false;if(tb){tb.disabled=false;tb.textContent='🔄 ATUALIZAR';}refreshRunning=false;
+    updateQuickQuotes();
+    if(isAuto)scheduleNext(); else updateAutoCountdown();
+  }
+}
+function openTradingView(){
+  const tf=$('timeframe').value;
+  const interval=({'1m':'1','5m':'5','15m':'15','30m':'30','1h':'60','4h':'240'})[tf]||'15';
+  const m=$('market').value;
+  let tvSymbol;
+  if(m==='binance_futures') tvSymbol='BINANCE:'+coin+'USDT.P';
+  else if(m==='mexc_spot') tvSymbol='MEXC:'+coin+'USDT';
+  else tvSymbol='BINANCE:'+coin+'USDT';
+  const url='https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'&interval='+encodeURIComponent(interval);
+  window.open(url,'_blank','noopener');
+}
+function selectCoin(c){
+  coin=c;
+  document.querySelectorAll('#coinButtons button').forEach(b=>b.classList.toggle('active',b.dataset.coin===c));
+  $('pairTitle').textContent=c+'/USDT';
+  const qq=$('quote-'+c)?.textContent; $('pairTopPrice').textContent=(qq&&qq!=='—')?qq:'—';
+  $('chartPair').textContent=c+'/USDT';
+  refreshAll();
+}
+function updateModeHint(){
+  const tf=$('timeframe').value,ms=+$('refreshEvery').value,label=ms?ms/1000+' segundos':'manual';
+  $('modeHint').textContent='TF: '+tf+' • Atualização: '+label+'. O candle 15m em formação é acompanhado para detectar agulhadas; o gráfico interno acompanha a moeda e o TF selecionados.';
+  if(!ms){stopAuto();return;}
+  // Ao escolher um intervalo automático, ele começa na hora.
+  if(!isAuto)isAuto=true;
+  setAutoUi();
+  refreshAll();
+}
+function toggleAuto(){
+  if(isAuto){stopAuto();return;}
+  const ms=+$('refreshEvery').value;
+  if(!ms){alert('Escolha um tempo automático diferente de Manual.');return;}
+  isAuto=true;setAutoUi();refreshAll();
+}
+document.querySelectorAll('#coinButtons button').forEach(b=>b.addEventListener('click',()=>selectCoin(b.dataset.coin)));
+$('market').addEventListener('change',()=>{updateQuickQuotes();refreshAll();});
+$('timeframe').addEventListener('change',updateModeHint);
+$('refreshEvery').addEventListener('change',updateModeHint);
+window.addEventListener('online',()=>{if(isAuto)refreshAll();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isAuto)refreshAll();});
+function stopSpeech(){if('speechSynthesis'in window)speechSynthesis.cancel();}
+function say(t){if(!('speechSynthesis'in window))return alert('Áudio não disponível neste navegador.');stopSpeech();const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';u.rate=parseFloat($('speechRate')?.value||'1');speechSynthesis.speak(u);}
+function speakManual(){say($('manualText').innerText);}
+function speakSummary(){if(!lastData)return say('Atualize o radar primeiro.');const d=lastData;say(`${d.coin} USDT. Timeframe ${d.tf}. ${d.action.main}. ${d.action.sub}. Preço ${fmt(d.price)}. Máxima móvel de 24 horas ${fmt(d.hi)}, distância ${d.dHigh.toFixed(2)} por cento. Mínima ${fmt(d.lo)}, distância ${d.dLow.toFixed(2)} por cento. Exaustão de topo ${d.top} de 100. Exaustão de fundo ${d.bottom} de 100. RSI ao vivo ${Number.isFinite(d.liveRsi)?d.liveRsi.toFixed(1):'indisponível'}. RSI fechado ${Number.isFinite(d.rsi)?d.rsi.toFixed(1):'indisponível'}.`);}
+window.addEventListener('resize',()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(lastChartRows.length)drawMarketCharts(lastChartRows,lastChartTf,lastChartLiveRsi,lastChartClosedRsi);},120);});
+countdownTimer=setInterval(updateAutoCountdown,1000);
+// Como o padrão é 15 s, o auto já inicia. Manual desliga.
+updateQuickQuotes();
+if(+$('refreshEvery').value){isAuto=true;setAutoUi();refreshAll();}else{updateModeHint();refreshAll();}
+</script></body></html>
