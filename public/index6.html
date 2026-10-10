@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.5 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.5.1 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -377,9 +377,9 @@ header h1{font-size:26px}
       <label>Atualizar</label>
       <div class="quick-auto-inline">
         <select id="queryAutoSec" aria-label="Atualização automática da moeda consultada">
-          <option value="0" selected>Não</option>
+          <option value="0">Não</option>
           <option value="30">30s</option>
-          <option value="60">1 min</option>
+          <option value="60" selected>1 min</option>
         </select>
         <button id="quickRefreshBtn" type="button">🔄 Agora</button>
       </div>
@@ -2910,7 +2910,7 @@ function bestRawSignal(results){
 }
 function renderMultiMonitor(){
   if(!$('mmList')) return;
-  const bases=[...savedAssets].sort((a,b)=>a.localeCompare(b));
+  const bases=[...savedAssets].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b));
   let nLong=0,nShort=0,nWait=0,nPending=0,nError=0;
   for(const base of bases){
     const s=multiMonitorState[base]||{};
@@ -2929,7 +2929,7 @@ function renderMultiMonitor(){
   $('mmError').textContent=nError;
 
   if(!bases.length){
-    $('mmList').innerHTML='<div class="mm-status">Nenhuma moeda cadastrada ainda.</div>';
+    $('mmList').innerHTML='<div class="mm-status">Lista vazia. Clique em ▶ Monitorar lista para carregar o mercado Binance e exibir as estrelas de favoritos.</div>';
     return;
   }
   $('mmList').innerHTML=bases.map(base=>{
@@ -2946,11 +2946,13 @@ function renderMultiMonitor(){
       : '⚪ Aguardando varredura';
     const score=Number.isFinite(Number(s.score))?`RelOk ${Number(s.score)}/100${Number.isFinite(Number(s.iqe))?` • IQE ${Number(s.iqe)}/100`:''}`:(s.updatedAt?new Date(s.updatedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'');
     return `<div class="mm-row">
+      <button type="button" data-mm-fav="${base}" title="Favoritar ${base}">${favoriteAssets.includes(base)?'⭐':'☆'}</button>
       <button type="button" data-mm-asset="${base}" title="Abrir ${base}/USDT">${base}/USDT</button>
       <div class="mm-state ${cls}">${stateText}</div>
       <div class="mm-score">${score}</div>
     </div>`;
   }).join('');
+  $('mmList').querySelectorAll('[data-mm-fav]').forEach(btn=>btn.addEventListener('click',()=>{toggleFavorite(btn.dataset.mmFav);renderMultiMonitor();}));
   $('mmList').querySelectorAll('[data-mm-asset]').forEach(btn=>btn.addEventListener('click',()=>{
     const base=btn.dataset.mmAsset;
     $('coinQuery').value=base;
@@ -3054,14 +3056,15 @@ async function runMultiMonitorCycle(manual=true){
     if(multiMonitorRunning) scheduleNextMultiMonitor();
   }
 }
-function toggleMultiMonitor(){
+async function toggleMultiMonitor(){
   if(multiMonitorRunning){
     stopMultiMonitor();
     return;
   }
   if(!savedAssets.length){
-    $('mmStatus').textContent='Cadastre pelo menos uma moeda antes de ligar o monitor.';
-    return;
+    $('mmStatus').textContent='Lista vazia: carregando automaticamente os pares Spot USDT da Binance...';
+    await loadAllMarketAssets();
+    if(!savedAssets.length){$('mmStatus').textContent='Não foi possível obter o mercado. Use Carregar mercado Binance ou verifique a conexão.';return;}
   }
   multiMonitorRunning=true;
   $('multiMonitorBtn').textContent='⏸ Parar monitor';
@@ -3144,7 +3147,7 @@ function renderAssets(){
   if(!list || !count) return;
   count.textContent=`${savedAssets.length} salvo${savedAssets.length===1?'':'s'}`;
   if(!savedAssets.length){
-    list.innerHTML='<span class="asset-empty">Nenhum ativo cadastrado.</span>';
+    list.innerHTML='<span class="asset-empty">Lista de monitoramento vazia. Clique em ▶ Monitorar lista para carregar o mercado automaticamente. Depois, marque ⭐ nas moedas desejadas.</span>';
     return;
   }
   list.innerHTML=[...savedAssets].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b)).map(a=>`<span class="asset-chip"><button type="button" data-favorite="${a}" title="Marcar favorito">${favoriteAssets.includes(a)?'⭐':'☆'}</button><button type="button" class="asset-chip-main" data-asset="${a}" title="Consultar ${a}/USDT">${a}</button><button type="button" class="asset-chip-x" data-delete="${a}" title="Excluir ${a}">✕</button></span>`).join('');
@@ -3835,8 +3838,8 @@ lessonInit();
 
 loadAssets();
 loadMultiMonitorPrefs();
-if($('queryAutoSec')) $('queryAutoSec').value='0';
-stopQueryAuto();
+if($('queryAutoSec')) $('queryAutoSec').value='60';
+applyQueryAuto();
 
 try{
   const savedCoin=localStorage.getItem('radar_mme921_light_coin') || '';
