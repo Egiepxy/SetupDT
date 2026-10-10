@@ -2304,10 +2304,10 @@ function extractJSON(text){
  throw Error('JSON incompleto ou inválido. Verifique aspas, vírgulas e comentários no conteúdo.');
 }
 function receiveProfessor(obj){
- if(!obj||obj.schema!=='EGI-PROFESSOR-V1'|| !/^[A-Z0-9]{2,20}USDT$/.test(String(obj.asset||'')) || !Array.isArray(obj.indicators)||obj.indicators.length>8)throw Error('Relatório incompatível: requer schema EGI-PROFESSOR-V1, asset USDT e indicators.');
+ if(!obj||obj.schema!=='EGI-PROFESSOR-V1'|| !/^[A-Z0-9]{2,20}USDT$/.test(String(obj.asset||'').toUpperCase()) || (obj.indicators!==undefined&&!Array.isArray(obj.indicators)) || (Array.isArray(obj.indicators)&&obj.indicators.length>8))throw Error('Relatório incompatível: requer schema EGI-PROFESSOR-V1, moeda USDT e indicators opcional (até 8 períodos).');
  incoming=obj;
  const coin=document.getElementById('coin');coin.value=obj.asset.slice(0,-4);coin.dispatchEvent(new Event('input',{bubbles:true}));
- const rows=obj.indicators.filter(z=>z&&['15m','1h','4h','1d'].includes(z.tf));
+ const rows=(Array.isArray(obj.indicators)?obj.indicators:[]).filter(z=>z&&['15m','1h','4h','1d'].includes(z.tf));
  panel.innerHTML='<b>'+esc(obj.asset)+' — '+esc(obj.suggestion||obj.status)+'</b><p>Status: '+esc(obj.status)+' · Direção: '+esc(obj.direction)+' · TF: '+esc(obj.timeframe)+' · Fonte: '+esc(obj.source)+' · Data: '+esc(obj.createdAt)+'</p><p>'+((Array.isArray(obj.justification)?obj.justification:[]).slice(0,12).map(v=>esc(v)).join('<br>'))+'</p><p>RSI 15m: '+compact(rows.find(z=>z.tf==='15m')?.rsi14)+' · Suporte 15m: '+compact(obj.levels?.support15m,6)+' · Resistência 15m: '+compact(obj.levels?.resistance15m,6)+'</p><p>Timeframes recebidos: '+rows.map(z=>esc(z.tf)+' ('+esc(z.trend)+')').join(' · ')+'</p><b>Entrada confirmada pelo Professor: '+(obj.entryConfirmed===true?'SIM — exige validação independente':'NÃO')+'</b>';
  compare.textContent='Parecer importado. Clique em Analisar moeda recebida para obter a leitura independente e atualizada do SetupDT.';
  document.getElementById('egiProfessorImportStatus').textContent='✓ '+obj.asset+' importado. Não é entrada operacional; dados podem estar desatualizados.';
