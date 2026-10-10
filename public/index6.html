@@ -476,8 +476,8 @@ header h1{font-size:26px}
           <label>Moedas por ciclo</label>
           <select id="multiMonitorMax">
             <option value="5">5 moedas</option>
-            <option value="10" selected>10 moedas</option>
-            <option value="20">20 moedas</option>
+            <option value="10">10 moedas</option>
+            <option value="20" selected>20 moedas</option>
           </select>
         </div>
         <div>
@@ -2866,7 +2866,7 @@ function loadMultiMonitorPrefs(){
   const sec=localStorage.getItem('radar_mme1_multi_sec');
   const max=localStorage.getItem('radar_mme1_multi_max');
   if($('multiMonitorSec') && ['30','60'].includes(sec)) $('multiMonitorSec').value=sec;
-  if($('multiMonitorMax') && ['5','10','20'].includes(max)) $('multiMonitorMax').value=max;
+  if($('multiMonitorMax')) { const migration='radar_mme1_20_default_v1'; if(localStorage.getItem(migration)!=='1'){ $('multiMonitorMax').value='20';localStorage.setItem('radar_mme1_multi_max','20');localStorage.setItem(migration,'1'); } else if(['5','10','20'].includes(max)) $('multiMonitorMax').value=max; }
   try{
     const raw=JSON.parse(localStorage.getItem(MULTI_MONITOR_STATE_KEY)||'{}');
     multiMonitorState=raw && typeof raw==='object' ? raw : {};
@@ -3058,6 +3058,7 @@ function toggleMultiMonitor(){
 
 // ===== Cadastro / BK / Restaura de ativos (Light celular) =====
 const ASSET_LIST_KEY='radar_mme1_light_assets_v1';
+const EGI_STUDY_20=['BTC','ETH','SOL','LINK','XRP','BNB','SUI','ENA','ONDO','HYPE','NEAR','ADA','DOGE','PEPE','AAVE','SKY','ZRO','INJ','PENDLE','ARB'];
 let savedAssets=[];
 
 function normalizeBaseAsset(value){
@@ -3072,6 +3073,8 @@ function loadAssets(){
     savedAssets=Array.isArray(raw) ? raw.map(normalizeBaseAsset).filter(Boolean) : [];
     savedAssets=[...new Set(savedAssets)].sort((a,b)=>a.localeCompare(b));
   }catch{ savedAssets=[]; }
+  // Somente a instalação sem cadastro recebe a lista inicial de 20; listas existentes são preservadas.
+  if(!savedAssets.length){savedAssets=[...EGI_STUDY_20].sort((a,b)=>a.localeCompare(b));try{localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));}catch{}}
   renderAssets();
 }
 
@@ -3259,7 +3262,9 @@ function lessonRiskNumbers(r){
   const fee=Number($('lessonFee')?.value),slip=Number($('lessonSlip')?.value);
   if(![capital,pctRisk,leverage,capPct,fee,slip].every(Number.isFinite)||capital<=0||pctRisk<0.1||pctRisk>5||leverage<1||capPct<=0||capPct>100||fee<0||slip<0||fee>1||slip>1) return {error:'Parâmetros inválidos. Verifique banca, risco (0,1 a 5%), margem, alavancagem e custos.'};
   const guard=egiRiskGate(r,fee+slip);
-  if(!guard.ok)return {error:`Plano de risco NÃO VALIDADO: ${guard.issues.join(' | ')}`,blocked:true};
+  // Falhas de confluência, stop curto e custo alto geram avisos educativos, não bloqueio da leitura.
+  // Sem entrada/stop matematicamente utilizáveis, não inventar posição ou alvos.
+  if(!r||!Number.isFinite(r.entry)||r.entry<=0||!Number.isFinite(r.stop)||r.stop<=0||!r.stopValid||!Number.isFinite(r.r1)||!Number.isFinite(r.r2))return {error:'Não há entrada, stop técnico ou alvos válidos suficientes para calcular o tamanho da posição. Os indicadores permanecem disponíveis.',issues:guard.issues};
   const priceDist=Math.abs(r.entry-r.stop);
   const roundTripRate=2*(fee+slip)/100;
   const totalRiskUnit=priceDist+r.entry*roundTripRate;
@@ -3273,17 +3278,17 @@ function lessonRiskNumbers(r){
   const grossStopLoss=units*priceDist;
   const expectedLoss=grossStopLoss+costs;
   return {capital,pctRisk,leverage,capPct,fee,slip,budget,units,notional,margin,marginLimit,marginCapped:unitByMargin<unitByRisk-1e-9,
-    costs,grossStopLoss,expectedLoss,stopPct:100*priceDist/r.entry,
+    issues:guard.issues,costs,grossStopLoss,expectedLoss,stopPct:100*priceDist/r.entry,
     netR1:units*Math.abs(r.r1-r.entry)-costs,netR2:units*Math.abs(r.r2-r.entry)-costs};
 }
 function lessonRiskRender(){
   const el=$('lessonRiskResult');if(!el)return;
   const r=lastMultiTf?.results?.[$('tf')?.value];
   const z=lessonRiskNumbers(r);
-  if(z.error){el.innerHTML=`<div class="lesson-blocked">⛔ SIMULAÇÃO BLOQUEADA<br>${lessonEsc(z.error)}</div><div class="lesson-small">Sinal e indicadores continuam visíveis. Não criar entrada, stop ou alvo artificial apenas para liberar a operação.</div>`;return;}
+  if(z.error){el.innerHTML=`<div class="lesson-warning">🟡 ESTUDO SEM CÁLCULO DE POSIÇÃO<br>${lessonEsc(z.error)}</div><div class="lesson-small">${(z.issues||[]).map(lessonEsc).join(' | ')}. Não são criados valores fictícios; a leitura das 20 moedas continua disponível.</div>`;return;}
   const money=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const scoreOk=r.parecerCode==='APROVADO'&&r.parecerScore>=Number($('robotRelOkMin')?.value||97);
-  el.innerHTML=`<div class="lesson-valid">✅ Plano de risco calculável (não significa entrada liberada). ${z.marginCapped?'A margem foi LIMITADA ao teto definido.':'A margem coube no teto definido.'}</div>
+  el.innerHTML=`${z.issues?.length?`<div class="lesson-warning">⚠️ Alertas educativos (não impedem a simulação): ${z.issues.map(lessonEsc).join(' | ')}</div>`:''}<div class="lesson-valid">📘 Simulação educativa de risco (NÃO é sinal nem entrada liberada). ${z.marginCapped?'A margem foi LIMITADA ao teto definido.':'A margem coube no teto definido.'}</div>
     <div><b>Risco máximo pretendido:</b> ${money(z.budget)} USDT (${z.pctRisk}% da banca)</div>
     <div><b>Perda simulada no stop + custos:</b> ${money(z.expectedLoss)} USDT (${(100*z.expectedLoss/z.capital).toFixed(2)}% da banca)</div>
     <div><b>Distância ao stop:</b> ${z.stopPct.toFixed(3)}% • ${r.stopAtrMult.toFixed(2)} ATR</div>
