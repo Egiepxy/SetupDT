@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+<title>RWA2026 V3.1 • Radar EGI</title>
+<style>
+  :root{
+    --bg:#08111f; --panel:#0f1b2d; --panel2:#13233a; --text:#eef4ff; --muted:#93a4bd;
+    --line:#213552; --good:#36d399; --warn:#f5b942; --bad:#ff6b6b; --blue:#62a8ff; --violet:#a88bff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#07101c,#0a1424 34%,#08111f);color:var(--text);
+       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1480px;margin:auto;padding:14px}
+  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+          background:rgba(15,27,45,.93);border:1px solid var(--line);border-radius:18px;padding:14px;position:sticky;top:0;z-index:20;backdrop-filter:blur(10px)}
+  h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  button,select,input{border-radius:10px;border:1px solid #2c4568;background:#0b1728;color:var(--text);padding:10px 11px}
+  button{cursor:pointer;font-weight:700}.primary{background:#1767d9;border-color:#2c7cf1}
+  .success{background:#0f6d52;border-color:#1b9570}.warn{background:#755018;border-color:#a27223}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+  .card{background:linear-gradient(180deg,var(--panel),#0b1727);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .metric{font-size:24px;font-weight:800}.label{font-size:12px;color:var(--muted)}
+  .status{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid}
+  .s-good{color:#86f1cb;border-color:#1d7b60;background:#0f342b}.s-warn{color:#ffd978;border-color:#7c6120;background:#332a10}
+  .s-bad{color:#ff9d9d;border-color:#7b3434;background:#351717}.s-neutral{color:#b8cbdf;border-color:#3a526d;background:#152235}
+  .toolbar{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:8px;margin:12px 0}
+  .toolbar label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+  .tablebox{overflow:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:1320px}
+  th,td{padding:10px 9px;border-bottom:1px solid #1e314b;text-align:right;font-size:12px;white-space:nowrap}
+  th{position:sticky;top:0;background:#102039;color:#b9c8db;z-index:2}
+  td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:#0f1b2d;z-index:3}
+  th:first-child{background:#102039;z-index:4}
+  .sym{font-weight:900;font-size:14px}.ex{font-size:10px;color:var(--muted)}
+  .pos{color:var(--good)}.neg{color:var(--bad)}.muted{color:var(--muted)}
+  .mini{font-size:10px;color:var(--muted);display:block;margin-top:3px}
+  .sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:16px 2px 8px;gap:10px}
+  .sectionTitle h2{font-size:16px;margin:0}
+  .two{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+  textarea{width:100%;min-height:190px;background:#081321;color:#eaf2ff;border:1px solid var(--line);border-radius:12px;padding:12px;resize:vertical}
+  .asset-editor{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:8px}
+  .asset-editor input,.asset-editor select{width:100%}
+  .note{font-size:11px;color:var(--muted);line-height:1.45}
+  .foot{font-size:11px;color:#7e91aa;margin:14px 2px 40px;line-height:1.5}
+  .progress{height:7px;background:#17263a;border-radius:10px;overflow:hidden;margin-top:6px}.progress>i{display:block;height:100%;background:linear-gradient(90deg,#2f80ed,#36d399)}
+  .top3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+  .rankCard{background:linear-gradient(180deg,#12243d,#0b1727);border:1px solid var(--line);border-radius:16px;padding:14px;min-height:135px}
+  .rankNum{font-size:12px;color:var(--muted);font-weight:800}.rankTicker{font-size:22px;font-weight:900;margin:4px 0}
+  .rankMeta{font-size:11px;color:var(--muted);line-height:1.5}
+  .newsgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .newsCard{background:#0b1727;border:1px solid var(--line);border-radius:14px;padding:12px}
+  .inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .toggle{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #2c4568;border-radius:10px;background:#0b1728}
+  .toggle input{width:auto;margin:0}
+  .tinybtn{padding:6px 8px;font-size:10px}
+  @media(max-width:980px){.top3,.newsgrid{grid-template-columns:1fr}}
+
+  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.asset-editor{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.wrap{padding:8px}.grid{grid-template-columns:1fr 1fr}.metric{font-size:20px}.topbar{border-radius:12px}.actions button{padding:9px}.toolbar{grid-template-columns:1fr 1fr}}
+
+  .viewtabs{display:flex;gap:8px;overflow-x:auto;padding:12px 0;position:sticky;top:79px;z-index:15;background:#08111fe8;scrollbar-width:thin}
+  .viewtabs button{white-space:nowrap;flex:1;min-width:140px;border-color:#355171}
+  .viewtabs button.active{background:#235eab;border-color:#6da7ff;color:#fff}
+  .view-panel{display:none}.view-panel.active{display:block}
+  .study-head{padding:18px;background:linear-gradient(115deg,#112943,#102035);border:1px solid #294563;border-radius:18px;margin:8px 0}
+  .study-head h2{font-size:20px;margin:0 0 5px}.study-head p{font-size:13px;line-height:1.6;color:#bbcede;margin:7px 0}
+  .study-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+  .research{padding:15px;border:1px solid #2a4163;border-radius:15px;background:#101e30;line-height:1.52}
+  .research h3{font-size:16px;margin:0 0 8px}.research p{font-size:12px;color:#bed0e5}
+  .research .tag{font-size:10px;border:1px solid #365978;border-radius:20px;color:#c8e5ff;padding:3px 8px;display:inline-block;margin:2px 2px 7px 0}
+  .research .value{font-size:22px;font-weight:800;color:#ecf5ff}
+  .risklist{font-size:12px;color:#fbd7a1;line-height:1.5;margin-top:7px}
+  .studyline{font-size:11px;color:#9bafc6;margin:6px 0}
+  .studytable{width:100%;min-width:760px}.studytable th,.studytable td{white-space:normal;text-align:left}
+  .studytable td:first-child,.studytable th:first-child{position:static;background:none}
+  .studytable th{position:static}.studytable td{vertical-align:top}
+  .scope{font-size:12px;color:#f4d18a;border-left:3px solid #dba940;padding:9px 12px;background:#33281066;margin:10px 0;border-radius:6px;line-height:1.5}
+  .fieldrow{display:grid;grid-template-columns:repeat(3,minmax(100px,1fr));gap:10px;margin:12px 0}
+  .fieldrow label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#abbdd3}
+  .fieldrow input,.fieldrow select{width:100%}
+  .resultbox{background:#0b1727;border:1px solid #2c4666;padding:12px;border-radius:12px;font-size:13px;line-height:1.6}
+  .flag{font-size:11px;color:#fac97e}.fineprint{font-size:11px;color:#94a7bd;line-height:1.55}
+  @media(max-width:980px){.study-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:600px){.viewtabs{top:94px}.study-grid{grid-template-columns:1fr}.fieldrow{grid-template-columns:1fr 1fr}.study-head h2{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <h1>RWA2026 V3.1 • Radar EGI</h1>
+      <div class="sub">Estudo RWA • HOLD 2–5 anos • Day Trade 15m/1h/4h • Eventos e unlocks • Binance/MEXC</div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnUpdate">🔄 Atualizar Tudo</button>
+      <button id="btnReport">📋 Relatório GPT</button>
+      <button id="btnExport">💾 Exportar JSON</button>
+      <button id="btnImport">📥 Importar JSON</button>
+      <button id="btnNtfyTest">🔔 Testar ntfy</button>
+      <button id="btnApiTest">🩺 Testar APIs</button>
+    </div>
+  </div>
+
+
+  <nav class="viewtabs" aria-label="Modos RWA">
+    <button data-tab="hold" class="active" aria-pressed="true">📚 HOLD 2–5 anos</button>
+    <button data-tab="trade" aria-pressed="false">📈 Day Trade / SetupDT</button>
+    <button data-tab="events" aria-pressed="false">🗓️ Eventos e riscos</button>
+  </nav>
+  <section id="tradeView" class="view-panel" aria-label="Radar de day trade">
+  <div class="grid">
+    <div class="card"><div class="label">BTC / contexto</div><div class="metric" id="btcPrice">—</div><div id="btcState" class="status s-neutral">aguardando</div></div>
+    <div class="card"><div class="label">Melhor setup agora</div><div class="metric" id="bestAsset">—</div><div class="mini" id="bestWhy">sem dados</div></div>
+    <div class="card"><div class="label">Ativos em possível entrada</div><div class="metric" id="readyCount">0</div><div class="mini">exige confirmação, não é ordem de compra</div></div>
+    <div class="card"><div class="label">Última atualização</div><div class="metric" id="lastUpdate">—</div><div class="mini" id="updateStatus">Clique em Atualizar Tudo</div></div>
+  </div>
+
+  <div class="toolbar card">
+    <label>Banca (USDT)<input id="bankroll" type="number" value="1000" min="1" step="10"></label>
+    <label>Risco por ideia (%)<input id="riskPct" type="number" value="1" min="0.1" max="10" step="0.1"></label>
+    <label>ATR Stop (x)<input id="atrMult" type="number" value="1.2" min="0.3" max="5" step="0.1"></label>
+    <label>Auto atualização
+      <select id="autoSec"><option value="0">Parado</option><option value="30">30s</option><option value="60">1 min</option><option value="300" selected>5 min</option></select>
+    </label>
+    <label>Filtro corretora
+      <select id="filterExchange"><option value="ALL">Todas</option><option value="BINANCE">Binance</option><option value="MEXC">MEXC</option></select>
+    </label>
+    <label>Proxy opcional / API bridge<input id="proxyBase" placeholder="https://seu-servico.onrender.com/proxy"></label>
+    <label>Tópico ntfy<input id="ntfyTopic" placeholder="ex.: rwa2026-egi"></label>
+    <label>Alertas ntfy
+      <span class="toggle"><input id="ntfyEnabled" type="checkbox"> Ativar somente em POSSÍVEL ENTRADA</span>
+    </label>
+  </div>
+
+  <div class="card" style="margin-top:8px;border-color:#375275">
+    <div class="label">🩺 Diagnóstico de conectividade</div>
+    <div id="apiDiagnostics" class="note" role="status" aria-live="polite">Clique em “Testar APIs” para diferenciar cotação indisponível, bloqueio de rede e erro de formatação. No modo direto, a MEXC pode depender de servidor Render com proxy seguro.</div>
+  </div>
+  <div class="sectionTitle">
+    <h2>🏆 Top 3 automático</h2>
+    <div class="note">Prioriza status, score e relação com a zona de entrada; não é ordem de compra.</div>
+  </div>
+  <div class="top3" id="top3">
+    <div class="rankCard"><div class="rankNum">#1</div><div class="rankTicker">—</div><div class="rankMeta">Atualize os dados.</div></div>
+    <div class="rankCard"><div class="rankNum">#2</div><div class="rankTicker">—</div><div class="rankMeta">Atualize os dados.</div></div>
+    <div class="rankCard"><div class="rankNum">#3</div><div class="rankTicker">—</div><div class="rankMeta">Atualize os dados.</div></div>
+  </div>
+
+  <div class="sectionTitle">
+    <h2>📰 Notícias & unlocks</h2>
+    <div class="note">Abre pesquisas externas do ativo e mantém os riscos de unlock destacados no app.</div>
+  </div>
+  <div class="newsgrid" id="newsGrid"></div>
+
+  <div class="sectionTitle">
+    <h2>📊 Painel operacional (candles fechados)</h2>
+    <div class="note">🔵 4/6 preparar • 🟠 5/6 confirmar • 🟢 6/6 + gatilho • ⚪ aguardar • 🔴 risco</div>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead>
+      <tr>
+        <th>Ativo</th><th>Preço</th><th>24h</th><th>Status</th><th>Confluência</th>
+        <th>RSI 15m</th><th>RSI 1h</th><th>RSI 4h</th><th>MACD 1h</th><th>Vol 1h</th>
+        <th>Entrada possível</th><th>Stop</th><th>A1</th><th>A2</th><th>A3</th><th>Risco/Posição</th><th>Ações</th>
+      </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="sectionTitle"><h2>🧠 Relatório inteligente</h2></div>
+  <div class="two">
+    <div class="card">
+      <textarea id="report" readonly>Atualize os dados para gerar o relatório.</textarea>
+      <div class="actions" style="margin-top:8px">
+        <button class="success" id="btnCopy">Copiar relatório</button>
+        <button id="btnDownloadTxt">Baixar .txt</button>
+        <button id="btnSetupCopy" class="primary">📋 Copiar sinais SetupDT</button>
+        <button id="btnSetupDownload">⬇️ Exportar SetupDT .json</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Como o app calcula</div>
+      <p class="note">
+        O RWA2026 usa apenas candles FECHADOS públicos de 15m, 1h e 4h. Calcula RSI(14), MACD(12,26,9),
+        EMA 9/14/200, ATR(14), volume relativo e extremos recentes. A entrada automática
+        prioriza pullback em suporte/EMA com tendência ainda válida; o stop fica abaixo
+        da invalidação técnica usando ATR. A1/A2/A3 usam 1R/2R/3R.
+      </p>
+      <p class="note">
+        Zonas manuais têm prioridade quando cadastradas. O score é apenas triagem técnica,
+        não previsão nem recomendação. Alertas 6/6 exigem gatilho verificável no candle fechado. Micros podem ter spread, slippage e liquidez limitada.
+      </p>
+      <div class="label">Força do BTC</div>
+      <div class="progress"><i id="btcBar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="sectionTitle"><h2>⚙️ Cadastro / edição rápida</h2></div>
+  <div class="card">
+    <div class="asset-editor">
+      <label class="label">Ticker<input id="newTicker" placeholder="Ex.: ONDO"></label>
+      <label class="label">Exchange<select id="newExchange"><option>BINANCE</option><option>MEXC</option></select></label>
+      <label class="label">Zona baixa<input id="newZoneLow" type="number" step="any" placeholder="opcional"></label>
+      <label class="label">Zona alta<input id="newZoneHigh" type="number" step="any" placeholder="opcional"></label>
+      <label class="label">Grupo<input id="newGroup" value="RWA"></label>
+      <label class="label">Ação<button id="btnAdd" class="success">+ Adicionar</button></label>
+    </div>
+    <p class="note">Para alterar uma zona existente, use “Editar” na linha. As configurações ficam salvas no navegador (localStorage).</p>
+  </div>
+
+  <div class="foot">
+    Fontes de mercado: APIs públicas da Binance Spot e MEXC Spot. O app não envia ordens e não precisa de API key. Alertas ntfy são opcionais e disparam apenas em transição para POSSÍVEL ENTRADA.
+    Se o navegador bloquear CORS, configure um proxy/bridge do seu Render no campo acima. CPOOL legado fica em quarentena. Formato JSON é para intercâmbio; exige parser compatível no SetupDT. Sem dados em tempo real, nenhum sinal é criado.
+  </div>
+
+
+  </section>
+  <section id="holdView" class="view-panel active" aria-label="Pesquisa HOLD">
+    <div class="study-head">
+      <h2>🌍 RWA: tokenização de ativos reais — estudo para 2028–2031</h2>
+      <p>O avanço de títulos, crédito, fundos e ações em blockchain <b>não garante</b> valorização dos tokens ligados ao setor. Nosso critério é separar adoção do produto, utilidade e demanda pelo token, diluição e preço de compra.</p>
+      <div class="actions">
+        <button id="btnReadStudy" class="success">🔊 Ouvir estudo</button><button id="btnStopStudy">⏹️ Parar áudio</button>
+        <button id="btnCopyHold" class="primary">📋 Copiar pesquisa HOLD</button><button id="btnDownloadHold">⬇️ Baixar pesquisa .txt</button>
+      </div>
+      <p class="fineprint">Áudio usa leitura do sistema/navegador; disponibilidade offline depende das vozes instaladas no aparelho.</p>
+    </div>
+    <div class="scope"><b>Separação essencial:</b> HOLD é tese fundamental de 2 a 5 anos, não um sinal de compra. O radar de Day Trade abaixo é independente e não bloqueia ou altera esta lista de estudo.</div>
+    <div class="sectionTitle"><h2>🔎 Comparador de projetos e teses</h2><span class="note">Classificação qualitativa — não prevê retorno</span></div>
+    <div class="study-grid" id="holdCards"></div>
+    <div class="sectionTitle"><h2>🧮 Simulador de valor por token</h2></div>
+    <div class="card">
+      <p class="note">Compare cenários de capitalização por token sem promessas de múltiplos. Informe a oferta <b>futura/diluída</b> e o valor de mercado desejado: são hipóteses suas, não previsões do aplicativo.</p>
+      <div class="fieldrow">
+        <label>Projeto <select id="valToken"></select></label>
+        <label>Capitalização hipotética (US$ milhões)<input id="valCap" type="number" min="0" step="1" value="1000"></label>
+        <label>Oferta futura (milhões de tokens)<input id="valSupply" type="number" min="0" step="1" placeholder="Digite a oferta futura"></label>
+      </div>
+      <div class="resultbox" id="valResult">Informe os valores para calcular o preço implícito.</div>
+      <div class="scope">Fórmula: preço implícito = capitalização hipotética ÷ oferta futura. Uma cotação isolada não mostra se o token está barato; consulte FDV, oferta futura, receita, uso e concorrência.</div>
+    </div>
+    <div class="sectionTitle"><h2>✅ Checklist mensal do investidor</h2></div>
+    <div class="card">
+      <div id="holdChecklist" class="note" style="font-size:13px;line-height:2"></div>
+      <div class="actions" style="margin-top:12px"><button id="btnResetChecklist">Reiniciar checklist</button><button id="btnClearReading">🧹 Limpar marcações de revisão</button></div>
+      <p class="fineprint">As marcações ficam apenas neste navegador. Exporte sua configuração para manter cópia de segurança.</p>
+    </div>
+  </section>
+  <section id="eventsView" class="view-panel" aria-label="Calendário de eventos e riscos">
+    <div class="study-head"><h2>🗓️ Calendário de riscos: RWA2026</h2><p>Eventos conhecidos e pendências para conferir em fontes primárias. Datas estimadas podem mudar. Este arquivo HTML <b>não consulta automaticamente</b> a documentação de unlocks.</p></div>
+    <div class="tablebox"><table class="studytable"><thead><tr><th>Ativo</th><th>Data / situação</th><th>Risco e verificação</th><th>Fontes</th></tr></thead><tbody id="eventsRows"></tbody></table></div>
+    <div class="sectionTitle"><h2>🧭 Regras de segurança do radar</h2></div>
+    <div class="study-grid">
+      <div class="research"><h3>🚨 Token em migração</h3><p>CPOOL fica visível no radar, mas <b>sem sinal automático</b> enquanto houver dúvida sobre pares CPOOL/CLEAR e suas regras contratuais.</p></div>
+      <div class="research"><h3>🛑 Candle fechado</h3><p>Leitura de entrada só usa candle encerrado no servidor da corretora. Dados ausentes ou desatualizados não geram sinal.</p></div>
+      <div class="research"><h3>🧩 Validação por exchange</h3><p>Se a Binance/MEXC não oferece o par, a linha registra falha. Não são inventadas cotações, volume ou confirmação.</p></div>
+    </div>
+  </section>
+
+  <input id="fileImport" type="file" accept=".json,application/json" hidden>
+</div>
+
+<script>
+const DEFAULT_ASSETS = [
+  {ticker:'LINK', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'REFERÊNCIA', note:'Infraestrutura RWA e oráculos; confirmar trigger e liquidez.'},
+  {ticker:'ONDO', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Governança; desbloqueio estimado 18/01/2027 requer verificação.'},
+  {ticker:'CFG', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Vesting e inflação; conferir profundidade e status do par.'},
+  {ticker:'PLUME', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Alto risco de unlocks e diluição.'},
+  {ticker:'EDEN', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Governança e riscos de vesting.'},
+  {ticker:'CHEX', exchange:'MEXC', zoneLow:null, zoneHigh:null, group:'RWA', note:'Microcap; slippage e spread potencialmente altos.'},
+  {ticker:'BKN', exchange:'MEXC', zoneLow:null, zoneHigh:null, group:'RWA', note:'Contrato migrado em 2026; conferir ativo no mercado correto.'},
+  {ticker:'LUMIA', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Risco de execução e liquidez.'},
+  {ticker:'DUSK', exchange:'BINANCE', zoneLow:null, zoneHigh:null, group:'RWA', note:'Small cap; exposição à regulação e volatilidade.'},
+  {ticker:'CPOOL', exchange:'MEXC', zoneLow:null, zoneHigh:null, group:'MIGRAÇÃO', note:'Aguardando validação de CPOOL/CLEAR. Sem sinal automático.'}
+];
+
+const UNLOCK_NOTES = {
+  LINK:'Oferta limitada e utilidade do token; conferir captura de receita, staking e reservas.',
+  ONDO:'⚠️ Desbloqueio expressivo estimado para 18/01/2027; confirmação pendente e sem valor de impacto assumido.',
+  CFG:'Inflação/emissões e vesting precisam ser atualizados nas fontes oficiais.',
+  PLUME:'Vesting, concentração de oferta e risco de diluição.',
+  EDEN:'Acompanhar investidor/equipe e uso real do token.',
+  CHEX:'Spread, profundidade do livro e infraestrutura regulatória.',
+  BKN:'Contrato de token migrado em 2026; verificar o contrato atualizado e suporte da exchange.',
+  LUMIA:'Acompanhar uso, tokens futuros e liquidez.',
+  DUSK:'Adoção e liquidez dos mercados de ativos.',
+  CPOOL:'⚠️ Migração CPOOL → CLEAR sob verificação: sem sinal automático para o legado.'
+};
+
+
+let assets;
+try {assets=JSON.parse(localStorage.getItem('RWA2026_assets')||'null')||DEFAULT_ASSETS.map(a=>({...a}));}
+catch(e){assets=DEFAULT_ASSETS.map(a=>({...a}));}
+if(!Array.isArray(assets)) assets=DEFAULT_ASSETS.map(a=>({...a}));
+// Mantém os cadastros da V2 e acrescenta os novos projetos sem sobrescrevê-los.
+for(const a of DEFAULT_ASSETS) if(!assets.some(x=>x.ticker===a.ticker&&x.exchange===a.exchange)) assets.push({...a});
+assets=assets.filter(a=>a && /^[A-Z0-9]{2,15}$/.test(String(a.ticker||'')) && ['BINANCE','MEXC'].includes(a.exchange));
+// Evita carregamento de zonas de 2026-10-04 como se ainda fossem vigentes: revisão explícita obrigatória.
+const historicMigration=localStorage.getItem('RWA2026_V3_zonesReviewed') !== '1';
+if(historicMigration){ for(const a of assets){ if(a.zoneLow!=null || a.zoneHigh!=null){ a.note=(a.note||'')+' | Zona da V2 removida por estar desatualizada.';a.zoneLow=null;a.zoneHigh=null;}} localStorage.setItem('RWA2026_V3_zonesReviewed','1'); }
+
+let latest = {};
+let timer = null;
+
+const $ = id => document.getElementById(id);
+// V3.1: formatador à prova de erros de Intl em navegadores móveis.
+// Nunca deixa uma falha de exibição invalidar candles/indicadores válidos.
+const fmt = (v, digits=6) => {
+  if(v===null || v===undefined || v==='') return '—';
+  const n=Number(v);
+  if(!Number.isFinite(n)) return '—';
+  const d=Number.isFinite(Number(digits))?Math.max(0,Math.min(10,Math.trunc(Number(digits)))):6;
+  const abs=Math.abs(n);
+  const max=abs>=1000?2:abs>=1?Math.max(2,Math.min(4,d)):d;
+  const min=Math.min(max,abs>=1?2:Math.min(4,d));
+  try{return new Intl.NumberFormat('pt-BR',{minimumFractionDigits:min,maximumFractionDigits:max,useGrouping:true}).format(n);}
+  catch(_){
+    try{return n.toFixed(Math.min(10,max)).replace('.',',');}
+    catch(e){return String(n);}
+  }
+};
+const pct = v => Number.isFinite(+v) ? ((+v)>=0?'+':'')+(+v).toFixed(2)+'%' : '—';
+
+function ema(values, period){
+  if(!values?.length) return [];
+  const k=2/(period+1); const out=[]; let prev=values[0];
+  for(let i=0;i<values.length;i++){ prev=i===0?values[0]:(values[i]*k + prev*(1-k)); out.push(prev); }
+  return out;
+}
+function rsi(values, period=14){
+  if(values.length<period+2) return null;
+  let gains=0, losses=0;
+  for(let i=1;i<=period;i++){ const d=values[i]-values[i-1]; if(d>=0) gains+=d; else losses-=d; }
+  let ag=gains/period, al=losses/period;
+  for(let i=period+1;i<values.length;i++){ const d=values[i]-values[i-1]; const g=Math.max(d,0), l=Math.max(-d,0); ag=(ag*(period-1)+g)/period; al=(al*(period-1)+l)/period; }
+  if(al===0) return ag===0 ? 50 : 100;
+  const rs=ag/al; return 100-(100/(1+rs));
+}
+function macd(values){
+  if(values.length<35) return {macd:null,signal:null,hist:null};
+  const e12=ema(values,12), e26=ema(values,26);
+  const line=values.map((_,i)=>e12[i]-e26[i]);
+  const sig=ema(line,9); const i=line.length-1;
+  return {macd:line[i],signal:sig[i],hist:line[i]-sig[i]};
+}
+function atr(candles, period=14){
+  if(candles.length<period+2) return null;
+  const trs=[];
+  for(let i=1;i<candles.length;i++){
+    const h=candles[i].high,l=candles[i].low,pc=candles[i-1].close;
+    trs.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
+  }
+  return trs.slice(-period).reduce((a,b)=>a+b,0)/period;
+}
+function volRatio(candles, n=20){
+  if(candles.length<n+1) return null;
+  const arr=candles.slice(-(n+1),-1).map(x=>x.volume);
+  const avg=arr.reduce((a,b)=>a+b,0)/arr.length;
+  return avg ? candles.at(-1).volume/avg : null;
+}
+function normalizeKlines(raw){
+  if(!Array.isArray(raw)) throw new Error('Formato inesperado de candles na corretora');
+  const now=Date.now()-1200;
+  const closed=raw.map(x=>({time:+x[0],open:+x[1],high:+x[2],low:+x[3],close:+x[4],volume:+x[5],closeTime:+x[6]}))
+    .filter(x=>Number.isFinite(x.closeTime)&&x.closeTime<=now&&Number.isFinite(x.close)&&x.close>0&&Number.isFinite(x.volume));
+  if(closed.length<205) throw new Error('Candles fechados insuficientes para MME200');
+  return closed;
+}
+function tfInterval(exchange, tf){
+  if(exchange==='MEXC' && tf==='1h') return '60m';
+  return tf;
+}
+function proxied(url){
+  const p=$('proxyBase').value.trim().replace(/\/$/,'');
+  if(!p) return url;
+  return p + '/?url=' + encodeURIComponent(url);
+}
+function assetKey(a){ return `${a.exchange}:${a.ticker}`; }
+function safeTicker(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,15); }
+function tvUrl(a){
+  const ex=a.exchange==='BINANCE'?'BINANCE':'MEXC';
+  return `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(ex+':'+a.ticker+'USDT')}`;
+}
+function newsUrl(a){
+  return `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(a.ticker+' crypto RWA token')}`;
+}
+function unlockUrl(a){
+  return `https://www.google.com/search?q=${encodeURIComponent(a.ticker+' token unlock tokenomics vesting')}`;
+}
+function openTV(ticker,exchange){
+  const a=assets.find(x=>x.ticker===ticker&&x.exchange===exchange); if(a) window.open(tvUrl(a),'_blank','noopener');
+}
+function openNews(ticker,exchange){
+  const a=assets.find(x=>x.ticker===ticker&&x.exchange===exchange); if(a) window.open(newsUrl(a),'_blank','noopener');
+}
+function openUnlock(ticker,exchange){
+  const a=assets.find(x=>x.ticker===ticker&&x.exchange===exchange); if(a) window.open(unlockUrl(a),'_blank','noopener');
+}
+async function sendNtfy(title,message,tags='chart_with_upwards_trend'){
+  const topic=$('ntfyTopic').value.trim();
+  if(!topic) throw new Error('Informe o tópico ntfy.');
+  const url='https://ntfy.sh/'+encodeURIComponent(topic);
+  const r=await fetch(url,{
+    method:'POST',
+    headers:{'Title':title,'Tags':tags,'Priority':'4'},
+    body:message
+  });
+  if(!r.ok) throw new Error('ntfy HTTP '+r.status);
+  return true;
+}
+function renderTop3(){
+  const list=Object.values(latest).filter(x=>x.d)
+    .sort((x,y)=>(y.d.status.rank*100+y.d.score)-(x.d.status.rank*100+x.d.score)).slice(0,3);
+  const slots=[0,1,2].map(i=>{
+    const x=list[i];
+    if(!x) return `<div class="rankCard"><div class="rankNum">#${i+1}</div><div class="rankTicker">—</div><div class="rankMeta">Sem dados suficientes.</div></div>`;
+    const {a,d}=x;
+    return `<div class="rankCard">
+      <div class="rankNum">#${i+1} • ${a.exchange} • ${d.direction}</div>
+      <div class="rankTicker">${a.ticker}</div>
+      <span class="status ${d.status.cls}">${d.status.text}</span>
+      <div class="rankMeta" style="margin-top:8px">Preço ${fmt(d.price)} • Score ${d.score}/100<br>
+      Entrada ${fmt(d.low)}–${fmt(d.high)} • Stop ${fmt(d.stop)}<br>
+      A1 ${fmt(d.a1)} • A2 ${fmt(d.a2)} • A3 ${fmt(d.a3)}</div>
+      <div class="actions" style="margin-top:8px"><button class="tinybtn" onclick="openTV('${a.ticker}','${a.exchange}')">TradingView</button></div>
+    </div>`;
+  });
+  $('top3').innerHTML=slots.join('');
+}
+function renderNewsUnlocks(){
+  const important=['ONDO','CPOOL','BKN','PLUME','EDEN','CFG'];
+  const list=important.map(t=>assets.find(a=>a.ticker===t)).filter(Boolean);
+  $('newsGrid').innerHTML=list.map(a=>`<div class="newsCard">
+    <div class="inline"><b>${a.ticker}</b><span class="ex">${a.exchange}</span></div>
+    <p class="note">${UNLOCK_NOTES[a.ticker]||'Confirmar tokenomics e eventos antes da entrada.'}</p>
+    <div class="actions">
+      <button class="tinybtn" onclick="openNews('${a.ticker}','${a.exchange}')">📰 Notícias</button>
+      <button class="tinybtn" onclick="openUnlock('${a.ticker}','${a.exchange}')">🔓 Unlocks</button>
+      <button class="tinybtn" onclick="openTV('${a.ticker}','${a.exchange}')">📈 Gráfico</button>
+    </div>
+  </div>`).join('');
+}
+async function processEntryAlerts(){
+  const enabled=$('ntfyEnabled').checked;
+  const topic=$('ntfyTopic').value.trim();
+  const state=JSON.parse(localStorage.getItem('RWA2026_entryStates')||'{}');
+  const initialized=localStorage.getItem('RWA2026_V3_alertInitialized')==='1';
+  let changed=false;
+  for(const x of Object.values(latest)){
+    if(!x.d) continue;
+    const key=assetKey(x.a), now=x.d.status.code, before=state[key];
+    if(initialized && enabled && topic && now==='ENTRY' && before!=='ENTRY'){
+      const d=x.d,a=x.a;
+      const msg=[
+        `${a.ticker}/USDT • ${a.exchange}`,
+        `Preço: ${fmt(d.price)}`,
+        `Entrada possível: ${fmt(d.low)}–${fmt(d.high)}`,
+        `Stop: ${fmt(d.stop)}`,
+        `A1: ${fmt(d.a1)} | A2: ${fmt(d.a2)} | A3: ${fmt(d.a3)}`,
+        `Score: ${d.score}/100`,
+        '⚠️ Confirmar candle/volume e não perseguir o preço.'
+      ].join('\n');
+      try{ await sendNtfy('RWA2026 • POSSÍVEL ENTRADA',msg,'moneybag,chart_with_upwards_trend'); }
+      catch(e){ console.warn('ntfy:',e.message); }
+    }
+    if(before!==now){ state[key]=now; changed=true; }
+  }
+  if(changed) localStorage.setItem('RWA2026_entryStates',JSON.stringify(state));
+  if(!initialized) localStorage.setItem('RWA2026_V3_alertInitialized','1');
+}
+
+// Tenta domínio alternativo da Binance apenas para falha de transporte.
+// Não troca de exchange e não usa proxy público desconhecido.
+async function fetchJSONOnce(url){
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),12000);
+  try{
+    const r=await fetch(proxied(url),{signal:ctl.signal,cache:'no-store'});
+    if(!r.ok){
+      let detail='';try{let j=await r.json();detail=String(j.msg||j.message||'').slice(0,120)}catch(_){}
+      throw new Error('HTTP '+r.status+(detail?' — '+detail:''));
+    }
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+async function getJSON(url){
+  const isBinance=url.startsWith('https://api.binance.com/');
+  const isMexc=url.startsWith('https://api.mexc.com/');
+  const alternative=isBinance?url.replace('https://api.binance.com/','https://data-api.binance.vision/'):null;
+  try{return await fetchJSONOnce(url);}
+  catch(e){
+    if(isBinance && alternative && !String(e.message).startsWith('HTTP ')){
+      try{return await fetchJSONOnce(alternative);}
+      catch(e2){throw new Error('Binance: '+e2.message+' (alternativa oficial indisponível)');}
+    }
+    if(isMexc && /Failed to fetch|NetworkError|Load failed|abort|timed out/i.test(e.message))
+      throw new Error('MEXC: falha de rede/CORS; testar API e configurar proxy próprio no Render. '+e.message);
+    throw e;
+  }
+}
+async function fetchKlines(asset, tf, limit=230){
+  const sym=asset.ticker.toUpperCase()+'USDT';
+  if(asset.exchange==='BINANCE'){
+    return normalizeKlines(await getJSON(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${tfInterval('BINANCE',tf)}&limit=${limit}`));
+  }
+  return normalizeKlines(await getJSON(`https://api.mexc.com/api/v3/klines?symbol=${sym}&interval=${tfInterval('MEXC',tf)}&limit=${limit}`));
+}
+async function fetchTicker(asset){
+  const sym=asset.ticker.toUpperCase()+'USDT';
+  if(asset.exchange==='BINANCE'){
+    const j=await getJSON(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`);
+    return {price:+j.lastPrice, change:+j.priceChangePercent,quoteVolume:+j.quoteVolume};
+  }
+  const j=await getJSON(`https://api.mexc.com/api/v3/ticker/24hr?symbol=${sym}`);
+  return {price:+j.lastPrice, change:+j.priceChangePercent,quoteVolume:+j.quoteVolume};
+}
+function tfStats(c){
+  const closes=c.map(x=>x.close), last=closes.at(-1);
+  const e9=ema(closes,9).at(-1),e14=ema(closes,14).at(-1),e200=ema(closes,200).at(-1);
+  return {close:last,rsi:rsi(closes,14),macd:macd(closes),ema9:e9,ema14:e14,ema200:e200,atr:atr(c,14),vol:volRatio(c,20)};
+}
+function trendPoints(s){
+  let p=0;
+  if(s.close>s.ema9) p+=10; if(s.ema9>s.ema14) p+=10; if(s.close>s.ema200) p+=12;
+  if(s.macd.hist>0) p+=10;
+  if(s.rsi>=48 && s.rsi<=68) p+=8; else if(s.rsi>68) p+=2; else if(s.rsi<35) p-=4;
+  if(s.vol>=1.05) p+=5;
+  return p;
+}
+function confluence(d){
+  const h=d.tf4h, m=d.tf1h, f=d.tf15;
+  const vol=Number.isFinite(f.vol)&&f.vol>=1.10;
+  const long=[h.ema9>h.ema14 && h.close>h.ema200,
+    m.ema9>m.ema14 && m.close>m.ema200,
+    f.close>f.ema9 && f.ema9>f.ema14,
+    f.macd.hist>0 && m.macd.hist>0,
+    f.rsi>=48 && f.rsi<=70, vol];
+  const short=[h.ema9<h.ema14 && h.close<h.ema200,
+    m.ema9<m.ema14 && m.close<m.ema200,
+    f.close<f.ema9 && f.ema9<f.ema14,
+    f.macd.hist<0 && m.macd.hist<0,
+    f.rsi>=30 && f.rsi<=52, vol];
+  const nL=long.filter(Boolean).length,nS=short.filter(Boolean).length;
+  const dir=nL>nS?'LONG':nS>nL?'SHORT':'NEUTRO', count=Math.max(nL,nS);
+  const recent=d.c15.slice(-9,-1), last=d.c15.at(-1);
+  const trigger=dir==='LONG' ? last.close>Math.max(...recent.map(x=>x.high))
+               : dir==='SHORT' ? last.close<Math.min(...recent.map(x=>x.low)) : false;
+  const stretched=Math.abs(f.close-f.ema14)>1.8*(f.atr||f.close*.02);
+  return {dir,count,nL,nS,vol,trigger,stretched,quality:Math.round(count/6*100)};
+}
+function statusFor(a,d){
+  const q=d.setup;
+  if(a.ticker==='CPOOL') return {code:'BLOCKED',text:'⛔ MIGRAÇÃO • SEM SINAL',cls:'s-bad',rank:0};
+  // No Day Trade, liquidez não verificada impede liberação de entrada; não oculta sinais 4/6 ou 5/6.
+  if(q.count===6 && q.trigger && (!Number.isFinite(d.quoteVolume) || d.quoteVolume<500000))
+    return {code:'RISK',text:'🔴 6/6 • VOLUME 24H INSUFICIENTE/NÃO VALIDADO',cls:'s-bad',rank:0};
+  if(q.count<4 || q.dir==='NEUTRO') return {code:'WAIT',text:'⚪ SEM DIREÇÃO • AGUARDAR',cls:'s-neutral',rank:1};
+  if(q.stretched) return {code:'RISK',text:'🔴 ESTICADO • AGUARDAR',cls:'s-bad',rank:0};
+  if(q.count===4) return {code:'PREP',text:`🔵 PREPARAR ${q.dir} 4/6`,cls:'s-warn',rank:2};
+  if(q.count===5) return {code:'CONFIRM',text:`🟠 CONFIRMAR ${q.dir} 5/6`,cls:'s-warn',rank:3};
+  if(q.count===6 && q.trigger) return {code:'ENTRY',text:`🟢 ${q.dir} 6/6 + GATILHO`,cls:'s-good',rank:5};
+  return {code:'READY',text:`🟡 ${q.dir} 6/6 • ESPERAR GATILHO`,cls:'s-warn',rank:4};
+}
+
+function planFor(a,d){
+  const c1=d.c1, s1=d.tf1h, recent=c1.slice(-30,-1);
+  const support=Math.min(...recent.map(x=>x.low)), resistance=Math.max(...recent.map(x=>x.high));
+  const A=s1.atr||d.price*.03;
+  const isShort=d.setup.dir==='SHORT';
+  let low, high;
+  if(a.zoneLow!=null && a.zoneHigh!=null && +a.zoneLow>0 && +a.zoneHigh>=+a.zoneLow){
+    low=+a.zoneLow;high=+a.zoneHigh;
+  } else {
+    const anchor=isShort? Math.min(resistance,Math.max(s1.ema14,d.price)) : Math.max(support,Math.min(s1.ema14,d.price));
+    low=Math.max(.00000000001,anchor-.30*A);high=anchor+.30*A;
+  }
+  const entry=(low+high)/2;
+  let stop=isShort? Math.max(resistance+.25*A,high+(+$('atrMult').value||1.2)*A)
+                  : Math.min(support-.25*A,low-(+$('atrMult').value||1.2)*A);
+  if(!Number.isFinite(stop)||stop<=0) stop=isShort?entry+A:Math.max(entry-A,.00000000001);
+  const risk=Math.abs(stop-entry);
+  if(risk<=0) throw new Error('Stop inválido; revise zona');
+  const bank=Math.max(0,+$('bankroll').value||0),rp=Math.min(5,Math.max(.01,+$('riskPct').value||1))/100;
+  const riskCash=bank*rp,qty=riskCash/risk,position=qty*entry;
+  const sg=isShort?-1:1;
+  const target=(r)=>{const x=entry+sg*r*risk;return x>0?x:null;};
+  return {support,resistance,low,high,entry,stop,a1:target(1),a2:target(2),a3:target(3),risk,qty,position};
+}
+
+async function analyze(a){
+  const [ticker,c15,c1,c4]=await Promise.all([fetchTicker(a),fetchKlines(a,'15m'),fetchKlines(a,'1h'),fetchKlines(a,'4h')]);
+  if(!Number.isFinite(ticker.price)||ticker.price<=0) throw new Error('Cotação inválida');
+  if(Date.now()-c15.at(-1).closeTime > 31*60*1000 || Date.now()-c1.at(-1).closeTime > 121*60*1000 || Date.now()-c4.at(-1).closeTime>9*60*60*1000)
+    throw new Error('Candles fechados desatualizados — sinal indisponível');
+  const tf15=tfStats(c15), tf1h=tfStats(c1), tf4h=tfStats(c4);
+  const d={price:ticker.price,change24:ticker.change,quoteVolume:ticker.quoteVolume,tf15,tf1h,tf4h,c15,c1,closedAt:c15.at(-1).closeTime};
+  d.setup=confluence(d);d.direction=d.setup.dir;d.score=d.setup.quality;
+  Object.assign(d,planFor(a,d));d.status=statusFor(a,d);
+  return d;
+}
+
+function rowHTML(a,d,err){
+  if(err){
+    return `<tr data-ex="${a.exchange}"><td><span class="sym">${a.ticker}</span><span class="mini">${a.exchange} • ${a.group}</span></td><td colspan="15" class="neg">Falha: ${escapeHTML(err)}</td><td><button onclick="editAsset('${a.ticker}','${a.exchange}')">Editar</button></td></tr>`;
+  }
+  const mc=d.tf1h.macd.hist;
+  return `<tr data-ex="${a.exchange}">
+    <td><span class="sym">${a.ticker}</span><span class="mini">${a.exchange} • ${a.group}</span></td>
+    <td>${fmt(d.price)}</td><td class="${d.change24>=0?'pos':'neg'}">${pct(d.change24)}</td>
+    <td><span class="status ${d.status.cls}">${d.status.text}</span></td>
+    <td><b>${d.setup.count}/6 • ${d.direction}</b><span class="mini">Fechamento 15m: ${new Date(d.closedAt).toLocaleString('pt-BR')}</span><span class="mini">${a.note||''}</span></td>
+    <td>${fmt(d.tf15.rsi,2)}</td><td>${fmt(d.tf1h.rsi,2)}</td><td>${fmt(d.tf4h.rsi,2)}</td>
+    <td class="${mc>=0?'pos':'neg'}">${mc>=0?'▲':'▼'} ${fmt(Math.abs(mc),8)}</td>
+    <td>${fmt(d.tf1h.vol,2)}x</td>
+    <td><b>${fmt(d.low)}–${fmt(d.high)}</b><span class="mini">S ${fmt(d.support)} • R ${fmt(d.resistance)}</span></td>
+    <td class="neg">${fmt(d.stop)}</td><td>${fmt(d.a1)}</td><td>${fmt(d.a2)}</td><td>${fmt(d.a3)}</td>
+    <td>${fmt(d.position,2)} USDT<span class="mini">risco ${fmt(d.risk,8)} / un • qtd ${fmt(d.qty,4)}</span><span class="mini">${d.direction} • plano indicativo, não ordem</span></td>
+    <td>
+      <button class="tinybtn" onclick="openTV('${a.ticker}','${a.exchange}')">📈 TV</button>
+      <button class="tinybtn" onclick="openNews('${a.ticker}','${a.exchange}')">📰</button>
+      <button class="tinybtn" onclick="openUnlock('${a.ticker}','${a.exchange}')">🔓</button>
+      <button class="tinybtn" onclick="editAsset('${a.ticker}','${a.exchange}')">Editar</button>
+      <button class="tinybtn" onclick="removeAsset('${a.ticker}','${a.exchange}')">×</button>
+    </td>
+  </tr>`;
+}
+async function updateBTC(){
+  try{
+    const a={ticker:'BTC',exchange:'BINANCE'};
+    const [t,c15,c1,c4]=await Promise.all([fetchTicker(a),fetchKlines(a,'15m'),fetchKlines(a,'1h'),fetchKlines(a,'4h')]);
+    const ss=[tfStats(c15),tfStats(c1),tfStats(c4)];
+    const score=Math.max(0,Math.min(100,Math.round((trendPoints(ss[0])*.25+trendPoints(ss[1])*.40+trendPoints(ss[2])*.35)/55*100)));
+    $('btcPrice').textContent='$ '+fmt(t.price,2);
+    $('btcBar').style.width=score+'%';
+    const st=score>=67?['🟢 Favorável','s-good']:score>=48?['🟡 Neutro','s-warn']:['🔴 Fraco','s-bad'];
+    $('btcState').textContent=st[0]; $('btcState').className='status '+st[1];
+    return {price:t.price,change:t.change,score,state:st[0]};
+  }catch(e){ $('btcState').textContent='indisponível'; return null; }
+}
+async function updateAll(){
+  if($('btnUpdate').disabled) return;
+  $('updateStatus').textContent='Atualizando candles FECHADOS...';$('btnUpdate').disabled=true;
+  latest={};
+  try {
+    const filter=$('filterExchange').value;
+    const targets=assets.filter(a=>filter==='ALL'||a.exchange===filter);
+    const btc=await updateBTC();
+    const results=new Array(targets.length);let pos=0;
+    async function worker(){
+      while(pos<targets.length){
+        const i=pos++,a=targets[i],key=assetKey(a);
+        if(a.ticker==='CPOOL'){
+          latest[key]={a,error:'MIGRAÇÃO CPOOL/CLEAR: validar contrato e pares antes de operar'};
+          results[i]=rowHTML(a,null,'MIGRAÇÃO CPOOL/CLEAR: não gera sinal automático');continue;
+        }
+        try{ const d=await analyze(a);latest[key]={a,d};results[i]=rowHTML(a,d,null); }
+        catch(e){latest[key]={a,error:e.message};results[i]=rowHTML(a,null,e.message);}
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(3,targets.length)},()=>worker()));
+    $('rows').innerHTML=results.join('');
+    const ok=Object.values(latest).filter(x=>x.d);
+    const ready=ok.filter(x=>x.d.status.code==='ENTRY');
+    $('readyCount').textContent=ready.length;
+    const best=ok.sort((x,y)=>(y.d.status.rank*100+y.d.score)-(x.d.status.rank*100+x.d.score))[0];
+    $('bestAsset').textContent=best?best.a.ticker:'—';
+    $('bestWhy').textContent=best?`${best.d.status.text} • ${best.d.score}/100 (checklist)`:'Sem dados suficientes';
+    $('lastUpdate').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const failures=Object.values(latest).filter(x=>x.error).length;
+    $('updateStatus').textContent=`${ok.length} pares válidos; ${failures} sem leitura (inclui migrações)`;
+    if(failures) $('apiDiagnostics').textContent=`Última atualização: ${ok.length} pares válidos, ${failures} sem leitura. Consulte os motivos por ativo na tabela e use “Testar APIs”. Falha de API não significa venda/compra.`;
+    renderTop3();renderNewsUnlocks();buildReport(btc);renderHold();
+    await processEntryAlerts();
+  }catch(e){$('updateStatus').textContent='Falha: '+e.message;console.error(e);}
+  finally{$('btnUpdate').disabled=false;}
+}
+
+function buildReport(btc){
+  const lines=[];
+  lines.push('RELATÓRIO INTELIGENTE — RWA2026 V3.1 • RADAR EGI');
+  lines.push('SINAIS CALCULADOS SOMENTE COM CANDLES FECHADOS. Valores de entradas/stops e scores são triagem, não confirmação de execução.');
+  lines.push('V3.1 — falhas de API são mostradas sem gerar sinais ou preços fictícios.');
+  lines.push('Gerado em: '+new Date().toLocaleString('pt-BR'));
+  lines.push('');
+  if(btc) lines.push(`BTC: ${fmt(btc.price,2)} | 24h ${pct(btc.change)} | força técnica ${btc.score}/100 | ${btc.state}`);
+  lines.push('');
+  const list=Object.values(latest).filter(x=>x.d).sort((x,y)=>(y.d.status.rank*100+y.d.score)-(x.d.status.rank*100+x.d.score));
+  for(const x of list){
+    const {a,d}=x;
+    lines.push(`${a.ticker} • ${a.exchange} • ${d.status.text} • Confluência ${d.setup.count}/6 ${d.direction} • ${new Date(d.closedAt).toLocaleString('pt-BR')} (candle fechado)`);
+    lines.push(`Preço ${fmt(d.price)} | 24h ${pct(d.change24)} | Volume financeiro 24h ${fmt(d.quoteVolume,2)} USDT | RSI 15m ${fmt(d.tf15.rsi,2)} | 1h ${fmt(d.tf1h.rsi,2)} | 4h ${fmt(d.tf4h.rsi,2)}`);
+    lines.push(`Entrada possível ${fmt(d.low)}–${fmt(d.high)} | Stop ${fmt(d.stop)} | A1 ${fmt(d.a1)} | A2 ${fmt(d.a2)} | A3 ${fmt(d.a3)}`);
+    lines.push(`Suporte ${fmt(d.support)} | Resistência ${fmt(d.resistance)} | Vol 1h ${fmt(d.tf1h.vol,2)}x | Posição pelo risco: ${fmt(d.position,2)} USDT`);
+    if(a.note) lines.push(`Risco/nota: ${a.note}`);
+    if(UNLOCK_NOTES[a.ticker]) lines.push(`Unlock/tokenomics: ${UNLOCK_NOTES[a.ticker]}`);
+    lines.push('');
+  }
+  for(const x of Object.values(latest).filter(x=>x.error)) lines.push(`${x.a.ticker} • ${x.a.exchange} • SEM LEITURA: ${x.error}`);
+  lines.push('');lines.push('PEDIDO AO CHATGPT');
+  lines.push('Revise os sinais acima como investidor com viés de entrada técnica. Priorize segurança de execução, contexto do BTC, liquidez, tokenomics/unlocks e relação risco/retorno. Não trate o score como recomendação automática e aponte qualquer entrada que esteja tardia ou em queda livre.');
+  $('report').value=lines.join('\n');
+}
+function save(){ localStorage.setItem('RWA2026_assets',JSON.stringify(assets)); }
+function editAsset(ticker,exchange){
+  const a=assets.find(x=>x.ticker===ticker&&x.exchange===exchange); if(!a)return;
+  const low=prompt(`Zona baixa de ${ticker} (vazio = dinâmica):`,a.zoneLow??'');
+  if(low===null)return;
+  const high=prompt(`Zona alta de ${ticker} (vazio = dinâmica):`,a.zoneHigh??'');
+  if(high===null)return;
+  const note=prompt(`Nota/risco de ${ticker}:`,a.note||''); if(note===null)return;
+  if((low.trim()!==''||high.trim()!=='') && !(+low>0 && +high>=+low))return alert('Zona: informe baixa positiva e alta maior ou igual à baixa, ou deixe ambas vazias.');
+  a.zoneLow=low.trim()===''?null:+low; a.zoneHigh=high.trim()===''?null:+high; a.note=note;
+  save(); updateAll();
+}
+function removeAsset(ticker,exchange){
+  if(!confirm(`Remover ${ticker} (${exchange})?`)) return;
+  assets=assets.filter(x=>!(x.ticker===ticker&&x.exchange===exchange)); save(); updateAll();
+}
+function download(name,text,type='text/plain'){
+  const b=new Blob([text],{type}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+
+const HOLD_DATA=[
+  {t:'LINK',name:'Chainlink',kind:'Infraestrutura',role:'Oráculos, interoperabilidade e serviços para ativos tokenizados.',capture:'Token utilizado no ecossistema de serviços/staking; verificar demanda econômica líquida.',dilution:'Limite de oferta; acompanhar tokens circulantes e reservas.',risk:'Adoção institucional sem captura proporcional pelo LINK.',potential:'Moderado a alto, condicional',priority:1,src:'https://chain.link/'},
+  {t:'ONDO',name:'Ondo Finance',kind:'Tokenização',role:'Produtos de títulos e ações tokenizadas.',capture:'ONDO é token de governança, não ação da empresa; verificar utilidade econômica.',dilution:'Desbloqueio expressivo estimado em janeiro de 2027.',risk:'Diluição e distância entre receitas da plataforma e direito do token.',potential:'Alto, condicional',priority:1,src:'https://ondo.finance/'},
+  {t:'CFG',name:'Centrifuge',kind:'Crédito/Fundos',role:'Fundos tokenizados e infraestrutura institucional de crédito.',capture:'Verificar taxas, governança, distribuição e demanda pelo CFG.',dilution:'Emissões e incentivos, revisar cronograma de 2026–2031.',risk:'Diluição, crédito e concorrência.',potential:'Alto, condicional',priority:1,src:'https://centrifuge.io/'},
+  {t:'PLUME',name:'Plume',kind:'Blockchain RWA',role:'Ecossistema próprio para implantação de ativos RWA.',capture:'Verificar consumo efetivo do token, taxas e incentivos.',dilution:'Atenção a vesting de equipe, parceiros e investidores.',risk:'Alta competição e venda por unlocks.',potential:'Alto / especulativo',priority:2,src:'https://plumenetwork.xyz/'},
+  {t:'EDEN',name:'OpenEden',kind:'Produtos financeiros',role:'Infraestrutura de tesouraria e produtos tokenizados.',capture:'Verificar relação entre atividade do emissor e token EDEN.',dilution:'Vesting de participantes e oferta circulante.',risk:'Desbloqueios e transferência incerta de valor.',potential:'Alto / especulativo',priority:2,src:'https://openeden.com/'},
+  {t:'CHEX',name:'Chintai',kind:'Tokenização',role:'Serviços de tokenização e estrutura de mercado.',capture:'Checar taxas e utilidade do token.',dilution:'Checar tokens circulantes e concentração.',risk:'Liquidez reduzida, spreads e execução.',potential:'Alto / muito especulativo',priority:3,src:'https://www.chintai.io/'},
+  {t:'BKN',name:'Brickken',kind:'Plataforma de emissão',role:'Tokenização e gestão de ativos para empresas.',capture:'Validar uso econômico real do BKN.',dilution:'Revalidar contrato após migração em 2026.',risk:'Liquidez, contrato e adoção comercial.',potential:'Alto / muito especulativo',priority:3,src:'https://brickken.com/'},
+  {t:'LUMIA',name:'Lumia',kind:'Infraestrutura RWA',role:'Infraestrutura e blockchain para tokenização.',capture:'Demanda e custos da rede precisam ser mensuráveis.',dilution:'Checar oferta e emissões futuras.',risk:'Execução tecnológica, liquidez e tokenomics.',potential:'Alto / muito especulativo',priority:3,src:'https://lumia.org/'},
+  {t:'DUSK',name:'Dusk',kind:'Infraestrutura financeira',role:'Camada blockchain para operações financeiras.',capture:'Checar receitas, tarifas de rede e token.',dilution:'Checar emissão e incentivos.',risk:'Regulação, concorrência e liquidez.',potential:'Alto / muito especulativo',priority:3,src:'https://dusk.network/'},
+  {t:'CPOOL',name:'Clearpool / CLEAR',kind:'Migração',role:'Crédito institucional; par/token em transição para CLEAR.',capture:'Reavaliar utilidade do token após migração.',dilution:'Mudança de emissão e oferta proposta; confirmar cronograma implementado.',risk:'CPOOL legado em quarentena técnica até confirmar migração e exchange.',potential:'Em reavaliação',priority:4,src:'https://clearpool.finance/'}
+];
+const EVENTS=[
+  {t:'ONDO',date:'18/01/2027 (estimativa a confirmar)',description:'Possível desbloqueio significativo. Conferir quantidade, destinatários, data, vesting, oferta e comportamento de preço.',link:'https://www.google.com/search?q=ONDO+January+2027+unlock+official'},
+  {t:'CPOOL / CLEAR',date:'Migração em 2026 — situação a confirmar',description:'Validar execução da migração CPOOL→CLEAR, token oficial, oferta final, contratos e pares ativos na corretora.',link:'https://www.google.com/search?q=Clearpool+CPOOL+CLEAR+migration+official'},
+  {t:'BKN',date:'Migração contratual anunciada em 25/06/2026',description:'Verificar contrato novo e ativo depositável/negociável na MEXC antes de operar.',link:'https://www.google.com/search?q=Brickken+BKN+token+migration+June+2026+official'},
+  {t:'CFG',date:'Revisão mensal',description:'Emissões, inflação, vesting e variação da atividade de fundos tokenizados.',link:'https://www.google.com/search?q=Centrifuge+CFG+tokenomics+vesting+official'},
+  {t:'PLUME',date:'Revisão mensal',description:'Calendário de unlocks e parcela da oferta circulante.',link:'https://www.google.com/search?q=Plume+token+unlock+vesting+official'},
+  {t:'EDEN',date:'Revisão mensal',description:'Vesting de equipe/investidores, emissões e notícias institucionais.',link:'https://www.google.com/search?q=OpenEden+EDEN+unlock+vesting+official'}
+];
+const checklistItems=[
+  'O produto tem ativos/receitas reais, não apenas anúncio?',
+  'O token captura economicamente parte do uso da rede?',
+  'A oferta circulante e o FDV estão atualizados?',
+  'Verifiquei desbloqueios e inflação dos próximos 12 meses?',
+  'Comparei volumes, spreads e profundidade nas exchanges?',
+  'Comparei valuation com concorrentes e qualidade da execução?',
+  'Defini exposição máxima e risco de perda permanente?',
+  'Registrei o que invalidaria a tese de 2 a 5 anos?'
+];
+let activeTab='hold';
+function switchTab(tab){
+  if(!['hold','trade','events'].includes(tab))return;
+  activeTab=tab;
+  for(const b of document.querySelectorAll('[data-tab]')){
+    const on=b.dataset.tab===tab;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');
+  }
+  for(const [t,id] of [['hold','holdView'],['trade','tradeView'],['events','eventsView']]) $(id).classList.toggle('active',t===tab);
+  localStorage.setItem('RWA2026_V3_tab',tab);
+}
+function escapeHTML(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderHold(){
+  $('holdCards').innerHTML=HOLD_DATA.map(h=>{
+    const x=Object.values(latest).find(z=>z.a.ticker===h.t&&z.d);
+    const price=x?.d?.price;const revised=localStorage.getItem('RWA2026_V3_revised_'+h.t)==='1';
+    return `<article class="research">
+      <span class="tag">${escapeHTML(h.kind)}</span><span class="tag">${h.priority===1?'Núcleo de estudo':h.priority===2?'Alto risco':'Pesquisa especulativa'}</span>
+      <h3>${escapeHTML(h.t)} · ${escapeHTML(h.name)}</h3>
+      <div class="value">${price!=null?'US$ '+fmt(price):'—'}</div><p class="studyline">${price!=null?'Cotação da última atualização Spot':'Preço indisponível / atualização pendente'}</p>
+      <p><b>Tese:</b> ${escapeHTML(h.role)}</p><p><b>Captura de valor:</b> ${escapeHTML(h.capture)}</p>
+      <p><b>Tokenomics:</b> ${escapeHTML(h.dilution)}</p><div class="risklist"><b>⚠️ Principal risco:</b> ${escapeHTML(h.risk)}</div>
+      <p><b>Potencial:</b> ${escapeHTML(h.potential)} — não é previsão de preço.</p>
+      <div class="actions"><button class="tinybtn" onclick="openHoldSource('${h.t}')">🌐 Site do projeto</button>
+      <button class="tinybtn" onclick="reviewHold('${h.t}')">${revised?'✅ Revisado':'☐ Marcar revisado'}</button></div>
+    </article>`;
+  }).join('');
+  calcValuation();
+}
+function openHoldSource(t){const h=HOLD_DATA.find(x=>x.t===t);if(h)window.open(h.src,'_blank','noopener,noreferrer');}
+function reviewHold(t){const key='RWA2026_V3_revised_'+t;localStorage.setItem(key,localStorage.getItem(key)==='1'?'0':'1');renderHold();}
+function renderEvents(){
+  $('eventsRows').innerHTML=EVENTS.map(e=>`<tr><td><b>${escapeHTML(e.t)}</b></td><td>${escapeHTML(e.date)}</td><td>${escapeHTML(e.description)}</td>
+    <td><a href="${escapeHTML(e.link)}" target="_blank" rel="noopener noreferrer" style="color:#91c1ff">Conferir fontes</a></td></tr>`).join('');
+}
+function calcValuation(){
+  const millionCap=+$('valCap').value,millionSupply=+$('valSupply').value;
+  if(!(millionCap>0&&millionSupply>0)){$('valResult').textContent='Preencha a capitalização e a oferta futura (em milhões) para calcular o preço hipotético.';return;}
+  const token=$('valToken').value, price=Object.values(latest).find(x=>x.a.ticker===token&&x.d)?.d.price;
+  const implied=millionCap/millionSupply;
+  let out=`${token}: US$ ${fmt(implied,6)} por token, se a capitalização atingir US$ ${fmt(millionCap,2)} milhões e a oferta for ${fmt(millionSupply,2)} milhões.`;
+  if(Number.isFinite(price)&&price>0)out+=` Cotação de referência da última leitura: US$ ${fmt(price)}. Relação hipotética: ${fmt(implied/price,2)}x — NÃO é previsão.`;
+  $('valResult').textContent=out;
+}
+function holdText(){
+  return ['RWA2026 V3.1 | ESTUDO HOLD 2028–2031 | '+new Date().toLocaleString('pt-BR'),
+  'POTENCIAL QUALITATIVO, NÃO PROMESSA DE RETORNO. ADOÇÃO DA PLATAFORMA NÃO GARANTE VALORIZAÇÃO DO TOKEN.','',
+  ...HOLD_DATA.flatMap(x=>[x.t+' | '+x.name+' | '+x.kind+' | '+x.potential,'Tese: '+x.role,'Captura: '+x.capture,'Tokenomics: '+x.dilution,'Risco: '+x.risk,'Fonte: '+x.src,'']),
+  'EVENTOS PARA CONFERIR:',...EVENTS.map(e=>e.t+' | '+e.date+' | '+e.description)].join('\n');
+}
+function setupPayload(){
+  return {schema:'EGI-RWA-SINAIS-V3',generatedAt:new Date().toISOString(),source:'Binance/MEXC Spot pública — candles fechados',
+    important:'Formato de intercâmbio do radar RWA; importação direta no SetupDT requer compatibilidade do parser do SetupDT. Não executa ordens.',
+    signals:Object.values(latest).map(x=>x.d?{
+      asset:x.a.ticker+'USDT',exchange:x.a.exchange,timeframe:'15m',status:x.d.status.code,
+      direction:x.d.direction,confluence:x.d.setup.count,triggerConfirmed:x.d.setup.trigger&&x.d.setup.count===6,
+      closedAt:new Date(x.d.closedAt).toISOString(),price:x.d.price,
+      entryZone:[x.d.low,x.d.high],stop:x.d.stop,targets:[x.d.a1,x.d.a2,x.d.a3],
+      note:x.a.note,reason:x.d.status.text
+    }:{asset:x.a.ticker+'USDT',exchange:x.a.exchange,status:'DADOS_INDISPONIVEIS',reason:x.error})};
+}
+function setupPlain(){
+  const x=setupPayload();
+  return ['RWA2026 V3.1 — RELATÓRIO PARA SETUPDT | '+new Date().toLocaleString('pt-BR'),
+  'Importação automática não garantida. Candles fechados, sem executar ordens.',
+  ...x.signals.map(s=>`${s.asset} | ${s.exchange} | ${s.direction||'NEUTRO'} | ${s.status} | ${s.confluence??0}/6 | preço ${fmt(s.price)} | entrada ${s.entryZone?s.entryZone.map(v=>fmt(v)).join(' a '):'—'} | stop ${fmt(s.stop)} | A1 ${fmt(s.targets?.[0])} | A2 ${fmt(s.targets?.[1])} | A3 ${fmt(s.targets?.[2])} | candle ${s.closedAt||'—'} | ${s.reason||''}`)].join('\n');
+}
+async function copySafe(v){
+  try{await navigator.clipboard.writeText(v);return true;}
+  catch(e){
+    const t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.top='-5000px';document.body.appendChild(t);t.select();
+    try{const ok=document.execCommand('copy');t.remove();return ok;}catch(_){t.remove();return false;}
+  }
+}
+function showCopied(btn,ok){const label=btn.textContent;btn.textContent=ok?'✅ Copiado':'⚠️ Cópia bloqueada — baixe o arquivo';setTimeout(()=>btn.textContent=label,2200);}
+let activeUtterance=null;
+function stopAudio(){try{if('speechSynthesis' in window)window.speechSynthesis.cancel();}catch(e){}activeUtterance=null;}
+function startAudio(){
+  if(!('speechSynthesis' in window))return alert('Seu navegador não oferece leitura por voz. Use o texto do estudo.');
+  stopAudio();activeUtterance=new SpeechSynthesisUtterance(holdText());activeUtterance.lang='pt-BR';activeUtterance.rate=.95;
+  activeUtterance.onerror=()=>{ $('btnReadStudy').textContent='🔊 Ouvir estudo (verifique voz do aparelho)'; };
+  try{window.speechSynthesis.speak(activeUtterance);}catch(e){alert('Não foi possível iniciar áudio: '+e.message);}
+}
+function renderChecklist(){
+  let state={};try{state=JSON.parse(localStorage.getItem('RWA2026_V3_checks')||'{}')}catch(e){}
+  $('holdChecklist').innerHTML=checklistItems.map((item,i)=>`<label style="display:block;cursor:pointer"><input type="checkbox" data-check="${i}" ${state[i]?'checked':''} style="margin-right:9px;accent-color:#47c79d">${escapeHTML(item)}</label>`).join('');
+}
+for(const btn of document.querySelectorAll('[data-tab]'))btn.addEventListener('click',()=>switchTab(btn.dataset.tab));
+$('btnReadStudy').onclick=startAudio;$('btnStopStudy').onclick=stopAudio;
+$('btnCopyHold').onclick=async e=>showCopied(e.currentTarget,await copySafe(holdText()));
+$('btnDownloadHold').onclick=()=>download('RWA2026_V3_Estudo_HOLD.txt',holdText());
+$('btnSetupCopy').onclick=async e=>showCopied(e.currentTarget,await copySafe(setupPlain()));
+$('btnSetupDownload').onclick=()=>download('RWA2026_V3_Sinais_Para_SetupDT.json',JSON.stringify(setupPayload(),null,2),'application/json');
+$('valToken').innerHTML=HOLD_DATA.map(h=>`<option value="${h.t}">${h.t} — ${h.name}</option>`).join('');
+for(const id of ['valToken','valCap','valSupply'])$(id).addEventListener('input',calcValuation);
+$('holdChecklist').addEventListener('change',e=>{if(e.target.dataset.check===undefined)return;
+  let state={};try{state=JSON.parse(localStorage.getItem('RWA2026_V3_checks')||'{}')}catch(_){ }
+  state[e.target.dataset.check]=e.target.checked;localStorage.setItem('RWA2026_V3_checks',JSON.stringify(state));});
+$('btnResetChecklist').onclick=()=>{localStorage.removeItem('RWA2026_V3_checks');renderChecklist();};
+$('btnClearReading').onclick=()=>{for(const h of HOLD_DATA)localStorage.removeItem('RWA2026_V3_revised_'+h.t);renderHold();};
+window.openHoldSource=openHoldSource;window.reviewHold=reviewHold;
+renderHold();renderEvents();renderChecklist();switchTab(localStorage.getItem('RWA2026_V3_tab')||'hold');
+
+$('btnApiTest').onclick=async()=>{
+  const out=$('apiDiagnostics'),btn=$('btnApiTest');btn.disabled=true;
+  out.textContent='Testando Binance Spot, MEXC Spot e formatação...';
+  const checks=[];
+  const fm=[0.000000031,0.0032,0.99,1.12,84.52,83040.01];
+  try{checks.push('Formatação: '+fm.map(x=>fmt(x,8)).join(' | '));}
+  catch(e){checks.push('FORMATAÇÃO FALHOU: '+e.message);}
+  for(const [ex,ticker] of [['BINANCE','BTC'],['MEXC','CHEX'],['MEXC','BKN']]){
+    try{
+      const a={ticker,exchange:ex}; const d=await fetchTicker(a);
+      if(!(d.price>0)) throw new Error('preço inexistente');
+      checks.push(ex+' '+ticker+'USDT: OK • preço '+fmt(d.price));
+    }catch(e){checks.push(ex+' '+ticker+'USDT: FALHOU • '+e.message);}
+  }
+  out.textContent=checks.join('\n');out.style.whiteSpace='pre-wrap';btn.disabled=false;
+};
+$('btnUpdate').onclick=updateAll;
+$('btnReport').onclick=()=>{$('report').scrollIntoView({behavior:'smooth'});};
+$('btnNtfyTest').onclick=async()=>{
+  try{
+    await sendNtfy('RWA2026 • Teste','Teste de notificação do RWA2026 V3. Se recebeu, o ntfy está configurado corretamente.','bell');
+    $('btnNtfyTest').textContent='🔔 Enviado ✓';
+    setTimeout(()=>$('btnNtfyTest').textContent='🔔 Testar ntfy',1500);
+  }catch(e){ alert('Falha no ntfy: '+e.message); }
+};
+$('btnCopy').onclick=async e=>showCopied(e.currentTarget,await copySafe($('report').value));
+$('btnDownloadTxt').onclick=()=>download('RWA2026_Relatorio.txt',$('report').value);
+$('btnExport').onclick=()=>download('RWA2026_V3_Config.json',JSON.stringify({version:'3.0',assets,bankroll:$('bankroll').value,riskPct:$('riskPct').value,atrMult:$('atrMult').value},null,2),'application/json');
+$('btnImport').onclick=()=>$('fileImport').click();
+$('fileImport').onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{ const j=JSON.parse(await f.text()); if(!Array.isArray(j.assets))throw new Error('JSON sem assets'); assets=j.assets; save();
+    if(j.bankroll)$('bankroll').value=j.bankroll;if(j.riskPct)$('riskPct').value=j.riskPct;if(j.atrMult)$('atrMult').value=j.atrMult; updateAll();
+  }catch(err){alert('Falha ao importar: '+err.message);}
+};
+$('btnAdd').onclick=()=>{
+  const ticker=safeTicker($('newTicker').value), exchange=$('newExchange').value;
+  if(!ticker) return alert('Informe o ticker.');
+  if(assets.some(x=>x.ticker===ticker&&x.exchange===exchange)) return alert('Ativo já cadastrado nessa exchange.');
+  const l=$('newZoneLow').value,h=$('newZoneHigh').value;
+  if((l!==''||h!=='') && !(+l>0 && +h>=+l))return alert('Informe uma zona completa e válida, ou deixe os dois campos vazios.');
+  assets.push({ticker,exchange,zoneLow:l===''?null:+l,zoneHigh:h===''?null:+h,group:$('newGroup').value||'RWA',note:'Cadastro manual'});
+  save(); $('newTicker').value=''; $('newZoneLow').value=''; $('newZoneHigh').value=''; updateAll();
+};
+['bankroll','riskPct','atrMult'].forEach(id=>$(id).addEventListener('change',()=>{localStorage.setItem('RWA2026_'+id,$(id).value); if(Object.keys(latest).length)updateAll();}));
+['bankroll','riskPct','atrMult','proxyBase'].forEach(id=>{const v=localStorage.getItem('RWA2026_'+id);if(v!=null)$(id).value=v;$(id).addEventListener('change',()=>localStorage.setItem('RWA2026_'+id,$(id).value));});
+const savedTopic=localStorage.getItem('RWA2026_ntfyTopic'); if(savedTopic!=null)$('ntfyTopic').value=savedTopic;
+$('ntfyTopic').addEventListener('change',()=>localStorage.setItem('RWA2026_ntfyTopic',$('ntfyTopic').value.trim()));
+$('ntfyEnabled').checked=localStorage.getItem('RWA2026_ntfyEnabled')==='1';
+$('ntfyEnabled').addEventListener('change',()=>localStorage.setItem('RWA2026_ntfyEnabled',$('ntfyEnabled').checked?'1':'0'));
+$('filterExchange').onchange=updateAll;
+$('autoSec').onchange=()=>{
+  localStorage.setItem('RWA2026_autoSec',$('autoSec').value);
+  if(timer)clearInterval(timer); const s=+$('autoSec').value; if(s)timer=setInterval(updateAll,s*1000);
+};
+const as=localStorage.getItem('RWA2026_autoSec'); if(as!=null)$('autoSec').value=as;
+window.editAsset=editAsset; window.removeAsset=removeAsset; window.openTV=openTV; window.openNews=openNews; window.openUnlock=openUnlock;
+setTimeout(()=>{updateAll(); $('autoSec').dispatchEvent(new Event('change'));},250);
+</script>
+</body>
+</html>
