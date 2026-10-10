@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.6 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.7 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -491,6 +491,7 @@ header h1{font-size:26px}
           <button type="button" id="multiMonitorBtn">▶ Monitorar lista</button>
         </div>
       </div>
+      <div class="multi-monitor-controls"><div><label>Exibir no monitor</label><select id="mmViewFilter"><option value="ALL">Todas as moedas</option><option value="FAV">⭐ Somente favoritos</option></select></div><div><label>Cobertura nesta sessão</label><div id="mmCoverage" class="mm-status">0 / 0 analisadas (0%)</div></div></div>
       <div class="multi-monitor-summary">
         <div class="mm-stat"><span>🟢 LONG</span><b id="mmLong">0</b></div>
         <div class="mm-stat"><span>🔴 SHORT</span><b id="mmShort">0</b></div>
@@ -2872,6 +2873,8 @@ let multiMonitorTimer=null;
 let multiMonitorCursor=0;
 let multiMonitorState={};
 let marketMonitorUniverse=[];
+const monitorSessionSeen=new Set();
+let mmViewFilter="ALL";
 function monitorAssets(){return marketMonitorUniverse.length?marketMonitorUniverse:savedAssets;}
 async function ensureMarketMonitorUniverse(){
   if(marketMonitorUniverse.length)return true;
@@ -2880,6 +2883,7 @@ async function ensureMarketMonitorUniverse(){
     const tickers=await getTopSymbols(Number.MAX_SAFE_INTEGER);
     marketMonitorUniverse=[...new Set(tickers.map(t=>normalizeBaseAsset(t.symbol)).filter(Boolean))];
     if(!marketMonitorUniverse.length)throw new Error('nenhum par válido retornado');
+    monitorSessionSeen.clear();multiMonitorCursor=0;
     renderMultiMonitor();
     return true;
   }catch(e){$('mmStatus').textContent='Falha na descoberta do mercado: '+(e?.message||e);return false;}
@@ -2924,10 +2928,12 @@ function bestRawSignal(results){
 function renderMultiMonitor(){
   if(!$('mmList')) return;
   const bases=[...monitorAssets()].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b));
+  const covered=bases.filter(base=>monitorSessionSeen.has(base)).length;
+  if($("mmCoverage")) $("mmCoverage").textContent=`${covered} / ${bases.length} analisadas (${bases.length?Math.round(100*covered/bases.length):0}%) • sessão atual`;
   let nLong=0,nShort=0,nWait=0,nPending=0,nError=0;
   for(const base of bases){
     const s=multiMonitorState[base]||{};
-    if(!s.updatedAt){nPending++;continue;}
+    if(!monitorSessionSeen.has(base)){nPending++;continue;}
     if(s.kind==='ERROR'){nError++;continue;}
     if(s.kind==='LONG') nLong++;
     else if(s.kind==='SHORT') nShort++;
@@ -2941,11 +2947,12 @@ function renderMultiMonitor(){
   $('mmPending').textContent=nPending;
   $('mmError').textContent=nError;
 
+  const visible=mmViewFilter==='FAV'?bases.filter(a=>favoriteAssets.includes(a)):bases;
   if(!bases.length){
     $('mmList').innerHTML='<div class="mm-status">Lista vazia. Clique em ▶ Monitorar lista para carregar o mercado Binance e exibir as estrelas de favoritos.</div>';
     return;
   }
-  $('mmList').innerHTML=bases.map(base=>{
+  $('mmList').innerHTML=visible.length?visible.map(base=>{
     const s=multiMonitorState[base]||{};
     const open=openTradeForSymbol(base+'USDT');
     const kind=open?'OPEN':s.kind;
@@ -2964,7 +2971,7 @@ function renderMultiMonitor(){
       <div class="mm-state ${cls}">${stateText}</div>
       <div class="mm-score">${score}</div>
     </div>`;
-  }).join('');
+  }).join(''):'<div class="mm-status">Nenhum favorito marcado. Use ☆ em Todas as moedas.</div>';
   $('mmList').querySelectorAll('[data-mm-fav]').forEach(btn=>btn.addEventListener('click',()=>{toggleFavorite(btn.dataset.mmFav);renderMultiMonitor();}));
   $('mmList').querySelectorAll('[data-mm-asset]').forEach(btn=>btn.addEventListener('click',()=>{
     const base=btn.dataset.mmAsset;
@@ -3053,6 +3060,7 @@ async function runMultiMonitorCycle(manual=true){
         multiMonitorState[base]={kind:'ERROR',text:'Erro',updatedAt:Date.now(),error:String(e?.message||e)};
       }
       $('mmBar').style.width=`${Math.round((i+1)/batch.length*100)}%`;
+      monitorSessionSeen.add(base);
       persistMultiMonitorState();
       renderMultiMonitor();
       await sleep(120);
@@ -3784,6 +3792,7 @@ $('backupAssetsBtn').addEventListener('click',backupAssets);
 $('restoreAssetsBtn').addEventListener('click',()=>$('restoreAssetsInput').click());
 $('restoreAssetsInput').addEventListener('change',e=>restoreAssetsFile(e.target.files?.[0]));
 
+$('mmViewFilter')?.addEventListener('change',()=>{mmViewFilter=$('mmViewFilter').value;renderMultiMonitor();});
 $('multiMonitorBtn')?.addEventListener('click',toggleMultiMonitor);
 $('multiMonitorSec')?.addEventListener('change',()=>{
   localStorage.setItem('radar_mme1_multi_sec',$('multiMonitorSec').value);
