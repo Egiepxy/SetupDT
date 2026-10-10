@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.5.1 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.6 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -2871,6 +2871,19 @@ let multiMonitorBusy=false;
 let multiMonitorTimer=null;
 let multiMonitorCursor=0;
 let multiMonitorState={};
+let marketMonitorUniverse=[];
+function monitorAssets(){return marketMonitorUniverse.length?marketMonitorUniverse:savedAssets;}
+async function ensureMarketMonitorUniverse(){
+  if(marketMonitorUniverse.length)return true;
+  $('mmStatus').textContent='Descobrindo pares USDT negociáveis na Binance (sem cadastrar moedas)...';
+  try{
+    const tickers=await getTopSymbols(Number.MAX_SAFE_INTEGER);
+    marketMonitorUniverse=[...new Set(tickers.map(t=>normalizeBaseAsset(t.symbol)).filter(Boolean))];
+    if(!marketMonitorUniverse.length)throw new Error('nenhum par válido retornado');
+    renderMultiMonitor();
+    return true;
+  }catch(e){$('mmStatus').textContent='Falha na descoberta do mercado: '+(e?.message||e);return false;}
+}
 
 function loadMultiMonitorPrefs(){
   const sec=localStorage.getItem('radar_mme1_multi_sec');
@@ -2910,7 +2923,7 @@ function bestRawSignal(results){
 }
 function renderMultiMonitor(){
   if(!$('mmList')) return;
-  const bases=[...savedAssets].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b));
+  const bases=[...monitorAssets()].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b));
   let nLong=0,nShort=0,nWait=0,nPending=0,nError=0;
   for(const base of bases){
     const s=multiMonitorState[base]||{};
@@ -2961,16 +2974,17 @@ function renderMultiMonitor(){
   }));
 }
 function chooseMonitorBatch(){
-  if(!savedAssets.length) return [];
+  const universe=monitorAssets();
+  if(!universe.length) return [];
   const max=Math.max(1,Number($('multiMonitorMax')?.value||10));
   const opens=[...new Set(robotTrades.filter(t=>t.status==='ABERTA').map(t=>t.symbol.replace('USDT','')))]
-    .filter(a=>savedAssets.includes(a));
+    .filter(a=>universe.includes(a));
   const batch=[...opens];
 
   let tries=0;
-  while(batch.length<max && tries<savedAssets.length*2){
-    const a=savedAssets[multiMonitorCursor % savedAssets.length];
-    multiMonitorCursor=(multiMonitorCursor+1)%savedAssets.length;
+  while(batch.length<max && tries<universe.length*2){
+    const a=universe[multiMonitorCursor % universe.length];
+    multiMonitorCursor=(multiMonitorCursor+1)%universe.length;
     tries++;
     if(a && !batch.includes(a)) batch.push(a);
   }
@@ -3021,10 +3035,7 @@ function scheduleNextMultiMonitor(){
 }
 async function runMultiMonitorCycle(manual=true){
   if(multiMonitorBusy) return;
-  if(!savedAssets.length){
-    $('mmStatus').textContent='Cadastre pelo menos uma moeda em “Meus ativos”.';
-    return;
-  }
+  if(!monitorAssets().length && !(await ensureMarketMonitorUniverse()))return;
   multiMonitorBusy=true;
   const batch=chooseMonitorBatch();
   $('mmBar').style.width='0%';
@@ -3046,8 +3057,8 @@ async function runMultiMonitorCycle(manual=true){
       renderMultiMonitor();
       await sleep(120);
     }
-    const totalSaved=savedAssets.length;
-    const nextInfo=totalSaved>batch.length ? ` Próximo ciclo continua a lista (${totalSaved} salvos).` : '';
+    const totalSaved=monitorAssets().length;
+    const nextInfo=totalSaved>batch.length ? ` Próximo ciclo continua o mercado (${totalSaved} pares no universo).` : '';
     $('mmStatus').textContent=`Ciclo concluído: ${ok} OK${fail?` • ${fail} erro(s)`:''}.${nextInfo}`;
   }finally{
     multiMonitorBusy=false;
@@ -3061,11 +3072,7 @@ async function toggleMultiMonitor(){
     stopMultiMonitor();
     return;
   }
-  if(!savedAssets.length){
-    $('mmStatus').textContent='Lista vazia: carregando automaticamente os pares Spot USDT da Binance...';
-    await loadAllMarketAssets();
-    if(!savedAssets.length){$('mmStatus').textContent='Não foi possível obter o mercado. Use Carregar mercado Binance ou verifique a conexão.';return;}
-  }
+  if(!await ensureMarketMonitorUniverse())return;
   multiMonitorRunning=true;
   $('multiMonitorBtn').textContent='⏸ Parar monitor';
   $('mmStatus').textContent='Monitor ligado. Iniciando varredura...';
@@ -3082,6 +3089,7 @@ function toggleFavorite(base){favoriteAssets=favoriteAssets.includes(base)?favor
 function clearStudyList(){
   if(!confirm('Limpar toda a lista de monitoramento? Os favoritos serão preservados.'))return;
   stopMultiMonitor();savedAssets=[];multiMonitorState={};persistMultiMonitorState();
+  // A limpeza altera somente o cadastro; o universo descoberto pela API fica disponível ao monitor.
   localStorage.setItem('radar_mme1_list_cleared_v1','1');persistAssets();renderMultiMonitor();
 }
 
@@ -3102,7 +3110,7 @@ function loadAssets(){
     savedAssets=[...new Set(savedAssets)].sort((a,b)=>a.localeCompare(b));
   }catch{ savedAssets=[]; }
   // Somente a instalação sem cadastro recebe a lista inicial de 20; listas existentes são preservadas.
-  if(!savedAssets.length && localStorage.getItem('radar_mme1_list_cleared_v1')!=='1'){savedAssets=[...EGI_STUDY_20].sort((a,b)=>a.localeCompare(b));try{localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));}catch{}}
+  // Lista de cadastro não é necessária ao monitor. Não inserir 20 moedas compulsoriamente.
   renderAssets();
   if($('assetSaveStatus'))$('assetSaveStatus').textContent=`📂 ${savedAssets.length} moeda(s) recuperadas. Lista local do navegador; Backup JSON recomendado para troca de dispositivo.`;
 }
@@ -3116,6 +3124,7 @@ async function loadAllMarketAssets(){
     if(!found.length)throw new Error('A API não retornou pares válidos.');
     savedAssets=[...new Set([...savedAssets,...found])].sort((a,b)=>a.localeCompare(b));
     persistAssets();renderMultiMonitor();
+    marketMonitorUniverse=[...new Set(found)];
     if($('assetSaveStatus'))$('assetSaveStatus').textContent=`✅ Universo atualizado: ${found.length} pares Spot USDT ativos (excluindo stablecoins e tokens alavancados); ${savedAssets.length} cadastrados ao todo. Monitoramento continua em lotes de até 20.`;
   }catch(e){if($('assetSaveStatus'))$('assetSaveStatus').textContent=`⚠️ Não foi possível carregar o mercado: ${e.message}. Lista anterior preservada.`;}
   finally{if(btn)btn.disabled=false;}
