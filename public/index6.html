@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.4 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.5 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -453,12 +453,15 @@ header h1{font-size:26px}
     <div class="asset-tools">
       <button type="button" id="saveAssetBtn">＋ Cadastrar ativo</button>
       <button type="button" id="loadAllBtn">🌐 Carregar mercado Binance</button>
+      <button type="button" id="clearListBtn">🧹 Limpar lista</button>
       <button type="button" id="saveListBtn">💾 Salvar lista</button>
       <button type="button" id="backupAssetsBtn">⬇️ Backup JSON</button>
       <button type="button" id="restoreAssetsBtn">♻ Restaurar</button>
       <input id="restoreAssetsInput" type="file" accept="application/json,.json,.txt" hidden>
     </div>
 
+    <div class="note">⭐ Toque na estrela para fixar um favorito no topo. Limpar lista não apaga favoritos.</div>
+    <div id="favoriteList" class="asset-list"></div>
     <div id="assetList" class="asset-list"><span class="asset-empty">Nenhum ativo cadastrado.</span></div>
     <div class="note" id="assetSaveStatus" role="status" aria-live="polite">A lista é recuperada automaticamente neste navegador. Use Backup JSON para levar a outros aparelhos ou navegadores.</div>
 
@@ -471,8 +474,8 @@ header h1{font-size:26px}
         <div>
           <label>Intervalo</label>
           <select id="multiMonitorSec">
-            <option value="30" selected>30 segundos</option>
-            <option value="60">1 minuto</option>
+            <option value="30">30 segundos</option>
+            <option value="60" selected>1 minuto</option>
           </select>
         </div>
         <div>
@@ -493,6 +496,8 @@ header h1{font-size:26px}
         <div class="mm-stat"><span>🔴 SHORT</span><b id="mmShort">0</b></div>
         <div class="mm-stat"><span>🟡 Aguardar</span><b id="mmWait">0</b></div>
         <div class="mm-stat"><span>📈 Abertas</span><b id="mmOpen">0</b></div>
+        <div class="mm-stat"><span>⚪ Não analisadas</span><b id="mmPending">0</b></div>
+        <div class="mm-stat"><span>⚠️ Erros</span><b id="mmError">0</b></div>
       </div>
       <div class="mm-progress"><div id="mmBar"></div></div>
       <div id="mmStatus" class="mm-status">Parado. Cadastre ativos e toque em “Monitorar lista”.</div>
@@ -2870,7 +2875,7 @@ let multiMonitorState={};
 function loadMultiMonitorPrefs(){
   const sec=localStorage.getItem('radar_mme1_multi_sec');
   const max=localStorage.getItem('radar_mme1_multi_max');
-  if($('multiMonitorSec') && ['30','60'].includes(sec)) $('multiMonitorSec').value=sec;
+  if($('multiMonitorSec')){ const k='radar_mme1_60_default_v1'; if(localStorage.getItem(k)!=='1'){ $('multiMonitorSec').value='60';localStorage.setItem('radar_mme1_multi_sec','60');localStorage.setItem(k,'1'); }else if(['30','60'].includes(sec)) $('multiMonitorSec').value=sec; }
   if($('multiMonitorMax')) { const migration='radar_mme1_20_default_v1'; if(localStorage.getItem(migration)!=='1'){ $('multiMonitorMax').value='20';localStorage.setItem('radar_mme1_multi_max','20');localStorage.setItem(migration,'1'); } else if(['5','10','20'].includes(max)) $('multiMonitorMax').value=max; }
   try{
     const raw=JSON.parse(localStorage.getItem(MULTI_MONITOR_STATE_KEY)||'{}');
@@ -2906,18 +2911,22 @@ function bestRawSignal(results){
 function renderMultiMonitor(){
   if(!$('mmList')) return;
   const bases=[...savedAssets].sort((a,b)=>a.localeCompare(b));
-  let nLong=0,nShort=0,nWait=0;
+  let nLong=0,nShort=0,nWait=0,nPending=0,nError=0;
   for(const base of bases){
     const s=multiMonitorState[base]||{};
+    if(!s.updatedAt){nPending++;continue;}
+    if(s.kind==='ERROR'){nError++;continue;}
     if(s.kind==='LONG') nLong++;
     else if(s.kind==='SHORT') nShort++;
     else nWait++;
   }
-  const nOpen=robotTrades.filter(t=>t.status==='ABERTA').length;
+  const nOpen=robotTrades.filter(t=>t.status==='ABERTA'&&bases.includes(String(t.symbol||'').replace(/USDT$/,''))).length;
   $('mmLong').textContent=nLong;
   $('mmShort').textContent=nShort;
   $('mmWait').textContent=nWait;
   $('mmOpen').textContent=nOpen;
+  $('mmPending').textContent=nPending;
+  $('mmError').textContent=nError;
 
   if(!bases.length){
     $('mmList').innerHTML='<div class="mm-status">Nenhuma moeda cadastrada ainda.</div>';
@@ -3063,6 +3072,16 @@ function toggleMultiMonitor(){
 
 // ===== Cadastro / BK / Restaura de ativos (Light celular) =====
 const ASSET_LIST_KEY='radar_mme1_light_assets_v1';
+const FAVORITES_KEY='radar_mme1_favorites_v1';
+let favoriteAssets=[];
+function persistFavorites(){try{localStorage.setItem(FAVORITES_KEY,JSON.stringify(favoriteAssets));}catch(e){console.warn('Favoritos não salvos:',e);}renderAssets();}
+function toggleFavorite(base){favoriteAssets=favoriteAssets.includes(base)?favoriteAssets.filter(x=>x!==base):[...favoriteAssets,base].sort((a,b)=>a.localeCompare(b));persistFavorites();}
+function clearStudyList(){
+  if(!confirm('Limpar toda a lista de monitoramento? Os favoritos serão preservados.'))return;
+  stopMultiMonitor();savedAssets=[];multiMonitorState={};persistMultiMonitorState();
+  localStorage.setItem('radar_mme1_list_cleared_v1','1');persistAssets();renderMultiMonitor();
+}
+
 const EGI_STUDY_20=['BTC','ETH','SOL','LINK','XRP','BNB','SUI','ENA','ONDO','HYPE','NEAR','ADA','DOGE','PEPE','AAVE','SKY','ZRO','INJ','PENDLE','ARB'];
 let savedAssets=[];
 
@@ -3073,13 +3092,14 @@ function normalizeBaseAsset(value){
 }
 
 function loadAssets(){
+  try{const f=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');favoriteAssets=Array.isArray(f)?[...new Set(f.map(normalizeBaseAsset).filter(Boolean))]:[];}catch{favoriteAssets=[];}
   try{
     const raw=JSON.parse(localStorage.getItem(ASSET_LIST_KEY)||'[]');
     savedAssets=Array.isArray(raw) ? raw.map(normalizeBaseAsset).filter(Boolean) : [];
     savedAssets=[...new Set(savedAssets)].sort((a,b)=>a.localeCompare(b));
   }catch{ savedAssets=[]; }
   // Somente a instalação sem cadastro recebe a lista inicial de 20; listas existentes são preservadas.
-  if(!savedAssets.length){savedAssets=[...EGI_STUDY_20].sort((a,b)=>a.localeCompare(b));try{localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));}catch{}}
+  if(!savedAssets.length && localStorage.getItem('radar_mme1_list_cleared_v1')!=='1'){savedAssets=[...EGI_STUDY_20].sort((a,b)=>a.localeCompare(b));try{localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));}catch{}}
   renderAssets();
   if($('assetSaveStatus'))$('assetSaveStatus').textContent=`📂 ${savedAssets.length} moeda(s) recuperadas. Lista local do navegador; Backup JSON recomendado para troca de dispositivo.`;
 }
@@ -3118,13 +3138,17 @@ function persistAssets(){
 
 function renderAssets(){
   const list=$('assetList'), count=$('assetCount');
+  const fav=$('favoriteList');
+  if(fav){fav.innerHTML=favoriteAssets.map(a=>`<button type="button" data-fav-open="${a}">⭐ ${a}/USDT</button>`).join('')||'<span class="asset-empty">Nenhum favorito ainda.</span>';
+    fav.querySelectorAll('[data-fav-open]').forEach(b=>b.addEventListener('click',()=>{ $('coinQuery').value=b.dataset.favOpen;consultCoin();}));}
   if(!list || !count) return;
   count.textContent=`${savedAssets.length} salvo${savedAssets.length===1?'':'s'}`;
   if(!savedAssets.length){
     list.innerHTML='<span class="asset-empty">Nenhum ativo cadastrado.</span>';
     return;
   }
-  list.innerHTML=savedAssets.map(a=>`<span class="asset-chip"><button type="button" class="asset-chip-main" data-asset="${a}" title="Consultar ${a}/USDT">${a}</button><button type="button" class="asset-chip-x" data-delete="${a}" title="Excluir ${a}">✕</button></span>`).join('');
+  list.innerHTML=[...savedAssets].sort((a,b)=>Number(favoriteAssets.includes(b))-Number(favoriteAssets.includes(a))||a.localeCompare(b)).map(a=>`<span class="asset-chip"><button type="button" data-favorite="${a}" title="Marcar favorito">${favoriteAssets.includes(a)?'⭐':'☆'}</button><button type="button" class="asset-chip-main" data-asset="${a}" title="Consultar ${a}/USDT">${a}</button><button type="button" class="asset-chip-x" data-delete="${a}" title="Excluir ${a}">✕</button></span>`).join('');
+  list.querySelectorAll('[data-favorite]').forEach(btn=>btn.addEventListener('click',()=>toggleFavorite(btn.dataset.favorite)));
   list.querySelectorAll('[data-asset]').forEach(btn=>btn.addEventListener('click',()=>{
     $('coinQuery').value=btn.dataset.asset;
     localStorage.setItem('radar_mme921_light_coin',btn.dataset.asset);
@@ -3742,6 +3766,7 @@ $('tf').addEventListener('change',()=>{
 $('coinQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') consultCoin(); });
 $('saveAssetBtn').addEventListener('click',addCurrentAsset);
 $('loadAllBtn').addEventListener('click',loadAllMarketAssets);
+$('clearListBtn').addEventListener('click',clearStudyList);
 $('saveListBtn').addEventListener('click',persistAssets);
 $('backupAssetsBtn').addEventListener('click',backupAssets);
 $('restoreAssetsBtn').addEventListener('click',()=>$('restoreAssetsInput').click());
