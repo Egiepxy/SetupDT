@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.3.1 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.3.2 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -452,6 +452,7 @@ header h1{font-size:26px}
     </div>
     <div class="asset-tools">
       <button type="button" id="saveAssetBtn">＋ Cadastrar ativo</button>
+      <button type="button" id="load20Btn">📋 Carregar 20 padrão</button>
       <button type="button" id="saveListBtn">💾 Salvar lista</button>
       <button type="button" id="backupAssetsBtn">⬇️ Backup JSON</button>
       <button type="button" id="restoreAssetsBtn">♻ Restaurar</button>
@@ -2907,7 +2908,7 @@ function renderMultiMonitor(){
   const bases=[...savedAssets].sort((a,b)=>a.localeCompare(b));
   let nLong=0,nShort=0,nWait=0;
   for(const base of bases){
-    const s=multiMonitorState[base];
+    const s=multiMonitorState[base]||{};
     if(s.kind==='LONG') nLong++;
     else if(s.kind==='SHORT') nShort++;
     else nWait++;
@@ -3083,6 +3084,13 @@ function loadAssets(){
   if($('assetSaveStatus'))$('assetSaveStatus').textContent=`📂 ${savedAssets.length} moeda(s) recuperadas. Lista local do navegador; Backup JSON recomendado para troca de dispositivo.`;
 }
 
+function load20StandardAssets(){
+  const before=savedAssets.length;
+  savedAssets=[...new Set([...savedAssets,...EGI_STUDY_20])].sort((a,b)=>a.localeCompare(b));
+  persistAssets();
+  renderMultiMonitor();
+  if($('assetSaveStatus'))$('assetSaveStatus').textContent=`✅ Lista padrão carregada: ${EGI_STUDY_20.length} moedas de referência, ${savedAssets.length} no total (${savedAssets.length-before} acrescentadas). Cadastros anteriores preservados.`;
+}
 function persistAssets(){
   try{
     localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));
@@ -3720,6 +3728,7 @@ $('tf').addEventListener('change',()=>{
 });
 $('coinQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') consultCoin(); });
 $('saveAssetBtn').addEventListener('click',addCurrentAsset);
+$('load20Btn').addEventListener('click',load20StandardAssets);
 $('saveListBtn').addEventListener('click',persistAssets);
 $('backupAssetsBtn').addEventListener('click',backupAssets);
 $('restoreAssetsBtn').addEventListener('click',()=>$('restoreAssetsInput').click());
