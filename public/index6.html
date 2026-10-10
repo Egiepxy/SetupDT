@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.3.2 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.4 • Diagnóstico de Retomada EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -452,7 +452,7 @@ header h1{font-size:26px}
     </div>
     <div class="asset-tools">
       <button type="button" id="saveAssetBtn">＋ Cadastrar ativo</button>
-      <button type="button" id="load20Btn">📋 Carregar 20 padrão</button>
+      <button type="button" id="loadAllBtn">🌐 Carregar mercado Binance</button>
       <button type="button" id="saveListBtn">💾 Salvar lista</button>
       <button type="button" id="backupAssetsBtn">⬇️ Backup JSON</button>
       <button type="button" id="restoreAssetsBtn">♻ Restaurar</button>
@@ -3084,6 +3084,19 @@ function loadAssets(){
   if($('assetSaveStatus'))$('assetSaveStatus').textContent=`📂 ${savedAssets.length} moeda(s) recuperadas. Lista local do navegador; Backup JSON recomendado para troca de dispositivo.`;
 }
 
+async function loadAllMarketAssets(){
+  const btn=$('loadAllBtn');if(btn)btn.disabled=true;
+  if($('assetSaveStatus'))$('assetSaveStatus').textContent='Consultando todos os pares Spot USDT negociáveis na Binance...';
+  try{
+    const tickers=await getTopSymbols(Number.MAX_SAFE_INTEGER);
+    const found=tickers.map(t=>normalizeBaseAsset(t.symbol)).filter(Boolean);
+    if(!found.length)throw new Error('A API não retornou pares válidos.');
+    savedAssets=[...new Set([...savedAssets,...found])].sort((a,b)=>a.localeCompare(b));
+    persistAssets();renderMultiMonitor();
+    if($('assetSaveStatus'))$('assetSaveStatus').textContent=`✅ Universo atualizado: ${found.length} pares Spot USDT ativos (excluindo stablecoins e tokens alavancados); ${savedAssets.length} cadastrados ao todo. Monitoramento continua em lotes de até 20.`;
+  }catch(e){if($('assetSaveStatus'))$('assetSaveStatus').textContent=`⚠️ Não foi possível carregar o mercado: ${e.message}. Lista anterior preservada.`;}
+  finally{if(btn)btn.disabled=false;}
+}
 function load20StandardAssets(){
   const before=savedAssets.length;
   savedAssets=[...new Set([...savedAssets,...EGI_STUDY_20])].sort((a,b)=>a.localeCompare(b));
@@ -3728,7 +3741,7 @@ $('tf').addEventListener('change',()=>{
 });
 $('coinQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') consultCoin(); });
 $('saveAssetBtn').addEventListener('click',addCurrentAsset);
-$('load20Btn').addEventListener('click',load20StandardAssets);
+$('loadAllBtn').addEventListener('click',loadAllMarketAssets);
 $('saveListBtn').addEventListener('click',persistAssets);
 $('backupAssetsBtn').addEventListener('click',backupAssets);
 $('restoreAssetsBtn').addEventListener('click',()=>$('restoreAssetsInput').click());
