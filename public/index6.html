@@ -452,12 +452,14 @@ header h1{font-size:26px}
     </div>
     <div class="asset-tools">
       <button type="button" id="saveAssetBtn">＋ Cadastrar ativo</button>
-      <button type="button" id="backupAssetsBtn">💾 BK</button>
+      <button type="button" id="saveListBtn">💾 Salvar lista</button>
+      <button type="button" id="backupAssetsBtn">⬇️ Backup JSON</button>
       <button type="button" id="restoreAssetsBtn">♻ Restaurar</button>
       <input id="restoreAssetsInput" type="file" accept="application/json,.json,.txt" hidden>
     </div>
 
     <div id="assetList" class="asset-list"><span class="asset-empty">Nenhum ativo cadastrado.</span></div>
+    <div class="note" id="assetSaveStatus" role="status" aria-live="polite">A lista é recuperada automaticamente neste navegador. Use Backup JSON para levar a outros aparelhos ou navegadores.</div>
 
     <div class="multi-monitor" id="multiMonitorPanel">
       <div class="multi-monitor-title">
@@ -1663,7 +1665,9 @@ function parseRetryAfter(response){
 function loadNtfySettings(){
   if(!$('ntfyEnabled') || !$('ntfyTopic')) return;
   $('ntfyEnabled').value=localStorage.getItem('radar_mme1_ntfy_enabled')==='1'?'1':'0';
-  $('ntfyTopic').value=sanitizeNtfyTopic(localStorage.getItem('radar_mme1_ntfy_topic')||'');
+  const configured=localStorage.getItem('radar_mme1_ntfy_topic');
+  $('ntfyTopic').value=sanitizeNtfyTopic(configured===null?'RadarEgi_ugY2B7MLZg':configured);
+  if(configured===null)localStorage.setItem('radar_mme1_ntfy_topic',$('ntfyTopic').value);
   updateNtfyStatus();
 }
 function saveNtfySettings(){
@@ -3076,10 +3080,18 @@ function loadAssets(){
   // Somente a instalação sem cadastro recebe a lista inicial de 20; listas existentes são preservadas.
   if(!savedAssets.length){savedAssets=[...EGI_STUDY_20].sort((a,b)=>a.localeCompare(b));try{localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));}catch{}}
   renderAssets();
+  if($('assetSaveStatus'))$('assetSaveStatus').textContent=`📂 ${savedAssets.length} moeda(s) recuperadas. Lista local do navegador; Backup JSON recomendado para troca de dispositivo.`;
 }
 
 function persistAssets(){
-  localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));
+  try{
+    localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));
+    const stored=JSON.parse(localStorage.getItem(ASSET_LIST_KEY)||'[]');
+    if(!Array.isArray(stored)||stored.length!==savedAssets.length)throw new Error('a conferência da gravação falhou');
+    if($('assetSaveStatus')) $('assetSaveStatus').textContent=`✅ ${savedAssets.length} moeda(s) gravadas neste navegador. Para outro aparelho, baixe o Backup JSON.`;
+  }catch(e){
+    if($('assetSaveStatus')) $('assetSaveStatus').textContent=`⚠️ O navegador não permitiu gravar a lista (${e.message}). Faça Backup JSON para não perder o cadastro.`;
+  }
   renderAssets();
 }
 
@@ -3708,6 +3720,7 @@ $('tf').addEventListener('change',()=>{
 });
 $('coinQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') consultCoin(); });
 $('saveAssetBtn').addEventListener('click',addCurrentAsset);
+$('saveListBtn').addEventListener('click',persistAssets);
 $('backupAssetsBtn').addEventListener('click',backupAssets);
 $('restoreAssetsBtn').addEventListener('click',()=>$('restoreAssetsInput').click());
 $('restoreAssetsInput').addEventListener('change',e=>restoreAssetsFile(e.target.files?.[0]));
