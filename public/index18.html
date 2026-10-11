@@ -241,4 +241,68 @@ async function copy(){try{await navigator.clipboard.writeText(report());$('v39st
 function csv(){const head=['ativo','timeframe','fechamento','horario_fechamento_iso','situacao','distancia','score_heuristico','volume_relativo','acao'];const rows=[head,...results.map(o=>[o.symbol,o.tf,o.close,new Date(o.end).toISOString(),o.state,o.proximity,o.quality,o.vol??'',o.action])];const data='\uFEFF'+rows.map(a=>a.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='EGI_V3_9_Niveis.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 $('v39run').onclick=run;$('v39copy').onclick=copy;$('v39csv').onclick=csv;
 })();</script>
+
+<section id="egiStudyControl" style="max-width:1250px;margin:18px auto;padding:17px;border:1px solid #33545b;border-radius:15px;background:#101a21;color:#eaf7f5;font:14px/1.5 system-ui">
+<h2 style="margin:0 0 5px">📒 Controle de Estudos EGI — V1</h2>
+<p style="color:#a8bec2">Diário prospectivo: registre <b>antes</b> a hipótese, preço e horário; complete o resultado <b>depois</b>. Comparação entre radares não significa confirmação de entrada. Dados salvos neste navegador.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px">
+<label>Moeda<input id="egsSymbol" value="BTCUSDT" placeholder="BTCUSDT" maxlength="24"></label>
+<label>Modalidade<select id="egsMode"><option>Day Trade</option><option>Scalping</option><option>Swing</option><option>HOLD</option></select></label>
+<label>Classificação<select id="egsGroup"><option>Estudo</option><option>Observação</option><option>Operacional (simulação)</option><option>Inativa</option></select></label>
+<label>Hipótese<select id="egsSide"><option>AGUARDAR</option><option>LONG</option><option>SHORT</option></select></label>
+<label>Timeframe<select id="egsTf"><option>15m</option><option>1m</option><option>5m</option><option>1h</option><option>4h</option><option>1d</option></select></label>
+<label>Preço de referência (opcional)<input type="number" min="0" step="any" id="egsPrice" placeholder="não inventar"></label>
+<label>SetupDT<select id="egsSetup"><option>Não avaliado</option><option>LONG</option><option>SHORT</option><option>AGUARDAR</option><option>CONFLITO</option></select></label>
+<label>RadarMVC<select id="egsMvc"><option>Não avaliado</option><option>LONG</option><option>SHORT</option><option>AGUARDAR</option><option>CONFLITO</option></select></label>
+<label>Analista EGI<select id="egsAnalyst"><option>Não avaliado</option><option>LONG</option><option>SHORT</option><option>AGUARDAR</option><option>CONFLITO</option></select></label>
+<label>Resultado posterior<select id="egsResult"><option>Pendente</option><option>Confirmou hipótese</option><option>Invalidou hipótese</option><option>Sem direção</option><option>Não avaliável</option></select></label>
+</div>
+<label style="display:block;margin-top:8px">Justificativa / observações (suporte, resistência, gatilho, horário de avaliação)<textarea id="egsNotes" rows="2" style="width:100%" placeholder="Registre evidências e critérios antes de acompanhar"></textarea></label>
+<div style="display:flex;flex-wrap:wrap;gap:7px;margin:10px 0">
+<button type="button" id="egsSave">💾 Registrar estudo</button>
+<button type="button" id="egsUpdate">✏️ Atualizar registro selecionado</button>
+<button type="button" id="egsNew">＋ Novo</button>
+<button type="button" id="egsDelete">🗑 Excluir selecionado</button>
+<button type="button" id="egsCSV">⬇ Exportar CSV</button>
+<button type="button" id="egsJSON">⬇ Backup JSON</button>
+<label style="cursor:pointer;border:1px solid #46646b;border-radius:7px;padding:5px 10px">⬆ Restaurar JSON<input type="file" id="egsImport" accept=".json,application/json" style="display:none"></label>
+</div>
+<div id="egsStatus" role="status" style="color:#b2c9ca;margin:7px 0">Aguardando registros.</div>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px" id="egsTable"><thead><tr><th>Registrado</th><th>Moeda</th><th>Hipótese</th><th>RadarMVC</th><th>SetupDT</th><th>Analista</th><th>Resultado</th><th>Classificação</th><th>Ação</th></tr></thead><tbody id="egsRows"></tbody></table></div>
+<p style="font-size:12px;color:#a8bec2">O resultado é um julgamento documentado pelo usuário, não verificação automática de candles. Registros antigos não são reescritos automaticamente. Faça backup JSON regularmente, pois o armazenamento local pode ser apagado.</p>
+</section>
+<style>
+#egiStudyControl input,#egiStudyControl select,#egiStudyControl textarea{display:block;background:#0a141b;color:#eaf7f5;border:1px solid #36525a;border-radius:7px;padding:7px;box-sizing:border-box;width:100%;font:inherit}
+#egiStudyControl label{font-size:12px;color:#b8ced0}
+#egiStudyControl button{background:#163e43;color:#eaf7f5;border:1px solid #49757b;border-radius:7px;padding:8px 10px;cursor:pointer}
+#egiStudyControl td,#egiStudyControl th{text-align:left;padding:8px;border-bottom:1px solid #2b444a;white-space:nowrap}
+#egiStudyControl tr[data-selected="true"]{background:#204049}
+</style>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),K='egi_painel_controle_estudos_v1';
+const names=['Symbol','Mode','Group','Side','Tf','Price','Setup','Mvc','Analyst','Result','Notes'];
+let selected=null;
+const read=()=>{try{const r=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(r)?r.filter(x=>x&&typeof x==='object').slice(0,1000):[]}catch{return []}};
+let records=read();
+function persist(){try{localStorage.setItem(K,JSON.stringify(records));return true}catch(e){$('egsStatus').textContent='Erro ao salvar: '+e.message;return false}}
+function clean(s){return String(s??'').trim().slice(0,1200)}
+function get(){const x={};for(const n of names)x[n.toLowerCase()]=clean($('egs'+n).value);x.symbol=x.symbol.toUpperCase().replace(/[\s\/_-]/g,'');if(!/^[A-Z0-9]{2,20}USDT$/.test(x.symbol))throw Error('Informe um par válido, por exemplo BTCUSDT.');if(x.price&&(!Number.isFinite(Number(x.price))||Number(x.price)<=0))throw Error('Preço deve ser positivo.');return x}
+function msg(t){$('egsStatus').textContent=t}
+function load(x){names.forEach(n=>{let el=$('egs'+n),v=x[n.toLowerCase()];if(v!=null)el.value=String(v)})}
+function reset(){selected=null;$('egsSymbol').value='BTCUSDT';$('egsPrice').value='';$('egsNotes').value='';['Setup','Mvc','Analyst'].forEach(n=>$('egs'+n).selectedIndex=0);$('egsResult').selectedIndex=0;$('egsSide').selectedIndex=0;$('egsGroup').selectedIndex=0;render()}
+function render(){let tb=$('egsRows');tb.replaceChildren();for(const x of records.slice().reverse()){let tr=document.createElement('tr');tr.dataset.selected=String(selected===x.id);for(const v of [x.created,x.symbol,x.side,x.mvc,x.setup,x.analyst,x.result,x.group]){let c=document.createElement('td');c.textContent=clean(v);tr.appendChild(c)}let td=document.createElement('td'),b=document.createElement('button');b.textContent='Editar';b.addEventListener('click',()=>{selected=x.id;load(x);render();msg('Registro selecionado: '+x.symbol+'. Alterações só serão salvas ao clicar Atualizar.')});td.appendChild(b);tr.appendChild(td);tb.appendChild(tr)}msg(records.length+' estudo(s) registrados. '+records.filter(x=>x.result==='Pendente').length+' pendente(s).')}
+$('egsSave').addEventListener('click',()=>{try{let x=get();x.id=Date.now().toString(36)+Math.random().toString(36).slice(2);x.created=new Date().toLocaleString('pt-BR');x.createdISO=new Date().toISOString();records.push(x);if(persist()){selected=x.id;render()}}catch(e){msg(e.message)}});
+$('egsUpdate').addEventListener('click',()=>{if(!selected){msg('Selecione um registro na tabela primeiro.');return}try{let i=records.findIndex(x=>x.id===selected);if(i<0)throw Error('Registro não encontrado');let x=get();records[i]={...records[i],...x,updatedISO:new Date().toISOString()};if(persist())render()}catch(e){msg(e.message)}});
+$('egsDelete').addEventListener('click',()=>{if(!selected){msg('Selecione um registro primeiro.');return}if(!confirm('Excluir somente o estudo selecionado?'))return;records=records.filter(x=>x.id!==selected);if(persist())reset()});
+$('egsNew').addEventListener('click',reset);
+function download(filename,txt,type){let u=URL.createObjectURL(new Blob([txt],{type})),a=document.createElement('a');a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+$('egsJSON').addEventListener('click',()=>download('EGI_Controle_Estudos_Backup.json',JSON.stringify({schema:'EGI-ESTUDOS-V1',exportedAt:new Date().toISOString(),records},null,2),'application/json'));
+$('egsCSV').addEventListener('click',()=>{let cols=['created','symbol','mode','group','side','tf','price','setup','mvc','analyst','result','notes','updatedISO'];let rows=[cols,...records.map(x=>cols.map(c=>x[c]??''))];download('EGI_Controle_Estudos.csv','\uFEFF'+rows.map(a=>a.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n'),'text/csv;charset=utf-8')});
+$('egsImport').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{if(f.size>2e6)throw Error('Arquivo excede 2 MB');let o=JSON.parse(await f.text());if(o.schema!=='EGI-ESTUDOS-V1'||!Array.isArray(o.records)||o.records.length>1000)throw Error('Backup inválido');if(!confirm('Substituir os registros locais pelos '+o.records.length+' registros do backup?'))return;let a=o.records.filter(x=>x&&typeof x==='object'&&/^[A-Z0-9]{2,20}USDT$/.test(String(x.symbol||''))).map(x=>Object.fromEntries(Object.entries(x).map(([k,v])=>[k,typeof v==='string'?v.slice(0,1200):v])));let old=records;records=a;if(!persist())records=old;else reset()}catch(err){msg('Importação falhou: '+err.message)}finally{e.target.value=''}});
+render();
+})();
+</script>
+
 </body></html>
