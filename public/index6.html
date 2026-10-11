@@ -360,7 +360,7 @@ header h1{font-size:26px}
     <h1>RadarMME1 Light</h1>
     <div class="sub">V9.0 • Professor de STOPs Etapa 2 • Somente estudo • ntfy preservado</div>
   </div>
-  <div class="badge">📲 MM1 V8.3.1 • PROFESSOR EGI + NTFY</div>
+  <div class="badge">📲 MM1 V9.0 • PROFESSOR EGI + NTFY</div>
 </header>
 
 <div class="panel">
@@ -510,7 +510,7 @@ header h1{font-size:26px}
   <div id="status" class="statusline">Digite a moeda acima. Ex.: ENA.</div>
   <div id="multiTfResult" class="multi-tf-result"></div>
   <section id="lessonPanel" class="lesson-panel" aria-label="Professor EGI — sinais e risco" hidden>
-    <div class="lesson-head"><div><b>🎓 Professor EGI V8.3.1 — retomada, evolução e auditoria</b><p>Sinais continuam visíveis. O stop agora exige pivô local confirmado; isso muda a definição do setup em relação à V8.1. Alertas do robô exigem trava de risco independente.</p></div><span id="lessonUpdated" class="lesson-meta">—</span></div>
+    <div class="lesson-head"><div><b>🎓 Professor EGI V9.0 — retomada (módulo legado V8.3.1), evolução e auditoria</b><p>Sinais continuam visíveis. O stop agora exige pivô local confirmado; isso muda a definição do setup em relação à V8.1. Alertas do robô exigem trava de risco independente.</p></div><span id="lessonUpdated" class="lesson-meta">—</span></div>
     <div class="lesson-stage-notice"><strong>🧪 VERSÃO DE ESTUDO — NÃO VALIDADA PARA OPERAR DINHEIRO REAL</strong><p>Fonte: Binance Spot; o simulador de alavancagem não usa dados da Binance Futuros. Nenhuma ordem é enviada. Scores não são probabilidades e histórico local não comprova rentabilidade. Faça testes em simulação antes de arriscar capital.</p></div>
     <div id="lessonBody"></div>
     <div id="lessonEvolution" class="lesson-evolution" aria-live="polite"></div>
@@ -3784,7 +3784,7 @@ function lessonSummary(){
   const r=results[tf],z=lessonRiskNumbers(r);
   const current=r?lessonStatus(r):null;
   const lines=[
-    'RADARMME1 LIGHT V8.3.1 — PROFESSOR EGI — DIAGNÓSTICO DE RETOMADA',
+    'RADARMME1 LIGHT V9.0 — PROFESSOR EGI — DIAGNÓSTICO DE RETOMADA',
     `Gerado: ${new Date().toLocaleString('pt-BR')}`,
     `Ativo: ${symbol} | TF selecionado: ${tf}`,
     'Fonte: Binance Spot pública. Indicadores calculados sobre candles com fechamento verificado por timestamp.',
@@ -3811,7 +3811,7 @@ function lessonSummary(){
   lines.push(z.error?z.error:`Banca ${z.capital} USDT | Risco pretendido ${z.pctRisk}% | Alavancagem ${z.leverage}x | Perda no stop + custos estimados ${z.expectedLoss.toFixed(2)} USDT | Posição limitada ${z.notional.toFixed(2)} USDT | Margem ${z.margin.toFixed(2)} USDT (teto ${z.marginLimit.toFixed(2)} USDT)`);
   lines.push('50% parcial em 1R + 15% em 2R = 65% realizado, 35% permanece. Não inclui custos nem liquidação.');
   if(!z.error)lines.push(`Custos estimados ${z.costs.toFixed(2)} USDT (${z.fee}% taxa e ${z.slip}% slippage por lado) | Alvos líquidos hipotéticos 1R ${z.netR1.toFixed(2)} e 2R ${z.netR2.toFixed(2)} USDT. Pivô local não comprova suporte/resistência.`);
-  lines.push('', 'DIAGNÓSTICO DE RETOMADA — V8.3.1');
+  lines.push('', 'DIAGNÓSTICO DE RETOMADA — algoritmo V8.3.1 preservado');
   const dz=lessonResumeDiagnostic(results);
   lines.push(`Classificação: ${dz.status} | ${dz.code} | Contexto ${dz.context} | candle ${lessonWhen(dz.closed)}`);
   for(const item of dz.evidence)lines.push(`${item.ok?'[OK]':'[NÃO CONFIRMADO]'} ${item.text}`);
@@ -3821,7 +3821,7 @@ function lessonSummary(){
   const labs=lessonLab.filter(x=>x.symbol===symbol).slice(0,15);
   lines.push(`Registros locais do ativo: ${lessonLab.filter(x=>x.symbol===symbol).length}; amostras de estados, não trades independentes.`);
   for(const x of labs)lines.push(`${x.tf} ${x.state} | RelOk ${x.relOk} ${x.parecer} | ${lessonWhen(x.candleClose)} | preço ${fmt(x.price)} | fechamento acompanhado ${fmt(x.lastPrice)} | variação ${Number.isFinite(x.deltaPct)?x.deltaPct.toFixed(3)+'%':'—'} (não é P&L)`);
-  lines.push('', 'EVOLUÇÃO INTELIGENTE — V8.3.1');
+  lines.push('', 'EVOLUÇÃO INTELIGENTE — algoritmo V8.3.1 preservado');
   lines.push('Transições são registradas somente entre observações de candles fechados atualizados, sem reconstruir períodos em que o navegador esteve parado. Não são entradas.');
   const story=lessonTrendStory(symbol,tf);
   lines.push(`Estado acompanhado: ${story.stage} • última observação ${lessonWhen(story.current?.seenAt)} • último candle ${lessonWhen(story.current?.candleClose)}`);
