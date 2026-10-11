@@ -80,7 +80,7 @@
 #egiAuditEntries{max-height:460px;overflow:auto}
 @media(max-width:500px){#egiSignalAudit .egi-audit-grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
-<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.36 • Importação Professor EGI + Janela EGI</div></div><span class="tag">SEM ORDENS</span></div></header>
+<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.37 • Cotação e quadros numerados • Atalhos EGI</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
 
 <section class="module-launcher" id="moduleLauncher" aria-label="Abrir módulos do SetupDT">
@@ -100,13 +100,13 @@
       <option value="index10.html">Index 10 — Central2026</option>
       <option value="index11.html">Index 11 — SetupEXR</option>
       <option value="index12.html">Index 12 — BTC_Link</option>
-      <option value="index13.html">Index 13 — Laboratório EGI</option>
+      <option value="index13.html">Index 13 — Professor EGI</option>
       <option value="index14.html">Index 14 — Analista EGI Pro</option>
       <option value="index15.html">Index 15 — Painel do Dia</option>
       <option value="index16.html">Index 16 — RWA</option>
       <option value="index17.html">Index 17 — Onda 34 EGI</option>
-      <option value="index18.html">Index 18</option>
-      <option value="index19.html">Index 19</option>
+      <option value="index18.html">Index 18 — Painel do Dia</option>
+      <option value="index19.html">Index 19 — RadarRMC</option>
       <option value="index20.html">Index 20 — Carteira Micro</option>
     </select>
     <button id="egiOpenModule" type="button">🚀 ABRIR AgoraCrypto</button>
@@ -163,13 +163,14 @@
   <h2>🎯 Janela de Oportunidade EGI • contexto de correção</h2>
   <div class="egiOppHint">Leitura separada da entrada operacional. Suporte calculado automaticamente de candles fechados 1D; RSI 4H + reação 1H/15M. Não utiliza os preços fixos do vídeo nem altera os sinais do app.</div>
   <div class="egiOppState" id="egiOppStatus" role="status">⚪ Aguardando análise</div>
+  <div class="egiOppCell egiOppQuote" style="margin:8px 0"><small>Cotação consultada • não streaming</small><b id="egiOppQuote">—</b><div class="egiOppHint" id="egiOppQuoteAge">Aguardando atualização</div></div>
   <div class="egiOppGrid">
-    <div class="egiOppCell"><small>Suporte estrutural (1D)</small><b id="egiOppSupport">—</b></div>
-    <div class="egiOppCell"><small>Faixa de observação (ATR 4H)</small><b id="egiOppBand">—</b></div>
-    <div class="egiOppCell"><small>RSI 4H / RSI 1H</small><b id="egiOppRsi">—</b></div>
-    <div class="egiOppCell"><small>Distância ao suporte</small><b id="egiOppDist">—</b></div>
-    <div class="egiOppCell"><small>Contexto diário</small><b id="egiOppMacro">—</b></div>
-    <div class="egiOppCell"><small>15m fechado / volume</small><b id="egiOppVol">—</b></div>
+    <div class="egiOppCell"><small>01 • Suporte estrutural (1D)</small><b id="egiOppSupport">—</b></div>
+    <div class="egiOppCell"><small>02 • Faixa de observação (ATR 4H)</small><b id="egiOppBand">—</b></div>
+    <div class="egiOppCell"><small>03 • RSI 4H / RSI 1H</small><b id="egiOppRsi">—</b></div>
+    <div class="egiOppCell"><small>04 • Distância ao suporte</small><b id="egiOppDist">—</b></div>
+    <div class="egiOppCell"><small>05 • Contexto diário</small><b id="egiOppMacro">—</b></div>
+    <div class="egiOppCell"><small>06 • 15m fechado / volume</small><b id="egiOppVol">—</b></div>
   </div>
   <div class="egiOppAction" id="egiOppDetail">Atualize o ativo para analisar sua janela.</div>
   <div class="egiOppAction" id="egiOppTrade">⚪ Oportunidade contextual ≠ entrada. Somente o sistema original confirma operações.</div>
@@ -364,6 +365,10 @@ function egiOppRender(raw,symbol,existingSignal){
  const noData=['INDETERMINADO','DESATUALIZADO'].includes(r.stage);
  status.textContent=(r.tone==='good'?'🟢 ':r.tone==='bad'?'🔴 ':r.tone==='warn'?'🟡 ':'⚪ ')+r.stage+' • '+symbol;
  status.className='egiOppState '+r.tone;
+ const quoteNode=document.getElementById('quote'),ageNode=document.getElementById('quoteAge');
+ const quoteText=quoteNode?.textContent?.trim()||'';
+ txt('egiOppQuote',quoteText&&quoteText!=='—'?quoteText:'—');
+ txt('egiOppQuoteAge',quoteText&&quoteText!=='—'?(ageNode?.textContent?.trim()||'Cotação consultada pelo SetupDT; não streaming'):'Cotação ainda não disponível; atualize o ativo');
  txt('egiOppSupport',noData?'—':'$ '+fmtLocal(r.support));
  txt('egiOppBand',noData?'—':'$ '+fmtLocal(r.low)+' a '+fmtLocal(r.high));
  txt('egiOppRsi',noData?'—':r.r4.toFixed(1)+' / '+r.r1.toFixed(1));
@@ -379,7 +384,7 @@ function egiOppRender(raw,symbol,existingSignal){
 function egiOppReset(){
  egiOppLastReport='';
  const st=document.getElementById('egiOppStatus');if(st){st.textContent='⚪ Aguardando nova análise';st.className='egiOppState';}
- for(const id of ['egiOppSupport','egiOppBand','egiOppRsi','egiOppDist','egiOppMacro','egiOppVol']){const el=document.getElementById(id);if(el)el.textContent='—';}
+ for(const id of ['egiOppQuote','egiOppSupport','egiOppBand','egiOppRsi','egiOppDist','egiOppMacro','egiOppVol']){const el=document.getElementById(id);if(el)el.textContent='—';}
  for(const [id,value] of [['egiOppDetail','Atualize o ativo para recalcular a janela.'],['egiOppTrade','⚠️ A janela não confirma operações.'],['egiOppFeedback','Dados anteriores invalidados.']]){const el=document.getElementById(id);if(el)el.textContent=value;}
 }
 async function egiOppCopy(){
