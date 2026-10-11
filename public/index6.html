@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.8 • Auditoria de Estudos EGI</title>
+<title>RadarMME1 Light V8.9 • Professor de STOPs EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -358,7 +358,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V8.8 • Somente estudo • Auditoria de STOPs e R • ntfy preservado</div>
+    <div class="sub">V8.9 • Professor de STOPs • Somente estudo • ntfy preservado</div>
   </div>
   <div class="badge">📲 MM1 V8.3.1 • PROFESSOR EGI + NTFY</div>
 </header>
@@ -662,10 +662,10 @@ header h1{font-size:26px}
     </div>
 
     <div class="panel" id="studyAuditPanel" style="margin-top:14px;border-color:#4d6585">
- <h3>🧪 Auditoria EGI — somente estudo e comparação • V8.8</h3>
+ <h3>🧪 Auditoria EGI — somente estudo e comparação • V8.9</h3>
  <div class="note">Os resultados são SIMULAÇÕES técnicas do RadarMME1, não ordens executadas nem lucros/prejuízos reais. STOP e 2R usam candles fechados; eventos na mesma vela permanecem INDETERMINADOS.</div>
  <div id="studyAuditStats" class="note" aria-live="polite">Sem histórico calculado.</div>
- <div id="studyAuditReasons" class="note"></div>
+ <div id="studyAuditReasons" class="note"></div><div class="note"><b>Detalhes individuais dos STOPs simulados (até 30):</b><pre id="studyStopDetails" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre></div>
  <button type="button" id="copyStudyAudit" class="secondary">📋 Copiar auditoria para ChatGPT</button>
  </div>
  <div class="trade-log event-log">
@@ -2085,44 +2085,49 @@ function bandText(stats){
 
 /* EGI V8.8: camada não operacional de auditoria; não altera critérios de sinais. */
 function studyAuditData(){
-  const closed=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
-  const side=dir=>closed.filter(t=>t.direction===dir);
-  const value=arr=>arr.reduce((a,t)=>a+(Number.isFinite(Number(t.resultR))?Number(t.resultR):0),0);
-  const L=side('LONG'),S=side('SHORT');
-  const total=value(closed), split=value(L)+value(S);
-  const stops=closed.filter(t=>t.status==='STOP');
-  const reasons=[
-    ['Entrada esticada',t=>String(t.entryType||'').toLowerCase().includes('tardia') || Number(t.dist9)>1],
-    ['MMEs próximas',t=>Number.isFinite(Number(t.sep)) && Math.abs(Number(t.sep))<0.1],
-    ['Movimento rápido / ATR',t=>Number(t.trRatio)>1.5],
-    ['Pouca qualidade no sinal',t=>Number.isFinite(Number(t.iqe)) && Number(t.iqe)<80],
-    ['Causa não comprovada',t=>true]
-  ];
-  const counts=Object.fromEntries(reasons.map(([name])=>[name,0]));
-  for(const t of stops){const first=reasons.find(([name,fn])=>name!=='Causa não comprovada' && fn(t)); counts[first?first[0]:'Causa não comprovada']++;}
-  const unknown=robotTrades.filter(t=>t.status==='INDETERMINADA').length;
-  const open=robotTrades.filter(t=>t.status==='ABERTA').length;
-  return {closed,L,S,stops,unknown,open,total,split,counts};
+ const closed=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
+ const side=dir=>closed.filter(t=>t.direction===dir);
+ const value=a=>a.reduce((sum,t)=>sum+(Number.isFinite(Number(t.resultR))?Number(t.resultR):0),0);
+ const L=side('LONG'),S=side('SHORT'),other=closed.filter(t=>!['LONG','SHORT'].includes(t.direction));
+ const stops=closed.filter(t=>t.status==='STOP');
+ const counts={'Entrada esticada':0,'MMEs próximas':0,'Movimento rápido / ATR':0,'Pouca qualidade':0,'Sem indicador registrado':0,'Sem fator identificado':0};
+ const details=stops.map(t=>{
+  const findings=[],missing=[];
+  const num=k=>t[k]===null||t[k]===undefined||t[k]===''?null:(Number.isFinite(Number(t[k]))?Number(t[k]):null);
+  const d=num('dist9'),sep=num('sep'),tr=num('trRatio'),iqe=num('iqe');
+  if(d===null)missing.push('Distância MME9');else if(Math.abs(d)>1) findings.push('Entrada esticada');
+  if(sep===null)missing.push('Separação MMEs');else if(Math.abs(sep)<0.1)findings.push('MMEs próximas');
+  if(tr===null)missing.push('Candle/ATR');else if(tr>1.5)findings.push('Movimento rápido / ATR');
+  if(iqe===null)missing.push('IQE');else if(iqe<80)findings.push('Pouca qualidade');
+  if(String(t.entryType||'').toLowerCase().includes('tardia')&&!findings.includes('Entrada esticada'))findings.push('Entrada esticada');
+  findings.forEach(f=>counts[f]++);
+  if(missing.length)counts['Sem indicador registrado']++;
+  if(!findings.length && !missing.length)counts['Sem fator identificado']++;
+  return {t,findings,missing};
+ });
+ const total=value(closed),split=value(L)+value(S);
+ return {closed,L,S,other,stops,details,counts,total,split,unknown:robotTrades.filter(t=>t.status==='INDETERMINADA').length,open:robotTrades.filter(t=>t.status==='ABERTA').length};
 }
 function studyAuditText(){
  const d=studyAuditData();
  const r=n=>n.toFixed(1)+'R';
- return 'RADARMME1 V8.8 — ESTUDO, SEM ORDENS REAIS\\n'+
+ return 'RADARMME1 V8.9 — ESTUDO, SEM ORDENS REAIS\\n'+
  'Registros: '+robotTrades.length+' | Abertos simulados: '+d.open+' | Fechados: '+d.closed.length+' | Indeterminados: '+d.unknown+'\\n'+
  '2R: '+d.closed.filter(t=>t.status==='2R').length+' | STOP: '+d.stops.length+
  ' | Acerto: '+(d.closed.length?(100*d.closed.filter(t=>t.status==='2R').length/d.closed.length).toFixed(1)+'%':'—')+'\\n'+
  'R por operações encerradas: '+r(d.total)+' | LONG '+r(d.L.reduce((a,t)=>a+Number(t.resultR||0),0))+
  ' | SHORT '+r(d.S.reduce((a,t)=>a+Number(t.resultR||0),0))+'\\n'+
  'Verificação de soma LONG + SHORT: '+(Math.abs(d.total-d.split)<0.000001?'CONSISTENTE':'DIVERGENTE — revisar direção dos registros')+'\\n'+
- 'Hipóteses para STOP (heurísticas, NÃO causas provadas): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' | ')+'\\n'+
- 'Observação: não confundir placar histórico com sessão; métricas só comparáveis sob mesmo período e denominador.';
+ 'Indícios para STOP (sobrepostos, NÃO causas provadas): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' | ')+'\\n'+
+ 'Detalhes por STOP:\\n'+d.details.map(x=>[x.t.symbol,x.t.direction,x.t.tf,x.t.exitAt||x.t.ts,'indícios '+(x.findings.join('/')||'nenhum'),'dados ausentes '+(x.missing.join('/')||'nenhum')].join(' | ')).join('\\n')+'\\nObservação: histórico local, não sessão; comparar somente períodos e denominadores iguais.';
 }
 function renderStudyAudit(){
- const box=document.getElementById('studyAuditStats'), reasons=document.getElementById('studyAuditReasons');if(!box)return;
- const d=studyAuditData();
- const wins=d.closed.filter(t=>t.status==='2R').length;
- box.textContent='Histórico local: '+robotTrades.length+' sinais • '+d.open+' abertos • '+wins+' alvos 2R • '+d.stops.length+' STOPs • '+d.unknown+' indeterminados • '+(d.closed.length?(100*wins/d.closed.length).toFixed(1)+'%':'—')+' A2/fechados • '+d.total.toFixed(1)+'R técnico. '+(Math.abs(d.total-d.split)<0.000001?'✅ Soma LONG/SHORT confere.':'⚠️ Soma LONG/SHORT diverge: confira direções e filtros.');
- if(reasons) reasons.textContent='Possíveis fatores associados aos STOPs (apenas indícios): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' • ')+'. Não interpretar como causalidade comprovada.';
+ const box=document.getElementById('studyAuditStats'),reasons=document.getElementById('studyAuditReasons');if(!box)return;
+ const d=studyAuditData(),wins=d.closed.filter(t=>t.status==='2R').length;
+ box.textContent='Histórico local: '+robotTrades.length+' sinais • '+d.open+' abertos • '+wins+' alvos 2R • '+d.stops.length+' STOPs • '+d.unknown+' indeterminados • '+(d.closed.length?(100*wins/d.closed.length).toFixed(1)+'%':'—')+' A2/fechados • '+d.total.toFixed(1)+'R técnico. '+(Math.abs(d.total-d.split)<0.000001&&d.other.length===0?'✅ Soma LONG/SHORT confere.':'⚠️ Há registros fora da comparação LONG/SHORT.');
+ if(reasons)reasons.textContent='Indícios (podem se sobrepor): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' • ')+'. Os números não representam causas comprovadas.';
+ const list=document.getElementById('studyStopDetails');
+ if(list)list.textContent=d.details.length?d.details.slice(0,30).map(x=>[x.t.symbol||'?',x.t.direction||'?',x.t.tf||'?',x.t.exitAt||x.t.ts||'',x.findings.length?'Indícios: '+x.findings.join(', '):'Nenhum fator identificado',x.missing.length?'Dados ausentes: '+x.missing.join(', '):''].filter(Boolean).join(' | ')).join('\\n'):'Nenhum STOP registrado.';
 }
 document.addEventListener('click',e=>{if(e.target?.id!=='copyStudyAudit')return;const text=studyAuditText();if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(()=>window.prompt('Copie a auditoria:',text));else window.prompt('Copie a auditoria:',text);});
 
