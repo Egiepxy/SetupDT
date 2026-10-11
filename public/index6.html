@@ -1304,6 +1304,7 @@ function renderMultiTf(symbol, results){
   const swingShort=swing.filter(r=>r.state==='SHORT').length;
   const swingText=swingRisk?'atenção à exaustão/pullback':swingLong===2?'LONG alinhado':swingShort===2?'SHORT alinhado':'sem alinhamento forte';
   const px=vals[0]?.price;
+  const quoted=mme1LatestQuote?.symbol===symbol && Number.isFinite(mme1LatestQuote.price) && Date.now()-mme1LatestQuote.at<180000 ? mme1LatestQuote : null;
   const consensus=`Intraday: ${intraText} | 4h/1D: ${swingText}`;
   const selectedResult=results[selected];
   const general=generalDecisionMultiTf(results,selected);
@@ -1311,7 +1312,7 @@ function renderMultiTf(symbol, results){
   box.classList.toggle('aligned-strong',aligned>=4);
   box.innerHTML=`
     <div class="multi-tf-title">
-      <b>⏱️ ${symbol.replace('USDT','/USDT')} ${Number.isFinite(px)?`• ${fmt(px)}`:''}</b>
+      <b>⏱️ ${symbol.replace('USDT','/USDT')} • ${quoted?`Cotação ${fmt(quoted.price)} (consulta ${new Date(quoted.at).toLocaleTimeString('pt-BR')})`: 'Cotação indisponível'}<br><small>5m fechado: ${Number.isFinite(px)?fmt(px):'—'} • não streaming</small></b>
       <span>${aligned>=4?`🔥 ${aligned}/6 alinhados ${dir}`:'toque no tempo'}</span>
     </div>
     <div class="mtf-general ${general.cls}">
@@ -1370,6 +1371,8 @@ async function consultCoin(silent=false){
     ]);
     $('bar').style.width='78%';
 
+    const latest=Number(ticker?.lastPrice);
+    mme1LatestQuote=Number.isFinite(latest)&&latest>0?{symbol,price:latest,at:Date.now()}:null;
     const results={};
     LIGHT_TFS.forEach((tf,i)=>{
       const candles=candleSets[i];
@@ -1609,6 +1612,7 @@ const ROBOT_TRADES_KEY='radar_mme921_robot_trades_v1';
 const ROBOT_ALERT_KEY='radar_mme921_robot_last_alert_v1';
 const ROBOT_EVENTS_KEY='radar_mme921_robot_events_v1';
 let studyCandleCache={};
+let mme1LatestQuote=null;
 let robotTrades=[];
 let robotEvents=[];
 
