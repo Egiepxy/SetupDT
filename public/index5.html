@@ -434,7 +434,7 @@ canvas{width:100%!important;height:320px!important}
   <div class="grid section">
     <div class="card">
       <div class="label">Regime do Mercado</div>
-      <div id="marketRegime" class="big yellow">--</div>
+      <div id="marketRegime" class="big yellow">--</div><div id="egiRegimeClosedDetail" class="small">Regime em candles fechados.</div>
       <div class="small">alta / lateral / baixa</div>
     </div>
     <div class="card">
@@ -1549,16 +1549,20 @@ function render(d){
   const rangePct = lo > 0 ? ((hi/lo)-1)*100 : NaN;
   document.getElementById("rangePct24").textContent = pct(rangePct);
 
-  let regime="🟡 LATERAL";
-  let regimeClass="big yellow";
-  const a1r=d.analysis["1h"], a4r=d.analysis["4h"];
-  if(a1r.price>a1r.e200 && a1r.e9>a1r.e14 && a4r.e9>a4r.e14){
-    regime="🟢 ALTA"; regimeClass="big green";
-  }else if(a1r.price<a1r.e200 && a1r.e9<a1r.e14 && a4r.e9<a4r.e14){
-    regime="🔴 BAIXA"; regimeClass="big red";
-  }
+  // Regime oficial usa somente candles fechados; outros indicadores intactos.
+  let regime="⚪ SEM LEITURA",regimeClass="big yellow";
+  const closed=tf=>(d.sets?.[tf]||[]).filter(row=>Number(row[6])<Date.now());
+  const c1=closed("1h"),c4=closed("4h");
+  const regDetail=document.getElementById("egiRegimeClosedDetail");
+  if(c1.length>=200&&c4.length>=200){
+    const info=rows=>{const c=rows.map(row=>+row[4]);return {price:c.at(-1),e9:ema(c,9),e14:ema(c,14),e200:ema(c,200),end:rows.at(-1)[6]};};
+    const a1r=info(c1),a4r=info(c4),ups=[a1r.price>a1r.e200,a1r.e9>a1r.e14,a4r.e9>a4r.e14],downs=[a1r.price<a1r.e200,a1r.e9<a1r.e14,a4r.e9<a4r.e14];
+    regime=ups.every(Boolean)?"🟢 ALTA":downs.every(Boolean)?"🔴 BAIXA":"🟡 LATERAL";
+    regimeClass=regime.includes("ALTA")?"big green":regime.includes("BAIXA")?"big red":"big yellow";
+    if(regDetail)regDetail.textContent="Candles fechados • Preço/EMA200 1h: "+(ups[0]?"✅ alta":downs[0]?"🔻 baixa":"⚪ igual")+" • EMA9/14 1h: "+(ups[1]?"✅ alta":downs[1]?"🔻 baixa":"⚪ igual")+" • EMA9/14 4h: "+(ups[2]?"✅ alta":downs[2]?"🔻 baixa":"⚪ igual")+" • 1h "+new Date(+a1r.end).toLocaleString("pt-BR")+" • 4h "+new Date(+a4r.end).toLocaleString("pt-BR");
+  }else if(regDetail)regDetail.textContent="Candles fechados insuficientes.";
   const reg=document.getElementById("marketRegime");
-  reg.textContent=regime; reg.className=regimeClass;
+  reg.textContent=regime;reg.className=regimeClass;
 
   const c=document.getElementById("change24");
   c.textContent=pct(ch);
