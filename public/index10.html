@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Central Egi Apps V1.4</title>
+<title>Central Egi Apps V1.4 — Preparação EGI</title>
 <style>
   :root{
     --bg:#0d1117; --card:#161b22; --card2:#1f2630; --text:#f0f6fc; --muted:#8b949e;
@@ -69,6 +69,24 @@
       <button class="mini" title="Abrir ChatGPT" onclick="window.open('https://chatgpt.com/','_blank')">GPT</button>
     </div>
   </div>
+
+  <section id="egiTomorrow" style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px;margin-top:16px">
+    <h2 style="margin:0 0 8px;font-size:19px">📅 Preparação EGI — 11/10/2026 • Teste dos radares</h2>
+    <p style="color:#8b949e;line-height:1.55">Objetivo: preservar todos os radares e comparar por finalidade. Apenas estudo e observação, sem execução automática. Os registros devem ser feitos antes do resultado.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+      <a class="btn primary" href="index18.html" target="_blank" rel="noopener">🧭 Painel do Dia • index18</a>
+      <a class="btn" href="index.html" target="_blank" rel="noopener">🎯 SetupDT</a>
+      <a class="btn" href="index4.html" target="_blank" rel="noopener">🔄 Radar Viradas • index4</a>
+      <a class="btn" href="index5.html" target="_blank" rel="noopener">₿ BTC Padrão • index5</a>
+      <a class="btn" href="index16.html" target="_blank" rel="noopener">🌐 RWA • index16</a>
+      <a class="btn" href="index17.html" target="_blank" rel="noopener">📚 Onda 34 • index17</a>
+    </div>
+    <details><summary style="cursor:pointer;font-weight:700">✅ Roteiro da sessão — marcar itens conforme executar</summary>
+      <div id="egiDailyChecks" style="display:grid;gap:10px;margin-top:12px"></div>
+      <button type="button" onclick="egiResetChecks()" class="mini" style="margin-top:10px">↺ Limpar marcações</button>
+    </details>
+    <p style="color:#8b949e;font-size:12px">Marcações armazenadas apenas neste navegador, separadas dos cadastros da Central. Os links abrem os módulos disponíveis no mesmo serviço; confira dados e botões após o deploy.</p>
+  </section>
 
   <div class="toolbar">
     <input id="search" placeholder="🔎 Procurar app..." oninput="render()">
@@ -229,12 +247,7 @@ function load(){
   if(!x){ const first=migrateApps([...seed]); localStorage.setItem(KEY,JSON.stringify(first)); return first; }
   try{return migrateApps(JSON.parse(x))}catch{return migrateApps([...seed])}
 }
-function openViradaQuick(){
-  const apps=load();
-  const a=apps.find(x=>(x.name||'').toLowerCase().includes('virada'));
-  if(a){ openApp(a.id); return; }
-  window.open('RadarEgi_Viradas_15m_V1_1_Envio_SetupDT_GPT.html','_blank');
-}
+function openViradaQuick(){ window.open('index4.html','_blank','noopener'); }
 function saveAll(apps){localStorage.setItem(KEY,JSON.stringify(apps))}
 function getRecent(){try{return JSON.parse(localStorage.getItem(RECENT)||'[]')}catch{return[]}}
 function setRecent(ids){localStorage.setItem(RECENT,JSON.stringify(ids.slice(0,6)))}
@@ -435,6 +448,29 @@ function esc(v){
   return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 render();
+const EGI_DAILY_KEY='egi_central_checklist_20261011_v1';
+const EGI_DAILY_ITEMS=[
+  'Conferir se o Painel do Dia e o BTC Padrão atualizam dados e candles fechados.',
+  'Fazer backup dos cadastros da Central antes de qualquer mudança.',
+  'Selecionar 3 a 5 radares da mesma categoria para o teste.',
+  'Anotar ativo, timeframe, hipótese, horário, preço de referência e nome do radar antes do resultado.',
+  'Registrar também AGUARDAR, SEM LEITURA, sinais rejeitados e falhas de atualização.',
+  'Comparar 15m, 1h e 4h sem alterar as regras durante o teste.',
+  'Avaliar risco/retorno e custos apenas em simulação; não operar por causa de pontuação.',
+  'Revisar registros no fim da sessão e escolher o que testar na próxima.'
+];
+function egiReadChecks(){try{let v=JSON.parse(localStorage.getItem(EGI_DAILY_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
+function egiRenderChecks(){
+  const box=document.getElementById('egiDailyChecks');if(!box)return;
+  const checked=egiReadChecks();
+  box.innerHTML=EGI_DAILY_ITEMS.map((v,i)=>'<label style="display:flex;align-items:start;gap:8px;cursor:pointer"><input style="width:auto;margin-top:3px" type="checkbox" data-egi-check="'+i+'" '+(checked.includes(i)?'checked':'')+'><span>'+esc(v)+'</span></label>').join('');
+  box.querySelectorAll('input[data-egi-check]').forEach(el=>el.addEventListener('change',()=>{
+    const id=Number(el.dataset.egiCheck);const set=new Set(egiReadChecks());if(el.checked)set.add(id);else set.delete(id);
+    localStorage.setItem(EGI_DAILY_KEY,JSON.stringify([...set]));
+  }));
+}
+function egiResetChecks(){localStorage.removeItem(EGI_DAILY_KEY);egiRenderChecks();}
+egiRenderChecks();
 </script>
 </body>
 </html>
