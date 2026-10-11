@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.7 • Diagnóstico de Retomada EGI</title>
+<title>RadarMME1 Light V8.8 • Auditoria de Estudos EGI</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -358,7 +358,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V8.3.1 • Evolução dos sinais • Stop auditado • Robô e ntfy preservados</div>
+    <div class="sub">V8.8 • Somente estudo • Auditoria de STOPs e R • ntfy preservado</div>
   </div>
   <div class="badge">📲 MM1 V8.3.1 • PROFESSOR EGI + NTFY</div>
 </header>
@@ -661,7 +661,14 @@ header h1{font-size:26px}
       <div id="tradeLogList" class="trade-log-list"><div class="trade-item muted">Nenhum sinal registrado.</div></div>
     </div>
 
-    <div class="trade-log event-log">
+    <div class="panel" id="studyAuditPanel" style="margin-top:14px;border-color:#4d6585">
+ <h3>🧪 Auditoria EGI — somente estudo e comparação • V8.8</h3>
+ <div class="note">Os resultados são SIMULAÇÕES técnicas do RadarMME1, não ordens executadas nem lucros/prejuízos reais. STOP e 2R usam candles fechados; eventos na mesma vela permanecem INDETERMINADOS.</div>
+ <div id="studyAuditStats" class="note" aria-live="polite">Sem histórico calculado.</div>
+ <div id="studyAuditReasons" class="note"></div>
+ <button type="button" id="copyStudyAudit" class="secondary">📋 Copiar auditoria para ChatGPT</button>
+ </div>
+ <div class="trade-log event-log">
       <div class="trade-log-head"><b>🔔 Histórico de avisos e alvos</b><span id="eventCount">0 eventos</span></div>
       <div id="eventLogList" class="trade-log-list"><div class="trade-item muted">Nenhum aviso registrado.</div></div>
     </div>
@@ -2075,6 +2082,50 @@ function bandText(stats){
   return `${stats.rate}% • ${stats.totalR>=0?'+':''}${stats.totalR.toFixed(1)}R • n=${stats.n}`;
 }
 
+
+/* EGI V8.8: camada não operacional de auditoria; não altera critérios de sinais. */
+function studyAuditData(){
+  const closed=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
+  const side=dir=>closed.filter(t=>t.direction===dir);
+  const value=arr=>arr.reduce((a,t)=>a+(Number.isFinite(Number(t.resultR))?Number(t.resultR):0),0);
+  const L=side('LONG'),S=side('SHORT');
+  const total=value(closed), split=value(L)+value(S);
+  const stops=closed.filter(t=>t.status==='STOP');
+  const reasons=[
+    ['Entrada esticada',t=>String(t.entryType||'').toLowerCase().includes('tardia') || Number(t.dist9)>1],
+    ['MMEs próximas',t=>Number.isFinite(Number(t.sep)) && Math.abs(Number(t.sep))<0.1],
+    ['Movimento rápido / ATR',t=>Number(t.trRatio)>1.5],
+    ['Pouca qualidade no sinal',t=>Number.isFinite(Number(t.iqe)) && Number(t.iqe)<80],
+    ['Causa não comprovada',t=>true]
+  ];
+  const counts=Object.fromEntries(reasons.map(([name])=>[name,0]));
+  for(const t of stops){const first=reasons.find(([name,fn])=>name!=='Causa não comprovada' && fn(t)); counts[first?first[0]:'Causa não comprovada']++;}
+  const unknown=robotTrades.filter(t=>t.status==='INDETERMINADA').length;
+  const open=robotTrades.filter(t=>t.status==='ABERTA').length;
+  return {closed,L,S,stops,unknown,open,total,split,counts};
+}
+function studyAuditText(){
+ const d=studyAuditData();
+ const r=n=>n.toFixed(1)+'R';
+ return 'RADARMME1 V8.8 — ESTUDO, SEM ORDENS REAIS\\n'+
+ 'Registros: '+robotTrades.length+' | Abertos simulados: '+d.open+' | Fechados: '+d.closed.length+' | Indeterminados: '+d.unknown+'\\n'+
+ '2R: '+d.closed.filter(t=>t.status==='2R').length+' | STOP: '+d.stops.length+
+ ' | Acerto: '+(d.closed.length?(100*d.closed.filter(t=>t.status==='2R').length/d.closed.length).toFixed(1)+'%':'—')+'\\n'+
+ 'R por operações encerradas: '+r(d.total)+' | LONG '+r(d.L.reduce((a,t)=>a+Number(t.resultR||0),0))+
+ ' | SHORT '+r(d.S.reduce((a,t)=>a+Number(t.resultR||0),0))+'\\n'+
+ 'Verificação de soma LONG + SHORT: '+(Math.abs(d.total-d.split)<0.000001?'CONSISTENTE':'DIVERGENTE — revisar direção dos registros')+'\\n'+
+ 'Hipóteses para STOP (heurísticas, NÃO causas provadas): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' | ')+'\\n'+
+ 'Observação: não confundir placar histórico com sessão; métricas só comparáveis sob mesmo período e denominador.';
+}
+function renderStudyAudit(){
+ const box=document.getElementById('studyAuditStats'), reasons=document.getElementById('studyAuditReasons');if(!box)return;
+ const d=studyAuditData();
+ const wins=d.closed.filter(t=>t.status==='2R').length;
+ box.textContent='Histórico local: '+robotTrades.length+' sinais • '+d.open+' abertos • '+wins+' alvos 2R • '+d.stops.length+' STOPs • '+d.unknown+' indeterminados • '+(d.closed.length?(100*wins/d.closed.length).toFixed(1)+'%':'—')+' A2/fechados • '+d.total.toFixed(1)+'R técnico. '+(Math.abs(d.total-d.split)<0.000001?'✅ Soma LONG/SHORT confere.':'⚠️ Soma LONG/SHORT diverge: confira direções e filtros.');
+ if(reasons) reasons.textContent='Possíveis fatores associados aos STOPs (apenas indícios): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' • ')+'. Não interpretar como causalidade comprovada.';
+}
+document.addEventListener('click',e=>{if(e.target?.id!=='copyStudyAudit')return;const text=studyAuditText();if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(()=>window.prompt('Copie a auditoria:',text));else window.prompt('Copie a auditoria:',text);});
+
 function renderPerformance(){
   const open=robotTrades.filter(t=>t.status==='ABERTA').length;
   const hit1=robotTrades.filter(t=>t.hit1R).length;
@@ -2108,6 +2159,7 @@ function renderPerformance(){
   if($('band9596')) $('band9596').textContent=bandText(bandStats(95,96));
   if($('band97100')) $('band97100').textContent=bandText(bandStats(97,100));
   updateGuardState();
+  renderStudyAudit();
 }
 function finishTrade(t,status,eventTs,resultR,reason){
   if(t.status!=='ABERTA') return false;
