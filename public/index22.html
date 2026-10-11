@@ -21,11 +21,12 @@
 <style>
 .scan-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin:12px 0}.scan-actions .field{min-width:125px}.scan-table{overflow-x:auto}.scan-table table{min-width:690px}.scan-table button{min-height:34px;font-size:12px;padding:5px 9px}.scan-meta{color:var(--muted);font-size:12px}.scan-up{color:var(--green)}.scan-down{color:var(--red)}.scan-muted{color:var(--yellow)}
 </style>
+<style>.moment-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 8px}.moment-btn{background:#153d38;border:1px solid #3b967d;color:#e3fff1;font-size:13px;min-height:36px;padding:6px 12px}.moment-btn:disabled{opacity:.75}.moment-note{font-size:11px;color:#b2c5d7}.moment-btn strong{color:#77f7ac}</style>
 </head>
 <body>
 <main>
 <header>
-<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.4.2 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
+<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.4.3 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
 <p class="sub">MME 9/21/200 + RSI 14 + volume. 5m encontra gatilho, 15m filtra direção. Somente candles fechados.</p>
 <div class="stack"><span class="pill">5m · execução técnica</span><span class="pill">15m · contexto</span><span class="pill">Binance Spot pública</span><span class="pill">Sem API key</span></div>
 </header>
@@ -36,7 +37,7 @@
 <div class="field"><label for="auto">Atualização</label><select id="auto"><option value="5000" selected>5 segundos</option><option value="0">Manual</option><option value="30000">30 segundos</option><option value="60000">1 minuto</option></select></div>
 <button type="button" class="btn primary" id="refresh">↻ Atualizar</button><button type="button" class="btn soft" id="demo">🧪 Demo</button>
 </div>
-<div class="favorites"><span class="mini">Moedas:</span><div id="favList" style="display:contents"></div><button type="button" class="chip star" id="favToggle" title="Adicionar/remover favorito">＋ Cadastrar</button><button type="button" class="chip" id="removeAsset">🗑 Excluir ativo</button></div>
+<div class="moment-row"><button class="btn moment-btn" type="button" id="momentCoin" disabled>🏆 Moeda da vez · buscar no Garimpo</button><span class="moment-note" id="momentInfo">Ranking de valorização somente após Buscar moedas · não é sinal de entrada</span></div><div class="favorites"><span class="mini">Moedas:</span><div id="favList" style="display:contents"></div><button type="button" class="chip star" id="favToggle" title="Adicionar/remover favorito">＋ Cadastrar</button><button type="button" class="chip" id="removeAsset">🗑 Excluir ativo</button></div>
 <div class="audio-controls"><button type="button" class="btn" id="audioEnable">🔇 Ativar avisos por voz</button><button type="button" class="btn" id="audioTest">🔊 Testar voz</button><span class="mini">Voz no checklist 6/6 e nas transições confirmadas do estudo RSI 30/70, nunca ordem. Permissões exigem toque inicial; som pode não funcionar em segundo plano.</span></div><div class="statusline"><span class="dot" id="dot"></span><span id="fetchState" role="status" aria-live="polite">Pronto para consultar</span><span id="dataMode" class="pill">SEM DADOS</span><span id="lastQuery"></span></div>
 <div id="notice" role="alert"></div>
 </section>
@@ -206,10 +207,30 @@ $('studyAdd').onclick=()=>{const name=$('studyNewName').value.trim();if(!name){$
 
 // Garimpo manual: usa volume 24h para formar universo e candles fechados para o 5m/1h.
 let scanning=false;
+let lastMoment=null;
+function clearMoment(message='Faça uma busca no Garimpo para atualizar a moeda da vez.'){
+ lastMoment=null;
+ const b=$('momentCoin');b.disabled=true;b.textContent='🏆 Moeda da vez · buscar no Garimpo';
+ $('momentInfo').textContent=message;
+}
+function updateMoment(results,period,scope){
+ const winner=results.filter(x=>Number.isFinite(x.move)&&x.move>0).sort((a,b)=>b.move-a.move)[0];
+ if(!winner){clearMoment('Nenhuma valorização positiva no universo consultado · '+period);return;}
+ lastMoment=winner;
+ const b=$('momentCoin');b.disabled=false;
+ b.replaceChildren();b.append(document.createTextNode('🏆 '+winner.symbol.replace(/USDT$/,'')+' '));
+ const positive=document.createElement('strong');positive.textContent='+'+fmt(winner.move,2)+'%';b.append(positive);
+ b.title='Abrir '+winner.symbol+' no Scalping · variação do período '+period;
+ $('momentInfo').textContent=period+' · '+scope+' · última busca '+new Date().toLocaleTimeString('pt-BR')+' · não é sinal';
+}
+$('momentCoin').onclick=()=>{if(!lastMoment)return;switchSymbol(lastMoment.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};
+$('scanPeriod').addEventListener('change',()=>clearMoment('Período alterado · clique Buscar moedas para atualizar'));
+$('scanLiquidity').addEventListener('change',()=>clearMoment('Liquidez alterada · clique Buscar moedas para atualizar'));
+
 const compactUSDT=v=>Number.isFinite(v)?(v>=1e9?(v/1e9).toFixed(2)+' bi':v>=1e6?(v/1e6).toFixed(1)+' mi':(v/1e3).toFixed(0)+' mil'):'—';
 async function scanVolatility(){
  if(scanning)return;
- scanning=true;const btn=$('scanNow'),status=$('scanStatus'),rows=$('scanRows');btn.disabled=true;rows.replaceChildren();status.textContent='Buscando volume e oscilação na Binance…';
+ scanning=true;clearMoment('Busca em andamento · resultado anterior descartado');const btn=$('scanNow'),status=$('scanStatus'),rows=$('scanRows');btn.disabled=true;rows.replaceChildren();status.textContent='Buscando volume e oscilação na Binance…';
  const period=$('scanPeriod').value,minVol=Number($('scanLiquidity').value);
  try{
   const bases=['https://data-api.binance.vision','https://api.binance.com'];let tickers=null,activeBase=null,lastError;
@@ -232,13 +253,15 @@ async function scanVolatility(){
     results.push({symbol:ticker.symbol,move:100*(cl-op)/op,amp:100*(hi-lo)/lo,vRel:vAvg>0?v/vAvg:null,vol:Number(ticker.quoteVolume)});
    }catch(_error){}finally{done++;status.textContent='Analisados '+done+' de '+group.length+' pares líquidos…'}}});await Promise.all(workers);
   }
-  results=results.filter(x=>Number.isFinite(x.amp)).sort((a,b)=>b.amp-a.amp).slice(0,15);
+  results=results.filter(x=>Number.isFinite(x.amp));
+  updateMoment(results,period,period==='24h'?'todos os pares elegíveis':'até 20 pares mais líquidos');
+  results.sort((a,b)=>b.amp-a.amp);results=results.slice(0,15);
   rows.replaceChildren();if(!results.length)throw Error('Não foi possível validar candles suficientes. Tente 24h ou outra busca.');
   for(const [i,r] of results.entries()){
     const row=rows.insertRow();const add=v=>{const cell=row.insertCell();cell.textContent=v;return cell};add(String(i+1));add(r.symbol.replace(/USDT$/,''));const mov=add((r.move>=0?'+':'')+fmt(r.move,2)+'%');mov.className=r.move>0?'scan-up':r.move<0?'scan-down':'';add(fmt(r.amp,2)+'%');add(r.vRel===null?'n/d':fmt(r.vRel,2)+'×');add(compactUSDT(r.vol));const cell=row.insertCell();const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Abrir no Scalping';b.onclick=()=>{switchSymbol(r.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};cell.append(b);
   }
   status.textContent='Busca concluída · '+new Date().toLocaleTimeString('pt-BR')+' · '+(period==='24h'?'pares elegíveis filtrados':'até 20 pares mais líquidos examinados')+' · '+results.length+' exibidos';
- }catch(e){status.textContent='Erro na busca: '+(e.message||e);rows.replaceChildren();const row=rows.insertRow(),td=row.insertCell();td.colSpan=7;td.textContent='Busca indisponível. Não usar resultados antigos.'}
+ }catch(e){clearMoment('Dados indisponíveis · nenhuma moeda da vez');status.textContent='Erro na busca: '+(e.message||e);rows.replaceChildren();const row=rows.insertRow(),td=row.insertCell();td.colSpan=7;td.textContent='Busca indisponível. Não usar resultados antigos.'}
  finally{scanning=false;btn.disabled=false}
 }
 $('scanNow').onclick=scanVolatility;
