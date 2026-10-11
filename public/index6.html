@@ -149,6 +149,12 @@ header h1{font-size:26px}
 #backupAssetsBtn,#restoreAssetsBtn{background:#172238}
 .asset-list{display:flex;gap:7px;flex-wrap:wrap;min-height:36px;align-items:center}
 .asset-chip{display:inline-flex;align-items:center;border:1px solid #34517a;background:#14223a;border-radius:999px;overflow:hidden}
+/* EGI V9.0.1: Favoritos no mesmo formato compacto da lista inferior. */
+#favoriteList{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:7px}
+#favoriteList .asset-chip{flex:0 0 auto;max-width:100%}
+#favoriteList .asset-chip button{width:auto;min-width:0}
+#favoriteList .asset-chip-star{flex:0 0 auto;width:auto!important;padding:8px 10px!important;border:0!important;border-right:1px solid #34517a!important;border-radius:0!important;background:#193c5d!important;color:#ffdc76!important;font-size:13px!important}
+#favoriteList .asset-chip-main,#favoriteList .asset-chip-x{flex:0 0 auto}
 .asset-chip-main{width:auto!important;border:0!important;border-radius:0!important;background:transparent!important;padding:8px 8px 8px 11px!important;font-size:13px!important;color:#dfeaff!important}
 .quick-auto-inline{display:grid;grid-template-columns:minmax(82px,.75fr) minmax(92px,1.25fr);gap:7px;align-items:center}
 .quick-auto-inline select,.quick-auto-inline button{margin:0;min-width:0}
@@ -3261,8 +3267,11 @@ function persistAssets(){
 function renderAssets(){
   const list=$('assetList'), count=$('assetCount');
   const fav=$('favoriteList');
-  if(fav){fav.innerHTML=favoriteAssets.map(a=>`<button type="button" data-fav-open="${a}">⭐ ${a}/USDT</button>`).join('')||'<span class="asset-empty">Nenhum favorito ainda.</span>';
-    fav.querySelectorAll('[data-fav-open]').forEach(b=>b.addEventListener('click',()=>{ $('coinQuery').value=b.dataset.favOpen;consultCoin();}));}
+  if(fav){
+    fav.innerHTML=favoriteAssets.map(a=>`<span class="asset-chip asset-chip-fav"><button type="button" class="asset-chip-star" data-fav-toggle="${a}" title="Desmarcar favorito ${a}" aria-label="Desmarcar favorito ${a}">⭐</button><button type="button" class="asset-chip-main" data-fav-open="${a}" title="Consultar ${a}/USDT">${a}</button><button type="button" class="asset-chip-x" data-fav-remove="${a}" title="Retirar ${a} dos favoritos" aria-label="Retirar ${a} dos favoritos">✕</button></span>`).join('')||'<span class="asset-empty">Nenhum favorito ainda.</span>';
+    fav.querySelectorAll('[data-fav-open]').forEach(b=>b.addEventListener('click',()=>{ $('coinQuery').value=b.dataset.favOpen;consultCoin();}));
+    fav.querySelectorAll('[data-fav-toggle], [data-fav-remove]').forEach(b=>b.addEventListener('click',()=>{toggleFavorite(b.dataset.favToggle||b.dataset.favRemove);renderMultiMonitor();}));
+  }
   if(!list || !count) return;
   count.textContent=`${savedAssets.length} salvo${savedAssets.length===1?'':'s'}`;
   if(!savedAssets.length){
