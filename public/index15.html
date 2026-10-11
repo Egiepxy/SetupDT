@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08111f"><title>Painel Início do Dia EGI V2.5 — AAII + SetupDT V1.9.30 + LINK</title>
+<style>
+:root{--bg:#07101d;--card:#101b2c;--line:#29445f;--txt:#edf6ff;--muted:#9fb7d2;--green:#29d391;--yellow:#ffd166;--red:#ff6278;--blue:#59a5ff;--purple:#c084fc}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07101d,#0b1524 45%,#07101d);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:10px}.hero,.card,details.step{background:#101b2c;border:1px solid var(--line);border-radius:17px;padding:14px;margin:10px 0}
+h1{font-size:clamp(22px,6vw,34px);margin:0 0 5px}h2{font-size:17px;margin:0 0 9px}.muted{color:var(--muted)}
+.topgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.toolbar.sticky{position:sticky;top:0;z-index:30;background:#07101def;padding:8px;border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px)}
+summary{cursor:pointer;list-style:none;display:flex;gap:9px;align-items:center;font-weight:900;font-size:16px}summary::-webkit-details-marker{display:none}summary::after{content:'▾';margin-left:auto;color:var(--muted)}details:not([open]) summary::after{content:'▸'}
+.num{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:#18304d;font-weight:900;flex:0 0 auto}.body{padding-top:10px}.check{display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed #253a55}.check input{width:auto}
+button,a.btn,select,input,textarea{font:inherit}button,a.btn{display:inline-block;text-decoration:none;color:#fff;border:1px solid #385574;background:#172940;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}button:hover,a.btn:hover{filter:brightness(1.12)}
+a.btn.primary,button.primary{background:#0d6575;border-color:#39d7ef}.green{background:#14532d;border-color:#22c55e}.yellow{background:#713f12;border-color:#facc15;color:#fff}.red{background:#7f1d1d;border-color:#ef4444}.blue{background:#0c4a6e;border-color:#38bdf8}.purple{background:#4c1d66;border-color:#c084fc}.danger{background:#7f1d1d;border-color:#ef4444}
+select,input,textarea{width:100%;border:1px solid #385574;background:#091625;color:#fff;border-radius:10px;padding:10px}label{display:block;color:#cfe0f3;margin-top:8px;font-size:12px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.reportarea{min-height:150px;resize:vertical}.reportarea.big{min-height:260px}.progress{height:11px;border-radius:99px;background:#091625;overflow:hidden;border:1px solid #263c59}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#29d391,#59a5ff)}
+.statusbar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.sem{font-size:28px}.mini{font-size:12px;color:var(--muted)}.notice{padding:10px;border-radius:10px;border:1px solid #385574;background:#0b1829;margin-top:10px}.ok{border-color:#1f7a58}.warn{border-color:#76591d;background:#2b2415}
+.tablewrap{overflow:auto;margin-top:10px}table{width:100%;border-collapse:collapse;min-width:780px}th,td{padding:8px;border-bottom:1px solid #29445f;text-align:left;font-size:13px}th{color:#b9d8f8}.summarybox{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pill{border:1px solid #385574;background:#0b1829;border-radius:12px;padding:10px}.pill b{display:block;font-size:18px}.quick{font-size:16px;font-weight:850;color:#dff7ed}.guide{border:2px solid #39d7ef;background:#082131}.guide h2{font-size:19px}.guide-now{font-size:20px;font-weight:900;margin:8px 0;color:#fff}.guide-sub{color:#b9d8f8}.guide .actions{margin-top:12px}.badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #385574;background:#0b1829;font-size:12px;font-weight:800}.manual-list{margin:8px 0 0 20px}.manual-list li{margin:6px 0}.auto-ok{border-color:#279d73;background:#0b2a23}.auto-warn{border-color:#c79728;background:#2b2513}.auto-bad{border-color:#bd4556;background:#31131a}.sep{height:1px;background:#29445f;margin:10px 0}
+@media(max-width:700px){.topgrid,.summarybox{grid-template-columns:1fr}.statusbar{grid-template-columns:1fr 1fr 1fr}.toolbar.sticky{position:static}}
+
+/* Radar LINK incorporado ao Painel — sem arquivos externos */
+.link-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.link-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.link-stats .pill b{font-size:17px;overflow-wrap:anywhere}
+.link-embed{border:1px solid #3b7997;border-radius:12px;overflow:hidden;margin-top:12px;background:#09111f}
+.link-embed nav{padding:8px;display:flex;gap:6px;flex-wrap:wrap;background:#0c2840;border-bottom:1px solid #31516b}
+.link-embed iframe{display:block;width:100%;height:75vh;min-height:590px;border:0;background:#0b1424}
+.link-embed.fullscreen{position:fixed;inset:0;z-index:99;border-radius:0;margin:0}
+.link-embed.fullscreen iframe{height:calc(100dvh - 65px);min-height:0}
+.link-embed.fullscreen nav{min-height:65px;align-items:center}
+.link-feedback{font-size:13px;color:#b6c9df;margin:8px 0;white-space:pre-wrap}
+.link-feedback.success{color:#29d391}.link-feedback.error{color:#ff7785}
+@media(max-width:700px){.link-stats{grid-template-columns:1fr 1fr}.link-stats .pill:last-child{grid-column:1/-1}.link-embed iframe{height:70vh;min-height:520px}}
+
+/* AAII semanal independente do semáforo, SetupDT e RadarMVC */
+.aaii-head{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}
+.aaii-head h2{margin:5px 0}.aaii-head .actions{margin:0}
+.aaii-metrics{margin:12px 0;grid-template-columns:repeat(4,minmax(0,1fr))}
+.aaii-metrics .pill b{font-size:clamp(16px,3.5vw,24px)}
+.aaii-trend{font-size:12px;display:block;margin-top:4px}
+.aaii-up{color:var(--green)}.aaii-down{color:var(--red)}.aaii-neutral{color:var(--muted)}
+.aaii-chartbox{margin:12px 0;border:1px solid #304762;background:#0a1829;border-radius:12px;padding:8px}
+.aaii-chartbox svg{width:100%;height:auto;display:block;min-height:130px}
+.aaii-legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:2px 6px 8px}
+.aaii-dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.aaii-editor{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px;background:#0b1829}
+.aaii-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:8px 0}
+.aaii-feedback{font-size:13px;min-height:17px;margin-top:5px;color:var(--muted)}
+.aaii-table{min-width:540px}
+.aaii-table th,.aaii-table td{padding:6px 7px}
+@media(max-width:700px){.aaii-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.aaii-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.aaii-head .actions{width:100%}}
+
+/* Comparacao AAII x BTC: informativa, sem alterar semaforo nem entradas */
+.aaii-btc{border:1px solid #385574;border-radius:13px;margin:12px 0;padding:12px;background:#091c2c}
+.aaii-btc h3{font-size:15px;margin:0 0 6px}
+.aaii-btc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.aaii-btc-stats .pill b{overflow-wrap:anywhere;font-size:16px}
+.aaii-btc .mini{line-height:1.5}
+.aaii-btc .actions{align-items:center}
+@media(max-width:700px){.aaii-btc-stats{grid-template-columns:1fr 1fr}.aaii-btc-stats .pill:last-child{grid-column:1/-1}}
+</style></head><body><main class="wrap">
+<section class="hero">
+<div class="muted">EGI • CONTEXTO → FLUXO → CONFLUÊNCIA → GATILHO → PLANO</div>
+<h1>📊 Painel Início do Dia EGI V2.5</h1>
+<div class="muted">Fluxo único: BTC → Fortes → RadarMVC → Confluência V5.1 → SMC → SetupDT + KDJ/Volume → Plano.</div>
+</section>
+
+<div class="toolbar sticky">
+<button id="openAll" type="button">📂 Abrir todos</button><button id="closeAll" type="button">📁 Fechar todos</button><button class="primary" id="genAll" type="button">🔄 ATUALIZAR TUDO</button><button class="danger" id="clearPanel">🧹 Limpar painel</button><a class="btn" href="index.html">🏠 Central EGI</a>
+</div>
+
+<section class="card topgrid">
+<div><h2>🌅 Abertura</h2><label>Data<input id="date" type="date"></label><label>Viés inicial<select id="bias"><option>⚪ NEUTRO</option><option>🟢 COMPRADOR</option><option>🔴 VENDEDOR</option><option>🟡 LATERAL</option></select></label></div>
+<div><h2>🚦 Semáforo</h2><div id="sem" class="sem">⚪</div><div id="semTxt" class="muted">Aguardando contexto.</div><div class="statusbar"><button data-s="🟢 OPERAR">🟢</button><button data-s="🟡 SELETIVO">🟡</button><button data-s="🔴 NÃO OPERAR">🔴</button></div></div>
+</section>
+
+
+<!-- AAII: semanas 16/09, 23/09, 30/09 e 07/10/2026, verificado na fonte AAII. BTC consultado somente mediante solicitação. -->
+<section class="card aaii-module" id="aaiiModule" aria-label="Sentimento AAII semanal">
+  <div class="aaii-head">
+    <div><span class="badge">NOVO • CONTEXTO MACRO EGI</span>
+      <h2>📊 Sentimento AAII — otimismo x pessimismo</h2>
+      <div class="muted">Ações dos EUA · pesquisa semanal · histórico local (não é gatilho LONG/SHORT)</div>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="https://en.macromicro.me/charts/116484/us-aaii-investor-sentiment-survey" target="_blank" rel="noopener noreferrer">📈 Abrir gráfico AAII</a>
+      <a class="btn" href="https://www.aaii.com/sentimentsurvey" target="_blank" rel="noopener noreferrer">🔗 AAII oficial</a>
+    </div>
+  </div>
+  <div id="aaiiWeek" class="mini" style="margin-top:8px">Aguardando histórico AAII...</div>
+  <div class="summarybox aaii-metrics">
+    <div class="pill"><span class="mini">🟢 Otimistas</span><b id="aaiiBull">—</b><span class="aaii-trend" id="aaiiBullDelta">—</span></div>
+    <div class="pill"><span class="mini">🔴 Pessimistas</span><b id="aaiiBear">—</b><span class="aaii-trend" id="aaiiBearDelta">—</span></div>
+    <div class="pill"><span class="mini">🟡 Neutros</span><b id="aaiiNeutral">—</b><span class="aaii-trend" id="aaiiNeutralDelta">—</span></div>
+    <div class="pill"><span class="mini">Diferença otimistas − pessimistas</span><b id="aaiiSpread">—</b><span class="aaii-trend" id="aaiiSpreadDelta">—</span></div>
+  </div>
+  <div class="notice" id="aaiiVerdict">Aguardando dados...</div>
+<div class="aaii-btc" id="aaiiBtcCompare">
+  <h3>₿ Cruzamento AAII × BTC (1h e 4h)</h3>
+  <p class="mini">A pesquisa é semanal e sobre ações dos EUA. A consulta abaixo lê somente candles FECHADOS de BTCUSDT Spot da Binance e não substitui BTC Padrão ou SetupDT.</p>
+  <div class="actions"><button type="button" class="primary" id="aaiiBtcRefresh">🔄 Atualizar leitura BTC</button><span class="mini" id="aaiiBtcTime">BTC não consultado nesta sessão</span></div>
+  <div class="aaii-btc-stats">
+    <div class="pill"><span class="mini">BTC 4h · estrutura</span><b id="aaiiBtc4h">⚪ Não consultado</b><span class="mini" id="aaiiBtc4hInfo">MME9/21/200 e RSI14</span></div>
+    <div class="pill"><span class="mini">BTC 1h · confirmação</span><b id="aaiiBtc1h">⚪ Não consultado</b><span class="mini" id="aaiiBtc1hInfo">MME9/21/200 e RSI14</span></div>
+    <div class="pill"><span class="mini">Último fechamento 4h</span><b id="aaiiBtcClose">—</b><span class="mini" id="aaiiBtcVolume">Volume e MACD: aguardando</span></div>
+  </div>
+  <div class="notice warn" id="aaiiBtcVerdict" role="status">AAII disponível; consulte o BTC para visualizar concordância ou divergência. Sem leitura de BTC, não há confirmação técnica.</div>
+  <p class="mini" id="aaiiBtcSource">Fontes: <a href="https://www.aaii.com/sentimentsurvey" target="_blank" rel="noopener noreferrer">AAII</a> e <a href="https://www.binance.com/en/trade/BTC_USDT?type=spot" target="_blank" rel="noopener noreferrer">Binance Spot BTC/USDT</a>. Falha de rede deve aparecer como indisponibilidade — nunca como sinal.</p>
+</div>
+  <div class="aaii-chartbox">
+    <div class="aaii-legend"><span><i class="aaii-dot" style="background:#29d391"></i>Otimistas</span><span><i class="aaii-dot" style="background:#ff6278"></i>Pessimistas</span><span><i class="aaii-dot" style="background:#ffd166"></i>Neutros</span></div>
+    <svg id="aaiiChart" role="img" aria-label="Evolução semanal do sentimento AAII" viewBox="0 0 720 190"></svg>
+  </div>
+  <p class="mini" id="aaiiSource">Histórico inicial de quatro semanas conforme AAII (e precisão adicional para 30/09 e 07/10 em MacroMicro). Para semanas futuras, consulte a fonte e registre os percentuais abaixo. Não há sincronização automática nem consulta à API neste módulo.</p>
+  <div class="actions">
+    <button type="button" id="aaiiCopy">📋 Copiar leitura AAII</button>
+    <button type="button" id="aaiiExport">💾 Exportar histórico</button>
+    <button type="button" id="aaiiImportButton">📥 Importar histórico</button>
+    <input id="aaiiImportFile" type="file" accept=".json,application/json" hidden aria-label="Escolher histórico AAII em JSON">
+  </div>
+  <details class="aaii-editor" id="aaiiEditor">
+    <summary>✍️ Registrar ou corrigir semana (manual)</summary>
+    <div class="aaii-fields">
+      <label>Data de encerramento da semana<input id="aaiiInputDate" type="date" required></label>
+      <label>Otimistas (%)<input id="aaiiInputBull" type="text" inputmode="decimal" placeholder="40,25"></label>
+      <label>Pessimistas (%)<input id="aaiiInputBear" type="text" inputmode="decimal" placeholder="38,98"></label>
+      <label>Neutros (%)<input id="aaiiInputNeutral" type="text" inputmode="decimal" placeholder="20,76"></label>
+    </div>
+    <div class="actions"><button type="button" class="primary" id="aaiiSaveWeek">💾 Salvar semana</button><button type="button" id="aaiiReset">↺ Restaurar quatro semanas iniciais</button></div>
+    <div id="aaiiFeedback" class="aaii-feedback" role="status"></div>
+    <div class="tablewrap"><table class="aaii-table"><thead><tr><th>Semana</th><th>Otimistas</th><th>Pessimistas</th><th>Neutros</th><th>Saldo</th><th></th></tr></thead><tbody id="aaiiHistoryRows"></tbody></table></div>
+  </details>
+  <p class="mini">⚠️ Uso: tendência de sentimento de investidores em ações dos EUA, não previsão confiável de preço do BTC. Módulo independente: não modifica o semáforo, as 6 etapas, as entradas ou os alertas do SetupDT.</p>
+</section>
+
+<section class="card guide" id="guideCard">
+  <div class="badge">MODO GUIADO EGI</div>
+  <h2>🧭 O que fazer agora</h2>
+  <div id="guideNow" class="guide-now">Cole primeiro o relatório do BTC.</div>
+  <div id="guideSub" class="guide-sub">O painel vai avisar a próxima etapa automaticamente.</div>
+  <div class="actions">
+    <button id="guideAction" class="primary" type="button">IR PARA A PRÓXIMA ETAPA</button>
+    <button id="autoModeBtn" type="button">🤖 Automação: LIGADA</button>
+    <a class="btn" href="Manual_Painel_Inicio_Dia_EGI_V1_9_RadarMVC.html" target="_blank">📘 Manual rápido</a>
+  </div>
+</section>
+
+<section class="card"><h2>Progresso</h2><div class="progress"><i id="bar"></i></div><div id="prog" class="mini">0/6 etapas concluídas</div><div id="quick" class="notice quick">Cole Manada e Volatilidade para gerar o Top Confluência.</div></section>
+<section class="card" id="check21Card">
+  <div class="row" style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+    <div><span class="badge">NOVO • FORÇA RELATIVA EGI</span><h2 style="margin:6px 0 2px">🕘 Checagem 21h — ETH + ENA</h2><div class="muted">ETH = contexto estrutural • ENA = força própria pós-unlock. Sobrevendido ≠ fundo.</div></div>
+    <button id="check21Update" class="primary" type="button">🔄 Atualizar ETH + ENA</button>
+  </div>
+  <div class="summarybox" style="margin-top:10px">
+    <div class="pill"><span class="mini">ETH preço</span><b id="check21EthPrice">—</b><span id="check21EthState" class="mini">Aguardando</span></div>
+    <div class="pill"><span class="mini">ENA preço</span><b id="check21EnaPrice">—</b><span id="check21EnaState" class="mini">Aguardando</span></div>
+    <div class="pill"><span class="mini">ENA vs BTC • 4h</span><b id="check21VsBtc">—</b><span class="mini">força relativa</span></div>
+    <div class="pill"><span class="mini">ENA vs ETH • 4h</span><b id="check21VsEth">—</b><span class="mini">força relativa</span></div>
+  </div>
+  <div id="check21Verdict" class="notice" style="margin-top:10px">⚪ Aguardando atualização.</div>
+  <div id="check21Levels" class="notice">ETH: 2.580–2.595 defesa • 2.607 primeira recuperação • <b>2.634 nível decisivo</b>. ENA: fundo crítico e MME9 1h calculados automaticamente.</div>
+  <div class="actions"><button id="check21Copy" type="button">📋 Copiar checagem 21h</button></div>
+</section>
+
+
+
+<section class="card" id="linkModule" aria-label="Radar LINKUSDT integrado">
+  <div class="link-head">
+    <div><span class="badge">NOVO • RADAR LINK EGI V3</span><h2 style="margin:7px 0 2px">🔗 LINKUSDT — Binance Futuros</h2><div class="muted">1m (execução) → 15m (gatilho) → 1h / 4h (contexto) • ntfy • relatório GPT</div></div>
+    <span id="linkLoadStatus" class="badge">⚪ Radar fechado</span>
+  </div>
+  <div class="link-stats">
+    <div class="pill"><span class="mini">Preço LINKUSDT</span><b id="linkMiniPrice">—</b><span class="mini">Binance USDⓈ-M</span></div>
+    <div class="pill"><span class="mini">Momento pede</span><b id="linkMiniSignal">⚪ Aguardar</b><span class="mini">Pré-gatilho ≠ ordem</span></div>
+    <div class="pill"><span class="mini">1m / 15m / 1h / 4h</span><b id="linkMiniContext">—</b><span class="mini">Somente candles fechados</span></div>
+  </div>
+  <div class="actions">
+    <button type="button" class="primary" id="linkToggle">📈 Abrir Radar LINK neste painel</button>
+    <button type="button" id="linkRefresh" disabled>🔄 Atualizar LINK</button>
+    <button type="button" id="linkImport" disabled>📥 Importar relatório LINK</button>
+    <a class="btn" href="https://www.binance.com/en/futures/LINKUSDT" target="_blank" rel="noopener noreferrer">↗ Binance Futuros</a>
+    <button type="button" id="linkCopyUrl">🔗 Copiar link Binance</button>
+  </div>
+  <p class="link-feedback" id="linkFeedback" role="status">O radar está incorporado neste HTML: abra pelo botão acima. Para receber ntfy, configure o canal dentro do radar e faça o teste.</p>
+  <div class="link-embed" id="linkEmbedded" hidden>
+    <nav><button type="button" id="linkFullscreen">⛶ Expandir radar</button><button type="button" id="linkImportTop">📥 Trazer relatório ao painel</button><button type="button" id="linkHide">⬆ Recolher radar</button></nav>
+    <iframe title="Radar LINKUSDT EGI V3 integrado" id="linkFrame" referrerpolicy="no-referrer" allow="clipboard-write"></iframe>
+  </div>
+  <label>Relatório LINK para o Painel do Dia<textarea class="reportarea field" data-f="link" id="linkReport" placeholder="Abra o radar, atualize e toque em Importar relatório LINK. Este texto vai para o relatório geral, mas não substitui o sinal do SetupDT."></textarea></label>
+  <div class="actions"><button type="button" id="linkCopyReport">📋 Copiar relatório LINK</button><button type="button" id="linkShareReport">↗ Compartilhar</button><button type="button" id="linkClearReport">🧹 Limpar relatório LINK</button></div>
+  <p class="mini">Segurança: o módulo LINK é observacional. Não altera o semáforo do painel nem valida automaticamente entradas no SetupDT. Alertas ntfy dependem de a página continuar aberta e ativa; Render estático, sozinho, não envia notificações 24h.</p>
+</section>
+
+<details class="step" data-step="1" open><summary><span class="num">1</span>BTC — contexto</summary><div class="body">
+<div class="check"><input type="checkbox"><span>4h definido</span></div><div class="check"><input type="checkbox"><span>1h confirma/diverge</span></div><div class="check"><input type="checkbox"><span>15m mostra aceleração/correção</span></div>
+<label>Relatório BTC<textarea class="reportarea field" data-f="btc" placeholder="Cole aqui o relatório do BTC Padrão"></textarea></label><div class="actions"><button class="paste" data-target="btc">📋 Colar</button><button class="clear" data-target="btc">🧹 Limpar área</button><a class="btn primary" href="btc.html">Abrir BTC Padrão</a><a class="btn" href="setupdt.html" title="SetupDT Light V1.9.30 — MEXC Futuros corrigido">Abrir SetupDT</a></div></div></details>
+
+<details class="step" data-step="2"><summary><span class="num">2</span>Mercado — regime</summary><div class="body">
+<div class="check"><input type="checkbox"><span>Força relativa avaliada</span></div><div class="check"><input type="checkbox"><span>Volume geral avaliado</span></div><div class="check"><input type="checkbox"><span>Ambiente não está errático</span></div>
+<label>Relatório Mercado<textarea class="reportarea field" data-f="mercado" placeholder="Cole Próximas Fortes / contexto de mercado"></textarea></label><div class="actions"><button class="paste" data-target="mercado">📋 Colar</button><button class="clear" data-target="mercado">🧹 Limpar área</button><a class="btn" href="proximas-fortes.html">Próximas Fortes</a></div></div></details>
+
+<details class="step" data-step="3" open><summary><span class="num">3</span>RadarMVC — Manada + Volatilidade + Confluência</summary><div class="body">
+<div class="notice">Abra o RadarMVC, clique em <b>ATUALIZAR TUDO</b> e cole aqui apenas o <b>RelChat MVC</b>. Manada, Volatilidade e Confluência já vêm juntas.</div>
+<label>Relatório RadarMVC<textarea class="reportarea field" data-f="finalistas" placeholder="Cole aqui o RelChat do RadarMVC EGI V1"></textarea></label>
+<div class="actions"><button class="paste" data-target="finalistas">📋 Colar</button><button class="clear" data-target="finalistas">🧹 Limpar área</button><a class="btn primary" href="radarmvc.html" target="_blank">🔄 Abrir RadarMVC</a></div>
+</div></details>
+
+<details class="step" data-step="4"><summary><span class="num">4</span>SMC do finalista — análise automática</summary><div class="body">
+<div class="check"><input type="checkbox"><span>Estrutura 4h/1h clara</span></div><div class="check"><input type="checkbox"><span>Liquidez e níveis marcados</span></div><div class="check"><input type="checkbox"><span>Há espaço operacional</span></div>
+<div id="smcBridgeStatus" class="notice">🎯 Atualize o RadarMVC. O painel identificará o finalista e enviará o ativo ao SMC.</div>
+<label>Finalista enviado ao SMC<input class="field" data-f="smcAtivo" id="smcAtivo" placeholder="Aguardando finalista..." readonly></label>
+<label>Relatório SMC<textarea class="reportarea field" data-f="smc" placeholder="O relatório SMC volta automaticamente para cá após a análise. Você também pode colar manualmente."></textarea></label>
+<div class="actions"><button id="openSmcAuto" class="primary" type="button">🧠 ANALISAR FINALISTA NO SMC</button><button id="syncSmc" type="button">🔄 Trazer SMC pronto</button><button class="paste" data-target="smc">📋 Colar</button><button class="clear" data-target="smc">🧹 Limpar área</button><a class="btn" href="confluencia.html" target="_blank">Abrir SMC manual</a></div>
+<div class="mini">Fluxo automático: RadarMVC → finalista → SMC. Ao terminar a análise e voltar a esta aba, o Painel importa o último relatório SMC do mesmo ativo.</div>
+</div></details>
+
+<details class="step" data-step="5"><summary><span class="num">5</span>SetupDT + KDJ + Volume — confirmação automática</summary><div class="body">
+<div class="check"><input id="setupDirOk" type="checkbox"><span>Direção coerente</span></div>
+<div class="check"><input id="setupEntryOk" type="checkbox"><span>Entrada não tardia</span></div>
+<div class="check"><input id="setupRiskOk" type="checkbox"><span>Stop/alvos defensáveis</span></div>
+<div id="setupAutoStatus" class="notice">Cole o relatório do SetupDT. O painel marcará as caixas automaticamente e explicará o que falta.</div>
+<p class="mini">🛠️ <strong>SetupDT V1.9.30</strong> — atualização MEXC Futuros. Abra pelo botão abaixo; mantenha este Painel e o arquivo <code>setupdt.html</code> na mesma pasta. Os sinais dependem de candles válidos e confirmação técnica.</p>
+<label>Relatório SetupDT<textarea class="reportarea field" data-f="setup" placeholder="Cole a confirmação do finalista"></textarea></label>
+<div class="actions"><button class="paste" data-target="setup">📋 Colar</button><button id="reanalyzeSetup" type="button">🤖 Reavaliar relatório</button><button class="clear" data-target="setup">🧹 Limpar área</button><a class="btn primary" href="setupdt.html" title="SetupDT Light V1.9.30 — MEXC Futuros corrigido">Abrir SetupDT</a></div>
+<div class="mini">As caixas são automáticas. Se o relatório disser SEM ALINHAMENTO, níveis ainda não liberados ou risco não configurado, elas permanecem desmarcadas.</div>
+</div></details>
+
+<details class="step" data-step="6"><summary><span class="num">6</span>Plano da entrada</summary><div class="body">
+<label>Ativo<input class="field" data-f="ativo"></label><label>Direção<select class="field" data-f="direcao"><option>AGUARDAR</option><option>LONG</option><option>SHORT</option></select></label><label>Entrada<input class="field" data-f="entrada"></label><label>Stop<input class="field" data-f="stop"></label><label>Alvo 1<input class="field" data-f="alvo1"></label><label>Alvo 2<input class="field" data-f="alvo2"></label>
+<div class="check"><input type="checkbox"><span>Aceito o risco antes da entrada</span></div><div class="check"><input type="checkbox"><span>Não estou entrando por FOMO</span></div></div></details>
+
+<section class="card"><h2>📝 Observações</h2><textarea id="obs"></textarea><div class="actions"><button id="clearObs">🧹 Limpar observações</button></div></section>
+<section class="card"><h2>📋 Relatório completo para ChatGPT</h2><div class="actions"><button class="primary" id="copy">📋 Copiar relatório</button><button id="saveTxt">💾 Salvar TXT</button><button id="newDay">🌅 Novo dia</button></div><textarea id="report" class="reportarea big" readonly></textarea></section>
+
+<script>
+const localStorage=(()=>{try{const v=window.localStorage;v.setItem('__egi_storage_probe','1');v.removeItem('__egi_storage_probe');return v}catch(e){const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(String(k),String(v)),removeItem:k=>m.delete(String(k))}}})();
+const KEY='egi_inicio_dia_v19', OLDKEY='egi_inicio_dia_v18'; let st={status:''}, crossed=[];
+const qs=s=>document.querySelector(s), qsa=s=>[...document.querySelectorAll(s)];
+const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x));
+function today(){let d=new Date(),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`}
+function field(key){return qs(`[data-f="${key}"]`)}
+function save(){st.date=qs('#date').value;st.bias=qs('#bias').value;st.obs=qs('#obs').value;st.status=st.status||'';st.checks=qsa('.check input').map(x=>x.checked);st.fields={};qsa('[data-f]').forEach(x=>st.fields[x.dataset.f]=x.value);localStorage.setItem(KEY,JSON.stringify(st));update()}
+function load(){let raw=localStorage.getItem(KEY)||localStorage.getItem(OLDKEY)||'{}';try{st=JSON.parse(raw)}catch(e){st={}};qs('#date').value=st.date||today();qs('#bias').value=st.bias||'⚪ NEUTRO';qs('#obs').value=st.obs||'';qsa('.check input').forEach((x,i)=>x.checked=!!st.checks?.[i]);qsa('[data-f]').forEach(x=>{if(st.fields?.[x.dataset.f]!=null)x.value=st.fields[x.dataset.f]});setStatus(st.status||'',false);const fm=field('manada'),fv=field('vol');if(fm&&fv&&fm.value&&fv.value){generateConfluence(false);try{localStorage.setItem('egi_confluencia_area1',combinedRadarText())}catch(_){}}update();syncMvcFinalist();syncSmcBridge(false)}
+function setStatus(s,p=true){st.status=s;qs('#sem').textContent=s?s.slice(0,2):'⚪';qs('#semTxt').textContent=s||'Aguardando contexto.';if(p)save()}
+function stepsDone(){let n=0;qsa('.step').forEach(x=>{let c=[...x.querySelectorAll('.check input')];if(c.length&&c.every(v=>v.checked))n++});return n}
+function num(v){if(v==null)return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null}
+function parsePersist(t){const count=num((t.match(/\b(\d+)x\b/)||[])[1]);const score=num((t.match(/score\s+(\d+(?:[.,]\d+)?)\/100/i)||[])[1]);const up=/FORTE|CONFIRMADA|SAUDÁVEL/i.test(t),down=/DETERIOR/i.test(t);return{count:count||1,score,up,down,text:t.trim()}}
+function parseManada(text){const out={};for(const raw of String(text||'').split(/\r?\n/)){const line=raw.trim();const m=line.match(/^\d+\.\s+([A-Z0-9]+USDT)\s+\|\s+Manada\s+(\d+)\/100\s+\|.*?Entrada\s+(\d+)\/100/i);if(!m)continue;const sym=m[1].toUpperCase();const p=(line.match(/Persistência\s+(.+?)\s+\|\s+(?:🟢|🟡|🔴|⚪|🚀|🔥)/i)||[])[1]||'';const action=(line.match(/\|\s+ação\s+([^|]+)/i)||[])[1]?.trim()||'';const rsi=num((line.match(/\|\s+RSI\s+(-?\d+(?:[.,]\d+)?)/i)||[])[1]);const space=num((line.match(/espaço resistência\s+(-?\d+(?:[.,]\d+)?)%/i)||[])[1]);const dVwap=num((line.match(/dist VWAP\s+(-?\d+(?:[.,]\d+)?)%/i)||[])[1]);const dEma=num((line.match(/dist MME9\s+(-?\d+(?:[.,]\d+)?)%/i)||[])[1]);const trend=(line.match(/tendência\s+([^|]+)/i)||[])[1]?.trim()||'';out[sym]={symbol:sym,manada:+m[2],entry:+m[3],persist:parsePersist(p),action,rsi,space,dVwap,dEma,trend,raw:line}}return out}
+function parseVol(text){const out={};for(const raw of String(text||'').split(/\r?\n/)){const line=raw.trim();const m=line.match(/^\d+\.\s+([A-Z0-9]+USDT)\s+\|.*?Vol\s+(\d+)\/100\s+\|\s+Qual\s+(\d+)\/100\s+\|\s+Equilíbrio\s+(\d+)\/100\s+\|\s+Movimento\s+(\d+)\/100\s+\|\s+Risco\s+(\d+)\/100/i);if(!m)continue;const sym=m[1].toUpperCase();const spread=num((line.match(/Spread\s+(-?\d+(?:[.,]\d+)?)%/i)||[])[1]);const volRatio=num((line.match(/Vol\/média\s+(-?\d+(?:[.,]\d+)?)x/i)||[])[1]);out[sym]={symbol:sym,vol:+m[2],quality:+m[3],balance:+m[4],movement:+m[5],danger:+m[6],spread,volRatio,raw:line}}return out}
+function confluence(m,v){const fields=[['manada',m.manada,.24],['entry',m.entry,.22],['balance',v.balance,.22],['quality',v.quality,.16],['movement',v.movement,.06]];let total=0,w=0;for(const [,val,wt] of fields){if(Number.isFinite(val)){total+=val*wt;w+=wt}}let score=w?total/w:0;if(m.persist.count>=2&&Number.isFinite(m.persist.score)){score=score*.90+m.persist.score*.10}if(m.persist.count>=3&&m.persist.up)score+=4;if(m.persist.down)score-=8;score-=Math.max(0,(v.danger-55))*.22;if(v.quality<55)score-=10;else if(v.quality<70)score-=4;if(/NÃO PERSEGUIR/i.test(m.action))score-=14;if(/PULLBACK/i.test(m.action))score-=7;if(Number.isFinite(m.rsi)&&m.rsi>72)score-=5;if(Number.isFinite(m.space)&&m.space<.8)score-=4;return Math.round(clamp(score))}
+function decision(x){const m=x.man,v=x.vol;if(v.danger>=68||v.quality<55||/NÃO PERSEGUIR/i.test(m.action))return{label:'🔴 EVITAR AGORA',cls:'red',next:'Aguardar normalização/pullback'};if(/PULLBACK/i.test(m.action)||(m.rsi!=null&&m.rsi>70)||(m.space!=null&&m.space<.8))return{label:'🔵 ESPERAR PULLBACK',cls:'blue',next:'Reavaliar depois do recuo'};if(x.score>=74&&m.entry>=70&&v.quality>=70&&v.balance>=65)return{label:'🟢 CONFLUÊNCIA FORTE',cls:'green',next:'Contexto SMC → SetupDT'};if(x.score>=64)return{label:'🟡 PROMISSORA',cls:'yellow',next:'Observar / confirmar SMC'};return{label:'⚪ BAIXA CONFLUÊNCIA',cls:'purple',next:'Não priorizar'}}
+function buildCrossReport(){if(!crossed.length)return'';let t=`RELATÓRIO — CONFLUÊNCIA AUTOMÁTICA DO PAINEL EGI V1.8\nGerado em: ${new Date().toLocaleString('pt-BR')}\nRegra de score: motor do Radar Confluência EGI V5.1.\n\nTOP CONFLUÊNCIA\n`;crossed.slice(0,10).forEach((x,i)=>{t+=`${i+1}. ${x.symbol} | Confluência ${x.score}/100 | Manada ${x.man.manada} | Entrada ${x.man.entry} | Persistência ${x.man.persist.count}x${x.man.persist.score!=null?' score '+Math.round(x.man.persist.score):''} | Vol ${x.vol.vol} | Qual ${x.vol.quality} | Equilíbrio ${x.vol.balance} | Risco ${x.vol.danger} | ${x.decision.label} | Próxima ação ${x.decision.next}\n`});t+=`\nPEDIDO AO CHATGPT\nEscolha no máximo 3 candidatos para abrir no SetupDT. Penalize entrada tardia, pullback pendente, volatilidade perigosa e qualidade baixa. O cruzamento não define LONG/SHORT.`;return t}
+function generateConfluence(persist=true){const M=parseManada(field('manada').value),V=parseVol(field('vol').value);crossed=[];for(const sym of Object.keys(M)){if(V[sym]){const x={symbol:sym,man:M[sym],vol:V[sym]};x.score=confluence(x.man,x.vol);x.decision=decision(x);crossed.push(x)}}crossed.sort((a,b)=>b.score-a.score);const mc=Object.keys(M).length,vc=Object.keys(V).length;qs('#crossCount').textContent=crossed.length;qs('#bestCandidate').textContent=crossed[0]?crossed[0].symbol.replace('USDT','')+' '+crossed[0].score:'—';qs('#strongCount').textContent=crossed.filter(x=>x.decision.label.includes('FORTE')).length;qs('#avoidCount').textContent=crossed.filter(x=>x.decision.label.includes('EVITAR')).length;qs('#rows').innerHTML=crossed.length?crossed.slice(0,10).map((x,i)=>`<tr><td>${i+1}</td><td><b>${x.symbol.replace('USDT','')}</b></td><td>${x.man.manada}</td><td>${x.man.entry}</td><td>${x.vol.vol}</td><td>${x.vol.quality}</td><td>${x.vol.balance}</td><td>${x.vol.danger}</td><td><b>${x.score}</b></td><td class="${x.decision.cls}"><b>${x.decision.label}</b></td></tr>`).join(''):'<tr><td colspan="10">Nenhum ativo apareceu nos dois relatórios.</td></tr>';field('finalistas').value=buildCrossReport();if(!mc||!vc){qs('#crossStatus').className='notice warn';qs('#crossStatus').textContent=`Área incompleta: encontrei ${mc} ativo(s) no Manada e ${vc} no Volatilidade. Cole os relatórios completos.`}else if(!crossed.length){qs('#crossStatus').className='notice warn';qs('#crossStatus').textContent='Os relatórios foram lidos, mas não encontrei ativos em comum.'}else{qs('#crossStatus').className='notice ok';qs('#crossStatus').textContent=`Confluência pronta: ${crossed.length} ativos cruzados. Top: ${crossed.slice(0,3).map(x=>x.symbol.replace('USDT','')+' '+x.score).join(' • ')}.`}updateQuick();try{localStorage.setItem('egi_confluencia_area1',combinedRadarText())}catch(_){}if(persist)save();else update()}
+function updateQuick(){if(!crossed.length){qs('#quick').textContent='Cole Manada e Volatilidade para gerar o Top Confluência.';return}const strong=crossed.find(x=>x.decision.label.includes('FORTE'));const pull=crossed.find(x=>x.decision.label.includes('PULLBACK'));const prom=crossed.find(x=>x.decision.label.includes('PROMISSORA'));const avoid=crossed.find(x=>x.decision.label.includes('EVITAR'));let parts=[];if(strong)parts.push(`🟢 ${strong.symbol.replace('USDT','')} → SMC/SetupDT`);if(pull)parts.push(`🔵 ${pull.symbol.replace('USDT','')} → esperar pullback`);if(!strong&&prom)parts.push(`🟡 ${prom.symbol.replace('USDT','')} → confirmar SMC`);if(avoid)parts.push(`🔴 ${avoid.symbol.replace('USDT','')} → evitar agora`);qs('#quick').textContent=parts.join(' | ')||'Confluência calculada; revisar Top 3.';guideState?.()}
+function rep(){let f={};qsa('[data-f]').forEach(x=>f[x.dataset.f]=x.value||'—');return `RELATÓRIO — PAINEL INÍCIO DO DIA EGI V2.5\nData: ${qs('#date').value}\nSemáforo: ${st.status||'NÃO DEFINIDO'}\nViés: ${qs('#bias').value}\nProgresso: ${stepsDone()}/6\n\n1 BTC: ${f.btc}\n\n2 Mercado: ${f.mercado}\n\n3 RadarMVC: ${f.finalistas}\n\n4 SMC: ${f.smc}\n\n5 SetupDT + KDJ + Volume: ${f.setup}\n\n6 Plano: ${f.ativo} | ${f.direcao} | Entrada ${f.entrada} | Stop ${f.stop} | A1 ${f.alvo1} | A2 ${f.alvo2}\n\nObservações:\n${qs('#obs').value||'—'}\n\n7 Radar LINKUSDT (monitoramento independente; NÃO confirma SetupDT): ${f.link||'—'}\n\n8 AAII (contexto macro, informativo): ${window.EGI_AAII?.report?.()||'AAII sem leitura'}\n\nPedido ao ChatGPT:\nAnalise contexto, fluxo, volume, confluência, SetupDT e gatilho. Destaque divergências, entrada tardia, risco e o que ainda falta para uma entrada tecnicamente defensável.`}
+function update(){let d=stepsDone();qs('#bar').style.width=(d/6*100)+'%';qs('#prog').textContent=`${d}/6 etapas concluídas`;qs('#report').value=rep()}
+async function pasteInto(key){const el=field(key);try{const t=await navigator.clipboard.readText();if(!t)throw new Error('vazio');el.value=t;el.dispatchEvent(new Event('input',{bubbles:true}));if(key==='manada'||key==='vol'){if(field('manada').value&&field('vol').value)generateConfluence(true)}}catch(e){el.focus();alert('O navegador bloqueou a leitura automática da área de transferência. A área já está selecionada: use Ctrl+V para colar.')}}
+function clearField(key){
+  const el=field(key);if(!el)return;el.value='';
+  if(key==='manada'||key==='vol'||key==='finalistas'){
+    crossed=[];
+    const map={crossCount:'0',bestCandidate:'—',strongCount:'0',avoidCount:'0'};
+    for(const [id,val] of Object.entries(map)){const n=qs('#'+id);if(n)n.textContent=val}
+    const rows=qs('#rows');if(rows)rows.innerHTML='<tr><td colspan="10">Sem cruzamento.</td></tr>';
+    const cs=qs('#crossStatus');if(cs){cs.className='notice';cs.textContent='Aguardando Manada + Volatilidade.'}
+    if(key!=='finalistas'&&field('finalistas'))field('finalistas').value='';
+    updateQuick();
+    if(key==='finalistas'){
+      if(field('smcAtivo'))field('smcAtivo').value='';
+      if(field('smc'))field('smc').value='';
+      try{localStorage.removeItem(SMC_SYMBOL_KEY)}catch(_){}
+      const sb=qs('#smcBridgeStatus');if(sb){sb.className='notice';sb.textContent='🎯 Aguardando o RadarMVC apontar um finalista.'}
+    }
+  }
+  save()
+}
+document.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')&&!e.target.readOnly)save()});document.addEventListener('change',e=>{if(e.target.matches('input,textarea,select'))save()});qsa('[data-s]').forEach(b=>b.onclick=()=>setStatus(b.dataset.s));qsa('.paste').forEach(b=>b.onclick=()=>pasteInto(b.dataset.target));qsa('.clear').forEach(b=>b.onclick=()=>clearField(b.dataset.target));
+
+function setAllDetails(open){
+  qsa('details.step').forEach(d=>{
+    d.open=!!open;
+    if(open) d.setAttribute('open','');
+    else d.removeAttribute('open');
+  });
+}
+function combinedRadarText(){
+  const m=field('manada'),v=field('vol'); return `${m?.value||''}\n\n${v?.value||''}`.trim();
+}
+function top5Text(){
+  if(!crossed.length) generateConfluence(true);
+  return crossed.slice(0,5).map((x,i)=>`${i+1}. ${x.symbol} | Confluência ${x.score}/100 | ${x.decision.label}`).join('\n');
+}
+async function copySimple(t,msg='Copiado.'){
+  if(!t)return alert('Gere a Confluência primeiro.');
+  try{await navigator.clipboard.writeText(t);alert(msg)}
+  catch(_){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert(msg)}
+}
+const SMC_SYMBOL_KEY='egi_smc_auto_symbol', SMC_REPORT_KEY='egi_smc_last_report', SMC_REPORT_SYMBOL_KEY='egi_smc_last_symbol';
+function parseMvcFinalist(text){
+  const lines=String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  let best=null;
+  for(const line of lines){
+    const m=line.match(/^\s*(\d+)\.\s+([A-Z0-9]+USDT)\b/i);
+    if(!m)continue;
+    const rank=Number(m[1]), symbol=m[2].toUpperCase();
+    const scoreMatch=line.match(/Conflu[eê]ncia\s+(\d+)\/100/i), score=scoreMatch?Number(scoreMatch[1]):null;
+    const avoid=/EVITAR|BAIXA CONFLU[EÊ]NCIA/i.test(line);
+    const item={rank,symbol,score,avoid,line};
+    if(!best || (!item.avoid&&best.avoid) || (item.avoid===best.avoid&&item.rank<best.rank))best=item;
+  }
+  if(best)return best;
+  const loose=String(text||'').match(/\b([A-Z0-9]{2,12}USDT)\b/i);
+  return loose?{rank:1,symbol:loose[1].toUpperCase(),score:null,avoid:false,line:''}:null;
+}
+function syncMvcFinalist(){
+  const box=field('finalistas'),target=field('smcAtivo'),status=qs('#smcBridgeStatus');
+  if(!box||!target)return null;
+  const f=parseMvcFinalist(box.value);
+  if(!f){target.value='';if(status){status.className='notice';status.textContent='🎯 Aguardando o RadarMVC apontar um finalista.'}return null}
+  target.value=f.symbol;
+  try{localStorage.setItem(SMC_SYMBOL_KEY,f.symbol)}catch(_){}
+  if(status){status.className=f.avoid?'notice warn':'notice ok';status.textContent=`🎯 Finalista: ${f.symbol.replace(/USDT$/,'')}${f.score!=null?' • Confluência '+f.score+'/100':''}. ${f.avoid?'Cautela: revisar antes do SMC.':'Pronto para análise SMC automática.'}`}
+  return f;
+}
+function openSmcAutomatic(){
+  const f=syncMvcFinalist();
+  if(!f)return alert('Ainda não encontrei um finalista no RadarMVC.');
+  try{localStorage.setItem(SMC_SYMBOL_KEY,f.symbol);localStorage.setItem('egi_smc_auto_run','1')}catch(_){}
+  window.open('confluencia.html','_blank');
+}
+function syncSmcBridge(showAlert=true){
+  const target=field('smcAtivo'),area=field('smc'),status=qs('#smcBridgeStatus');
+  if(!target||!area)return false;
+  let sym='',report='';
+  try{sym=localStorage.getItem(SMC_REPORT_SYMBOL_KEY)||'';report=localStorage.getItem(SMC_REPORT_KEY)||''}catch(_){}
+  const wanted=(target.value||'').toUpperCase();
+  if(report&&sym&&(!wanted||sym===wanted)){
+    target.value=sym;area.value=report;
+    if(status){status.className='notice ok';status.textContent=`✅ SMC de ${sym.replace(/USDT$/,'')} recebido automaticamente. Próxima etapa: SetupDT.`}
+    save();return true;
+  }
+  if(showAlert)alert(wanted?'O SMC desse finalista ainda não retornou. Termine a análise no SMC e volte para esta aba.':'Ainda não há relatório SMC automático salvo.');
+  return false;
+}
+function openConfluence51(){
+  const txt=combinedRadarText();
+  if(!field('manada').value||!field('vol').value)return alert('Cole primeiro os relatórios Manada e Volatilidade.');
+  try{localStorage.setItem('egi_confluencia_area1',txt)}catch(_){}
+  generateConfluence(true);
+  window.open('confluencia.html','_blank');
+}
+function sendTopToSetup(){
+  if(!crossed.length)generateConfluence(true);
+  if(!crossed.length)return alert('Nenhum candidato cruzado. Cole Manada + Volatilidade.');
+  const asset=crossed[0].symbol.replace(/USDT$/,'');
+  const url=`setupdt.html?viradas=${encodeURIComponent(asset)}`;
+  window.open(url,'_blank');
+}
+const openAllBtn=qs('#openAll'), closeAllBtn=qs('#closeAll');
+if(openAllBtn)openAllBtn.addEventListener('click',e=>{e.preventDefault();setAllDetails(true)});
+if(closeAllBtn)closeAllBtn.addEventListener('click',e=>{e.preventDefault();setAllDetails(false)});
+if(qs('#genCross'))qs('#genCross').addEventListener('click',()=>generateConfluence(true));
+if(qs('#genAll'))qs('#genAll').addEventListener('click',()=>generateConfluence(true));
+if(qs('#copyTop5'))qs('#copyTop5').addEventListener('click',()=>copySimple(top5Text(),'Top 5 copiado.'));
+if(qs('#openConfluence51'))qs('#openConfluence51').addEventListener('click',openConfluence51);
+if(qs('#sendTopSetup'))qs('#sendTopSetup').addEventListener('click',sendTopToSetup);
+
+const finArea=field('finalistas');if(finArea){finArea.addEventListener('input',syncMvcFinalist);finArea.addEventListener('change',syncMvcFinalist)}
+const smcAutoBtn=qs('#openSmcAuto');if(smcAutoBtn)smcAutoBtn.onclick=openSmcAutomatic;
+const syncSmcBtn=qs('#syncSmc');if(syncSmcBtn)syncSmcBtn.onclick=()=>syncSmcBridge(true);
+window.addEventListener('focus',()=>syncSmcBridge(false));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSmcBridge(false)});
+qs('#clearObs').onclick=()=>{qs('#obs').value='';save()};qs('#clearPanel').onclick=()=>{if(!confirm('Limpar todas as áreas do Painel do Dia?'))return;qsa('[data-f]').forEach(x=>{if(x.tagName==='SELECT')x.value='AGUARDAR';else x.value=''});qsa('.check input').forEach(x=>x.checked=false);qs('#obs').value='';crossed=[];localStorage.removeItem(KEY);save();generateConfluence(false)};
+qs('#copy').onclick=async()=>{const area=qs('#report');area.value=rep();area.focus();area.select();let ok=false;try{ok=!!document.execCommand('copy')}catch(e){}if(!ok)try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(area.value);ok=true}}catch(e){}if(ok)alert('✅ Relatório copiado.');else{area.focus();area.select();alert('O leitor bloqueou a cópia automática. O texto está selecionado: pressione e segure e use Copiar.')}};qs('#saveTxt').onclick=()=>{const blob=new Blob([rep()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Painel_Inicio_Dia_EGI_${qs('#date').value||'hoje'}.txt`;a.click();URL.revokeObjectURL(a.href)};qs('#newDay').onclick=()=>{if(confirm('Iniciar um novo dia e limpar o painel?')){localStorage.removeItem(KEY);location.reload()}};
+load();
+
+
+function setupAutoEvaluate(){
+  const t=(field('setup')?.value||'').trim();
+  const dir=qs('#setupDirOk'), ent=qs('#setupEntryOk'), risk=qs('#setupRiskOk'), box=qs('#setupAutoStatus');
+  if(!dir||!ent||!risk||!box)return;
+  if(!t){
+    dir.checked=false; ent.checked=false; risk.checked=false;
+    box.className='notice';
+    box.textContent='Cole o relatório do SetupDT. O painel marcará as caixas automaticamente e explicará o que falta.';
+    return;
+  }
+
+  const upper=t.toUpperCase();
+  const checklist=(()=>{const m=t.match(/CHECKLIST:\s*(\d+)\s*\/\s*6/i);return m?Number(m[1]):null})();
+
+  // 1) Direção coerente
+  const faltaAlinhamento=/4H\s+E\s+1H:\s+MESMA DIREÇÃO/i.test(t) || /SEM ALINHAMENTO/i.test(t);
+  const direcaoLiberada=/DIREÇÃO DAY TRADE:\s*(LONG|SHORT)\b/i.test(t) && !/DIREÇÃO DAY TRADE:\s*AGUARDAR/i.test(t);
+  dir.checked = !faltaAlinhamento && (direcaoLiberada || checklist===6);
+
+  // 2) Entrada não tardia
+  const tardiaRuim=/ENTRADA TARDIA|NÃO PERSEGUIR|ESTICAD[AO]|EXAUSTÃO (?:ALTA|FORTE)|RISCO DE ENTRADA TARDIA:\s*(?:ALTO|ELEVADO)/i.test(t);
+  const qualidade=(t.match(/QUALIDADE:\s*(\d+)\s*\/\s*100/i)||t.match(/QUALIDADE DA ENTRADA(?: AGORA)?:\s*(\d+)\s*\/\s*100/i));
+  const distAtr=(t.match(/DISTÂNCIA DA MM20:\s*(-?\d+(?:[.,]\d+)?)\s*ATR/i)||[])[1];
+  const q=qualidade?Number(qualidade[1]):null, da=distAtr?Number(String(distAtr).replace(',','.')):null;
+  ent.checked = !tardiaRuim && ((q!=null && q>=70) || (da!=null && Math.abs(da)<=1.0));
+
+  // 3) Stop/alvos defensáveis
+  const niveisBloqueados=/AINDA NÃO LIBERADOS|NÍVEIS.*NÃO LIBERADOS|RISCO:\s*NÃO CONFIGURADO/i.test(t);
+  const temStop=/\bSTOP\b\s*[:\-]/i.test(t);
+  const temAlvo=/\bALVO\s*1\b\s*[:\-]/i.test(t);
+  const rr=(t.match(/R:R(?:\s+ATUAL|\s+INTELIGENTE|\s+OPERACIONAL)?[^0-9]{0,20}(\d+(?:[.,]\d+)?)\s*:\s*1/i)||[])[1];
+  risk.checked = !niveisBloqueados && temStop && temAlvo && (!rr || Number(String(rr).replace(',','.'))>=1.5);
+
+  const msgs=[];
+  msgs.push(dir.checked ? '✅ Direção coerente' : '❌ Direção ainda sem alinhamento suficiente');
+  msgs.push(ent.checked ? '✅ Entrada não parece tardia' : '⚪ Entrada ainda não confirmada como saudável');
+  msgs.push(risk.checked ? '✅ Stop/alvos defensáveis' : '❌ Stop/alvos ainda não liberados ou R:R insuficiente');
+  if(checklist!=null) msgs.unshift(`SetupDT ${checklist}/6`);
+  box.className='notice '+(dir.checked&&ent.checked&&risk.checked?'auto-ok':(dir.checked||ent.checked||risk.checked?'auto-warn':'auto-bad'));
+  box.textContent=msgs.join(' • ');
+
+  // Persist automatic checkbox states and refresh progress/report.
+  st.checks=qsa('.check input').map(x=>x.checked);
+  localStorage.setItem(KEY,JSON.stringify({...st,checks:st.checks}));
+  update();
+}
+
+let autoMode=true, autoTimer=null;
+function hasText(k){const e=field(k);return !!(e&&e.value&&e.value.trim())}
+function stepEl(n){return document.querySelector(`details.step[data-step="${n}"]`)}
+function openOnly(n){
+  qsa('details.step').forEach(d=>d.open=(Number(d.dataset.step)===n));
+  const d=stepEl(n); if(d) d.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function topSymbol(){return crossed[0]?.symbol?.replace(/USDT$/,'')||''}
+function guideState(){
+  let now='', sub='', step=1, action='IR PARA A PRÓXIMA ETAPA';
+  if(!hasText('btc')){now='1️⃣ Cole o RelGPT Simplificado do BTC';sub='BTC define o contexto geral do dia.';step=1;}
+  else if(!hasText('mercado')){now='2️⃣ Cole o relatório Próximas Fortes / Mercado';sub='Mostra quem está relativamente forte antes do funil MVC.';step=2;}
+  else if(!hasText('finalistas')){now='3️⃣ Atualize o RadarMVC';sub='Manada + Volatilidade + Confluência agora saem juntas no mesmo HTML.';step=3;action='🔄 ABRIR RADARMVC';}
+  else if(!hasText('smc')){now='4️⃣ Fazer SMC do Top MVC';sub='Use o SMC apenas nos 1–3 melhores finalistas.';step=4;}
+  else if(!hasText('setup')){now='5️⃣ Confirmar no SetupDT + KDJ';sub='SetupDT traz alinhamento 4h/1h/15m + KDJ/Volume da mesma moeda.';step=5;}
+  else if(!hasText('entrada') || !hasText('stop')){now='6️⃣ Montar o plano';sub='Entrada, stop e alvos só depois das confirmações anteriores.';step=6;}
+  else{now='✅ Fluxo do dia preenchido';sub='Revise o relatório final e mantenha o plano.';step=6;action='📋 VER RELATÓRIO FINAL';}
+  const gn=qs('#guideNow'),gs=qs('#guideSub'),ga=qs('#guideAction');
+  if(gn)gn.textContent=now;if(gs)gs.textContent=sub;if(ga){ga.textContent=action;ga.dataset.step=step}
+  return {step,action};
+}
+function runGuideAction(){
+  const s=guideState().step;
+  if(s===3){window.open('radarmvc.html','_blank');return}
+  if(s===5){sendTopToSetup();return}
+  if(hasText('entrada')&&hasText('stop')&&s===6){qs('#report')?.scrollIntoView({behavior:'smooth'});return}
+  openOnly(s);
+}
+function scheduleAutoCross(){
+  if(!autoMode)return;
+  clearTimeout(autoTimer);
+  autoTimer=setTimeout(()=>{
+    if(hasText('manada')&&hasText('vol')){
+      generateConfluence(false);
+      guideState();
+    }
+  },450);
+}
+const reSetup=qs('#reanalyzeSetup'); if(reSetup)reSetup.addEventListener('click',setupAutoEvaluate);
+const guideBtn=qs('#guideAction'); if(guideBtn)guideBtn.addEventListener('click',runGuideAction);
+const autoBtn=qs('#autoModeBtn'); if(autoBtn)autoBtn.addEventListener('click',()=>{
+  autoMode=!autoMode;
+  autoBtn.textContent=`🤖 Automação: ${autoMode?'LIGADA':'DESLIGADA'}`;
+  
+});
+document.addEventListener('input',e=>{
+  if(e.target.matches('[data-f="setup"]'))setTimeout(setupAutoEvaluate,40);
+  setTimeout(guideState,30);
+});
+document.addEventListener('change',()=>setTimeout(guideState,30));
+
+setupAutoEvaluate();
+guideState();
+
+
+// V2.0 — Checagem conjunta ETH + ENA e Força Relativa EGI.
+const CHECK21_API=['https://data-api.binance.vision/api/v3','https://api.binance.com/api/v3'];
+let check21LastReport='';
+async function check21Api(path){let last;for(const base of CHECK21_API){try{const r=await fetch(base+path,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}catch(e){last=e}}throw last||Error('Falha Binance')}
+function check21Pct(rows,n){if(!Array.isArray(rows)||rows.length<n+1)return null;const a=Number(rows.at(-(n+1))[4]),b=Number(rows.at(-1)[4]);return Number.isFinite(a)&&a>0&&Number.isFinite(b)?(b/a-1)*100:null}
+function check21Ema(vals,p){if(vals.length<p)return null;const k=2/(p+1);let e=vals.slice(0,p).reduce((a,b)=>a+b,0)/p;for(let i=p;i<vals.length;i++)e=vals[i]*k+e*(1-k);return e}
+function check21Fmt(v){return Number.isFinite(v)?Number(v).toLocaleString('pt-BR',{maximumFractionDigits:6}):'—'}
+async function updateCheck21(){
+  const btn=document.getElementById('check21Update'),ver=document.getElementById('check21Verdict');
+  if(btn)btn.textContent='⏳ Atualizando...'; if(ver)ver.textContent='Consultando ETH, ENA e BTC na Binance...';
+  try{
+    const [ep,np,eh,nh,bh,n15,n4]=await Promise.all([
+      check21Api('/ticker/price?symbol=ETHUSDT'),check21Api('/ticker/price?symbol=ENAUSDT'),
+      check21Api('/klines?symbol=ETHUSDT&interval=1h&limit=80'),check21Api('/klines?symbol=ENAUSDT&interval=1h&limit=80'),
+      check21Api('/klines?symbol=BTCUSDT&interval=1h&limit=80'),check21Api('/klines?symbol=ENAUSDT&interval=15m&limit=80'),
+      check21Api('/klines?symbol=ENAUSDT&interval=4h&limit=40')
+    ]);
+    const eth=Number(ep.price),ena=Number(np.price),ena1=check21Pct(nh,4),btc1=check21Pct(bh,4),eth1=check21Pct(eh,4),vsBtc=ena1-btc1,vsEth=ena1-eth1;
+    const enaClose=nh.map(x=>Number(x[4])),enaEma9=check21Ema(enaClose,9),enaLow=Math.min(...nh.slice(-24).map(x=>Number(x[3]))),ena4=check21Pct(n4,3),ena15=check21Pct(n15,4);
+    let ethState='🔴 Abaixo do decisivo'; if(eth>=2634)ethState='🟢 Acima de 2.634'; else if(eth>=2607)ethState='🟡 Primeira recuperação'; else if(eth>=2580)ethState='🟠 Defesa / teste de fundo';
+    const enaStrong=ena>enaEma9 && vsBtc>0 && vsEth>0; const enaMixed=(vsBtc>0||vsEth>0||ena>enaEma9);
+    const enaState=enaStrong?'🟢 Força própria':enaMixed?'🟡 Melhorando / mista':'🔴 Ainda fraca';
+    let verdict='🟡 CONTINUAR OBSERVANDO', cls='notice warn', reason='Sinais ainda mistos.';
+    if(eth>=2634&&enaStrong){verdict='🟢 CONFLUÊNCIA FORTE';cls='notice ok';reason='ETH recuperou 2.634 e ENA confirma força relativa + MME9 1h.'}
+    else if(eth<2634&&enaStrong){verdict='🟢 ENA COM FORÇA RELATIVA';cls='notice ok';reason='ETH ainda fraco, mas ENA está segurando melhor que BTC e ETH.'}
+    else if(eth>=2634&&!enaMixed){verdict='🟡 ETH MELHORA, ENA NÃO CONFIRMA';cls='notice warn';reason='Mercado melhora, mas ENA perde prioridade até recuperar força própria.'}
+    else if(eth<2580&&!enaMixed){verdict='🔴 EVITAR POR ENQUANTO';cls='notice auto-bad';reason='ETH perdeu a defesa imediata e ENA não apresenta força relativa.'}
+    document.getElementById('check21EthPrice').textContent='$ '+check21Fmt(eth);document.getElementById('check21EthState').textContent=ethState;
+    document.getElementById('check21EnaPrice').textContent='$ '+check21Fmt(ena);document.getElementById('check21EnaState').textContent=enaState;
+    document.getElementById('check21VsBtc').textContent=(vsBtc>=0?'+':'')+vsBtc.toFixed(2)+' pp';document.getElementById('check21VsEth').textContent=(vsEth>=0?'+':'')+vsEth.toFixed(2)+' pp';
+    ver.className=cls;ver.textContent=verdict+' • '+reason;
+    document.getElementById('check21Levels').textContent='ETH: 2.580–2.595 defesa • 2.607 primeira recuperação • 2.634 decisivo. ENA: fundo crítico 24h $ '+check21Fmt(enaLow)+' • MME9 1h $ '+check21Fmt(enaEma9)+' • mov. 15m '+(ena15>=0?'+':'')+ena15.toFixed(2)+'% • mov. 4h '+(ena4>=0?'+':'')+ena4.toFixed(2)+'%.';
+    check21LastReport=['CHECAGEM 21H — ETH + ENA','Gerado: '+new Date().toLocaleString('pt-BR'),'ETH: $ '+check21Fmt(eth)+' | '+ethState,'ENA: $ '+check21Fmt(ena)+' | '+enaState,'ENA vs BTC (4h aprox.): '+(vsBtc>=0?'+':'')+vsBtc.toFixed(2)+' pp','ENA vs ETH (4h aprox.): '+(vsEth>=0?'+':'')+vsEth.toFixed(2)+' pp','ENA fundo crítico 24h: $ '+check21Fmt(enaLow),'ENA MME9 1h: $ '+check21Fmt(enaEma9),'VEREDITO: '+verdict,'Leitura: '+reason,'Regra: sobrevendido, martelo ou varredura isolados não confirmam fundo; exigir fluxo + recuperação estrutural.'].join('\n');
+  }catch(e){ver.className='notice auto-bad';ver.textContent='⚠ Falha na checagem ETH + ENA: '+e.message}
+  finally{if(btn)btn.textContent='🔄 Atualizar ETH + ENA'}
+}
+async function copyCheck21(){if(!check21LastReport)await updateCheck21();if(!check21LastReport)return;try{await navigator.clipboard.writeText(check21LastReport);alert('Checagem ETH + ENA copiada.')}catch(e){alert(check21LastReport)}}
+const c21u=document.getElementById('check21Update'); if(c21u)c21u.addEventListener('click',updateCheck21);
+const c21c=document.getElementById('check21Copy'); if(c21c)c21c.addEventListener('click',copyCheck21);
+
+</script>
+<!-- Radar LINK embutido como texto base64 para abrir em uma única página HTML, inclusive offline. -->
+<script type="application/octet-stream" id="linkEmbeddedBytes">PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9InB0LUJSIj48aGVhZD48bWV0YSBjaGFyc2V0PSJVVEYtOCI+PG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xIj48bWV0YSBuYW1lPSJ0aGVtZS1jb2xvciIgY29udGVudD0iIzBiMTQyNCI+PHRpdGxlPkxJTktVU0RUIOKAlCBTZXR1cERUIEVHSSBWMyBBbmRyb2lkICsgbnRmeSB8IDFtIDE1bSAxaCA0aDwvdGl0bGU+CjxzdHlsZT4KOnJvb3R7Y29sb3Itc2NoZW1lOmRhcms7LS1iZzojMGIxNDI0Oy0tcGFuZWw6IzEzMWYzMjstLXBhbmVsMjojMTgyOTQyOy0tdHh0OiNlOGYwZmI7LS1tdXRlZDojOWViMGM4Oy0tbGluZTojMzA0NDVlOy0tdGVhbDojNDBkMWIwOy0tcmVkOiNmZjc3ODU7LS15ZWxsb3c6I2Y4YzU2YjstLWJsdWU6Izc0YmFmZn0qe2JveC1zaXppbmc6Ym9yZGVyLWJveH1ib2R5e21hcmdpbjowO2JhY2tncm91bmQ6bGluZWFyLWdyYWRpZW50KDE0MGRlZywjMDkxMTFlLCMxMDFiMzEgNTUlLCMwYjE0MjQpO2ZvbnQ6MTVweC8xLjUgc3lzdGVtLXVpLFNlZ29lIFVJLEFyaWFsO2NvbG9yOnZhcigtLXR4dCl9bWFpbnttYXgtd2lkdGg6MTMwMHB4O21hcmdpbjphdXRvO3BhZGRpbmc6MTlweH1oMSxoMixoMyxwe21hcmdpbi10b3A6MH1oMXtmb250LXNpemU6Y2xhbXAoMjRweCwzdncsMzZweCk7bWFyZ2luLWJvdHRvbTo1cHh9aDJ7Zm9udC1zaXplOjE5cHh9aDN7Zm9udC1zaXplOjE2cHg7bWFyZ2luLWJvdHRvbToxMHB4fS5tdXRlZCxzbWFsbHtjb2xvcjp2YXIoLS1tdXRlZCl9LmV5ZWJyb3d7Y29sb3I6dmFyKC0tdGVhbCk7bGV0dGVyLXNwYWNpbmc6LjExZW07Zm9udC13ZWlnaHQ6ODAwO2ZvbnQtc2l6ZToxMXB4fS5oZXJve2Rpc3BsYXk6ZmxleDtnYXA6MjBweDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjthbGlnbi1pdGVtczpjZW50ZXI7ZmxleC13cmFwOndyYXA7bWFyZ2luLWJvdHRvbToxNnB4fS5hY3Rpb25ze2Rpc3BsYXk6ZmxleDtnYXA6OXB4O2ZsZXgtd3JhcDp3cmFwfS5idG4sYnV0dG9uLGEuYnRue2FwcGVhcmFuY2U6bm9uZTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWxpbmUpO2JhY2tncm91bmQ6dmFyKC0tcGFuZWwyKTtjb2xvcjp2YXIoLS10eHQpO2JvcmRlci1yYWRpdXM6MTFweDtwYWRkaW5nOjEwcHggMTNweDtmb250OmluaGVyaXQ7Zm9udC13ZWlnaHQ6NzAwO3RleHQtZGVjb3JhdGlvbjpub25lO2N1cnNvcjpwb2ludGVyfS5idG46aG92ZXIsYnV0dG9uOmhvdmVye2ZpbHRlcjpicmlnaHRuZXNzKDEuMTgpfS5wcmltYXJ5e2JhY2tncm91bmQ6IzA4N2U3NDtib3JkZXItY29sb3I6IzI4YjdhMTtjb2xvcjp3aGl0ZX0ud2FybntiYWNrZ3JvdW5kOiM1NTQwMjA7Ym9yZGVyLWNvbG9yOiNiNjhkNDd9LmdyaWR7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoNCxtaW5tYXgoMCwxZnIpKTtnYXA6MTJweH0udHdve2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MS4yZnIgMWZyO2dhcDoxMnB4fS5jYXJke2JhY2tncm91bmQ6dmFyKC0tcGFuZWwpO2JvcmRlcjoxcHggc29saWQgdmFyKC0tbGluZSk7Ym9yZGVyLXJhZGl1czoxNnB4O3BhZGRpbmc6MTZweDttYXJnaW4tYm90dG9tOjEzcHg7Ym94LXNoYWRvdzowIDEwcHggMzBweCAjMDIwNzExMjJ9Lm1ldHJpY3tmb250LXNpemU6Y2xhbXAoMjFweCwyLjJ2dywzMnB4KTtmb250LXdlaWdodDo4NTA7bGV0dGVyLXNwYWNpbmc6LS4wMjVlbX0ubGJse2ZvbnQtc2l6ZToxMnB4O2NvbG9yOnZhcigtLW11dGVkKTtmb250LXdlaWdodDo3NTA7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlfS5wb3NpdGl2ZXtjb2xvcjp2YXIoLS10ZWFsKX0ubmVnYXRpdmV7Y29sb3I6dmFyKC0tcmVkKX0ubmV1dHJhbHtjb2xvcjp2YXIoLS15ZWxsb3cpfS5waWxse2JvcmRlci1yYWRpdXM6MjVweDtwYWRkaW5nOjRweCAxMHB4O2JvcmRlcjoxcHggc29saWQgdmFyKC0tbGluZSk7Zm9udC1zaXplOjEycHg7Zm9udC13ZWlnaHQ6NzUwO2Rpc3BsYXk6aW5saW5lLWJsb2NrfS5waWxsLnVwe2NvbG9yOnZhcigtLXRlYWwpO2JvcmRlci1jb2xvcjojMjg3ZTczfS5waWxsLmRvd257Y29sb3I6dmFyKC0tcmVkKTtib3JkZXItY29sb3I6IzhiNDg1Mn0ucGlsbC53YWl0e2NvbG9yOnZhcigtLXllbGxvdyk7Ym9yZGVyLWNvbG9yOiM4YzZkMzZ9dGFibGV7Ym9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO3dpZHRoOjEwMCV9dGgsdGR7dGV4dC1hbGlnbjpsZWZ0O2JvcmRlci1ib3R0b206MXB4IHNvbGlkIHZhcigtLWxpbmUpO3BhZGRpbmc6OXB4IDdweDtmb250LXNpemU6MTNweH10aHtjb2xvcjp2YXIoLS1tdXRlZCl9LnNjcm9sbHtvdmVyZmxvdy14OmF1dG99aW5wdXQsc2VsZWN0e3dpZHRoOjEwMCU7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtiYWNrZ3JvdW5kOiMwYzE4Mjk7Ym9yZGVyLXJhZGl1czo5cHg7cGFkZGluZzoxMHB4O2NvbG9yOnZhcigtLXR4dCk7Zm9udDppbmhlcml0fWxhYmVse2ZvbnQtc2l6ZToxM3B4O2NvbG9yOnZhcigtLW11dGVkKTtkaXNwbGF5OmJsb2NrO21hcmdpbi1ib3R0b206NXB4fS5maWVsZHN7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoMywxZnIpO2dhcDoxMHB4fS5hY3Rpb25zLWxpbmV7ZGlzcGxheTpmbGV4O2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6OHB4O2ZsZXgtd3JhcDp3cmFwfS5zdGF0dXN7bWFyZ2luLXRvcDo3cHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2ZvbnQtc2l6ZToxM3B4fS5ub3RpY2V7cGFkZGluZzoxMXB4O2JvcmRlci1sZWZ0OjNweCBzb2xpZCB2YXIoLS15ZWxsb3cpO2JvcmRlci1yYWRpdXM6NnB4O2JhY2tncm91bmQ6IzViNDIxYzQ0O21hcmdpbi1ib3R0b206MTJweH0uY2hlY2t7ZGlzcGxheTpmbGV4O2dhcDo5cHg7YWxpZ24taXRlbXM6ZmxleC1zdGFydDtwYWRkaW5nOjhweCAwO2JvcmRlci1ib3R0b206MXB4IHNvbGlkIHZhcigtLWxpbmUpfS5jaGVjayBpbnB1dHt3aWR0aDoxOHB4O2hlaWdodDoxOHB4O2FjY2VudC1jb2xvcjp2YXIoLS10ZWFsKTttYXJnaW4tdG9wOjJweH0uY2hlY2sgbGFiZWx7Y29sb3I6dmFyKC0tdHh0KTttYXJnaW46MH0uY2hlY2tzLWdyaWR7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoMiwxZnIpO2dhcDo0cHggMTVweH0udGFic3tkaXNwbGF5OmZsZXg7Z2FwOjdweDtmbGV4LXdyYXA6d3JhcH0udGFicyBidXR0b24uYWN0aXZle2JvcmRlci1jb2xvcjp2YXIoLS10ZWFsKTtjb2xvcjp2YXIoLS10ZWFsKX1zdmd7bWF4LXdpZHRoOjEwMCU7aGVpZ2h0OmF1dG99LmZvb3Rlcntmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS1tdXRlZCl9QG1lZGlhKG1heC13aWR0aDo5NzBweCl7LmdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCgyLDFmcil9LnR3b3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfX1AbWVkaWEobWF4LXdpZHRoOjYwMHB4KXttYWlue3BhZGRpbmc6MTFweH0uZ3JpZCwuZmllbGRzLC5jaGVja3MtZ3JpZHtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfS5jYXJke3BhZGRpbmc6MTJweH0uaGVyb3thbGlnbi1pdGVtczpmbGV4LXN0YXJ0fS5hY3Rpb25ze3dpZHRoOjEwMCV9LmFjdGlvbnMgLmJ0bntmbGV4OjE7dGV4dC1hbGlnbjpjZW50ZXJ9Lm1ldHJpY3tmb250LXNpemU6MjVweH19Cgo8c3R5bGU+Ci5udGZ5LWdyaWR7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczptaW5tYXgoMCwxLjJmcikgbWlubWF4KDAsMWZyKTtnYXA6MTJweDthbGlnbi1pdGVtczplbmR9Ci5udGZ5LWdyaWQgLmZ1bGx7Z3JpZC1jb2x1bW46MS8tMX0KLm5vdGV7YmFja2dyb3VuZDojMGIyNDM0O2JvcmRlcjoxcHggc29saWQgIzMyNWI3MDtib3JkZXItcmFkaXVzOjExcHg7cGFkZGluZzoxMXB4IDEzcHh9Ci5hY3Rpb24tcmVzdWx0e2ZvbnQtc2l6ZToxNHB4O21hcmdpbi10b3A6OXB4O3doaXRlLXNwYWNlOnByZS1saW5lfQouYWN0aW9uLXJlc3VsdC5nb29ke2NvbG9yOnZhcigtLXRlYWwpfS5hY3Rpb24tcmVzdWx0LmJhZHtjb2xvcjp2YXIoLS1yZWQpfQojcmVwb3J0e3VzZXItc2VsZWN0OnRleHQ7LXdlYmtpdC11c2VyLXNlbGVjdDp0ZXh0fSNyZXBvcnQ6Zm9jdXN7Ym9yZGVyLWNvbG9yOnZhcigtLXRlYWwpO291dGxpbmU6MnB4IHNvbGlkICMyZWM2YWU2Nn0KLm50ZnktaGVhZHtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxMnB4O2ZsZXgtd3JhcDp3cmFwfQoubnRmeS1oZWFkIGxhYmVse2Rpc3BsYXk6ZmxleDthbGlnbi1pdGVtczpjZW50ZXI7Y29sb3I6dmFyKC0tdHh0KTtnYXA6OXB4O2ZvbnQtd2VpZ2h0OjY1MDttYXJnaW46MH0KLm50ZnktaGVhZCBpbnB1dHt3aWR0aDoyMnB4O2hlaWdodDoyMnB4O2FjY2VudC1jb2xvcjp2YXIoLS10ZWFsKX0KQG1lZGlhKG1heC13aWR0aDo2MDBweCl7Lm50ZnktZ3JpZHtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfX0KPC9zdHlsZT48L2hlYWQ+Cjxib2R5PjxtYWluPgo8aGVhZGVyIGNsYXNzPSJoZXJvIj48ZGl2PjxkaXYgY2xhc3M9ImV5ZWJyb3ciPlNFVFVQRFQgRUdJIFYzIOKAoiBCSU5BTkNFIEZVVFVST1Mg4oCiIExJTktVU0RUPC9kaXY+PGgxPlJhZGFyIExJTksvVVNEVDwvaDE+PGRpdiBjbGFzcz0ibXV0ZWQiPkV4ZWN1w6fDo28gMW0g4oCiIENvbmZpcm1hw6fDo28gMTVtIOKAoiBDb250ZXh0byAxaCAvIDRoPC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iYWN0aW9ucyI+PGEgY2xhc3M9ImJ0biBwcmltYXJ5IiBocmVmPSJodHRwczovL3d3dy5iaW5hbmNlLmNvbS9lbi9mdXR1cmVzL0xJTktVU0RUIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciBub3JlZmVycmVyIj7ihpcgQWJyaXIgQmluYW5jZSBGdXR1cm9zPC9hPjxhIGNsYXNzPSJidG4iIGhyZWY9ImludGVudDovL3d3dy5iaW5hbmNlLmNvbS9lbi9mdXR1cmVzL0xJTktVU0RUI0ludGVudDtzY2hlbWU9aHR0cHM7cGFja2FnZT1jb20uYW5kcm9pZC5jaHJvbWU7Uy5icm93c2VyX2ZhbGxiYWNrX3VybD1odHRwcyUzQSUyRiUyRnd3dy5iaW5hbmNlLmNvbSUyRmVuJTJGZnV0dXJlcyUyRkxJTktVU0RUO2VuZCIgdGFyZ2V0PSJfc2VsZiI+8J+TsSBUZW50YXIgYWJyaXIgbm8gQ2hyb21lIChBbmRyb2lkKTwvYT48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0iY29weUJpbmFuY2VMaW5rKCkiPvCfk4sgQ29waWFyIGxpbmsgZGEgQmluYW5jZTwvYnV0dG9uPjxidXR0b24gb25jbGljaz0idXBkYXRlQWxsKCkiPuKGuyBBdHVhbGl6YXIgZGFkb3M8L2J1dHRvbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0iY29weVJlcG9ydCgpIj7wn5OLIENvcGlhciByZWxhdMOzcmlvIEdQVDwvYnV0dG9uPjxhIGNsYXNzPSJidG4iIGhyZWY9IiNudGZ5UGFuZWwiPvCflJQgbnRmeTwvYT48L2Rpdj48L2hlYWRlcj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiIHN0eWxlPSJtYXJnaW4tYm90dG9tOjE0cHg7Ym9yZGVyLWNvbG9yOiMzNTVkNzIiPjxoMiBzdHlsZT0ibWFyZ2luLWJvdHRvbTo3cHgiPvCfk7EgQWJyaXIgTElOS1VTRFQgbm8gY2VsdWxhcjwvaDI+PHAgY2xhc3M9Im11dGVkIiBzdHlsZT0ibWFyZ2luLWJvdHRvbToxMHB4Ij5TZSBhcGFyZWNlciA8c3Ryb25nPkVSUl9DQUNIRV9NSVNTPC9zdHJvbmc+LCBvIHZpc3VhbGl6YWRvciBpbnRlcm5vIGRvIEFuZHJvaWQgcG9kZSBlc3RhciBpbXBlZGluZG8gYSBuYXZlZ2HDp8Ojby4gVXNlIDxzdHJvbmc+Q29waWFyIGxpbmsgZGEgQmluYW5jZTwvc3Ryb25nPiwgYWJyYSBvIGFwbGljYXRpdm8gQ2hyb21lIGUgY29sZSBvIGVuZGVyZcOnby4gTyBib3TDo28g4oCcVGVudGFyIGFicmlyIG5vIENocm9tZeKAnSBkZXBlbmRlIGRvIGxlaXRvciBBbmRyb2lkIGUgcG9kZSBzZXIgYmxvcXVlYWRvLjwvcD48ZGl2IGNsYXNzPSJhY3Rpb25zLWxpbmUiPjxpbnB1dCBpZD0iYmluYW5jZUxpbmtGaWVsZCIgdHlwZT0idGV4dCIgcmVhZG9ubHkgYXJpYS1sYWJlbD0iRW5kZXJlw6dvIExJTktVU0RUIEJpbmFuY2UgRnV0dXJvcyIgdmFsdWU9Imh0dHBzOi8vd3d3LmJpbmFuY2UuY29tL2VuL2Z1dHVyZXMvTElOS1VTRFQiIHN0eWxlPSJmbGV4OjE7bWluLXdpZHRoOjIyMHB4IiBvbmNsaWNrPSJ0aGlzLnNlbGVjdCgpIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0iY29weUJpbmFuY2VMaW5rKCkiPkNvcGlhciBlbmRlcmXDp288L2J1dHRvbj48L2Rpdj48cCBjbGFzcz0ic3RhdHVzIiBpZD0iYmluYW5jZU1zZyIgYXJpYS1saXZlPSJwb2xpdGUiPk8gYXBwIG7Do28gaW5jb3Jwb3JhIG8gc2l0ZSBkYSBCaW5hbmNlOiBlbGUgc29tZW50ZSBhYnJlIG8gZW5kZXJlw6dvIG9maWNpYWwgZW0gb3V0cm8gbmF2ZWdhZG9yLiBPcyBkYWRvcyBkbyByYWRhciBzw6NvIGNvbnN1bHRhZG9zIHNlcGFyYWRhbWVudGUuPC9wPjwvc2VjdGlvbj4KPGRpdiBpZD0id2FybmluZyIgY2xhc3M9Im5vdGljZSI+T3Mgc2luYWlzIGRlcGVuZGVtIGRlIGNhbmRsZXMgcmVhaXMgZmVjaGFkb3MuIEEgbGVpdHVyYSBkZSAxIG1pbnV0byBudW5jYSBjb25maXJtYSB1bWEgb3BlcmHDp8OjbyBzb3ppbmhhLiBOw6NvIGjDoSBleGVjdcOnw6NvIGF1dG9tw6F0aWNhIGRlIG9yZGVucy48L2Rpdj4KCjxzZWN0aW9uIGNsYXNzPSJjYXJkIiBpZD0ibnRmeVBhbmVsIiBzdHlsZT0iYm9yZGVyLWNvbG9yOiMyODdlNzMiPgogIDxkaXYgY2xhc3M9ImFjdGlvbnMtbGluZSIgc3R5bGU9Imp1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuIj48ZGl2PjxkaXYgY2xhc3M9ImV5ZWJyb3ciPkFMRVJUQVMgRUdJPC9kaXY+PGgyIHN0eWxlPSJtYXJnaW4tYm90dG9tOjRweCI+8J+UlCBFbnZpYXIgc2luYWlzIHBlbG8gbnRmeTwvaDI+PGRpdiBjbGFzcz0ibXV0ZWQiPk5vdGlmaWNhw6fDo28gZGUgcHLDqS1nYXRpbGhvIHTDqWNuaWNvOyBuw6NvIMOpIG9yZGVtIG5lbSBjb25maXJtYcOnw6NvIFNNQy48L2Rpdj48L2Rpdj48c3BhbiBpZD0ibnRmeVN0YXRlIiBjbGFzcz0icGlsbCB3YWl0Ij5EZXNhdGl2YWRvPC9zcGFuPjwvZGl2PgogIDxkaXYgY2xhc3M9Im50ZnktZ3JpZCIgc3R5bGU9Im1hcmdpbi10b3A6MTNweCI+CiAgICA8ZGl2PjxsYWJlbCBmb3I9Im50ZnlUb3BpYyI+Q2FuYWwgLyB0w7NwaWNvIG50Znkuc2ggKGVzY29saGEgbm9tZSBkaWbDrWNpbCBkZSBhZGl2aW5oYXIpPC9sYWJlbD48aW5wdXQgaWQ9Im50ZnlUb3BpYyIgdHlwZT0idGV4dCIgbWF4bGVuZ3RoPSI2NCIgcGxhY2Vob2xkZXI9IkV4LjogZWdpX2xpbmtfYThmNjJkLi4uIiBhdXRvY29tcGxldGU9Im9mZiIgc3BlbGxjaGVjaz0iZmFsc2UiIC8+PC9kaXY+CiAgICA8ZGl2PjxsYWJlbCBmb3I9Im50ZnlNb2RlIj5RdWFuZG8gYXZpc2FyIGF1dG9tYXRpY2FtZW50ZTwvbGFiZWw+PHNlbGVjdCBpZD0ibnRmeU1vZGUiPjxvcHRpb24gdmFsdWU9InRyaWdnZXIiPlNvbWVudGUgbm92b3MgcHLDqS1nYXRpbGhvcyBMT05HL1NIT1JUPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iY29udGV4dCI+UHLDqS1nYXRpbGhvcyBlIG11ZGFuw6dhIGRlIGNvbmZsdcOqbmNpYTwvb3B0aW9uPjxvcHRpb24gdmFsdWU9Im1hbnVhbCI+U29tZW50ZSBlbnZpb3MgbWFudWFpczwvb3B0aW9uPjwvc2VsZWN0PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iZnVsbCBudGZ5LWhlYWQiPjxsYWJlbD48aW5wdXQgaWQ9Im50ZnlFbmFibGVkIiB0eXBlPSJjaGVja2JveCIgLz4gQXRpdmFyIGFsZXJ0YXMgYXV0b23DoXRpY29zIG5lc3RhIHDDoWdpbmE8L2xhYmVsPjwvZGl2PgogIDwvZGl2PgogIDxkaXYgY2xhc3M9ImFjdGlvbnMtbGluZSIgc3R5bGU9Im1hcmdpbi10b3A6MTJweCI+CiAgICA8YnV0dG9uIGNsYXNzPSJwcmltYXJ5IiB0eXBlPSJidXR0b24iIG9uY2xpY2s9InNhdmVOdGZ5U2V0dGluZ3MoKSI+8J+SviBTYWx2YXIgY29uZmlndXJhw6fDo288L2J1dHRvbj4KICAgIDxidXR0b24gdHlwZT0iYnV0dG9uIiBvbmNsaWNrPSJ0ZXN0TnRmeSgpIj7wn6eqIFRlc3RhciBudGZ5PC9idXR0b24+CiAgICA8YnV0dG9uIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0ic2VuZE1hbnVhbFNpZ25hbCgpIj7wn5OkIEVudmlhciBlc3RhZG8gYXR1YWw8L2J1dHRvbj4KICAgIDxidXR0b24gdHlwZT0iYnV0dG9uIiBvbmNsaWNrPSJjb3B5TnRmeVRvcGljKCkiPvCfk4sgQ29waWFyIGNhbmFsPC9idXR0b24+CiAgICA8YSBjbGFzcz0iYnRuIiBocmVmPSJodHRwczovL250Znkuc2gvYXBwIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciBub3JlZmVycmVyIj5BYnJpciBudGZ5PC9hPgogIDwvZGl2PgogIDxwIGNsYXNzPSJzdGF0dXMiPk5vIGFwbGljYXRpdm8gPGI+bnRmeTwvYj4gZG8gY2VsdWxhciwgYXNzaW5lIGV4YXRhbWVudGUgbyBtZXNtbyBjYW5hbCBlIHBlcm1pdGEgbm90aWZpY2HDp8O1ZXMuIE8gdGVzdGUgZW52aWEgdW1hIG1lbnNhZ2VtIHJlYWwuIE8gZW52aW8gYXV0b23DoXRpY28gcmVxdWVyIHF1ZSBlc3RhIHDDoWdpbmEgcGVybWFuZcOnYSBhYmVydGEgZSBjb25zaWdhIGNvbnN1bHRhciBhIEJpbmFuY2U7IHBhcmEgYWxlcnRhcyAyNGggbWVzbW8gZmVjaGFkYSDDqSBuZWNlc3PDoXJpbyB1bSBzZXJ2aWRvci48L3A+CiAgPGRpdiBjbGFzcz0ibm90ZSI+PGI+w5psdGltbyBhbGVydGE6PC9iPiA8c3BhbiBpZD0ibnRmeUxhc3QiPk5lbmh1bSBlbnZpYWRvIG5lc3RhIGluc3RhbGHDp8Ojby48L3NwYW4+PGRpdiBjbGFzcz0iYWN0aW9uLXJlc3VsdCIgaWQ9Im50ZnlNc2ciIGFyaWEtbGl2ZT0icG9saXRlIj5JbmZvcm1lIHVtIGNhbmFsIGUgY2xpcXVlIGVtIFNhbHZhciBjb25maWd1cmHDp8Ojby48L2Rpdj48L2Rpdj4KPC9zZWN0aW9uPgo8c2VjdGlvbiBjbGFzcz0iZ3JpZCI+PGRpdiBjbGFzcz0iY2FyZCI+PGRpdiBjbGFzcz0ibGJsIj5QcmXDp28gY29udHJhdG8gcGVycMOpdHVvPC9kaXY+PGRpdiBjbGFzcz0ibWV0cmljIiBpZD0icHJpY2UiPuKAlDwvZGl2PjxkaXYgY2xhc3M9InN0YXR1cyIgaWQ9InByaWNlU3RhdHVzIj5BZ3VhcmRhbmRvIEFQSTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9ImxibCI+VmFyaWHDp8OjbyAyNGg8L2Rpdj48ZGl2IGNsYXNzPSJtZXRyaWMiIGlkPSJjaGFuZ2UiPuKAlDwvZGl2PjxkaXYgY2xhc3M9InN0YXR1cyI+QmluYW5jZSBVU0Tik4gtTSBGdXR1cmVzPC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iY2FyZCI+PGRpdiBjbGFzcz0ibGJsIj5Db25mbHXDqm5jaWEgMTVtLzFoLzRoPC9kaXY+PGRpdiBjbGFzcz0ibWV0cmljIiBpZD0iYmlhcyI+4oCUPC9kaXY+PGRpdiBjbGFzcz0ic3RhdHVzIiBpZD0iYWdyZWVtZW50Ij5TZW0gZGFkb3M8L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJsYmwiPkVzdGFkbyBkYSBvcGVyYcOnw6NvPC9kaXY+PGRpdiBjbGFzcz0ibWV0cmljIiBpZD0ic2lnbmFsIj5BR1VBUkRBUjwvZGl2PjxkaXYgY2xhc3M9InN0YXR1cyIgaWQ9Imxhc3RVcGRhdGUiPkFpbmRhIG7Do28gYXR1YWxpemFkbzwvZGl2PjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9ImFjdGlvbnMtbGluZSIgc3R5bGU9Imp1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuIj48aDIgc3R5bGU9Im1hcmdpbjowIj5RdWFkcm8gbXVsdGktdGltZWZyYW1lIOKAlCBzb21lbnRlIGNhbmRsZXMgZmVjaGFkb3M8L2gyPjxkaXYgY2xhc3M9ImFjdGlvbnMtbGluZSI+PGxhYmVsIHN0eWxlPSJtYXJnaW46MCI+QXV0b2F0dWFsaXphw6fDo28gPHNlbGVjdCBpZD0iYXV0b1JlZnJlc2giIHN0eWxlPSJ3aWR0aDphdXRvIiBvbmNoYW5nZT0iY2hhbmdlQXV0bygpIj48b3B0aW9uIHZhbHVlPSIwIj5EZXNsaWdhZGE8L29wdGlvbj48b3B0aW9uIHZhbHVlPSIzMCI+MzAgc2VndW5kb3M8L29wdGlvbj48b3B0aW9uIHZhbHVlPSI2MCIgc2VsZWN0ZWQ+MSBtaW51dG88L29wdGlvbj48b3B0aW9uIHZhbHVlPSIxMjAiPjIgbWludXRvczwvb3B0aW9uPjwvc2VsZWN0PjwvbGFiZWw+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0ic2Nyb2xsIj48dGFibGU+PHRoZWFkPjx0cj48dGg+VEY8L3RoPjx0aD5WacOpcyBNTUU5LzIxPC90aD48dGg+UlNJIDE0PC90aD48dGg+TUFDRCBoaXN0LjwvdGg+PHRoPlZvbC4gLyBtw6lkaWEgMjA8L3RoPjx0aD7Dmmx0aW1vIGZlY2hhZG88L3RoPjx0aD5MZWl0dXJhPC90aD48L3RyPjwvdGhlYWQ+PHRib2R5IGlkPSJ0ZlJvd3MiPjx0cj48dGQgY29sc3Bhbj0iNyI+Q2FycmVnYW5kbyBkYWRvc+KApjwvdGQ+PC90cj48L3Rib2R5PjwvdGFibGU+PC9kaXY+PHAgY2xhc3M9InN0YXR1cyIgaWQ9ImFwaU1zZyI+Rm9udGUgcMO6YmxpY2E6IGZhcGkuYmluYW5jZS5jb20uIE8gYWNlc3NvIHBvZGUgc2VyIGJsb3F1ZWFkbyBwb3IgcmVkZSwgcmVnacOjbyBvdSBuYXZlZ2Fkb3I7IG5lc3NlIGNhc28sIG8gYXBwIG7Do28gaW52ZW50YXLDoSBkYWRvcy48L3A+PC9zZWN0aW9uPgo8ZGl2IGNsYXNzPSJ0d28iPjxzZWN0aW9uIGNsYXNzPSJjYXJkIj48aDI+RXN0cnV0dXJhIGUgbsOtdmVpcyBvYmpldGl2b3M8L2gyPjxwIGNsYXNzPSJtdXRlZCIgc3R5bGU9ImZvbnQtc2l6ZToxM3B4Ij5Nw6F4aW1hcyBlIG3DrW5pbWFzIGRhcyDDumx0aW1hcyAyMCB2ZWxhcyBmZWNoYWRhcywgc2VtIGluY2x1aXIgY2FuZGxlIGVtIGZvcm1hw6fDo28uIFPDo28gZmFpeGFzIGRlIG9ic2VydmHDp8OjbywgbsOjbyBzdXBvcnRlcyBpbnN0aXR1Y2lvbmFpcyBnYXJhbnRpZG9zLjwvcD48ZGl2IGNsYXNzPSJzY3JvbGwiPjx0YWJsZT48dGhlYWQ+PHRyPjx0aD5URjwvdGg+PHRoPk3DoXhpbWEgMjA8L3RoPjx0aD5Nw61uaW1hIDIwPC90aD48dGg+w5psdGltYSBtw6F4aW1hIDU8L3RoPjx0aD7Dmmx0aW1hIG3DrW5pbWEgNTwvdGg+PC90cj48L3RoZWFkPjx0Ym9keSBpZD0ibGV2ZWxzIj48dHI+PHRkIGNvbHNwYW49IjUiPuKAlDwvdGQ+PC90cj48L3Rib2R5PjwvdGFibGU+PC9kaXY+PHAgY2xhc3M9InN0YXR1cyIgaWQ9InN0cnVjdFRleHQiPjwvcD48L3NlY3Rpb24+PHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxoMj5HcsOhZmljbyBzaW1wbGlmaWNhZG8gZG8gZmVjaGFtZW50bzwvaDI+PGRpdiBjbGFzcz0idGFicyIgaWQ9ImNoYXJ0VGFicyI+PGJ1dHRvbiBvbmNsaWNrPSJzZXRDaGFydCgnMW0nKSIgY2xhc3M9ImFjdGl2ZSI+MW08L2J1dHRvbj48YnV0dG9uIG9uY2xpY2s9InNldENoYXJ0KCcxNW0nKSI+MTVtPC9idXR0b24+PGJ1dHRvbiBvbmNsaWNrPSJzZXRDaGFydCgnMWgnKSI+MWg8L2J1dHRvbj48YnV0dG9uIG9uY2xpY2s9InNldENoYXJ0KCc0aCcpIj40aDwvYnV0dG9uPjwvZGl2PjxkaXYgaWQ9ImNoYXJ0IiBzdHlsZT0ibWFyZ2luLXRvcDoxMnB4O21pbi1oZWlnaHQ6MTkwcHgiPjwvZGl2PjxwIGNsYXNzPSJzdGF0dXMiPkxpbmhhIGRlIGZlY2hhbWVudG8gZGUgNjAgY2FuZGxlcyBlbmNlcnJhZG9zLiBQYXJhIGNhbmRsZXMgY29tcGxldG9zLCB1c2UgYSBCaW5hbmNlIHBlbG8gYm90w6NvIHN1cGVyaW9yLjwvcD48L3NlY3Rpb24+PC9kaXY+CjxzZWN0aW9uIGNsYXNzPSJ0d28iPjxkaXYgY2xhc3M9ImNhcmQiPjxoMj5HYXRpbGhvIExPTkcg4oCUIGNvbmRpY2lvbmFsPC9oMj48c3BhbiBjbGFzcz0icGlsbCB3YWl0IiBpZD0ibG9uZ0JhZGdlIj5TZW0gY29uZmlybWHDp8Ojbzwvc3Bhbj48cCBpZD0ibG9uZ1RleHQiIHN0eWxlPSJtYXJnaW4tdG9wOjEycHgiPkFndWFyZGFyIGRhZG9zIGRhIEFQSSBlIGZlY2hhbWVudG8gZGUgY29uZmlybWHDp8Ojby48L3A+PGRpdiBjbGFzcz0ibm90aWNlIj5FeGlnaXI6IGNvbnRleHRvIDFoIG7Do28gY29udHLDoXJpbywgMTVtIGFjaW1hIGRhIE1NRTkgZSAyMSBjb20gTUFDRCBmYXZvcsOhdmVsLCBlIDFtIHJvbXBlbmRvIGEgbcOheGltYSBkYSB2ZWxhIGFudGVyaW9yIGNvbSB2b2x1bWUuIFN0b3AgYWJhaXhvIGRvIGZ1bmRvIGZvcm1hZG8uIE51bmNhIGNvbXByYXIgYXBlbmFzIHBlbG8gUlNJIHNvYnJldmVuZGlkby48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJjYXJkIj48aDI+R2F0aWxobyBTSE9SVCDigJQgY29uZGljaW9uYWw8L2gyPjxzcGFuIGNsYXNzPSJwaWxsIHdhaXQiIGlkPSJzaG9ydEJhZGdlIj5TZW0gY29uZmlybWHDp8Ojbzwvc3Bhbj48cCBpZD0ic2hvcnRUZXh0IiBzdHlsZT0ibWFyZ2luLXRvcDoxMnB4Ij5BZ3VhcmRhciBkYWRvcyBkYSBBUEkgZSBmZWNoYW1lbnRvIGRlIGNvbmZpcm1hw6fDo28uPC9wPjxkaXYgY2xhc3M9Im5vdGljZSI+RXhpZ2lyOiB2acOpcyB2ZW5kZWRvciAxaC80aCwgMTVtIGNvbSBjb25maXJtYcOnw6NvLCBlIDFtIHBlcmRlbmRvIG3DrW5pbWEgcmVsZXZhbnRlIGNvbSB2b2x1bWUgb3UgcmVqZWnDp8OjbyBlbSByZXNpc3TDqm5jaWEuIFN0b3AgYWNpbWEgZG8gdG9wbyBlc3RydXR1cmFsIGRvIGdhdGlsaG8uPC9kaXY+PC9kaXY+PC9zZWN0aW9uPgo8c2VjdGlvbiBjbGFzcz0idHdvIj48ZGl2IGNsYXNzPSJjYXJkIj48aDI+UGxhbmVqYWRvciBkZSBlbnRyYWRhLCBzdG9wIGUgYWx2b3M8L2gyPjxkaXYgY2xhc3M9ImZpZWxkcyI+PGRpdj48bGFiZWwgZm9yPSJkaXJlY3Rpb24iPkRpcmXDp8OjbzwvbGFiZWw+PHNlbGVjdCBpZD0iZGlyZWN0aW9uIiBvbmNoYW5nZT0iY2FsYygpIj48b3B0aW9uIHZhbHVlPSJsb25nIj5MT05HPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0ic2hvcnQiPlNIT1JUPC9vcHRpb24+PC9zZWxlY3Q+PC9kaXY+PGRpdj48bGFiZWwgZm9yPSJlbnRyeSI+RW50cmFkYSAoVVNEVCk8L2xhYmVsPjxpbnB1dCBpZD0iZW50cnkiIHR5cGU9Im51bWJlciIgc3RlcD0iYW55IiBtaW49IjAiIHBsYWNlaG9sZGVyPSJFeC46IDEzLjIwIiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PjxkaXY+PGxhYmVsIGZvcj0ic3RvcCI+U3RvcCBlc3RydXR1cmFsIChVU0RUKTwvbGFiZWw+PGlucHV0IGlkPSJzdG9wIiB0eXBlPSJudW1iZXIiIHN0ZXA9ImFueSIgbWluPSIwIiBwbGFjZWhvbGRlcj0iRXguOiAxMy4wNCIgb25pbnB1dD0iY2FsYygpIj48L2Rpdj48ZGl2PjxsYWJlbCBmb3I9ImJhbGFuY2UiPkNhcGl0YWwgKFVTRFQpPC9sYWJlbD48aW5wdXQgaWQ9ImJhbGFuY2UiIHR5cGU9Im51bWJlciIgdmFsdWU9IjEwMDAiIG1pbj0iMCIgc3RlcD0iYW55IiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PjxkaXY+PGxhYmVsIGZvcj0icmlzayI+UmlzY28gZG8gY2FwaXRhbCAoJSk8L2xhYmVsPjxpbnB1dCBpZD0icmlzayIgdHlwZT0ibnVtYmVyIiB2YWx1ZT0iMSIgbWluPSIwLjAxIiBtYXg9IjEwMCIgc3RlcD0iMC4xIiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PjxkaXY+PGxhYmVsIGZvcj0ibGV2Ij5BbGF2YW5jYWdlbSAoeCk8L2xhYmVsPjxpbnB1dCBpZD0ibGV2IiB0eXBlPSJudW1iZXIiIHZhbHVlPSIzIiBtaW49IjEiIG1heD0iMTI1IiBzdGVwPSIxIiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PjwvZGl2PjxwIGlkPSJjYWxjU3RhdHVzIiBjbGFzcz0ic3RhdHVzIj48L3A+PGRpdiBjbGFzcz0iZ3JpZCIgc3R5bGU9ImdyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoMixtaW5tYXgoMCwxZnIpKSI+PGRpdj48ZGl2IGNsYXNzPSJsYmwiPlBlcmRhIHByZXZpc3RhPC9kaXY+PGRpdiBjbGFzcz0ibWV0cmljIiBzdHlsZT0iZm9udC1zaXplOjIzcHgiIGlkPSJtYXhMb3NzIj7igJQ8L2Rpdj48L2Rpdj48ZGl2PjxkaXYgY2xhc3M9ImxibCI+UXVhbnRpZGFkZSBMSU5LPC9kaXY+PGRpdiBjbGFzcz0ibWV0cmljIiBzdHlsZT0iZm9udC1zaXplOjIzcHgiIGlkPSJxdHkiPuKAlDwvZGl2PjwvZGl2PjxkaXY+PGRpdiBjbGFzcz0ibGJsIj5NYXJnZW0gYXByb3hpbWFkYTwvZGl2PjxkaXYgY2xhc3M9Im1ldHJpYyIgc3R5bGU9ImZvbnQtc2l6ZToyM3B4IiBpZD0ibWFyZ2luIj7igJQ8L2Rpdj48L2Rpdj48ZGl2PjxkaXYgY2xhc3M9ImxibCI+UG9zacOnw6NvIG5vbWluYWw8L2Rpdj48ZGl2IGNsYXNzPSJtZXRyaWMiIHN0eWxlPSJmb250LXNpemU6MjNweCIgaWQ9Im5vdGlvbmFsIj7igJQ8L2Rpdj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJzY3JvbGwiPjx0YWJsZT48dGhlYWQ+PHRyPjx0aD5BbHZvPC90aD48dGg+UHJlw6dvPC90aD48dGg+THVjcm8gdGXDs3JpY288L3RoPjx0aD5SOlI8L3RoPjwvdHI+PC90aGVhZD48dGJvZHkgaWQ9InRhcmdldHMiPjx0cj48dGQgY29sc3Bhbj0iNCI+UHJlZW5jaGEgZW50cmFkYSBlIHN0b3A8L3RkPjwvdHI+PC90Ym9keT48L3RhYmxlPjwvZGl2PjxwIGNsYXNzPSJmb290ZXIiPkVzdGltYXRpdmFzIG7Do28gaW5jbHVlbSB0YXhhcywgZnVuZGluZywgc2xpcHBhZ2UgZSBtYW51dGVuw6fDo28uIFN0b3AgZSBtYXJnZW0gbsOjbyBlbGltaW5hbSByaXNjbyBkZSBsaXF1aWRhw6fDo28uIE5vIG1vZG8gY3J1emFkbywgb3V0cm9zIHNhbGRvcyBwb2RlbSBmaWNhciBleHBvc3Rvcy48L3A+PC9kaXY+PGRpdiBjbGFzcz0iY2FyZCI+PGgyPkNoZWNrbGlzdCBkZSB2YWxpZGHDp8OjbyBkbyBTZXR1cERUPC9oMj48cCBjbGFzcz0ibXV0ZWQiPk1hcnF1ZSBhcGVuYXMgYXDDs3MgY29uZmVyaXIgb3MgZGFkb3MuIE8gY2hlY2tsaXN0IMOpIG1hbnVhbCBlIG7Do28gdHJhbnNmb3JtYSB1bSBhbGVydGEgZW0gY29uZmlybWHDp8OjbyBhdXRvbcOhdGljYS48L3A+PGRpdiBpZD0iY2hlY2tzIiBjbGFzcz0iY2hlY2tzLWdyaWQiPjwvZGl2PjxwIGlkPSJjaGVja3NSZXN1bHQiIGNsYXNzPSJzdGF0dXMiPjAvNiB2ZXJpZmljYcOnw7VlcyByZWFsaXphZGFzPC9wPjxidXR0b24gb25jbGljaz0iY2xlYXJDaGVja3MoKSI+TGltcGFyIGNoZWNrbGlzdDwvYnV0dG9uPjxociBzdHlsZT0iYm9yZGVyOjA7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tbGluZSk7bWFyZ2luOjE2cHggMCI+PGgzPlJlZ3JhcyBkZSBwcm90ZcOnw6NvIEVHSTwvaDM+PHA+TsOjbyBlbnRyYXIgcG9yIHVtIHNpbmFsIGlzb2xhZG8gZG8gMW07IGV4aWdpciBlc3RydXR1cmEgZSBjb25maXJtYcOnw6NvIG5vIDE1bSBlIDFoLiBTdG9wIHNlbXByZSBwb3IgaW52YWxpZGHDp8OjbyBlIHRhbWFuaG8gZGEgcG9zacOnw6NvIGNhbGN1bGFkbyBwZWxvIHJpc2NvIGZpeGFkby48L3A+PHAgY2xhc3M9Im11dGVkIj5TZSBBUEkgaW5kaXNwb27DrXZlbCwgYXByZXNlbnRhciDigJxTRU0gREFET1PigJ0gZW0gdmV6IGRlIHByZXNlcnZhciBuw7ptZXJvcyBhbnRpZ29zIGNvbW8gc2UgZm9zc2VtIGF0dWFpcy48L3A+PC9kaXY+PC9zZWN0aW9uPgo8ZGl2IGNsYXNzPSJjYXJkIiBpZD0icmVwb3J0UGFuZWwiPjxkaXYgY2xhc3M9ImFjdGlvbnMtbGluZSIgc3R5bGU9Imp1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuIj48aDIgc3R5bGU9Im1hcmdpbjowIj5SZWxhdMOzcmlvIGludGVsaWdlbnRlIHBhcmEgQ2hhdEdQVDwvaDI+PGRpdiBjbGFzcz0iYWN0aW9ucy1saW5lIj48YnV0dG9uIGNsYXNzPSJwcmltYXJ5IiB0eXBlPSJidXR0b24iIG9uY2xpY2s9ImNvcHlSZXBvcnQoKSI+8J+TiyBDb3BpYXIgcmVsYXTDs3JpbzwvYnV0dG9uPjxidXR0b24gdHlwZT0iYnV0dG9uIiBvbmNsaWNrPSJzaGFyZVJlcG9ydCgpIj7ihpcgQ29tcGFydGlsaGFyPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIG9uY2xpY2s9InNlbGVjdFJlcG9ydCgpIj5TZWxlY2lvbmFyIHRleHRvPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIG9uY2xpY2s9ImRvd25sb2FkUmVwb3J0KCkiPlNhbHZhciBUWFQ8L2J1dHRvbj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJhY3Rpb24tcmVzdWx0IiBpZD0iY29weU1zZyIgcm9sZT0ic3RhdHVzIiBhcmlhLWxpdmU9InBvbGl0ZSI+Q2FzbyBzZXUgbGVpdG9yIEFuZHJvaWQgYmxvcXVlaWUgYSBjw7NwaWEsIHVzZSBDb21wYXJ0aWxoYXIgb3UgU2VsZWNpb25hciB0ZXh0by48L2Rpdj48dGV4dGFyZWEgaWQ9InJlcG9ydCIgcmVhZG9ubHkgb25jbGljaz0idGhpcy5zZWxlY3QoKSIgc3R5bGU9IndpZHRoOjEwMCU7bWluLWhlaWdodDoyMDBweDtib3JkZXItcmFkaXVzOjEwcHg7YmFja2dyb3VuZDojMGExNjI3O2NvbG9yOnZhcigtLXR4dCk7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtwYWRkaW5nOjEwcHg7Zm9udC1mYW1pbHk6dWktbW9ub3NwYWNlLENvbnNvbGFzLG1vbm9zcGFjZTtmb250LXNpemU6MTJweCI+PC90ZXh0YXJlYT48L2Rpdj4KPGZvb3RlciBjbGFzcz0iZm9vdGVyIj5Qcm9qZXRvIEVHSSDigKIgQW7DoWxpc2UgZWR1Y2FjaW9uYWwgZSBmZXJyYW1lbnRhIGRlIHBsYW5lamFtZW50bzsgbmVuaHVtIHNpbmFsIMOpIGdhcmFudGlhIGRlIHJlc3VsdGFkby4gTsOjbyBhcm1hemVuYSBjaGF2ZXMgZSBuw6NvIGVudmlhIG9yZGVucy48L2Zvb3Rlcj4KPC9tYWluPgo8c2NyaXB0PgondXNlIHN0cmljdCc7Y29uc3QgbG9jYWxTdG9yYWdlPSgoKT0+e3RyeXtjb25zdCB2PXdpbmRvdy5sb2NhbFN0b3JhZ2U7di5zZXRJdGVtKCdfX2VnaV9zdG9yYWdlX3Byb2JlJywnMScpO3YucmVtb3ZlSXRlbSgnX19lZ2lfc3RvcmFnZV9wcm9iZScpO3JldHVybiB2fWNhdGNoKGUpe2NvbnN0IG09bmV3IE1hcCgpO3JldHVybiB7Z2V0SXRlbTprPT5tLmhhcyhrKT9tLmdldChrKTpudWxsLHNldEl0ZW06KGssdik9Pm0uc2V0KFN0cmluZyhrKSxTdHJpbmcodikpLHJlbW92ZUl0ZW06az0+bS5kZWxldGUoU3RyaW5nKGspKX19fSkoKTtjb25zdCBTWU1CT0w9J0xJTktVU0RUJywgVEZTPVsnMW0nLCcxNW0nLCcxaCcsJzRoJ10sIERBVEE9e30sIHVybD0naHR0cHM6Ly93d3cuYmluYW5jZS5jb20vZW4vZnV0dXJlcy9MSU5LVVNEVCc7bGV0IGNoYXJ0VEY9JzFtJyx0aW1lcj1udWxsLGJ1c3k9ZmFsc2UsIHRpbWVzdGFtcD1udWxsOwpjb25zdCAkPWlkPT5kb2N1bWVudC5nZXRFbGVtZW50QnlJZChpZCksIGY9KHgsZD00KT0+TnVtYmVyLmlzRmluaXRlKHgpP051bWJlcih4KS50b0xvY2FsZVN0cmluZygncHQtQlInLHttaW5pbXVtRnJhY3Rpb25EaWdpdHM6ZCxtYXhpbXVtRnJhY3Rpb25EaWdpdHM6ZH0pOifigJQnLG1vbmV5PXg9PidVUyQgJytmKHgsMik7ZnVuY3Rpb24gZXNjYXBlSHRtbChzKXtyZXR1cm4gU3RyaW5nKHMpLnJlcGxhY2UoL1smPD4iJ10vZyxjPT4oeycmJzonJmFtcDsnLCc8JzonJmx0OycsJz4nOicmZ3Q7JywnIic6JyZxdW90OycsIiciOicmIzM5Oyd9W2NdKSl9CmZ1bmN0aW9uIGVtYShhLG4pe2NvbnN0IG91dD1BcnJheShhLmxlbmd0aCkuZmlsbChudWxsKSxhbHBoYT0yLyhuKzEpO2lmKGEubGVuZ3RoPG4pcmV0dXJuIG91dDtsZXQgc3VtPTA7Zm9yKGxldCBpPTA7aTxuO2krKylzdW0rPWFbaV07b3V0W24tMV09c3VtL247Zm9yKGxldCBpPW47aTxhLmxlbmd0aDtpKyspb3V0W2ldPW91dFtpLTFdK2FscGhhKihhW2ldLW91dFtpLTFdKTtyZXR1cm4gb3V0fQpmdW5jdGlvbiByc2koYSxuPTE0KXtpZihhLmxlbmd0aDxuKzIpcmV0dXJuIG51bGw7bGV0IGdhaW49MCxsb3NzPTA7Zm9yKGxldCBpPTE7aTw9bjtpKyspe2NvbnN0IGR4PWFbaV0tYVtpLTFdO2dhaW4rPU1hdGgubWF4KDAsZHgpO2xvc3MrPU1hdGgubWF4KDAsLWR4KX1nYWluLz1uO2xvc3MvPW47Zm9yKGxldCBpPW4rMTtpPGEubGVuZ3RoO2krKyl7Y29uc3QgZHg9YVtpXS1hW2ktMV07Z2Fpbj0oZ2Fpbioobi0xKStNYXRoLm1heCgwLGR4KSkvbjtsb3NzPShsb3NzKihuLTEpK01hdGgubWF4KDAsLWR4KSkvbn1yZXR1cm4gbG9zcz09PTA/KGdhaW49PT0wPzUwOjEwMCk6MTAwLTEwMC8oMStnYWluL2xvc3MpfQpmdW5jdGlvbiBtYWNkSGlzdG9ncmFtKGNsb3NlKXtjb25zdCBlMTI9ZW1hKGNsb3NlLDEyKSxlMjY9ZW1hKGNsb3NlLDI2KSxsaW5lPWNsb3NlLm1hcCgoXyxpKT0+ZTI2W2ldPT09bnVsbD9udWxsOmUxMltpXS1lMjZbaV0pO2NvbnN0IHVzYWJsZT1saW5lLmZpbHRlcih2PT52IT09bnVsbCksc2lnPWVtYSh1c2FibGUsOSk7aWYoc2lnLmxlbmd0aDwyfHxzaWcuYXQoLTEpPT09bnVsbClyZXR1cm4gbnVsbDtyZXR1cm4gbGluZS5hdCgtMSktc2lnLmF0KC0xKX0KZnVuY3Rpb24gYW5hbHl6ZShyYXcpe2NvbnN0IG5vdz1EYXRlLm5vdygpLCBjYW5kbGVzPXJhdy5tYXAocj0+KHtvcGVuOityWzFdLGhpZ2g6K3JbMl0sbG93OityWzNdLGNsb3NlOityWzRdLHZvbHVtZTorcls1XSxlbmQ6K3JbNl19KSkuZmlsdGVyKGM9PmMuZW5kPG5vdyk7aWYoY2FuZGxlcy5sZW5ndGg8NjApdGhyb3cgRXJyb3IoJ0NhbmRsZXMgZmVjaGFkb3MgaW5zdWZpY2llbnRlcycpO2NvbnN0IGNsb3NlPWNhbmRsZXMubWFwKGM9PmMuY2xvc2UpLGU5PWVtYShjbG9zZSw5KS5hdCgtMSksZTIxPWVtYShjbG9zZSwyMSkuYXQoLTEpLGUyMDA9ZW1hKGNsb3NlLDIwMCkuYXQoLTEpO2NvbnN0IGxhc3Q9Y2FuZGxlcy5hdCgtMSkscHJldj1jYW5kbGVzLmF0KC0yKSxyPXJzaShjbG9zZSksbT1tYWNkSGlzdG9ncmFtKGNsb3NlKSx2MjA9Y2FuZGxlcy5zbGljZSgtMjEsLTEpLnJlZHVjZSgoYSxjKT0+YStjLnZvbHVtZSwwKS8yMCx2cj12MjA+MD9sYXN0LnZvbHVtZS92MjA6MDtjb25zdCBiaWFzPWxhc3QuY2xvc2U+ZTkmJmU5PmUyMT8nQUxUQSc6bGFzdC5jbG9zZTxlOSYmZTk8ZTIxPydCQUlYQSc6J01JU1RPJztjb25zdCBsYXN0MjA9Y2FuZGxlcy5zbGljZSgtMjApLGxhc3Q1PWNhbmRsZXMuc2xpY2UoLTUpO3JldHVybiB7Y2FuZGxlcyxjbG9zZSxlOSxlMjEsZTIwMCxsYXN0LHByZXYscixtLHZyLGJpYXMsaGkyMDpNYXRoLm1heCguLi5sYXN0MjAubWFwKGM9PmMuaGlnaCkpLGxvMjA6TWF0aC5taW4oLi4ubGFzdDIwLm1hcChjPT5jLmxvdykpLGhpNTpNYXRoLm1heCguLi5sYXN0NS5tYXAoYz0+Yy5oaWdoKSksbG81Ok1hdGgubWluKC4uLmxhc3Q1Lm1hcChjPT5jLmxvdykpfX0KYXN5bmMgZnVuY3Rpb24gZmV0Y2hKU09OKGVuZHBvaW50KXtjb25zdCBiYXNlcz1bJ2h0dHBzOi8vZmFwaS5iaW5hbmNlLmNvbScsJ2h0dHBzOi8vZmFwaTEuYmluYW5jZS5jb20nLCdodHRwczovL2ZhcGkyLmJpbmFuY2UuY29tJ107bGV0IGVycjtmb3IoY29uc3QgYmFzZSBvZiBiYXNlcyl7dHJ5e2NvbnN0IHJlcz1hd2FpdCBmZXRjaChiYXNlK2VuZHBvaW50LHtjYWNoZTonbm8tc3RvcmUnLHNpZ25hbDpBYm9ydFNpZ25hbC50aW1lb3V0KDg1MDApfSk7aWYoIXJlcy5vayl0aHJvdyBFcnJvcignSFRUUCAnK3Jlcy5zdGF0dXMpO2NvbnN0IGQ9YXdhaXQgcmVzLmpzb24oKTtpZihkPy5jb2RlJiZkLmNvZGU8MCl0aHJvdyBFcnJvcihkLm1zZyk7cmV0dXJuIGR9Y2F0Y2goZSl7ZXJyPWV9fXRocm93IGVycnx8RXJyb3IoJ0FQSSBpbmRpc3BvbsOtdmVsJyl9CmFzeW5jIGZ1bmN0aW9uIHVwZGF0ZUFsbCgpe2lmKGJ1c3kpcmV0dXJuO2J1c3k9dHJ1ZTskKCdhcGlNc2cnKS50ZXh0Q29udGVudD0nQ29uc3VsdGFuZG8gYSBCaW5hbmNlIEZ1dHVyZXPigKYnOyQoJ3NpZ25hbCcpLnRleHRDb250ZW50PSdBR1VBUkRBUic7dHJ5e2NvbnN0IHJlc3VsdHM9YXdhaXQgUHJvbWlzZS5hbGxTZXR0bGVkKFsuLi5URlMubWFwKHRmPT5mZXRjaEpTT04oJy9mYXBpL3YxL2tsaW5lcz9zeW1ib2w9JytTWU1CT0wrJyZpbnRlcnZhbD0nK3RmKycmbGltaXQ9MjUwJykpLGZldGNoSlNPTignL2ZhcGkvdjEvdGlja2VyLzI0aHI/c3ltYm9sPScrU1lNQk9MKV0pO1RGUy5mb3JFYWNoKCh0ZixpKT0+e2lmKHJlc3VsdHNbaV0uc3RhdHVzPT09J2Z1bGZpbGxlZCcpe3RyeXtEQVRBW3RmXT1hbmFseXplKHJlc3VsdHNbaV0udmFsdWUpO0RBVEFbdGZdLmVycm9yPW51bGx9Y2F0Y2goZSl7REFUQVt0Zl09e2Vycm9yOmUubWVzc2FnZX19fWVsc2V7REFUQVt0Zl09e2Vycm9yOlN0cmluZyhyZXN1bHRzW2ldLnJlYXNvbj8ubWVzc2FnZXx8J0Vycm8gZGUgY29uc3VsdGEnKX19fSk7Y29uc3QgdGljaz1yZXN1bHRzWzRdLnN0YXR1cz09PSdmdWxmaWxsZWQnP3Jlc3VsdHNbNF0udmFsdWU6bnVsbDtpZih0aWNrKXskKCdwcmljZScpLnRleHRDb250ZW50PSckICcrZigrdGljay5sYXN0UHJpY2UsNCk7JCgnY2hhbmdlJykudGV4dENvbnRlbnQ9ZigrdGljay5wcmljZUNoYW5nZVBlcmNlbnQsMikrJyUnOyQoJ2NoYW5nZScpLmNsYXNzTmFtZT0nbWV0cmljICcrKCt0aWNrLnByaWNlQ2hhbmdlUGVyY2VudDwwPyduZWdhdGl2ZSc6J3Bvc2l0aXZlJyk7JCgncHJpY2VTdGF0dXMnKS50ZXh0Q29udGVudD0nw5psdGltbyBuZWfDs2NpbywgbsOjbyBtYXJrIHByaWNlJ31lbHNleyQoJ3ByaWNlJykudGV4dENvbnRlbnQ9J1NFTSBEQURPUyc7JCgnY2hhbmdlJykudGV4dENvbnRlbnQ9J+KAlCc7JCgncHJpY2VTdGF0dXMnKS50ZXh0Q29udGVudD0nUHJlw6dvIGluZGlzcG9uw612ZWwnfXRpbWVzdGFtcD1uZXcgRGF0ZSgpOyQoJ2xhc3RVcGRhdGUnKS50ZXh0Q29udGVudD0nQ29uc3VsdGFkbzogJyt0aW1lc3RhbXAudG9Mb2NhbGVUaW1lU3RyaW5nKCdwdC1CUicpOyQoJ2FwaU1zZycpLnRleHRDb250ZW50PU9iamVjdC52YWx1ZXMoREFUQSkuZXZlcnkoZD0+IWQuZXJyb3IpPydBdHVhbGl6YcOnw6NvIHJlYWxpemFkYS4gSW5kaWNhZG9yZXMgY2FsY3VsYWRvcyBjb20gY2FuZGxlcyBmZWNoYWRvcy4nOidBdGVuw6fDo286IGFsZ3VucyBwZXLDrW9kb3MgbsOjbyBwdWRlcmFtIHNlciBjb25zdWx0YWRvczsgbsOjbyBow6EgY29uZmlybWHDp8OjbyBkZXNzZXMgZGFkb3MuJztyZW5kZXJBbGwoKTthd2FpdCBwcm9jZXNzTnRmeUFsZXJ0cygpfWNhdGNoKGUpeyQoJ2FwaU1zZycpLnRleHRDb250ZW50PSdGYWxoYSBhbyBjb25zdWx0YXIgbWVyY2FkbzogJytlLm1lc3NhZ2U7T2JqZWN0LmtleXMoREFUQSkuZm9yRWFjaChrPT5kZWxldGUgREFUQVtrXSk7JCgncHJpY2UnKS50ZXh0Q29udGVudD0nU0VNIERBRE9TJzskKCdjaGFuZ2UnKS50ZXh0Q29udGVudD0n4oCUJztyZW5kZXJBbGwoKX1maW5hbGx5e2J1c3k9ZmFsc2V9fQpmdW5jdGlvbiByZW5kZXJBbGwoKXtjb25zdCB0ZkxhYmVscz17JzFtJzonMSBtaW51dG8nLCcxNW0nOicxNSBtaW51dG9zJywnMWgnOicxIGhvcmEnLCc0aCc6JzQgaG9yYXMnfTskKCd0ZlJvd3MnKS5pbm5lckhUTUw9VEZTLm1hcCh0Zj0+e2NvbnN0IGQ9REFUQVt0Zl07aWYoIWR8fGQuZXJyb3IpcmV0dXJuICc8dHI+PHRkPjxiPicrdGYrJzwvYj48L3RkPjx0ZCBjb2xzcGFuPSI2Ij5TRU0gREFET1Mg4oCUICcrZXNjYXBlSHRtbChkPy5lcnJvcnx8J2luZGlzcG9uw612ZWwnKSsnPC90ZD48L3RyPic7Y29uc3Qgc3RhdHVzPShkLmJpYXM9PT0nQUxUQScmJmQubT4wPydGb3LDp2EgY29tcHJhZG9yYSc6ZC5iaWFzPT09J0JBSVhBJyYmZC5tPDA/J0ZvcsOnYSB2ZW5kZWRvcmEnOidTZW0gYWxpbmhhbWVudG8gcGxlbm8nKTtyZXR1cm4gJzx0cj48dGQ+PGI+Jyt0ZkxhYmVsc1t0Zl0rJzwvYj48L3RkPjx0ZD48c3BhbiBjbGFzcz0icGlsbCAnKyhkLmJpYXM9PT0nQUxUQSc/J3VwJzpkLmJpYXM9PT0nQkFJWEEnPydkb3duJzond2FpdCcpKyciPicrZC5iaWFzKyc8L3NwYW4+PC90ZD48dGQ+JytmKGQuciwxKSsnPC90ZD48dGQgY2xhc3M9IicrKGQubTwwPyduZWdhdGl2ZSc6J3Bvc2l0aXZlJykrJyI+JytmKGQubSw1KSsnPC90ZD48dGQ+JytmKGQudnIsMikrJ3g8L3RkPjx0ZD4nK25ldyBEYXRlKGQubGFzdC5lbmQpLnRvTG9jYWxlU3RyaW5nKCdwdC1CUicpKyc8L3RkPjx0ZD4nK3N0YXR1cysnPC90ZD48L3RyPid9KS5qb2luKCcnKTskKCdsZXZlbHMnKS5pbm5lckhUTUw9VEZTLm1hcCh0Zj0+e2NvbnN0IGQ9REFUQVt0Zl07cmV0dXJuICc8dHI+PHRkPicrdGYrJzwvdGQ+JysoZCYmIWQuZXJyb3I/Jzx0ZD4nK2YoZC5oaTIwKSsnPC90ZD48dGQ+JytmKGQubG8yMCkrJzwvdGQ+PHRkPicrZihkLmhpNSkrJzwvdGQ+PHRkPicrZihkLmxvNSkrJzwvdGQ+JzonPHRkIGNvbHNwYW49IjQiPuKAlDwvdGQ+JykrJzwvdHI+J30pLmpvaW4oJycpO2NvbnN0IGE9WycxNW0nLCcxaCcsJzRoJ10ubWFwKHRmPT5EQVRBW3RmXSk7Y29uc3QgY29tcGxldGU9YS5ldmVyeShkPT5kJiYhZC5lcnJvcik7bGV0IHRyZW5kPSdTRU0gREFET1MnO2lmKGNvbXBsZXRlKXtjb25zdCB1cD1hLmZpbHRlcihkPT5kLmJpYXM9PT0nQUxUQScpLmxlbmd0aCxkb3duPWEuZmlsdGVyKGQ9PmQuYmlhcz09PSdCQUlYQScpLmxlbmd0aDt0cmVuZD11cD09PTM/J0FMVEEgMy8zJzpkb3duPT09Mz8nQkFJWEEgMy8zJzonTUlTVE8nOyQoJ2FncmVlbWVudCcpLnRleHRDb250ZW50PWBBbHRhICR7dXB9LzMg4oCiIEJhaXhhICR7ZG93bn0vM2B9ZWxzZSAkKCdhZ3JlZW1lbnQnKS50ZXh0Q29udGVudD0nQ29uZmx1w6puY2lhIGluZGlzcG9uw612ZWwnOyQoJ2JpYXMnKS50ZXh0Q29udGVudD10cmVuZDskKCdiaWFzJykuY2xhc3NOYW1lPSdtZXRyaWMgJysodHJlbmQuaW5jbHVkZXMoJ0FMVEEnKT8ncG9zaXRpdmUnOnRyZW5kLmluY2x1ZGVzKCdCQUlYQScpPyduZWdhdGl2ZSc6J25ldXRyYWwnKTtjb25zdCBvbmU9REFUQVsnMW0nXSxmaWZ0ZWVuPURBVEFbJzE1bSddLGhvdXI9REFUQVsnMWgnXSxmb3VyPURBVEFbJzRoJ107bGV0IGxvbmc9ZmFsc2Usc2hvcnQ9ZmFsc2U7aWYoW29uZSxmaWZ0ZWVuLGhvdXIsZm91cl0uZXZlcnkoZD0+ZCYmIWQuZXJyb3IpKXtjb25zdCBmaWx0ZXJMb25nPWhvdXIuYmlhcz09PSdBTFRBJyYmZm91ci5iaWFzIT09J0JBSVhBJyYmZmlmdGVlbi5iaWFzPT09J0FMVEEnJiZmaWZ0ZWVuLm0+MDtjb25zdCBmaWx0ZXJTaG9ydD1ob3VyLmJpYXM9PT0nQkFJWEEnJiZmb3VyLmJpYXMhPT0nQUxUQScmJmZpZnRlZW4uYmlhcz09PSdCQUlYQScmJmZpZnRlZW4ubTwwO2xvbmc9ZmlsdGVyTG9uZyYmb25lLmxhc3QuY2xvc2U+b25lLnByZXYuaGlnaCYmb25lLnZyPj0xLjImJm9uZS5tPjA7c2hvcnQ9ZmlsdGVyU2hvcnQmJm9uZS5sYXN0LmNsb3NlPG9uZS5wcmV2LmxvdyYmb25lLnZyPj0xLjImJm9uZS5tPDA7IC8vIGFsZXJ0YSB0w6ljbmljbyBpbmljaWFsLCBuw6NvIG9yZGVtCiQoJ2xvbmdUZXh0JykudGV4dENvbnRlbnQ9KGZpbHRlckxvbmc/J0ZpbHRyb3MgMTVtLzFoIGZhdm9yw6F2ZWlzLiAnOidGaWx0cm9zIG1haW9yZXMgbsOjbyBhbGluaGFkb3MuICcpKyhsb25nPycxbSB1bHRyYXBhc3NvdSBtw6F4aW1hIGFudGVyaW9yIGNvbSB2b2x1bWUgZSBNQUNEIHBvc2l0aXZvOyBjaGVjYXIgbm8gZ3LDoWZpY28gYSB2YWxpZGFkZSBkbyByZXRlc3RlIGUgbyBzdG9wLic6J0FndWFyZGFyIGNhbmRsZSAxbSBmZWNoYXIgYWNpbWEgZGEgbcOheGltYSBhbnRlcmlvciBjb20gdm9sdW1lIOKJpTEsMnggZSBNQUNEIHBvc2l0aXZvLicpOyQoJ3Nob3J0VGV4dCcpLnRleHRDb250ZW50PShmaWx0ZXJTaG9ydD8nRmlsdHJvcyAxNW0vMWggZmF2b3LDoXZlaXMuICc6J0ZpbHRyb3MgbWFpb3JlcyBuw6NvIGFsaW5oYWRvcy4gJykrKHNob3J0PycxbSBwZXJkZXUgbcOtbmltYSBhbnRlcmlvciBjb20gdm9sdW1lIGUgTUFDRCBuZWdhdGl2bzsgY29uZmlybWFyIGVzdHJ1dHVyYSBlIHN0b3AgYW50ZXMgZGEgZGVjaXPDo28uJzonQWd1YXJkYXIgY2FuZGxlIDFtIGZlY2hhciBhYmFpeG8gZGEgbcOtbmltYSBhbnRlcmlvciBjb20gdm9sdW1lIOKJpTEsMnggZSBNQUNEIG5lZ2F0aXZvLicpOyQoJ3N0cnVjdFRleHQnKS50ZXh0Q29udGVudD0nRmlsdHJvIDRoOiAnK2ZvdXIuYmlhcysnOyAxaDogJytob3VyLmJpYXMrJzsgMTVtOiAnK2ZpZnRlZW4uYmlhcysnLiBNw6lkaWEgTU1FMjAwICg0aCk6ICcrZihmb3VyLmUyMDApKycuIEEgY2xhc3NpZmljYcOnw6NvIG7Do28gY29uZmlybWEgQk9TL0NIb0NIIG91IFNNQy4nO31lbHNleyQoJ2xvbmdUZXh0JykudGV4dENvbnRlbnQ9J1NlbSBkYWRvcyBzdWZpY2llbnRlcyBwYXJhIHZlcmlmaWNhciBmaWx0cm9zOyBuw6NvIGjDoSBzaW5hbC4nOyQoJ3Nob3J0VGV4dCcpLnRleHRDb250ZW50PSdTZW0gZGFkb3Mgc3VmaWNpZW50ZXMgcGFyYSB2ZXJpZmljYXIgZmlsdHJvczsgbsOjbyBow6Egc2luYWwuJzskKCdzdHJ1Y3RUZXh0JykudGV4dENvbnRlbnQ9J1NlbSB0b2RvcyBvcyBkYWRvcyBuw6NvIMOpIHBvc3PDrXZlbCB2YWxpZGFyIGEgZXN0cnV0dXJhIG11bHRpLXRpbWVmcmFtZS4nfQokKCdsb25nQmFkZ2UnKS50ZXh0Q29udGVudD1sb25nPydQcsOpLWdhdGlsaG8gdMOpY25pY287IHZhbGlkYXIgbWFudWFsbWVudGUnOidTZW0gY29uZmlybWHDp8Ojbyc7JCgnc2hvcnRCYWRnZScpLnRleHRDb250ZW50PXNob3J0PydQcsOpLWdhdGlsaG8gdMOpY25pY287IHZhbGlkYXIgbWFudWFsbWVudGUnOidTZW0gY29uZmlybWHDp8Ojbyc7JCgnbG9uZ0JhZGdlJykuY2xhc3NOYW1lPSdwaWxsICcrKGxvbmc/J3VwJzond2FpdCcpOyQoJ3Nob3J0QmFkZ2UnKS5jbGFzc05hbWU9J3BpbGwgJysoc2hvcnQ/J2Rvd24nOid3YWl0Jyk7JCgnc2lnbmFsJykudGV4dENvbnRlbnQ9bG9uZz8nUFLDiS1MT05HJzpzaG9ydD8nUFLDiS1TSE9SVCc6J0FHVUFSREFSJzskKCdzaWduYWwnKS5jbGFzc05hbWU9J21ldHJpYyAnKyhsb25nPydwb3NpdGl2ZSc6c2hvcnQ/J25lZ2F0aXZlJzonbmV1dHJhbCcpO2RyYXdDaGFydCgpO3JlbmRlclJlcG9ydCgpfQpmdW5jdGlvbiBkcmF3Q2hhcnQoKXtkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCcjY2hhcnRUYWJzIGJ1dHRvbicpLmZvckVhY2goYj0+Yi5jbGFzc0xpc3QudG9nZ2xlKCdhY3RpdmUnLGIudGV4dENvbnRlbnQ9PT1jaGFydFRGKSk7Y29uc3QgZD1EQVRBW2NoYXJ0VEZdO2lmKCFkfHxkLmVycm9yKXskKCdjaGFydCcpLmlubmVySFRNTD0nPHAgY2xhc3M9Im11dGVkIj5HcsOhZmljbyBpbmRpc3BvbsOtdmVsIHNlbSBjYW5kbGVzIGRhIEFQSS48L3A+JztyZXR1cm59Y29uc3QgdmFscz1kLmNsb3NlLnNsaWNlKC02MCksdz02MDAsaD0xODUscD0xOSxtaW49TWF0aC5taW4oLi4udmFscyksbWF4PU1hdGgubWF4KC4uLnZhbHMpLHNwYW49bWF4LW1pbnx8MTtjb25zdCBwdHM9dmFscy5tYXAoKHYsaSk9PltwK2kqKHctMipwKS8odmFscy5sZW5ndGgtMSksaC1wLSh2LW1pbikvc3BhbiooaC0yKnApXSk7Y29uc3QgcGF0aD1wdHMubWFwKChhLGkpPT4oaT8nTCc6J00nKSthLm1hcChuPT5uLnRvRml4ZWQoMikpLmpvaW4oJyAnKSkuam9pbignICcpOyQoJ2NoYXJ0JykuaW5uZXJIVE1MPSc8c3ZnIHZpZXdCb3g9IjAgMCAnK3crJyAnK2grJyIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJMaW5oYSBkZSBwcmXDp29zIG5vICcrY2hhcnRURisnIj48cGF0aCBkPSInK3BhdGgrJyIgc3Ryb2tlPSIjNDBkMWIwIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPjxsaW5lIHgxPSInK3ArJyIgeTE9IicrKGgtcCkrJyIgeDI9IicrKHctcCkrJyIgeTI9IicrKGgtcCkrJyIgc3Ryb2tlPSIjNTI2NDdiIi8+PHRleHQgeD0iMjIiIHk9IjE3IiBmb250LXNpemU9IjEyIiBmaWxsPSIjYWZjMWQ0Ij5Nw6F4LiAnK2YobWF4LDMpKyc8L3RleHQ+PHRleHQgeD0iMjIiIHk9IicrKGgtNCkrJyIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2FmYzFkNCI+TcOtbi4gJytmKG1pbiwzKSsnPC90ZXh0Pjwvc3ZnPid9CmZ1bmN0aW9uIHNldENoYXJ0KHRmKXtjaGFydFRGPXRmO2RyYXdDaGFydCgpfQpmdW5jdGlvbiBjYWxjKCl7Y29uc3QgZT0rJCgnZW50cnknKS52YWx1ZSxzPSskKCdzdG9wJykudmFsdWUsY2FwaXRhbD0rJCgnYmFsYW5jZScpLnZhbHVlLHJpc2s9KyQoJ3Jpc2snKS52YWx1ZSxsZXY9KyQoJ2xldicpLnZhbHVlLGlzTG9uZz0kKCdkaXJlY3Rpb24nKS52YWx1ZT09PSdsb25nJyxkaXN0PU1hdGguYWJzKGUtcyksdmFsaWQ9ZT4wJiZzPjAmJmRpc3Q+MCYmY2FwaXRhbD4wJiZyaXNrPjAmJnJpc2s8PTEwMCYmbGV2Pj0xJiZsZXY8PTEyNSYmKGlzTG9uZz9zPGU6cz5lKTskKCdtYXhMb3NzJykudGV4dENvbnRlbnQ9JCgncXR5JykudGV4dENvbnRlbnQ9JCgnbWFyZ2luJykudGV4dENvbnRlbnQ9JCgnbm90aW9uYWwnKS50ZXh0Q29udGVudD0n4oCUJzskKCd0YXJnZXRzJykuaW5uZXJIVE1MPSc8dHI+PHRkIGNvbHNwYW49IjQiPlByZWVuY2hhIHVtYSBlbnRyYWRhIGUgdW0gc3RvcCBjb2VyZW50ZXMuPC90ZD48L3RyPic7JCgnY2FsY1N0YXR1cycpLnRleHRDb250ZW50PXZhbGlkPydDw6FsY3VsbyB0ZcOzcmljbyBwb3IgcmlzY28gKGFudGVzIGRlIHRheGFzIGUgc2xpcHBhZ2UpLic6J0luZm9ybWUgZW50cmFkYSwgc3RvcCwgY2FwaXRhbCwgcmlzY28gZSBhbGF2YW5jYWdlbSB2w6FsaWRvcy4gUGFyYSBMT05HIHN0b3AgYWJhaXhvOyBwYXJhIFNIT1JUIHN0b3AgYWNpbWEuJztpZighdmFsaWQpe3JlbmRlclJlcG9ydCgpO3JldHVybn1jb25zdCBtYXhMb3NzPWNhcGl0YWwqcmlzay8xMDAscXR5PW1heExvc3MvZGlzdCxub21pbmFsPXF0eSplLG1hcmdpbj1ub21pbmFsL2xldjskKCdtYXhMb3NzJykudGV4dENvbnRlbnQ9bW9uZXkobWF4TG9zcyk7JCgncXR5JykudGV4dENvbnRlbnQ9ZihxdHksMyk7JCgnbWFyZ2luJykudGV4dENvbnRlbnQ9bW9uZXkobWFyZ2luKTskKCdub3Rpb25hbCcpLnRleHRDb250ZW50PW1vbmV5KG5vbWluYWwpOyQoJ3RhcmdldHMnKS5pbm5lckhUTUw9WzEsMiwzXS5tYXAocj0+e2NvbnN0IHRhcmdldD1lKyhpc0xvbmc/MTotMSkqZGlzdCpyO3JldHVybiAnPHRyPjx0ZD5BbHZvICcrcisnPC90ZD48dGQ+JytmKHRhcmdldCkrJzwvdGQ+PHRkPicrbW9uZXkobWF4TG9zcypyKSsnPC90ZD48dGQ+JytyKyc6MTwvdGQ+PC90cj4nfSkuam9pbignJyk7JCgnY2FsY1N0YXR1cycpLnRleHRDb250ZW50PShtYXJnaW4+Y2FwaXRhbD8n4pqgIE1hcmdlbSByZXF1ZXJpZGEgc3VwZXJhIG8gY2FwaXRhbCBkZWNsYXJhZG8uICc6JycpKydEaXN0w6JuY2lhIGF0w6kgbyBzdG9wOiAnK2YoZGlzdCw0KSsnIFVTRFQgKCcrZihkaXN0L2UqMTAwLDIpKyclKS4gQWx2b3MgY2FsY3VsYWRvcyBlbSBSLCBuw6NvIG5lY2Vzc2FyaWFtZW50ZSByZXNpc3TDqm5jaWFzIHJlYWlzLic7cmVuZGVyUmVwb3J0KCl9CmNvbnN0IGNoZWNrcz1bJ0NvbnRleHRvIDRoIGlkZW50aWZpY2FkbyAoc2VtIGludmVudGFyIGNvbmZpcm1hw6fDo28pJywnRXN0cnV0dXJhIGRvIDFoIGFsaW5oYWRhIMOgIGRpcmXDp8OjbycsJzE1bSBjb25maXJtb3UgZmVjaGFtZW50byBkbyBnYXRpbGhvJywnMW0gdmFsaWRvdSBleGVjdcOnw6NvIGUgdm9sdW1lIChuw6NvIGlzb2xhZGFtZW50ZSknLCdSU0ksIE1BQ0QsIG3DqWRpYXMgZSB2b2x1bWUgY29uZmVyaWRvcycsJ1N0b3AgcG9yIGludmFsaWRhw6fDo287IGFsdm8gbcOtbmltbyBkZSAyUiddO2Z1bmN0aW9uIHJlbmRlckNoZWNrcygpe2NvbnN0IGNoZWNrZWQ9bmV3IFNldChKU09OLnBhcnNlKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdMSU5LX0VHSV9jaGVja3MnKXx8J1tdJykpOyQoJ2NoZWNrcycpLmlubmVySFRNTD1jaGVja3MubWFwKChjLGkpPT4nPGRpdiBjbGFzcz0iY2hlY2siPjxpbnB1dCBhcmlhLWxhYmVsPSInK2VzY2FwZUh0bWwoYykrJyIgdHlwZT0iY2hlY2tib3giIGlkPSJjaGsnK2krJyIgJysoY2hlY2tlZC5oYXMoaSk/J2NoZWNrZWQnOicnKSsnIG9uY2hhbmdlPSJzYXZlQ2hlY2tzKCkiPjxsYWJlbCBmb3I9ImNoaycraSsnIj4nK2VzY2FwZUh0bWwoYykrJzwvbGFiZWw+PC9kaXY+Jykuam9pbignJyk7JCgnY2hlY2tzUmVzdWx0JykudGV4dENvbnRlbnQ9Y2hlY2tlZC5zaXplKycvNiB2ZXJpZmljYcOnw7VlcyByZWFsaXphZGFzIOKAlCBjaGVja2xpc3QgbWFudWFsLCBzZW0gZ2VyYcOnw6NvIGRlIG9yZGVtJ31mdW5jdGlvbiBzYXZlQ2hlY2tzKCl7Y29uc3QgaXg9Y2hlY2tzLm1hcCgoXyxpKT0+aSkuZmlsdGVyKGk9PiQoJ2NoaycraSkuY2hlY2tlZCk7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ0xJTktfRUdJX2NoZWNrcycsSlNPTi5zdHJpbmdpZnkoaXgpKTtyZW5kZXJDaGVja3MoKX1mdW5jdGlvbiBjbGVhckNoZWNrcygpe2xvY2FsU3RvcmFnZS5yZW1vdmVJdGVtKCdMSU5LX0VHSV9jaGVja3MnKTtyZW5kZXJDaGVja3MoKX0KZnVuY3Rpb24gcmVuZGVyUmVwb3J0KCl7Y29uc3QgdGY9VEZTLm1hcChrPT57bGV0IGQ9REFUQVtrXTtyZXR1cm4gZCYmIWQuZXJyb3I/YCR7a30gfCAke2QuYmlhc30gfCBmZWNoYW1lbnRvICR7ZihkLmxhc3QuY2xvc2UpfSB8IFJTSSAke2YoZC5yLDEpfSB8IE1BQ0QgaGlzdCAke2YoZC5tLDUpfSB8IHZvbHVtZSAke2YoZC52ciwyKX14IHwgTU1FOSAke2YoZC5lOSl9IHwgTU1FMjEgJHtmKGQuZTIxKX0gfCBNTUUyMDAgJHtmKGQuZTIwMCl9IHwgbcOtbmltbzIwICR7ZihkLmxvMjApfSB8IG3DoXhpbW8yMCAke2YoZC5oaTIwKX0gfCBjYW5kbGUgJHtuZXcgRGF0ZShkLmxhc3QuZW5kKS50b0lTT1N0cmluZygpfWA6YCR7a30gfCBTRU0gREFET1M6ICR7ZD8uZXJyb3J8fCdpbmRpc3BvbsOtdmVsJ31gfSkuam9pbignXG4nKTtjb25zdCB0ZXh0PWBSRUxBVMOTUklPIEVHSSDigJQgTElOS1VTRFQgQklOQU5DRSBGVVRVUk9TXG5Db25zdWx0YTogJHt0aW1lc3RhbXA/dGltZXN0YW1wLnRvTG9jYWxlU3RyaW5nKCdwdC1CUicpOidzZW0gYXR1YWxpemHDp8Ojbyd9XG5QcmXDp28gbmVnb2NpYWRvOiAkeyQoJ3ByaWNlJykudGV4dENvbnRlbnR9XG5WYXJpYcOnw6NvIDI0aDogJHskKCdjaGFuZ2UnKS50ZXh0Q29udGVudH1cbkNPTkZMVcOKTkNJQTogJHskKCdiaWFzJykudGV4dENvbnRlbnR9XG5FU1RBRE8gQVVUT03DgVRJQ086ICR7JCgnc2lnbmFsJykudGV4dENvbnRlbnR9IChwcsOpLWdhdGlsaG9zIE7Dg08gcmVwcmVzZW50YW0gb3JkZW0gb3UgY29uZmlybWHDp8OjbyBlc3RydXR1cmFsKVxuXG5USU1FRlJBTUVTIOKAlCBDQU5ETEVTIEZFQ0hBRE9TXG4ke3RmfVxuXG5DRU7DgVJJTyBMT05HOiAkeyQoJ2xvbmdUZXh0JykudGV4dENvbnRlbnR9XG5DRU7DgVJJTyBTSE9SVDogJHskKCdzaG9ydFRleHQnKS50ZXh0Q29udGVudH1cblxuUExBTkVKQU1FTlRPXG5EaXJlw6fDo286ICR7JCgnZGlyZWN0aW9uJykudmFsdWUudG9VcHBlckNhc2UoKX0gfCBFbnRyYWRhOiAkeyQoJ2VudHJ5JykudmFsdWV8fCduw6NvIGluZm9ybWFkYSd9IHwgU3RvcDogJHskKCdzdG9wJykudmFsdWV8fCduw6NvIGluZm9ybWFkbyd9XG5DYXBpdGFsOiAkeyQoJ2JhbGFuY2UnKS52YWx1ZX0gfCBSaXNjbzogJHskKCdyaXNrJykudmFsdWV9JSB8IEFsYXZhbmNhZ2VtOiAkeyQoJ2xldicpLnZhbHVlfXhcblBlcmRhIHRlw7NyaWNhOiAkeyQoJ21heExvc3MnKS50ZXh0Q29udGVudH0gfCBQb3Npw6fDo286ICR7JCgnbm90aW9uYWwnKS50ZXh0Q29udGVudH0gfCBNYXJnZW06ICR7JCgnbWFyZ2luJykudGV4dENvbnRlbnR9XG5cbk9ic2VydmHDp8OjbzogZGFkb3MgcMO6YmxpY29zIEJpbmFuY2UgVVNE4pOILU07IHNlbSBvcmRlbnMgYXV0b23DoXRpY2FzOyBwYWRyw7VlcyBTTUMvQk9TL0NIb0NIIG7Do28gdmVyaWZpY2Fkb3MuXG5BYnJpciBMSU5LOiAke3VybH1gOyQoJ3JlcG9ydCcpLnZhbHVlPXRleHR9CmZ1bmN0aW9uIHVwZGF0ZUNvcHlGZWVkYmFjayhtZXNzYWdlLG9rKXtjb25zdCBlbD0kKCdjb3B5TXNnJyk7ZWwudGV4dENvbnRlbnQ9bWVzc2FnZTtlbC5jbGFzc05hbWU9J2FjdGlvbi1yZXN1bHQgJysob2s/J2dvb2QnOidiYWQnKX0KZnVuY3Rpb24gc2VsZWN0UmVwb3J0KCl7Y29uc3QgYm94PSQoJ3JlcG9ydCcpO2JveC5mb2N1cygpO2JveC5zZWxlY3QoKTtib3guc2V0U2VsZWN0aW9uUmFuZ2UoMCxib3gudmFsdWUubGVuZ3RoKTt1cGRhdGVDb3B5RmVlZGJhY2soJ1RleHRvIHNlbGVjaW9uYWRvLiBTZSBuw6NvIGNvcGlhciBhdXRvbWF0aWNhbWVudGUsIHRvcXVlIGUgc2VndXJlIHNvYnJlIG8gdGV4dG8gZSBlc2NvbGhhIENvcGlhci4nLGZhbHNlKX0KYXN5bmMgZnVuY3Rpb24gY29weVJlcG9ydCgpewogIGNvbnN0IGJveD0kKCdyZXBvcnQnKTtpZighYm94LnZhbHVlKXt1cGRhdGVDb3B5RmVlZGJhY2soJ1JlbGF0w7NyaW8gdmF6aW8uIEFndWFyZGUgYSBhdHVhbGl6YcOnw6NvLicsZmFsc2UpO3JldHVybn0KICAvLyBQcmltZWlyYSB0ZW50YXRpdmEgc8OtbmNyb25hIGRlbnRybyBkbyB0b3F1ZS4gQ29tcGF0w612ZWwgY29tIHbDoXJpb3MgV2ViVmlld3MvZmlsZTovLy4KICBib3guZm9jdXMoKTtib3guc2VsZWN0KCk7Ym94LnNldFNlbGVjdGlvblJhbmdlKDAsYm94LnZhbHVlLmxlbmd0aCk7CiAgbGV0IG9rPWZhbHNlO3RyeXtvaz0hIWRvY3VtZW50LmV4ZWNDb21tYW5kKCdjb3B5Jyl9Y2F0Y2goZSl7fQogIGlmKG9rKXt1cGRhdGVDb3B5RmVlZGJhY2soJ+KchSBSZWxhdMOzcmlvIGNvcGlhZG8uIEFnb3JhIGNvbGUgbm8gQ2hhdEdQVC4nLHRydWUpO3JldHVybn0KICAvLyBTZWd1bmRhIHRlbnRhdGl2YTogQ2xpcGJvYXJkIEFQSSAocXVhbmRvIG8gdmlzdWFsaXphZG9yIHBlcm1pdGlyKS4KICB0cnl7aWYobmF2aWdhdG9yLmNsaXBib2FyZCYmbmF2aWdhdG9yLmNsaXBib2FyZC53cml0ZVRleHQpe2F3YWl0IG5hdmlnYXRvci5jbGlwYm9hcmQud3JpdGVUZXh0KGJveC52YWx1ZSk7b2s9dHJ1ZX19Y2F0Y2goZSl7fQogIGlmKG9rKXt1cGRhdGVDb3B5RmVlZGJhY2soJ+KchSBSZWxhdMOzcmlvIGNvcGlhZG8uIEFnb3JhIGNvbGUgbm8gQ2hhdEdQVC4nLHRydWUpO3JldHVybn0KICBzZWxlY3RSZXBvcnQoKTt1cGRhdGVDb3B5RmVlZGJhY2soJ+KaoO+4jyBMZWl0b3IgQW5kcm9pZCBibG9xdWVvdSBvIGNsaXBib2FyZC4gVXNlIENvbXBhcnRpbGhhciBvdSBwcmVzc2lvbmUgZSBzZWd1cmUgbyB0ZXh0byBzZWxlY2lvbmFkbyBlIHRvcXVlIGVtIENvcGlhci4nLGZhbHNlKQp9CmFzeW5jIGZ1bmN0aW9uIHNoYXJlUmVwb3J0KCl7Y29uc3QgdmFsdWU9JCgncmVwb3J0JykudmFsdWU7aWYoIXZhbHVlKXt1cGRhdGVDb3B5RmVlZGJhY2soJ1NlbSByZWxhdMOzcmlvIHBhcmEgY29tcGFydGlsaGFyLicsZmFsc2UpO3JldHVybn0KICBpZighbmF2aWdhdG9yLnNoYXJlKXtzZWxlY3RSZXBvcnQoKTt1cGRhdGVDb3B5RmVlZGJhY2soJ0VzdGUgbGVpdG9yIG7Do28gb2ZlcmVjZSBjb21wYXJ0aWxoYW1lbnRvLiBVc2UgdGV4dG8gc2VsZWNpb25hZG8gb3UgU2FsdmFyIFRYVC4nLGZhbHNlKTtyZXR1cm59CiAgdHJ5e2F3YWl0IG5hdmlnYXRvci5zaGFyZSh7dGl0bGU6J0xJTktVU0RUIC0gUmVsYXRvcmlvIEVHSScsdGV4dDp2YWx1ZX0pO3VwZGF0ZUNvcHlGZWVkYmFjaygn4pyFIENvbXBhcnRpbGhhbWVudG8gc29saWNpdGFkby4gU2VsZWNpb25lIENoYXRHUFQgb3UgbyBhcGxpY2F0aXZvIGRlc2VqYWRvLicsdHJ1ZSl9CiAgY2F0Y2goZSl7aWYoZS5uYW1lPT09J0Fib3J0RXJyb3InKXVwZGF0ZUNvcHlGZWVkYmFjaygnQ29tcGFydGlsaGFtZW50byBjYW5jZWxhZG8uJyxmYWxzZSk7ZWxzZSB1cGRhdGVDb3B5RmVlZGJhY2soJ07Do28gZm9pIHBvc3PDrXZlbCBjb21wYXJ0aWxoYXIuIEV4cGVyaW1lbnRlIFNlbGVjaW9uYXIgdGV4dG8gb3UgU2FsdmFyIFRYVC4nLGZhbHNlKX0KfQoKYXN5bmMgZnVuY3Rpb24gY29weUJpbmFuY2VMaW5rKCl7Y29uc3QgZmllbGQ9JCgnYmluYW5jZUxpbmtGaWVsZCcpO2xldCBvaz1mYWxzZTt0cnl7aWYobmF2aWdhdG9yLmNsaXBib2FyZD8ud3JpdGVUZXh0KXthd2FpdCBuYXZpZ2F0b3IuY2xpcGJvYXJkLndyaXRlVGV4dCh1cmwpO29rPXRydWV9fWNhdGNoKGUpe31pZighb2spe3RyeXtmaWVsZC5mb2N1cygpO2ZpZWxkLnNlbGVjdCgpO2ZpZWxkLnNldFNlbGVjdGlvblJhbmdlKDAsZmllbGQudmFsdWUubGVuZ3RoKTtvaz1kb2N1bWVudC5leGVjQ29tbWFuZCgnY29weScpfWNhdGNoKGUpe319JCgnYmluYW5jZU1zZycpLnRleHRDb250ZW50PW9rPyfinIUgTGluayBjb3BpYWRvISBBYnJhIG8gQ2hyb21lLCB0b3F1ZSBuYSBiYXJyYSBkZSBlbmRlcmXDp29zIGUgY29sZS4nOifimqDvuI8gQ8OzcGlhIGF1dG9tw6F0aWNhIGJsb3F1ZWFkYS4gTyBlbmRlcmXDp28gZXN0w6Egbm8gY2FtcG8gYWNpbWE6IHNlbGVjaW9uZSBlIGNvcGllIG1hbnVhbG1lbnRlLCBkZXBvaXMgY29sZSBubyBDaHJvbWUuJztpZighb2spe2ZpZWxkLmZvY3VzKCk7ZmllbGQuc2VsZWN0KCl9fQpmdW5jdGlvbiBkb3dubG9hZFJlcG9ydCgpe2NvbnN0IGJsb2I9bmV3IEJsb2IoWyQoJ3JlcG9ydCcpLnZhbHVlXSx7dHlwZTondGV4dC9wbGFpbjtjaGFyc2V0PXV0Zi04J30pLGE9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnYScpO2EuaHJlZj1VUkwuY3JlYXRlT2JqZWN0VVJMKGJsb2IpO2EuZG93bmxvYWQ9J0xJTktVU0RUX1JlbGF0b3Jpb19FR0lfJytuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc2xpY2UoMCwxMCkrJy50eHQnO2EuY2xpY2soKTtzZXRUaW1lb3V0KCgpPT5VUkwucmV2b2tlT2JqZWN0VVJMKGEuaHJlZiksMTUwMCl9Cgpjb25zdCBOVEZZX0tFWT0nTElOS19FR0lfbnRmeV92MycsTlRGWV9CQVNFPSdodHRwczovL250Znkuc2gvJzsKbGV0IG50ZnlDb25maWc9e3RvcGljOicnLG1vZGU6J3RyaWdnZXInLGVuYWJsZWQ6ZmFsc2V9LCBudGZ5T2JzZXJ2ZWQ9bnVsbCwgbnRmeUJ1c3k9ZmFsc2U7CmZ1bmN0aW9uIG50ZnlTYXZlTG9jYWwoKXt0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oTlRGWV9LRVksSlNPTi5zdHJpbmdpZnkobnRmeUNvbmZpZykpfWNhdGNoKGUpe250ZnlTZXRNc2coJ07Do28gZm9pIHBvc3PDrXZlbCBzYWx2YXIgbm8gYXJtYXplbmFtZW50byBkbyBuYXZlZ2Fkb3IuIEEgY29uZmlndXJhw6fDo28gcG9kZSBzZXIgcGVyZGlkYS4nLGZhbHNlKX19CmZ1bmN0aW9uIG50ZnlHZXRMb2NhbCgpe3RyeXtjb25zdCB2PUpTT04ucGFyc2UobG9jYWxTdG9yYWdlLmdldEl0ZW0oTlRGWV9LRVkpfHwne30nKTtpZih2ICYmIHR5cGVvZiB2PT09J29iamVjdCcpcmV0dXJuIHZ9Y2F0Y2goZSl7fXJldHVybiB7fX0KZnVuY3Rpb24gbnRmeVNldE1zZyh0LG9rKXtjb25zdCBlbD0kKCdudGZ5TXNnJyk7ZWwudGV4dENvbnRlbnQ9dDtlbC5jbGFzc05hbWU9J2FjdGlvbi1yZXN1bHQgJysob2s/J2dvb2QnOidiYWQnKX0KZnVuY3Rpb24gbnRmeVRvcGljVmFsdWUoKXtjb25zdCB2PSQoJ250ZnlUb3BpYycpLnZhbHVlLnRyaW0oKTtsZXQgdG9waWM9djt0cnl7aWYodi5zdGFydHNXaXRoKCdodHRwczovL250Znkuc2gvJykpe2NvbnN0IHBhcnNlZD1uZXcgVVJMKHYpO2lmKHBhcnNlZC5ob3N0bmFtZSE9PSdudGZ5LnNoJ3x8cGFyc2VkLnNlYXJjaHx8cGFyc2VkLmhhc2gpdGhyb3cgRXJyb3IoKTt0b3BpYz1wYXJzZWQucGF0aG5hbWUucmVwbGFjZSgvXlwvLywnJyl9fWNhdGNoKGUpe3JldHVybiAnJ31yZXR1cm4gL15bLV9BLVphLXowLTldezEsNjR9JC8udGVzdCh0b3BpYyk/dG9waWM6Jyd9CmZ1bmN0aW9uIHJlbmRlck50ZnlTdGF0ZSgpe2xldCBzdGF0ZT0kKCdudGZ5U3RhdGUnKTtzdGF0ZS50ZXh0Q29udGVudD1udGZ5Q29uZmlnLmVuYWJsZWQ/KG50ZnlDb25maWcubW9kZT09PSdtYW51YWwnPydTb21lbnRlIG1hbnVhbCc6J0F1dG9tw6F0aWNvIGF0aXZvJyk6J0Rlc2F0aXZhZG8nO3N0YXRlLmNsYXNzTmFtZT0ncGlsbCAnKyhudGZ5Q29uZmlnLmVuYWJsZWQ/J3VwJzond2FpdCcpO3RyeXtjb25zdCBsYXN0PWxvY2FsU3RvcmFnZS5nZXRJdGVtKCdMSU5LX0VHSV9udGZ5X2xhc3RfJytudGZ5Q29uZmlnLnRvcGljKTskKCdudGZ5TGFzdCcpLnRleHRDb250ZW50PWxhc3R8fCdOZW5odW0gZW52aW8gY29uZmlybWFkbyBuZXN0ZSBjYW5hbC4nfWNhdGNoKGUpe319CmZ1bmN0aW9uIGluaXROdGZ5KCl7Y29uc3Qgcz1udGZ5R2V0TG9jYWwoKTtudGZ5Q29uZmlnPXt0b3BpYzp0eXBlb2Ygcy50b3BpYz09PSdzdHJpbmcnP3MudG9waWM6JycsbW9kZTpbJ3RyaWdnZXInLCdjb250ZXh0JywnbWFudWFsJ10uaW5jbHVkZXMocy5tb2RlKT9zLm1vZGU6J3RyaWdnZXInLGVuYWJsZWQ6ISFzLmVuYWJsZWR9OyQoJ250ZnlUb3BpYycpLnZhbHVlPW50ZnlDb25maWcudG9waWM7JCgnbnRmeU1vZGUnKS52YWx1ZT1udGZ5Q29uZmlnLm1vZGU7JCgnbnRmeUVuYWJsZWQnKS5jaGVja2VkPW50ZnlDb25maWcuZW5hYmxlZDtudGZ5T2JzZXJ2ZWQ9bnVsbDtyZW5kZXJOdGZ5U3RhdGUoKTskKCdudGZ5TXNnJykudGV4dENvbnRlbnQ9bnRmeUNvbmZpZy5lbmFibGVkPydBbGVydGFzIGF0aXZvcy4gQWd1YXJkYW5kbyBhdHVhbGl6YcOnw6NvIGNvbSBjYW5kbGVzIGZlY2hhZG9zLic6J0FsZXJ0YXMgYXV0b23DoXRpY29zIGRlc2F0aXZhZG9zLiBDb25maWd1cmUgbyBjYW5hbCBlIHNhbHZlLid9CmZ1bmN0aW9uIHNhdmVOdGZ5U2V0dGluZ3MoKXtjb25zdCB0b3BpYz1udGZ5VG9waWNWYWx1ZSgpO2lmKCF0b3BpYyl7bnRmeVNldE1zZygnQ2FuYWwgaW52w6FsaWRvLiBVc2UgMSBhIDY0IGxldHJhcy9uw7ptZXJvcy9ow61mZW5zL3VuZGVyc2NvcmU7IHNlbSBlc3Bhw6dvcy4nLGZhbHNlKTtyZXR1cm59Y29uc3QgcHJldj1udGZ5Q29uZmlnLnRvcGljO250ZnlDb25maWc9e3RvcGljLG1vZGU6JCgnbnRmeU1vZGUnKS52YWx1ZSxlbmFibGVkOiQoJ250ZnlFbmFibGVkJykuY2hlY2tlZH07bnRmeVNhdmVMb2NhbCgpO2lmKHByZXYhPT10b3BpYyludGZ5T2JzZXJ2ZWQ9bnVsbDtyZW5kZXJOdGZ5U3RhdGUoKTtudGZ5U2V0TXNnKCfinIUgQ29uZmlndXJhw6fDo28gc2FsdmEuIEFzc2luZSBvIGNhbmFsICInK3RvcGljKyciIG5vIGFwbGljYXRpdm8gbnRmeSBlIHRvcXVlIGVtIFRlc3RhciBudGZ5LicsdHJ1ZSl9CmFzeW5jIGZ1bmN0aW9uIGNvcHlOdGZ5VG9waWMoKXtjb25zdCB0b3BpYz1udGZ5VG9waWNWYWx1ZSgpO2lmKCF0b3BpYyl7bnRmeVNldE1zZygnSW5mb3JtZSB1bSBjYW5hbCB2w6FsaWRvLicsZmFsc2UpO3JldHVybn10cnl7aWYobmF2aWdhdG9yLmNsaXBib2FyZD8ud3JpdGVUZXh0KXthd2FpdCBuYXZpZ2F0b3IuY2xpcGJvYXJkLndyaXRlVGV4dCh0b3BpYyk7bnRmeVNldE1zZygn4pyFIENhbmFsIGNvcGlhZG86ICcrdG9waWMsdHJ1ZSk7cmV0dXJufX1jYXRjaChlKXt9Y29uc3QgZj0kKCdudGZ5VG9waWMnKTtmLmZvY3VzKCk7Zi5zZWxlY3QoKTtsZXQgb2s9ZmFsc2U7dHJ5e29rPWRvY3VtZW50LmV4ZWNDb21tYW5kKCdjb3B5Jyl9Y2F0Y2goZSl7fW50ZnlTZXRNc2cob2s/J+KchSBDYW5hbCBjb3BpYWRvLic6J1RleHRvIGRvIGNhbmFsIHNlbGVjaW9uYWRvOyBwcmVzc2lvbmUgZSBzZWd1cmUgZSBlc2NvbGhhIENvcGlhci4nLG9rKX0KZnVuY3Rpb24gbnRmeURhdGFSZWFkeSgpe3JldHVybiBURlMuZXZlcnkodGY9PkRBVEFbdGZdJiYhREFUQVt0Zl0uZXJyb3IpfQpmdW5jdGlvbiBudGZ5Q3VycmVudFNuYXBzaG90KCl7CiBjb25zdCBzPSQoJ3NpZ25hbCcpLnRleHRDb250ZW50LGI9JCgnYmlhcycpLnRleHRDb250ZW50OwogY29uc3Qgb25lPURBVEFbJzFtJ107Y29uc3QgaXNGcmVzaD1vbmUmJiFvbmUuZXJyb3ImJihEYXRlLm5vdygpLW9uZS5sYXN0LmVuZCA8IDE4MDAwMCkmJkRhdGUubm93KCk+PW9uZS5sYXN0LmVuZDsKIHJldHVybiB7c2lnbmFsOnMsYmlhczpiLCBvbmVFbmQ6b25lJiYhb25lLmVycm9yP29uZS5sYXN0LmVuZDpudWxsLCBmcmVzaDohIWlzRnJlc2h9Owp9CmZ1bmN0aW9uIG50ZnlUZXh0KGxhYmVsKXtjb25zdCBwcmljZT0kKCdwcmljZScpLnRleHRDb250ZW50O2NvbnN0IGxpbmVzPVsKICAnTElOS1VTRFQgfCBCaW5hbmNlIEZ1dHVyb3MgfCAnK2xhYmVsLAogICdFc3RhZG86ICcrJCgnc2lnbmFsJykudGV4dENvbnRlbnQrJyAoTkFPIGUgb3JkZW0gbmVtIGNvbmZpcm1hY2FvIFNNQyknLAogICdDb25mbHVlbmNpYSAxNW0vMWgvNGg6ICcrJCgnYmlhcycpLnRleHRDb250ZW50LAogICdQcmVjbyBkZSByZWZlcmVuY2lhOiAnK3ByaWNlKycgfCAyNGg6ICcrJCgnY2hhbmdlJykudGV4dENvbnRlbnQsCiAgJ0ZvbnRlOiBCaW5hbmNlIFVTROKTiC1NOyBzb21lbnRlIGNhbmRsZXMgZmVjaGFkb3MuJwogXTsgZm9yKGNvbnN0IHRmIG9mIFRGUyl7Y29uc3QgZD1EQVRBW3RmXTtpZihkJiYhZC5lcnJvcilsaW5lcy5wdXNoKHRmKyc6ICcrZC5iaWFzKycsIFJTSSAnK2YoZC5yLDEpKycsIE1BQ0QgJytmKGQubSw1KSsnLCBWb2wgJytmKGQudnIsMikrJ3gsIGZlY2hhbWVudG8gJytmKGQubGFzdC5jbG9zZSkrJyAoJytuZXcgRGF0ZShkLmxhc3QuZW5kKS50b0xvY2FsZVRpbWVTdHJpbmcoJ3B0LUJSJykrJyknKTtlbHNlIGxpbmVzLnB1c2godGYrJzogU0VNIERBRE9TJyl9CiBsaW5lcy5wdXNoKCdDb25maXJhIG9zIGdhdGlsaG9zLCBuaXZlaXMgZSBTVE9QIGVzdHJ1dHVyYWwgbm8gYXBwIGFudGVzIGRlIHF1YWxxdWVyIGRlY2lzYW8uJywnQmluYW5jZTogJyt1cmwpOwogcmV0dXJuIGxpbmVzLmpvaW4oJ1xuJykKfQphc3luYyBmdW5jdGlvbiBzZW5kTnRmeShsYWJlbCwgdGVzdD1mYWxzZSl7CiBjb25zdCB0b3BpYz1udGZ5VG9waWNWYWx1ZSgpO2lmKCF0b3BpYyl7bnRmeVNldE1zZygnSW5mb3JtZSBvIGNhbmFsIG50ZnkgZSBjbGlxdWUgZW0gU2FsdmFyIGNvbmZpZ3VyYcOnw6NvLicsZmFsc2UpO3JldHVybiBmYWxzZX0KIGlmKG50ZnlCdXN5KXtudGZ5U2V0TXNnKCdIw6EgdW0gZW52aW8gZW0gYW5kYW1lbnRvLiBBZ3VhcmRlLicsZmFsc2UpO3JldHVybiBmYWxzZX1udGZ5QnVzeT10cnVlOwogbnRmeVNldE1zZygnRW52aWFuZG8gcGFyYSBudGZ5LnNoLycrdG9waWMrJyDigKYnLHRydWUpOwogdHJ5ewogIGNvbnN0IGlzUHJlPSQoJ3NpZ25hbCcpLnRleHRDb250ZW50LnN0YXJ0c1dpdGgoJ1BSw4ktJyk7CiAgY29uc3QgdGl0bGU9dGVzdD8nTElOS1VTRFQgRUdJIHwgVEVTVEUnOignTElOS1VTRFQgRUdJIHwgJytsYWJlbC5yZXBsYWNlKC9bXkEtWmEtejAtOSAtXS9nLCcnKSk7CiAgY29uc3QgbWVzc2FnZT10ZXN0PydUZXN0ZSBkZSBub3RpZmljYWNhbyBMSU5LVVNEVCBFR0kuIFNlIHJlY2ViZXUsIHNldSBjYW5hbCBudGZ5IGVzdGEgY29ycmV0by4gT3MgYWxlcnRhcyB0ZWNuaWNvcyBuYW8gZXhlY3V0YW0gb3JkZW5zLic6bnRmeVRleHQobGFiZWwpOwogIGNvbnN0IGNvbnRyb2xsZXI9bmV3IEFib3J0Q29udHJvbGxlcigpO2NvbnN0IHRpbWVvdXQ9c2V0VGltZW91dCgoKT0+Y29udHJvbGxlci5hYm9ydCgpLDExMDAwKTsKICBsZXQgcmVzcG9uc2U7dHJ5e3Jlc3BvbnNlPWF3YWl0IGZldGNoKE5URllfQkFTRStlbmNvZGVVUklDb21wb25lbnQodG9waWMpLHttZXRob2Q6J1BPU1QnLGJvZHk6bWVzc2FnZSxoZWFkZXJzOnsnVGl0bGUnOnRpdGxlLCdQcmlvcml0eSc6aXNQcmUmJiF0ZXN0Pyc0JzonMycsJ1RhZ3MnOnRlc3Q/J3doaXRlX2NoZWNrX21hcmsnOmlzUHJlPyd3YXJuaW5nJzonaW5mb3JtYXRpb25fc291cmNlJywnQ2xpY2snOnVybH0sc2lnbmFsOmNvbnRyb2xsZXIuc2lnbmFsLGNhY2hlOiduby1zdG9yZSd9KX1maW5hbGx5e2NsZWFyVGltZW91dCh0aW1lb3V0KX0KICBpZighcmVzcG9uc2Uub2spdGhyb3cgRXJyb3IoJ0hUVFAgJytyZXNwb25zZS5zdGF0dXMpOwogIGNvbnN0IGF0PW5ldyBEYXRlKCkudG9Mb2NhbGVTdHJpbmcoJ3B0LUJSJyk7Y29uc3QgZGV0YWlsPWF0KycgfCAnK2xhYmVsOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnTElOS19FR0lfbnRmeV9sYXN0XycrdG9waWMsZGV0YWlsKX1jYXRjaChlKXt9CiAgJCgnbnRmeUxhc3QnKS50ZXh0Q29udGVudD1kZXRhaWw7CiAgbnRmeVNldE1zZygn4pyFIG50ZnkgYWNlaXRvdSBhIG1lbnNhZ2VtICgnK2F0KycpLiBDb25maXJtZSBvIHJlY2ViaW1lbnRvIG5vIGFwbGljYXRpdm8gQW5kcm9pZC4nLHRydWUpOwogIHJldHVybiB0cnVlOwogfWNhdGNoKGUpewogIG50ZnlTZXRNc2coJ+KaoO+4jyBGYWxoYSBvdSByZXNwb3N0YSBpbmRpc3BvbsOtdmVsICgnKyhlLm5hbWU9PT0nQWJvcnRFcnJvcic/J3RlbXBvIGVzZ290YWRvJzpTdHJpbmcoZS5tZXNzYWdlfHxlKSkrJykuIE7Do28gw6kgcG9zc8OtdmVsIGNvbmZpcm1hciBlbnRyZWdhOyBldml0ZSBjbGljYXIgcmVwZXRpZGFtZW50ZS4gU2UgbyBsZWl0b3IgQW5kcm9pZCBibG9xdWVhciBhIHJlcXVpc2nDp8OjbywgYWJyYSBvIEhUTUwgbm8gQ2hyb21lIG91IHB1YmxpcXVlIHZpYSBSZW5kZXIuJyxmYWxzZSk7CiAgcmV0dXJuIGZhbHNlOwogfWZpbmFsbHl7bnRmeUJ1c3k9ZmFsc2V9Cn0KYXN5bmMgZnVuY3Rpb24gdGVzdE50ZnkoKXthd2FpdCBzZW5kTnRmeSgnVEVTVEUnLHRydWUpfQphc3luYyBmdW5jdGlvbiBzZW5kTWFudWFsU2lnbmFsKCl7YXdhaXQgc2VuZE50ZnkoJ0VTVEFETyBBVFVBTCAtIGVudmlvIG1hbnVhbCcpfQphc3luYyBmdW5jdGlvbiBwcm9jZXNzTnRmeUFsZXJ0cygpewogaWYoIW50ZnlEYXRhUmVhZHkoKSlyZXR1cm47CiBjb25zdCBzbmFwPW50ZnlDdXJyZW50U25hcHNob3QoKTsKIGNvbnN0IHByZXZpb3VzPW50ZnlPYnNlcnZlZDsgbnRmeU9ic2VydmVkPXNuYXA7CiBpZighbnRmeUNvbmZpZy5lbmFibGVkfHxudGZ5Q29uZmlnLm1vZGU9PT0nbWFudWFsJ3x8IW50ZnlDb25maWcudG9waWMpcmV0dXJuOwogLy8gRXZlbnRvcyBhY2lvbmFkb3Mgc8OzIHBvciBjYW5kbGVzIHJlY2VudGVzLCBudW5jYSBwb3Igc2luYWlzIGFudGlnb3MgZGEgYWJlcnR1cmEgZGUgdW0gYXJxdWl2by4KIGlmKCFzbmFwLmZyZXNoKXJldHVybjsKIGNvbnN0IGlzUHJlPVsnUFLDiS1MT05HJywnUFLDiS1TSE9SVCddLmluY2x1ZGVzKHNuYXAuc2lnbmFsKTsKIGNvbnN0IHByZXZpb3VzbHlTYW1lPXByZXZpb3VzJiZwcmV2aW91cy5zaWduYWw9PT1zbmFwLnNpZ25hbDsKIGNvbnN0IG5ld1ByZT1pc1ByZSYmIXByZXZpb3VzbHlTYW1lOwogY29uc3QgY2hhbmdlZEJpYXM9bnRmeUNvbmZpZy5tb2RlPT09J2NvbnRleHQnICYmIHByZXZpb3VzICYmIHNuYXAuYmlhcyE9PXByZXZpb3VzLmJpYXMgJiYgc25hcC5iaWFzIT09J1NFTSBEQURPUyc7CiBpZighbmV3UHJlJiYhY2hhbmdlZEJpYXMpcmV0dXJuOwogLy8gTWVzbW8gcXVlIG8gYXBwIHNlamEgcmVjYXJyZWdhZG8sIG7Do28gcmVlbnZpYXIgbyBtZXNtbyBldmVudG8gZG8gbWVzbW8gY2FuZGxlLgogY29uc3Qgc2lnPW5ld1ByZT8nR0FUSUxIT18nK3NuYXAuc2lnbmFsOidDT05URVhUT18nK3NuYXAuYmlhczsKIGNvbnN0IGtleT1zaWcrJ3wnK3NuYXAub25lRW5kOwogY29uc3QgZGVkdXA9J0xJTktfRUdJX250Znlfc2VudF8nK250ZnlDb25maWcudG9waWM7CiBsZXQgcHJpb3I9Jyc7dHJ5e3ByaW9yPWxvY2FsU3RvcmFnZS5nZXRJdGVtKGRlZHVwKXx8Jyd9Y2F0Y2goZSl7fQogaWYocHJpb3I9PT1rZXkpcmV0dXJuOwogY29uc3Qgb2s9YXdhaXQgc2VuZE50ZnkobmV3UHJlP3NuYXAuc2lnbmFsKycgKFBSRS1HQVRJTEhPLCBOQU8gQ09ORklSTUFETyknOidNVURBTkNBIERFIENPTkZMVUVOQ0lBOiAnK3NuYXAuYmlhcyk7CiBpZihvayl0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oZGVkdXAsa2V5KX1jYXRjaChlKXt9Cn0KCmZ1bmN0aW9uIGNoYW5nZUF1dG8oKXtpZih0aW1lciljbGVhckludGVydmFsKHRpbWVyKTtjb25zdCBzZWM9KyQoJ2F1dG9SZWZyZXNoJykudmFsdWU7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ0xJTktfRUdJX3JlZnJlc2gnLHNlYyk7aWYoc2VjKXRpbWVyPXNldEludGVydmFsKCgpPT57aWYoIWRvY3VtZW50LmhpZGRlbil1cGRhdGVBbGwoKX0sc2VjKjEwMDApfQooZnVuY3Rpb24gaW5pdCgpe2NvbnN0IHNlYz1sb2NhbFN0b3JhZ2UuZ2V0SXRlbSgnTElOS19FR0lfcmVmcmVzaCcpO2lmKFsnMCcsJzMwJywnNjAnLCcxMjAnXS5pbmNsdWRlcyhzZWMpKSQoJ2F1dG9SZWZyZXNoJykudmFsdWU9c2VjO1snYmFsYW5jZScsJ3Jpc2snLCdsZXYnLCdlbnRyeScsJ3N0b3AnLCdkaXJlY3Rpb24nXS5mb3JFYWNoKGlkPT57Y29uc3QgdmFsdWU9bG9jYWxTdG9yYWdlLmdldEl0ZW0oJ0xJTktfRUdJXycraWQpO2lmKHZhbHVlIT09bnVsbCkkKGlkKS52YWx1ZT12YWx1ZTskKGlkKS5hZGRFdmVudExpc3RlbmVyKCdpbnB1dCcsKCk9PmxvY2FsU3RvcmFnZS5zZXRJdGVtKCdMSU5LX0VHSV8nK2lkLCQoaWQpLnZhbHVlKSk7JChpZCkuYWRkRXZlbnRMaXN0ZW5lcignY2hhbmdlJywoKT0+bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ0xJTktfRUdJXycraWQsJChpZCkudmFsdWUpKX0pO3JlbmRlckNoZWNrcygpO3JlbmRlckFsbCgpO2NhbGMoKTtpbml0TnRmeSgpO2NoYW5nZUF1dG8oKTt1cGRhdGVBbGwoKX0pKCkKPC9zY3JpcHQ+PC9ib2R5PjwvaHRtbD4K</script>
+<script>
+(function(){
+ 'use strict';
+ const byId=(id)=>document.getElementById(id);
+ const main=byId('linkEmbedded'),frame=byId('linkFrame');
+ let loaded=false,poll=null,fullscreen=false;
+ function inform(msg,type){const el=byId('linkFeedback');el.textContent=msg;el.className='link-feedback '+(type||'')}
+ function innerDoc(){try{return frame.contentDocument||frame.contentWindow.document}catch(_){return null}}
+ function innerElement(id){return innerDoc()?.getElementById(id)}
+ function decodeHtml(){const raw=atob(byId('linkEmbeddedBytes').textContent.trim());const bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));return new TextDecoder('utf-8').decode(bytes)}
+ function snapshot(){
+   const d=innerDoc();if(!d)return;
+   const price=d.getElementById('price')?.textContent?.trim()||'—';
+   const signal=d.getElementById('signal')?.textContent?.trim()||'AGUARDAR';
+   const bias=d.getElementById('bias')?.textContent?.trim()||'—';
+   byId('linkMiniPrice').textContent=price;
+   byId('linkMiniSignal').textContent=signal;
+   byId('linkMiniContext').textContent=bias;
+   byId('linkLoadStatus').textContent='🟢 Radar carregado';
+ }
+ function loadRadar(){
+   if(loaded)return;
+   loaded=true;
+   frame.addEventListener('load',()=>{
+     byId('linkRefresh').disabled=false;byId('linkImport').disabled=false;
+     inform('Radar LINK integrado carregado. Atualize os dados, configure o canal ntfy e importe o relatório quando desejar.','success');
+     snapshot();poll=setInterval(snapshot,3000)
+   });
+   try{frame.srcdoc=decodeHtml();inform('Carregando radar LINKUSDT dentro do painel...')}
+   catch(e){loaded=false;inform('Falha ao abrir radar embutido: '+e.message,'error')}
+ }
+ function toggle(show){main.hidden=!show;byId('linkToggle').textContent=show?'⬆ Recolher Radar LINK':'📈 Abrir Radar LINK neste painel';if(show){loadRadar();main.scrollIntoView({behavior:'smooth',block:'start'})}else{setFullscreen(false)}}
+ function setFullscreen(show){fullscreen=show;main.classList.toggle('fullscreen',show);byId('linkFullscreen').textContent=show?'⛶ Voltar ao painel':'⛶ Expandir radar';document.body.style.overflow=show?'hidden':''}
+ function importReport(){const report=innerElement('report')?.value?.trim();if(!report){inform('Ainda não há relatório LINK disponível. Abra o radar e atualize os dados.','error');return}
+   const area=byId('linkReport');area.value=report;area.dispatchEvent(new Event('input',{bubbles:true}));snapshot();inform('✅ Relatório LINK importado e salvo no Painel do Dia. Ele integra o relatório final, sem liberar automaticamente entradas no SetupDT.','success'); if(fullscreen)setFullscreen(false);area.scrollIntoView({behavior:'smooth',block:'nearest'})}
+ async function copyText(value){if(!value)return false;
+   const a=byId('linkReport');const before=a.value;a.value=value;a.focus();a.select();a.setSelectionRange(0,a.value.length);
+   let ok=false;try{ok=!!document.execCommand('copy')}catch(_){}if(!ok)try{await navigator.clipboard.writeText(value);ok=true}catch(_){}
+   a.value=before;return ok
+ }
+ byId('linkToggle').addEventListener('click',()=>toggle(main.hidden));byId('linkHide').addEventListener('click',()=>toggle(false));
+ byId('linkFullscreen').addEventListener('click',()=>setFullscreen(!fullscreen));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fullscreen)setFullscreen(false)});
+ byId('linkRefresh').addEventListener('click',()=>{
+   const win=frame.contentWindow;
+   try{if(typeof win.updateAll==='function'){win.updateAll();inform('🔄 Atualização do LINK solicitada. Aguarde os dados da Binance.')}else inform('Ainda carregando o radar.','error')}
+   catch(e){inform('Não foi possível atualizar: '+e.message,'error')}
+ });
+ byId('linkImport').addEventListener('click',importReport);byId('linkImportTop').addEventListener('click',importReport);
+ byId('linkCopyReport').addEventListener('click',async()=>{const t=byId('linkReport').value.trim();if(!t){inform('Primeiro importe o relatório do radar.','error');return}
+   inform(await copyText(t)?'✅ Relatório LINK copiado.':'⚠ Cópia automática bloqueada: selecione o texto do campo e utilize Copiar no celular.',t?'success':'error')});
+ byId('linkCopyUrl').addEventListener('click',async()=>{const url='https://www.binance.com/en/futures/LINKUSDT';inform(await copyText(url)?'✅ Endereço Binance copiado.':'⚠ Cópia automática bloqueada. Link disponível no botão Binance Futuros.','success')});
+ byId('linkShareReport').addEventListener('click',async()=>{const t=byId('linkReport').value.trim();if(!t){inform('Primeiro importe o relatório do radar.','error');return}if(navigator.share){try{await navigator.share({title:'Radar LINKUSDT EGI',text:t});inform('Compartilhamento solicitado.','success')}catch(e){if(e.name!=='AbortError')inform('Compartilhamento indisponível. Use Copiar relatório.','error')}}else inform('Este navegador não oferece compartilhamento. Use Copiar relatório.','error')});
+ byId('linkClearReport').addEventListener('click',()=>{if(!confirm('Limpar somente o relatório LINK do painel?'))return;byId('linkReport').value='';byId('linkReport').dispatchEvent(new Event('input',{bubbles:true}));inform('Relatório LINK removido do campo do painel.','success')});
+})();
+</script>
+
+<script>
+/* AAII EGI V1 — módulo local, sem dependências ou chamadas externas */
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const KEY_AAII='egi_aaii_weekly_v1';
+  const BASE=[
+    {date:'2026-09-16',bull:28.8,bear:53.3,neutral:17.9,source:'AAII oficial'},
+    {date:'2026-09-23',bull:32.7,bear:48.1,neutral:19.2,source:'AAII oficial'},
+    {date:'2026-09-30',bull:34.65,bear:46.49,neutral:18.86,source:'AAII / MacroMicro'},
+    {date:'2026-10-07',bull:40.25,bear:38.98,neutral:20.76,source:'AAII / MacroMicro (divulgado 08/10)'}
+  ];
+  const fmt=(n,d=2)=>Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const signed=n=>(n>=0?'+':'')+fmt(n)+' pp';
+  const safeStore=(()=>{try{const v=window.localStorage;v.getItem(KEY_AAII);return v}catch(_){return null}})();
+  const clean=x=>{
+    if(!x||typeof x.date!=='string'||!/^20\d\d-\d\d-\d\d$/.test(x.date))return null;
+    const day=new Date(x.date+'T12:00:00'); if(Number.isNaN(day.getTime())||day.toISOString().slice(0,10)!==x.date)return null;
+    const r={date:x.date,bull:Number(String(x.bull).replace(',','.')),bear:Number(String(x.bear).replace(',','.')),neutral:Number(String(x.neutral).replace(',','.')),source:typeof x.source==='string'?x.source.slice(0,80):'Registro manual'};
+    if(![r.bull,r.bear,r.neutral].every(v=>Number.isFinite(v)&&v>=0&&v<=100))return null;
+    if(Math.abs(r.bull+r.bear+r.neutral-100)>.25)return null;
+    return r;
+  };
+  const normalize=arr=>{
+    const map=new Map();for(const v of arr){const row=clean(v);if(row)map.set(row.date,row)}
+    return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date)).slice(-104);
+  };
+  const read=()=>{try{const raw=safeStore?.getItem(KEY_AAII);if(raw){const data=JSON.parse(raw);if(Array.isArray(data)&&normalize(data).length)return normalize([...BASE,...data])}}catch(_){}return normalize(BASE)};
+  let weeks=read();
+  const persist=()=>{try{if(!safeStore)throw Error('O navegador bloqueou o armazenamento local.');safeStore.setItem(KEY_AAII,JSON.stringify(weeks));return true}catch(e){feedback('⚠ Dados exibidos, mas não puderam ser salvos neste navegador: '+e.message,true);return false}};
+  const feedback=(msg,error=false)=>{const el=$('aaiiFeedback');el.textContent=msg;el.style.color=error?'#ff6278':'#29d391'};
+  const dateBR=iso=>iso.slice(8,10)+'/'+iso.slice(5,7)+'/'+iso.slice(0,4);
+  const last=()=>weeks.at(-1);
+  const before=()=>weeks.length>1?weeks.at(-2):null;
+  function report(){
+    const a=last(),b=before(); if(!a)return 'Sem histórico registrado.';
+    const spread=a.bull-a.bear,priorSpread=b?b.bull-b.bear:null;
+    const base='Semana encerrada '+dateBR(a.date)+' | Otimistas '+fmt(a.bull)+'% | Pessimistas '+fmt(a.bear)+'% | Neutros '+fmt(a.neutral)+'% | Saldo Bull−Bear '+signed(spread).replace(' pp',' pontos percentuais');
+    const change=b?' | Mudança semanal: otimistas '+signed(a.bull-b.bull)+', pessimistas '+signed(a.bear-b.bear)+', saldo '+signed(spread-priorSpread):' | Ainda sem semana anterior.';
+    return base+change+' | Fonte: '+a.source+' | Dados registrados no navegador; sem atualização automática. '+(window.EGI_BTC_AAII?.report?.()||'BTC: ainda não consultado nesta sessão.')+' Não é sinal de entrada.';
+  }
+  function setTrend(id,val,goodRise=true){const el=$(id);el.textContent=val==null?'Sem semana anterior':(Math.abs(val)<.005?'→ Estável':val>0?'↑ '+signed(val):'↓ '+signed(val));el.className='aaii-trend '+(val==null||Math.abs(val)<.005||goodRise===null?'aaii-neutral':((val>0)===goodRise?'aaii-up':'aaii-down'))}
+  function draw(){
+    const svg=$('aaiiChart');while(svg.firstChild)svg.removeChild(svg.firstChild);
+    const NS='http://www.w3.org/2000/svg';const node=(tag,attrs={},content)=>{const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));if(content!=null)el.textContent=content;svg.appendChild(el);return el};
+    const arr=weeks.slice(-12),left=43,right=684,top=17,bottom=154;
+    const yMax=Math.max(60,Math.ceil(Math.max(...arr.flatMap(r=>[r.bull,r.bear,r.neutral]))/10)*10);const y=v=>bottom-(v/yMax)*(bottom-top);
+    for(let v=0;v<=yMax;v+=20){node('line',{x1:left,y1:y(v),x2:right,y2:y(v),stroke:'#29445f','stroke-dasharray':'4 6'});node('text',{x:34,y:y(v)+4,fill:'#9fb7d2','font-size':12,'text-anchor':'end'},v+'%')}
+    const x=i=>arr.length===1?(left+right)/2:left+(right-left)*i/(arr.length-1);
+    for(const [key,color] of [['bull','#29d391'],['bear','#ff6278'],['neutral','#ffd166']]){
+      if(arr.length>1){node('polyline',{points:arr.map((r,i)=>x(i)+','+y(r[key])).join(' '),fill:'none',stroke:color,'stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'})}
+      arr.forEach((r,i)=>node('circle',{cx:x(i),cy:y(r[key]),r:4,fill:color,stroke:'#0a1829','stroke-width':2}));
+    }
+    if(arr.length){node('text',{x:x(0),y:177,fill:'#9fb7d2','font-size':12,'text-anchor':arr.length===1?'middle':'start'},dateBR(arr[0].date).slice(0,5));if(arr.length>1)node('text',{x:x(arr.length-1),y:177,fill:'#9fb7d2','font-size':12,'text-anchor':'end'},dateBR(arr.at(-1).date).slice(0,5));}
+  }
+  function render(){
+    const a=last(),b=before();if(!a)return;
+    $('aaiiWeek').textContent='Última semana registrada: '+dateBR(a.date)+' • '+weeks.length+' semana(s) no histórico • '+a.source;
+    $('aaiiBull').textContent=fmt(a.bull)+'%';$('aaiiBear').textContent=fmt(a.bear)+'%';$('aaiiNeutral').textContent=fmt(a.neutral)+'%';$('aaiiSpread').textContent=(a.bull-a.bear>=0?'+':'')+fmt(a.bull-a.bear)+' pp';
+    setTrend('aaiiBullDelta',b?a.bull-b.bull:null);setTrend('aaiiBearDelta',b?a.bear-b.bear:null,false);setTrend('aaiiNeutralDelta',b?a.neutral-b.neutral:null,null);setTrend('aaiiSpreadDelta',b?(a.bull-a.bear)-(b.bull-b.bear):null);
+    const verdict=$('aaiiVerdict');let headline='🟡 SENTIMENTO DIVIDIDO',reason='Saldo entre otimistas e pessimistas próximo de zero.';
+    if(b&&a.bull>b.bull&&a.bear<b.bear){headline='🟢 HUMOR MELHORANDO';reason='Otimistas aumentaram e pessimistas diminuíram na comparação semanal.'}
+    else if(b&&a.bull<b.bull&&a.bear>b.bear){headline='🔴 HUMOR PIORANDO';reason='Otimistas diminuíram e pessimistas aumentaram na comparação semanal.'}
+    else if(b){headline='🟡 HUMOR MISTO';reason='Otimistas e pessimistas não mudaram em direções opostas; observar próximos dados.'}
+    verdict.className='notice '+(headline.includes('MELHORANDO')?'ok':headline.includes('PIORANDO')?'auto-bad':'warn');
+    verdict.textContent=headline+' — '+reason+' Saldo atual: '+(a.bull-a.bear>=0?'+':'')+fmt(a.bull-a.bear)+' pp. Contexto dos EUA; não libera operações cripto.';
+    draw();
+    window.EGI_BTC_AAII?.renderComparison?.();
+    $('aaiiHistoryRows').replaceChildren();
+    for(const row of [...weeks].reverse().slice(0,15)){
+      const tr=document.createElement('tr'),cells=[dateBR(row.date),fmt(row.bull)+'%',fmt(row.bear)+'%',fmt(row.neutral)+'%',(row.bull-row.bear>=0?'+':'')+fmt(row.bull-row.bear)+' pp'];
+      for(const t of cells){const td=document.createElement('td');td.textContent=t;tr.appendChild(td)}
+      const td=document.createElement('td'),btn=document.createElement('button');btn.type='button';btn.textContent='Editar';btn.style.padding='5px 8px';btn.style.fontSize='12px';btn.addEventListener('click',()=>{fillForm(row);$('aaiiEditor').open=true;$('aaiiInputDate').focus()});td.appendChild(btn);tr.appendChild(td);$('aaiiHistoryRows').appendChild(tr);
+    }
+    if(typeof window.update==='function')window.update();else if(typeof update==='function')update();
+  }
+  function fillForm(r){$('aaiiInputDate').value=r.date;$('aaiiInputBull').value=r.bull;$('aaiiInputBear').value=r.bear;$('aaiiInputNeutral').value=r.neutral}
+  function nextWeek(){const d=new Date(last().date+'T12:00:00');d.setDate(d.getDate()+7);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  $('aaiiInputDate').value=nextWeek();
+  $('aaiiSaveWeek').addEventListener('click',()=>{
+    const row=clean({date:$('aaiiInputDate').value,bull:$('aaiiInputBull').value,bear:$('aaiiInputBear').value,neutral:$('aaiiInputNeutral').value,source:'Registro manual'});
+    if(!row||!$('aaiiInputDate').value||[$('aaiiInputBull'),$('aaiiInputBear'),$('aaiiInputNeutral')].some(e=>!e.value.trim()))return feedback('⚠ Confira data, percentuais entre 0 e 100 e soma próxima de 100%.',true);
+    if(weeks.some(w=>w.date===row.date)&&!confirm('Já existe uma semana com essa data. Deseja substituir?'))return;
+    weeks=normalize([...weeks.filter(w=>w.date!==row.date),row]);if(persist())feedback('✅ Semana '+dateBR(row.date)+' salva neste aparelho.');
+    render();$('aaiiInputDate').value=nextWeek();for(const id of ['aaiiInputBull','aaiiInputBear','aaiiInputNeutral'])$(id).value='';
+  });
+  $('aaiiCopy').addEventListener('click',async()=>{
+    const text='SENTIMENTO AAII — EGI\n'+report()+'\nReferência: https://www.aaii.com/sentimentsurvey';
+    try{await navigator.clipboard.writeText(text);feedback('✅ Leitura AAII copiada.');}catch(_){const box=document.createElement('textarea');box.value=text;box.style.position='fixed';box.style.left='-9999px';document.body.appendChild(box);box.focus();box.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}box.remove();feedback(ok?'✅ Leitura AAII copiada.':'⚠ Cópia automática não disponível neste navegador; selecione a leitura no relatório geral.',!ok)}
+  });
+  $('aaiiExport').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({kind:'EGI_AAII_V1',exportedAt:new Date().toISOString(),weeks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='EGI_AAII_Historico_'+last().date+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);feedback('✅ Histórico exportado para arquivo JSON.')});
+  $('aaiiImportButton').addEventListener('click',()=>$('aaiiImportFile').click());
+  $('aaiiImportFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>500000)throw Error('Arquivo muito grande.');const obj=JSON.parse(await file.text());if(obj.kind!=='EGI_AAII_V1'||!Array.isArray(obj.weeks)||!obj.weeks.length)throw Error('Formato inválido.');const rows=normalize(obj.weeks);if(rows.length!==obj.weeks.length)throw Error('Há linhas inválidas ou datas duplicadas.');if(!confirm('Importar '+rows.length+' semana(s), substituindo o histórico local AAII?'))return;weeks=rows;persist();render();feedback('✅ Histórico importado.')}catch(err){feedback('⚠ Não foi possível importar: '+err.message,true)}finally{e.target.value=''}});
+  $('aaiiReset').addEventListener('click',()=>{if(!confirm('Restaurar o AAII às quatro semanas iniciais? Seus registros adicionais serão apagados neste navegador.'))return;weeks=normalize(BASE);persist();render();feedback('✅ Histórico inicial restaurado.')});
+  window.EGI_AAII={report,latest:()=>({...last()}),history:()=>weeks.map(w=>({...w}))};
+  render();
+})();
+</script>
+
+
+<script>
+/* AAII × BTC EGI V2.5 — derivado exclusivamente de candles fechados, sem ordem */
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const updateBtn=$('aaiiBtcRefresh');
+  if(!updateBtn)return;
+  let snapshot=null, busy=false;
+  const money=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'USD',maximumFractionDigits:2});
+  const num=(n,d=1)=>Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+  function ema(vals,len){
+    const k=2/(len+1);let prev=vals[0];
+    return vals.map((v,i)=>{prev=i?prev+(v-prev)*k:v;return prev});
+  }
+  function rsi(vals,len=14){
+    if(vals.length<len+2)return null;
+    let ups=0,downs=0;
+    for(let i=1;i<=len;i++){let d=vals[i]-vals[i-1];ups+=Math.max(0,d);downs+=Math.max(0,-d)}
+    let gain=ups/len,loss=downs/len;
+    for(let i=len+1;i<vals.length;i++){
+      const d=vals[i]-vals[i-1];gain=(gain*(len-1)+Math.max(0,d))/len;loss=(loss*(len-1)+Math.max(0,-d))/len;
+    }
+    return loss===0?100:100-100/(1+gain/loss);
+  }
+  function parseCandles(data){
+    if(!Array.isArray(data))throw new Error('Resposta de candles inválida');
+    const now=Date.now();
+    const k=data.filter(row=>Array.isArray(row)&&Number(row[6])<now).map(row=>({c:Number(row[4]),v:Number(row[5]),time:Number(row[6])}));
+    if(k.length<220||!k.every(x=>Number.isFinite(x.c)&&x.c>0&&Number.isFinite(x.v)&&x.v>=0&&Number.isFinite(x.time)))throw new Error('Histórico fechado insuficiente');
+    return k;
+  }
+  function summarize(k){
+    const closes=k.map(x=>x.c),vol=k.map(x=>x.v),now=k.at(-1);
+    const e9=ema(closes,9).at(-1),e21=ema(closes,21).at(-1),e200=ema(closes,200).at(-1);
+    const e12=ema(closes,12),e26=ema(closes,26),macd=e12.map((v,i)=>v-e26[i]);
+    const macdSignal=ema(macd,9).at(-1),hist=macd.at(-1)-macdSignal;
+    const volBase=vol.slice(-21,-1).reduce((a,b)=>a+b,0)/20;
+    const volRatio=volBase>0?now.v/volBase:null;
+    const regime=now.c>e200&&e9>e21&&now.c>e21?'alta':now.c<e200&&e9<e21&&now.c<e21?'baixa':'misto';
+    return {regime,c:now.c,closeTime:now.time,e9,e21,e200,rsi:rsi(closes),hist,volRatio};
+  }
+  async function candles(interval){
+    let lastErr;
+    const endpoints=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines'];
+    for(const url of endpoints){
+      const controller=new AbortController(),t=setTimeout(()=>controller.abort(),9500);
+      try{
+        const res=await fetch(url+'?symbol=BTCUSDT&interval='+interval+'&limit=260',{mode:'cors',cache:'no-store',signal:controller.signal});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        return parseCandles(await res.json());
+      }catch(e){lastErr=e}finally{clearTimeout(t)}
+    }
+    throw new Error(lastErr?.name==='AbortError'?'Tempo limite da Binance':(lastErr?.message||'A Binance não respondeu'));
+  }
+  function stateLabel(r){return r.regime==='alta'?'🟢 ALTA':r.regime==='baixa'?'🔴 BAIXA':'🟡 MISTA / LATERAL'}
+  function renderComparison(){
+    const a=window.EGI_AAII?.latest?.(),hist=window.EGI_AAII?.history?.()||[],b=hist.length>1?hist.at(-2):null;
+    if(!a||!snapshot)return;
+    const four=snapshot.four,one=snapshot.one;
+    const improved=!!b&&a.bull>b.bull&&a.bear<b.bear;
+    const worsened=!!b&&a.bull<b.bull&&a.bear>b.bear;
+    let label,reason;
+    if(improved&&four.regime==='alta'){
+      label='🟢 SENTIMENTO E ESTRUTURA EM CONCORDÂNCIA';reason='O AAII melhorou nesta semana e o BTC 4h apresenta estrutura de alta. Isso não confirma ponto de entrada.';
+    }else if(improved&&four.regime==='baixa'){
+      label='🟠 DIVERGÊNCIA IMPORTANTE';reason='O otimismo nas ações americanas cresceu, mas o BTC 4h permanece em estrutura de baixa. Não antecipar LONG.';
+    }else if(improved){
+      label='🟡 SENTIMENTO MELHORA; BTC AINDA SEM DIREÇÃO';reason='O AAII melhorou, mas a estrutura 4h do BTC está mista/lateral. Aguardar estrutura e gatilho.';
+    }else if(worsened&&four.regime==='baixa'){
+      label='🔴 CONTEXTO FRÁGIL CONVERGENTE';reason='Piora do humor no AAII e estrutura baixista do BTC 4h. Não é confirmação de SHORT.';
+    }else if(worsened&&four.regime==='alta'){
+      label='🟠 DIVERGÊNCIA DE SENTIMENTO';reason='O AAII piorou, mas o BTC 4h mantém estrutura de alta. Não adivinhar reversão.';
+    }else{
+      label='🟡 CONTEXTO AAII X BTC SEM CONCLUSÃO FORTE';reason='O AAII não indica direção semanal inequívoca ou BTC está em condição mista. Priorizar leitura técnica.';
+    }
+    const agreement=one.regime===four.regime&&one.regime!=='misto'?'1h concorda com 4h.':'1h não confirma plenamente o 4h.';
+    const osc=' RSI 4h '+num(four.rsi)+'; MACD hist '+(four.hist>=0?'+':'')+num(four.hist,2)+'; vol. '+(four.volRatio===null?'indisp.':num(four.volRatio,2)+'×')+'.';
+    $('aaiiBtcVerdict').className='notice '+(label.startsWith('🟢')?'ok':'warn');
+    $('aaiiBtcVerdict').textContent=label+' — '+reason+' '+agreement+osc+' Sinal AAII não altera o SetupDT.';
+  }
+  function report(){
+    if(!snapshot)return 'BTC: ainda não consultado nesta sessão.';
+    const f=snapshot.four,o=snapshot.one;
+    return 'BTCUSDT Spot Binance, candles FECHADOS | 4h: '+stateLabel(f)+' ('+money(f.c)+', RSI '+num(f.rsi)+', MME9 '+money(f.e9)+', MME21 '+money(f.e21)+', MME200 '+money(f.e200)+', vol '+(f.volRatio===null?'n/d':num(f.volRatio,2)+'x')+') | 1h: '+stateLabel(o)+' (RSI '+num(o.rsi)+') | Fechamento 4h: '+new Date(f.closeTime).toLocaleString('pt-BR')+' | '+$('aaiiBtcVerdict').textContent+' | Dados consultados em '+snapshot.when+'.';
+  }
+  async function fetchBTC(){
+    if(busy)return;
+    busy=true;updateBtn.disabled=true;updateBtn.textContent='⏳ Consultando BTC...';
+    $('aaiiBtcTime').textContent='Consultando candles fechados da Binance...';
+    try{
+      const [a,b]=await Promise.all([candles('4h'),candles('1h')]);
+      snapshot={four:summarize(a),one:summarize(b),when:new Date().toLocaleString('pt-BR')};
+      const f=snapshot.four,o=snapshot.one;
+      $('aaiiBtc4h').textContent=stateLabel(f);
+      $('aaiiBtc1h').textContent=stateLabel(o);
+      $('aaiiBtcClose').textContent=money(f.c);
+      $('aaiiBtc4hInfo').textContent='RSI '+num(f.rsi)+' • MME9 '+money(f.e9)+' • MME21 '+money(f.e21)+' • MME200 '+money(f.e200);
+      $('aaiiBtc1hInfo').textContent='RSI '+num(o.rsi)+' • MME9 '+money(o.e9)+' • MME21 '+money(o.e21)+' • MME200 '+money(o.e200);
+      $('aaiiBtcVolume').textContent='Vol 4h '+(f.volRatio===null?'n/d':num(f.volRatio,2)+'×')+' • MACD hist '+(f.hist>=0?'+':'')+num(f.hist,2);
+      $('aaiiBtcTime').textContent='Consultado '+snapshot.when+' · últimos candles FECHADOS';
+      renderComparison();
+    }catch(e){
+      snapshot=null;
+      $('aaiiBtc4h').textContent='⚪ Indisponível';$('aaiiBtc1h').textContent='⚪ Indisponível';$('aaiiBtcClose').textContent='—';
+      $('aaiiBtc4hInfo').textContent='Sem dados válidos';$('aaiiBtc1hInfo').textContent='Sem dados válidos';$('aaiiBtcVolume').textContent='Volume e MACD: indisponíveis';
+      $('aaiiBtcTime').textContent='Falha de consulta';
+      $('aaiiBtcVerdict').className='notice warn';
+      $('aaiiBtcVerdict').textContent='⚪ BTC indisponível: '+e.message+'. O AAII segue acessível; não inventamos viés técnico. Tente pelo Chrome conectado à internet.';
+    }finally{busy=false;updateBtn.disabled=false;updateBtn.textContent='🔄 Atualizar leitura BTC'}
+  }
+  window.EGI_BTC_AAII={report,renderComparison};
+  updateBtn.addEventListener('click',fetchBTC);
+  // Mantem "Atualizar tudo" coerente sem travar os módulos do painel.
+  $('genAll')?.addEventListener('click',fetchBTC);
+})();
+</script>
+</main></body></html>
