@@ -247,7 +247,7 @@ function updateMoment(results,period,scope){
  const b=$('momentCoin');b.disabled=false;
  b.replaceChildren();b.append(document.createTextNode('🏆 '+winner.symbol.replace(/USDT$/,'')+' '));
  const positive=document.createElement('strong');positive.textContent='+'+fmt(winner.move,2)+'%';b.append(positive);
- b.title='Abrir '+winner.symbol+' no Scalping · variação do período '+period;
+ b.title='Maior valorização positiva entre as moedas da lista do Garimpo · abrir '+winner.symbol+' · período '+period;
  $('momentInfo').textContent=period+' · '+scope+' · última busca '+new Date().toLocaleTimeString('pt-BR')+' · não é sinal';
 }
 $('momentCoin').onclick=()=>{if(scanning)return;if(!lastMoment){scanVolatility();return;}switchSymbol(lastMoment.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};
@@ -281,8 +281,9 @@ async function scanVolatility(){
    }catch(_error){}finally{done++;status.textContent='Analisados '+done+' de '+group.length+' pares líquidos…'}}});await Promise.all(workers);
   }
   results=results.filter(x=>Number.isFinite(x.amp));
-  updateMoment(results,period,period==='24h'?'todos os pares elegíveis':'até 20 pares mais líquidos');
+  // O destaque deve sair somente das mesmas 15 linhas efetivamente exibidas.
   results.sort((a,b)=>b.amp-a.amp);results=results.slice(0,15);scanResultsCache=results;
+  updateMoment(results,period,'Top '+results.length+' exibido no Garimpo');
   rows.replaceChildren();if(!results.length)throw Error('Não foi possível validar candles suficientes. Tente 24h ou outra busca.');
   for(const [i,r] of results.entries()){
     const row=rows.insertRow();row.dataset.scanSymbol=r.symbol;const add=v=>{const cell=row.insertCell();cell.textContent=v;return cell};add(String(i+1));add(r.symbol.replace(/USDT$/,''));const mov=add((r.move>=0?'+':'')+fmt(r.move,2)+'%');mov.className=r.move>0?'scan-up':r.move<0?'scan-down':'';add(fmt(r.amp,2)+'%');add(r.vRel===null?'n/d':fmt(r.vRel,2)+'×');add(compactUSDT(r.vol));const cell=row.insertCell();const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Abrir no Scalping';b.onclick=()=>{switchSymbol(r.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};cell.append(b);
