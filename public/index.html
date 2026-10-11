@@ -2333,7 +2333,7 @@ function snapshotComparison(){
 }
 document.getElementById('egiProfessorAnalyze').onclick=async()=>{if(!incoming)return alert('Receba primeiro um pacote do Professor.');const btn=document.getElementById('egiProfessorAnalyze');btn.disabled=true;compare.textContent='Executando análise independente do SetupDT…';try{await analyzeAndAutoRegister();snapshotComparison()}catch(e){compare.textContent='Falha na análise SetupDT: '+e.message}finally{btn.disabled=false}};
 document.getElementById('egiProfessorCompare').onclick=snapshotComparison;
-document.getElementById('egiProfessorBack').onclick=()=>{const result=snapshotComparison();if(!result||!result.setupdt.evaluated)return alert('Analise primeiro no SetupDT.');const link='./index14.html?egi_setup_result='+encodeURIComponent(JSON.stringify(result));const opened=window.open(link,'_blank');if(!opened)alert('Pop-up bloqueado. Permita abrir a página do Professor.');};
+document.getElementById('egiProfessorBack').onclick=()=>{const result=snapshotComparison();if(!result||!result.setupdt.evaluated)return alert('Analise primeiro no SetupDT.');const link='./index14.html?egi_setup_result='+encodeURIComponent(JSON.stringify(result));const opened=window.open(link,'EGI_Professor_Window');if(!opened)alert('Pop-up bloqueado. Permita abrir a página do Professor.');};
 })();
 </script>
 </body></html>
