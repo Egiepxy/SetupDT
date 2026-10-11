@@ -169,7 +169,7 @@ function showVerdict(){let v=verdictBuild();if(v.error){egiVerdict=null;$('verdi
 function freshVerdict(){if(!egiVerdict||egiVerdict.asset!==$('asset').value.trim().toUpperCase()||!mtResult||Date.now()-mtResult.when>15*60*1000){return showVerdict()}return egiVerdict;}
 $('makeVerdict').onclick=()=>{showVerdict();safeReport()};
 $('copyPacket').onclick=()=>{let v=freshVerdict();if(v)copyText(JSON.stringify(v,null,2))};
-$('toSetup').onclick=()=>{let v=freshVerdict();if(!v)return;try{localStorage.setItem(EGI_PACKET_KEY,JSON.stringify(v));window.open('./SetupDT_V1_9_30_Professor_Integrado.html?egi_professor='+encodeURIComponent(JSON.stringify(v)),'_blank');$('verdictDisplay').textContent=verdictText(v)+'\n\n✅ Parecer enviado para Nova Análise do SetupDT integrado. O SetupDT recalculará seus indicadores.';}catch(e){$('verdictDisplay').textContent='⚠️ Transferência indisponível: '+e.message+' — use Copiar pacote para SetupDT.';}};
+$('toSetup').onclick=()=>{let v=freshVerdict();if(!v)return;try{localStorage.setItem(EGI_PACKET_KEY,JSON.stringify(v));window.open('./index.html?egi_professor='+encodeURIComponent(JSON.stringify(v)),'_blank');$('verdictDisplay').textContent=verdictText(v)+'\n\n✅ Parecer encaminhado ao SetupDT Light para análise independente. O SetupDT recalculará seus indicadores.';}catch(e){$('verdictDisplay').textContent='⚠️ Transferência indisponível: '+e.message+' — use Copiar pacote para SetupDT.';}};
 function verdictFingerprint(v){return [v.asset,v.status,v.direction,...v.indicators.map(z=>z.tf+':'+z.trend)].join('|');}
 $('sendNtfy').onclick=async()=>{
  const v=freshVerdict();if(!v)return;
