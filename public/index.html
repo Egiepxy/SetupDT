@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a1223"><title>SetupDT Light Multi-Exchange V1.9.33 • Triple Screen Intraday</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a1223"><title>SetupDT Light Multi-Exchange V1.9.41 • Semáforo do Mercado BTC</title>
 <style>
 :root{color-scheme:dark;--bg:#08111f;--card:#121f34;--border:#304664;--text:#e9f2ff;--muted:#b4c7e3;--cyan:#33d9ed;--green:#47db99;--amber:#ffcf79;--red:#ff7e91}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif;padding-bottom:92px}main{width:min(100%,650px);margin:auto;padding:12px}.top{position:sticky;top:0;z-index:10;background:#08111ff5;border-bottom:1px solid var(--border);padding:11px 14px 10px}.top-inner{max-width:650px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.logo{font-weight:850;font-size:19px}.logo span{color:var(--cyan)}.version{color:var(--muted);font-size:11px}.panel{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:15px;margin:12px 0}.panel h2{font-size:17px;margin:0 0 10px}.muted,.hint{color:var(--muted);font-size:12px}.hint{margin:9px 0 0}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}input,select,button{font:inherit;color:var(--text);background:#172a44;border:1px solid #50749f;border-radius:12px;padding:12px;min-height:46px}input{width:100%;min-width:0}select{max-width:100%}button{cursor:pointer;font-weight:760;touch-action:manipulation}button:disabled{opacity:.55;cursor:wait}button.primary{background:#00b8d2;color:#04131b;border-color:#16e4f3}button.secondary{background:#20334e}.assetrow{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:8px}label{display:block;margin:0 0 5px;color:#d4e4f9;font-size:13px;font-weight:720}.quick{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.quick button{min-height:38px;padding:7px 12px;border-color:#3c587e}.hero{border:2px solid var(--border);background:#102139}.hero.long{border-color:var(--green)}.hero.short{border-color:var(--red)}.hero.warning{border-color:var(--amber)}.hero h1{font-size:clamp(20px,6vw,28px);line-height:1.08;margin:9px 0 7px;overflow-wrap:anywhere}.hero h1.compact{font-size:clamp(18px,5.4vw,24px);line-height:1.05}.hero .coin{font-size:13px;color:#d0e8ff;font-weight:800}.stamp{font-size:12px;color:#c5daef}.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{border:1px solid #385472;background:#0b192d;border-radius:12px;padding:11px;overflow-wrap:anywhere}.metric small{display:block;color:var(--muted);margin-bottom:5px}.metric strong{font-size:clamp(15px,4vw,20px)}.status{display:inline-block;border-radius:99px;padding:4px 8px;font-weight:800;font-size:12px;background:#31435a}.status.long{background:#154d39;color:#a4ffd4}.status.short{background:#5b2634;color:#ffb7c3}.status.warning{background:#5b4621;color:#ffdf96}.status.neutral{background:#324159;color:#d1deef}.tf{display:grid;grid-template-columns:43px minmax(0,1fr) auto;gap:8px;padding:10px 0;border-bottom:1px solid #31425b;align-items:center}.tf:last-child{border:0}.tf .info{font-size:12px;color:var(--muted)}.check{display:flex;justify-content:space-between;gap:7px;padding:7px 0;border-bottom:1px solid #273d58}.check:last-child{border:0}.check span:last-child{font-weight:800}.note{padding:11px;border-left:4px solid var(--amber);border-radius:7px;background:#303021;color:#ffebc6;margin-top:11px}.note.ok{border-color:var(--green);background:#123a2f;color:#c9ffe4}.note.error{border-color:var(--red);background:#44242c;color:#ffdce3}.chart{display:block;width:100%;height:265px;background:#091626;border-radius:11px;touch-action:pan-y}.scroll{overflow-x:auto}.levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.levels .metric:first-child{grid-column:span 2}.levels strong{font-variant-numeric:tabular-nums}.levels-placeholder{grid-column:1/-1;border:1px dashed #48688d;background:#0d1b31;border-radius:12px;padding:14px;color:#dce9fa}.levels-placeholder strong{display:block;font-size:15px;margin-bottom:5px}.levels-placeholder span{display:block;color:var(--muted);font-size:12px;line-height:1.45}details{margin:12px 0;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:14px}summary{cursor:pointer;font-size:16px;font-weight:800;min-height:33px}.detailitem{border-top:1px solid #304560;margin-top:10px;padding-top:10px}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#08111ff5;border-top:1px solid #304664;padding:9px 12px max(10px,env(safe-area-inset-bottom))}.bottom>div{max-width:650px;margin:auto;display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:8px}.bottom button{font-size:13px;padding:9px 5px}#statusText{min-height:1em}.hidden{display:none!important}a{color:#8feeff}footer{margin:20px 0;color:var(--muted);font-size:11px}.tag{font-size:11px;border:1px solid #506b91;border-radius:7px;padding:3px 6px}.reasons{font-size:13px;line-height:1.55}.buttons button{flex:1 1 115px}.error-text{color:var(--red)}@media(min-width:600px){.mini-grid{grid-template-columns:repeat(3,1fr)}.chart{height:300px}}@media(max-width:360px){.assetrow{grid-template-columns:minmax(0,1fr) 105px}button{padding:10px 8px}}
 
@@ -79,9 +79,22 @@
 #egiSignalAudit .egi-audit-kpi b{display:block;font-size:20px}
 #egiAuditEntries{max-height:460px;overflow:auto}
 @media(max-width:500px){#egiSignalAudit .egi-audit-grid{grid-template-columns:repeat(2,1fr)}}
+</style><style id="egiDayRegimeStyle">
+#egiDayRegime{position:sticky;top:0;z-index:80;margin:0 0 12px;padding:12px 14px;border:1px solid #3c5b7d;border-radius:13px;background:#0d2032;box-shadow:0 5px 18px #0008}
+#egiDayRegime .egi-dayrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#egiDayRegime .egi-daystate{font-size:19px;font-weight:800}
+#egiDayRegime .egi-daymeta{font-size:12px;color:#b4c9dc;margin-top:5px;line-height:1.55}
+#egiDayRegime button,#egiDayRegime a{display:inline-block;padding:7px 10px;border:1px solid #527091;border-radius:9px;color:#e4f3ff;background:#19354b;text-decoration:none;font-size:12px}
+#egiDayRegime[data-regime="ALTA"]{border-color:#238961}#egiDayRegime[data-regime="BAIXA"]{border-color:#bb5462}#egiDayRegime[data-regime="LATERAL"]{border-color:#b68d3c}
 </style></head><body>
-<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.40 • Semáforo de diferença preço/candle</div></div><span class="tag">SEM ORDENS</span></div></header>
+<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.41 • Semáforo do Mercado BTC</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
+<section id="egiDayRegime" aria-label="Semáforo do mercado BTC" data-regime="INDEFINIDO">
+ <div class="egi-dayrow"><div><div style="font-weight:800">🧭 SEMÁFORO DO DIA EGI <small style="font-weight:400">• contexto BTC</small></div><div class="egi-daystate" id="egiDayRegimeState" role="status">⚪ CARREGANDO</div></div>
+ <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><button id="egiDayRefresh" type="button">↻ Atualizar semáforo</button><a href="index5.html" target="_blank" rel="noopener">📊 Abrir BTC_Padrão</a></div></div>
+ <div class="egi-daymeta" id="egiDayRegimeMeta">Critérios do BTC_Padrão: 1h EMA200, EMA9/14 (1h e 4h), candles fechados. Atualização a cada 5 min.</div>
+ <div class="egi-daymeta" id="egiDayRegimeRelation">Contexto informativo — sem bloquear ou ocultar sinais LONG, SHORT, Swing ou HOLD.</div>
+</section>
 
 <section class="module-launcher" id="moduleLauncher" aria-label="Abrir módulos do SetupDT">
   <div class="ml-title">📂 ABRIR MÓDULO</div>
@@ -2347,6 +2360,30 @@ function snapshotComparison(){
 document.getElementById('egiProfessorAnalyze').onclick=async()=>{if(!incoming)return alert('Receba primeiro um pacote do Professor.');const btn=document.getElementById('egiProfessorAnalyze');btn.disabled=true;compare.textContent='Executando análise independente do SetupDT…';try{await analyzeAndAutoRegister();snapshotComparison()}catch(e){compare.textContent='Falha na análise SetupDT: '+e.message}finally{btn.disabled=false}};
 document.getElementById('egiProfessorCompare').onclick=snapshotComparison;
 document.getElementById('egiProfessorBack').onclick=()=>{const result=snapshotComparison();if(!result||!result.setupdt.evaluated)return alert('Analise primeiro no SetupDT.');const link='./index14.html?egi_setup_result='+encodeURIComponent(JSON.stringify(result));const opened=window.open(link,'EGI_Professor_Window');if(!opened)alert('Pop-up bloqueado. Permita abrir a página do Professor.');};
+})();
+</script>
+<script id="egiDayRegimeScript">
+/* EGI V1.9.41 — réplica da regra "Regime do Mercado" BTC_Padrão index5. Não modifica qualquer sinal. */
+(function(){
+  const $d=id=>document.getElementById(id);
+  const root=$d('egiDayRegime'),state=$d('egiDayRegimeState'),meta=$d('egiDayRegimeMeta'),rel=$d('egiDayRegimeRelation'),btn=$d('egiDayRefresh');
+  if(!root||!state)return;
+  let running=false,lastAt=0,lastRegime='INDEFINIDO';
+  const emaLast=(vals,n)=>{if(vals.length<n)return NaN;let v=vals.slice(0,n).reduce((a,b)=>a+b,0)/n,k=2/(n+1);for(let i=n;i<vals.length;i++)v=vals[i]*k+v*(1-k);return v;};
+  const load=async(tf)=>{const res=await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval='+tf+'&limit=250',{cache:'no-store'});if(!res.ok)throw Error('Binance '+tf+' HTTP '+res.status);const rows=await res.json();if(!Array.isArray(rows))throw Error('Candles inválidos');const closed=rows.filter(c=>Number(c[6])<Date.now()).map(c=>({close:+c[4],end:+c[6]})).filter(c=>Number.isFinite(c.close)&&c.close>0);if(closed.length<200)throw Error('Histórico '+tf+' insuficiente');return closed;};
+  async function refresh(){if(running)return;running=true;btn.disabled=true;state.textContent='⏳ Atualizando BTC…';
+    try{const [h1,h4]=await Promise.all([load('1h'),load('4h')]);const v1=h1.map(c=>c.close),v4=h4.map(c=>c.close),p=v1.at(-1),e200=emaLast(v1,200),e9=emaLast(v1,9),e14=emaLast(v1,14),e94=emaLast(v4,9),e144=emaLast(v4,14);
+      const bull=p>e200&&e9>e14&&e94>e144,bear=p<e200&&e9<e14&&e94<e144;
+      lastRegime=bull?'ALTA':bear?'BAIXA':'LATERAL';lastAt=Date.now();
+      root.dataset.regime=lastRegime;state.textContent=bull?'🟢 ALTA':bear?'🔴 BAIXA':'🟡 LATERAL';
+      meta.textContent='BTC Binance Spot • 1h '+(p>e200?'acima':'abaixo')+' EMA200 • EMA9/14 1h '+(e9>e14?'alta':'baixa')+' • 4h '+(e94>e144?'alta':'baixa')+' • atualizado '+new Date(lastAt).toLocaleTimeString('pt-BR')+' • candles fechados • consulta a cada 5 min.';
+      rel.textContent='Contexto BTC: '+lastRegime+'. Uma moeda pode apresentar sinal divergente. Nenhum sinal é bloqueado ou alterado.';
+    }catch(err){root.dataset.regime='INDEFINIDO';state.textContent='⚪ SEM LEITURA';meta.textContent='Falha na consulta: '+String(err.message||err)+' • tente Atualizar semáforo.';rel.textContent='Sem informação atual de regime. Os sinais existentes permanecem visíveis.';}
+    finally{running=false;btn.disabled=false;}
+  }
+  btn.addEventListener('click',refresh);
+  refresh();setInterval(()=>{if(document.visibilityState==='visible')refresh();else if(lastAt&&Date.now()-lastAt>10*60*1000){root.dataset.regime='INDEFINIDO';state.textContent='⚪ DESATUALIZADO';}},300000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastAt>300000)refresh();});
 })();
 </script>
 </body></html>
