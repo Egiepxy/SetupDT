@@ -80,7 +80,7 @@
 #egiAuditEntries{max-height:460px;overflow:auto}
 @media(max-width:500px){#egiSignalAudit .egi-audit-grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
-<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.39 • Janela EGI: variação e referência de suporte</div></div><span class="tag">SEM ORDENS</span></div></header>
+<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.40 • Semáforo de diferença preço/candle</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
 
 <section class="module-launcher" id="moduleLauncher" aria-label="Abrir módulos do SetupDT">
@@ -171,7 +171,7 @@
     <div class="egiOppCell"><small>04 • Distância ao suporte (15m fechado)</small><b id="egiOppDist">—</b></div>
     <div class="egiOppCell"><small>05 • Contexto diário</small><b id="egiOppMacro">—</b></div>
     <div class="egiOppCell"><small>06 • 15m fechado / volume</small><b id="egiOppVol">—</b></div>
-    <div class="egiOppCell"><small>07 • Cotação × fechamento 15m</small><b id="egiOppDelta">—</b><div class="egiOppHint" id="egiOppDeltaHint">Aguardando cotação</div></div>
+    <div class="egiOppCell"><small>07 • Cotação × fechamento 15m</small><b id="egiOppDelta">—</b><div class="egiOppHint" id="egiOppSemaphore">⚪ Sem leitura</div><div class="egiOppHint" id="egiOppDeltaHint">Aguardando cotação</div></div>
   </div>
   <div class="egiOppAction" id="egiOppDetail">Atualize o ativo para analisar sua janela.</div>
   <div class="egiOppAction" id="egiOppTrade">⚪ Oportunidade contextual ≠ entrada. Somente o sistema original confirma operações.</div>
@@ -372,7 +372,10 @@ function egiOppRender(raw,symbol,existingSignal,quote){
  const validClosed=!noData&&Number.isFinite(r.price)&&r.price>0;
  const delta=validQuote&&validClosed?(Number(quote.price)/r.price-1)*100:null;
  const deltaText=Number.isFinite(delta)?(delta>=0?'+':'')+delta.toFixed(2)+'%':'—';
+ const absDelta=Number.isFinite(delta)?Math.abs(delta):null;
+ const semaforo=absDelta===null?'⚪ Sem leitura':absDelta<0.25?'🟢 Diferença pequena':absDelta<0.75?'🟡 Diferença moderada':'🔴 Diferença elevada';
  txt('egiOppDelta',deltaText);
+ txt('egiOppSemaphore',semaforo);
  txt('egiOppDeltaHint',Number.isFinite(delta)?(delta>=0?'Cotação acima do fechamento 15m':'Cotação abaixo do fechamento 15m')+' • referência de candles fechados':'Aguardando as duas referências');
  txt('egiOppSupport',noData?'—':'$ '+fmtLocal(r.support));
  txt('egiOppBand',noData?'—':'$ '+fmtLocal(r.low)+' a '+fmtLocal(r.high));
@@ -382,7 +385,7 @@ function egiOppRender(raw,symbol,existingSignal,quote){
  txt('egiOppVol',noData?'—':'$ '+fmtLocal(r.price)+' • '+r.volRatio.toFixed(2)+'x');
  txt('egiOppDetail',r.reason);
  txt('egiOppTrade',existingSignal?'✅ O SetupDT registra confirmação operacional própria. Verificar stop, risco/retorno e filtros originais.':'⚠️ Não é uma entrada: aguardar checklist e gatilho do sistema original, com stop e risco definidos.');
- egiOppLastReport='JANELA DE OPORTUNIDADE EGI — '+symbol+'\nEstágio: '+r.stage+'\n'+r.reason+'\n'+(noData?'Dados insuficientes ou desatualizados.':('Suporte 1D: '+fmtLocal(r.support)+'\nFaixa ATR4H: '+fmtLocal(r.low)+'–'+fmtLocal(r.high)+'\nPreço candle fechado 15M: '+fmtLocal(r.price)+'\nRSI 4H/1H: '+r.r4.toFixed(1)+' / '+r.r1.toFixed(1)+'\nDistância do fechamento 15m ao suporte: '+r.dist.toFixed(2)+'%\nCotação consultada: '+(validQuote?fmtLocal(Number(quote.price)):'indisponível')+'\nVariação cotação vs fechamento 15m: '+deltaText+'\nVolume 15M: '+r.volRatio.toFixed(2)+'x\n'+r.macro))+'\nOperação: entrada NÃO inferida pela janela. Leitura de candles fechados.\nData da análise: '+new Date().toLocaleString('pt-BR');
+ egiOppLastReport='JANELA DE OPORTUNIDADE EGI — '+symbol+'\nEstágio: '+r.stage+'\n'+r.reason+'\n'+(noData?'Dados insuficientes ou desatualizados.':('Suporte 1D: '+fmtLocal(r.support)+'\nFaixa ATR4H: '+fmtLocal(r.low)+'–'+fmtLocal(r.high)+'\nPreço candle fechado 15M: '+fmtLocal(r.price)+'\nRSI 4H/1H: '+r.r4.toFixed(1)+' / '+r.r1.toFixed(1)+'\nDistância do fechamento 15m ao suporte: '+r.dist.toFixed(2)+'%\nCotação consultada: '+(validQuote?fmtLocal(Number(quote.price)):'indisponível')+'\nVariação cotação vs fechamento 15m: '+deltaText+'\nSemáforo diferença: '+semaforo+' (limiares ilustrativos 0,25% e 0,75%; NÃO é sinal)\nVolume 15M: '+r.volRatio.toFixed(2)+'x\n'+r.macro))+'\nOperação: entrada NÃO inferida pela janela. Leitura de candles fechados.\nData da análise: '+new Date().toLocaleString('pt-BR');
  txt('egiOppFeedback','Última leitura: '+new Date().toLocaleTimeString('pt-BR')+' • Somente contexto, sem ordens.');
  return r;
 }
@@ -390,7 +393,7 @@ function egiOppReset(){
  egiOppLastReport='';
  const st=document.getElementById('egiOppStatus');if(st){st.textContent='⚪ Aguardando nova análise';st.className='egiOppState';}
  for(const id of ['egiOppQuote','egiOppSupport','egiOppBand','egiOppRsi','egiOppDist','egiOppMacro','egiOppVol','egiOppDelta']){const el=document.getElementById(id);if(el)el.textContent='—';}
- for(const [id,value] of [['egiOppDeltaHint','Aguardando cotação'],['egiOppQuoteAge','Aguardando atualização'],['egiOppDetail','Atualize o ativo para recalcular a janela.'],['egiOppTrade','⚠️ A janela não confirma operações.'],['egiOppFeedback','Dados anteriores invalidados.']]){const el=document.getElementById(id);if(el)el.textContent=value;}
+ for(const [id,value] of [['egiOppSemaphore','⚪ Sem leitura'],['egiOppDeltaHint','Aguardando cotação'],['egiOppQuoteAge','Aguardando atualização'],['egiOppDetail','Atualize o ativo para recalcular a janela.'],['egiOppTrade','⚠️ A janela não confirma operações.'],['egiOppFeedback','Dados anteriores invalidados.']]){const el=document.getElementById(id);if(el)el.textContent=value;}
 }
 async function egiOppCopy(){
  if(!egiOppLastReport){document.getElementById('egiOppFeedback').textContent='Analise um ativo primeiro.';return;}
