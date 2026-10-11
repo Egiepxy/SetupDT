@@ -21,12 +21,12 @@
 <style>
 .scan-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin:12px 0}.scan-actions .field{min-width:125px}.scan-table{overflow-x:auto}.scan-table table{min-width:690px}.scan-table button{min-height:34px;font-size:12px;padding:5px 9px}.scan-meta{color:var(--muted);font-size:12px}.scan-up{color:var(--green)}.scan-down{color:var(--red)}.scan-muted{color:var(--yellow)}
 </style>
-<style>.moment-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 8px}.moment-btn{background:#153d38;border:1px solid #3b967d;color:#e3fff1;font-size:13px;min-height:36px;padding:6px 12px}.moment-btn:disabled{opacity:.85;cursor:progress;background:#243548;border-color:#53647b;color:#d9e4f2}.moment-note{font-size:11px;color:#b2c5d7}.moment-btn strong{color:#77f7ac}</style>
+<style>.moment-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 8px}.moment-btn{background:#153d38;border:1px solid #3b967d;color:#e3fff1;font-size:13px;min-height:36px;padding:6px 12px}.moment-btn:disabled{opacity:.85;cursor:progress;background:#243548;border-color:#53647b;color:#d9e4f2}.moment-note{font-size:11px;color:#b2c5d7}.moment-btn strong{color:#77f7ac}.scan-selected{font-size:12px;padding:8px 10px;margin:8px 0;border:1px solid #3b536c;border-radius:8px;background:#102338;color:#c7dbea}.scan-row-selected{background:#16413c!important;outline:1px solid #4ac39f}.scan-selected strong{color:#65e4bc}</style>
 </head>
 <body>
 <main>
 <header>
-<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.4.4 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
+<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.4.5 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
 <p class="sub">MME 9/21/200 + RSI 14 + volume. 5m encontra gatilho, 15m filtra direção. Somente candles fechados.</p>
 <div class="stack"><span class="pill">5m · execução técnica</span><span class="pill">15m · contexto</span><span class="pill">Binance Spot pública</span><span class="pill">Sem API key</span></div>
 </header>
@@ -61,7 +61,7 @@
 <p class="muted" style="font-size:13px">Busca manual para localizar moedas com amplitude e participação no mercado. A triagem começa pelas moedas USDT mais líquidas da Binance Spot e aprofunda até 20 delas: <b>não é um ranking exaustivo de todas as moedas em 5m/1h</b>.</p>
 <div class="scan-actions"><div class="field"><label for="scanPeriod">Período do movimento</label><select id="scanPeriod"><option value="5m">5 minutos</option><option value="1h">1 hora</option><option value="24h">24 horas</option></select></div>
 <div class="field"><label for="scanLiquidity">Liquidez mínima em 24h (USDT)</label><select id="scanLiquidity"><option value="10000000">10 milhões</option><option value="5000000" selected>5 milhões</option><option value="1000000">1 milhão</option></select></div><button type="button" class="btn primary" id="scanNow">🔎 Buscar moedas</button><span class="scan-meta" id="scanStatus" role="status">Aguardando busca manual</span></div>
-<div class="scan-table"><table><thead><tr><th>#</th><th>Moeda</th><th>Movimento</th><th>Amplitude</th><th>Volume relativo</th><th>Volume 24h</th><th>Estudar</th></tr></thead><tbody id="scanRows"><tr><td colspan="7">Toque em Buscar moedas para iniciar</td></tr></tbody></table></div>
+<div id="scanSelected" class="scan-selected" role="status">Moeda selecionada: BTC · faça uma busca para comparar com o ranking.</div><div class="scan-table"><table><thead><tr><th>#</th><th>Moeda</th><th>Movimento</th><th>Amplitude</th><th>Volume relativo</th><th>Volume 24h</th><th>Estudar</th></tr></thead><tbody id="scanRows"><tr><td colspan="7">Toque em Buscar moedas para iniciar</td></tr></tbody></table></div>
 <p class="scan-meta">Movimento = fechamento − abertura do período (24h usa variação informada pela Binance). Amplitude = máxima − mínima, dividida pela mínima. Volume relativo usa candles fechados apenas nos períodos 5m e 1h. A seleção prioriza volume de 24h e pode deixar de fora moedas recém-aquecidas. Sem avaliação automática de holders.</p>
 <div class="summary"><b>📚 Qualidade do projeto / holders:</b> mantenha nosso estudo fundamentalista como camada separada. Número de holders sozinho não comprova liquidez, receita ou oportunidade de scalping. Para o gatilho rápido, use candles, volume, spread e gestão de risco.</div>
 </section>
@@ -88,7 +88,7 @@ function notice(message){$('notice').textContent=message||'';$('notice').classLi
 function setText(id,val){$(id).textContent=val}
 function normalizeSymbol(raw){let s=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(s.length>2&&!s.endsWith('USDT'))s+='USDT';return /^[A-Z0-9]{3,20}$/.test(s)?s:null}
 function renderFavorites(){const list=$('favList');list.replaceChildren();state.favorites.slice(0,80).forEach(sym=>{const b=document.createElement('button');b.type='button';b.className='chip'+(state.symbol===sym?' active':'');b.textContent=sym.replace(/USDT$/,'');b.title=sym;b.onclick=()=>switchSymbol(sym);list.append(b)});$('favToggle').textContent=state.favorites.includes(state.symbol)?'✓ Cadastrado':'＋ Cadastrar'}
-function switchSymbol(sym){const s=normalizeSymbol(sym);if(!s){notice('Informe um par válido, como BTCUSDT ou BTC.');return}state.symbol=s;$('symbol').value=s;lastSpokenKey='';renderFavorites();refresh()}
+function switchSymbol(sym){const s=normalizeSymbol(sym);if(!s){notice('Informe um par válido, como BTCUSDT ou BTC.');return}state.symbol=s;$('symbol').value=s;lastSpokenKey='';renderFavorites();syncScanSelection();refresh()}
 function ema(closes,period){const result=Array(closes.length).fill(null);if(closes.length<period)return result;let acc=0;for(let i=0;i<period;i++)acc+=closes[i];let value=acc/period;result[period-1]=value;const a=2/(period+1);for(let i=period;i<closes.length;i++){value=closes[i]*a+value*(1-a);result[i]=value}return result}
 function rsiWilder(closes,period=14){const out=Array(closes.length).fill(null);if(closes.length<=period)return out;let gain=0,loss=0;for(let i=1;i<=period;i++){const d=closes[i]-closes[i-1];if(d>=0)gain+=d;else loss-=d}let ag=gain/period,al=loss/period;const value=()=>al===0?(ag===0?50:100):100-100/(1+ag/al);out[period]=value();for(let i=period+1;i<closes.length;i++){const d=closes[i]-closes[i-1];ag=(ag*(period-1)+Math.max(d,0))/period;al=(al*(period-1)+Math.max(-d,0))/period;out[i]=value()}return out}
 function parseKlines(raw,serverTime,interval){if(!Array.isArray(raw))throw Error('Formato inesperado de candles');const closes=raw.map(r=>({time:Number(r[0]),open:Number(r[1]),high:Number(r[2]),low:Number(r[3]),close:Number(r[4]),baseVol:Number(r[5]),end:Number(r[6]),quoteVol:Number(r[7])}));const closed=closes.filter(c=>Number.isFinite(c.end)&&c.end<=serverTime-1000&&c.open>0&&c.high>0&&c.low>0&&c.close>0&&c.quoteVol>=0&&c.high>=Math.max(c.open,c.close)&&c.low<=Math.min(c.open,c.close));if(closed.length<230)throw Error('Histórico insuficiente para MME200 e RSI (menos de 230 candles fechados)');for(let i=1;i<closed.length;i++){if(closed[i].time<=closed[i-1].time)throw Error('Candles fora de ordem');if(closed[i].time-closed[i-1].time!==intervalMs[interval])throw Error('Lacunas no histórico de candles: '+interval)}const latest=closed[closed.length-1];const expected=Math.floor((serverTime-1000)/intervalMs[interval])*intervalMs[interval]-1;if(expected-latest.end>1000)throw Error('Dados '+interval+' desatualizados; último candle: '+timeFmt(latest.end));return closed}
@@ -208,6 +208,17 @@ $('studyAdd').onclick=()=>{const name=$('studyNewName').value.trim();if(!name){$
 // Garimpo manual: usa volume 24h para formar universo e candles fechados para o 5m/1h.
 let scanning=false;
 let lastMoment=null;
+let scanResultsCache=null;
+function syncScanSelection(){
+ const label=state.symbol.replace(/USDT$/,'');const box=$('scanSelected');if(!box)return;
+ const inRanking=scanResultsCache?.find(x=>x.symbol===state.symbol);
+ const rows=$('scanRows')?.querySelectorAll('tr[data-scan-symbol]')||[];
+ rows.forEach(row=>{const selected=row.dataset.scanSymbol===state.symbol;row.classList.toggle('scan-row-selected',selected);const button=row.querySelector('button');if(button)button.textContent=selected?'✓ Selecionada':'Abrir no Scalping';});
+ if(!scanResultsCache){box.textContent='Moeda selecionada: '+label+' · busque moedas para comparar com o ranking.';return;}
+ if(inRanking){box.textContent='✓ '+label+' selecionada · movimento '+(inRanking.move>=0?'+':'')+fmt(inRanking.move,2)+'% no período do último Garimpo. Ranking não é entrada.';}
+ else{box.textContent=label+' selecionada · fora do Top 15 do último Garimpo. O ranking não muda ao trocar de ativo; toque Buscar moedas para refazer a triagem.';}
+}
+
 function clearMoment(message='Faça uma busca no Garimpo para atualizar a moeda da vez.'){
  lastMoment=null;
  const b=$('momentCoin');b.disabled=scanning;b.textContent=scanning?'⏳ Buscando moeda da vez…':'🏆 Moeda da vez · 🔎 Buscar agora';b.title=scanning?'Busca em andamento':'Clique para buscar a moeda da vez no Garimpo';
@@ -230,7 +241,7 @@ $('scanLiquidity').addEventListener('change',()=>clearMoment('Liquidez alterada 
 const compactUSDT=v=>Number.isFinite(v)?(v>=1e9?(v/1e9).toFixed(2)+' bi':v>=1e6?(v/1e6).toFixed(1)+' mi':(v/1e3).toFixed(0)+' mil'):'—';
 async function scanVolatility(){
  if(scanning)return;
- scanning=true;clearMoment('⏳ Buscando valorização no Garimpo…');const btn=$('scanNow'),status=$('scanStatus'),rows=$('scanRows');btn.disabled=true;rows.replaceChildren();status.textContent='Buscando volume e oscilação na Binance…';
+ scanning=true;scanResultsCache=null;syncScanSelection();clearMoment('⏳ Buscando valorização no Garimpo…');const btn=$('scanNow'),status=$('scanStatus'),rows=$('scanRows');btn.disabled=true;rows.replaceChildren();status.textContent='Buscando volume e oscilação na Binance…';
  const period=$('scanPeriod').value,minVol=Number($('scanLiquidity').value);
  try{
   const bases=['https://data-api.binance.vision','https://api.binance.com'];let tickers=null,activeBase=null,lastError;
@@ -255,18 +266,18 @@ async function scanVolatility(){
   }
   results=results.filter(x=>Number.isFinite(x.amp));
   updateMoment(results,period,period==='24h'?'todos os pares elegíveis':'até 20 pares mais líquidos');
-  results.sort((a,b)=>b.amp-a.amp);results=results.slice(0,15);
+  results.sort((a,b)=>b.amp-a.amp);results=results.slice(0,15);scanResultsCache=results;
   rows.replaceChildren();if(!results.length)throw Error('Não foi possível validar candles suficientes. Tente 24h ou outra busca.');
   for(const [i,r] of results.entries()){
-    const row=rows.insertRow();const add=v=>{const cell=row.insertCell();cell.textContent=v;return cell};add(String(i+1));add(r.symbol.replace(/USDT$/,''));const mov=add((r.move>=0?'+':'')+fmt(r.move,2)+'%');mov.className=r.move>0?'scan-up':r.move<0?'scan-down':'';add(fmt(r.amp,2)+'%');add(r.vRel===null?'n/d':fmt(r.vRel,2)+'×');add(compactUSDT(r.vol));const cell=row.insertCell();const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Abrir no Scalping';b.onclick=()=>{switchSymbol(r.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};cell.append(b);
+    const row=rows.insertRow();row.dataset.scanSymbol=r.symbol;const add=v=>{const cell=row.insertCell();cell.textContent=v;return cell};add(String(i+1));add(r.symbol.replace(/USDT$/,''));const mov=add((r.move>=0?'+':'')+fmt(r.move,2)+'%');mov.className=r.move>0?'scan-up':r.move<0?'scan-down':'';add(fmt(r.amp,2)+'%');add(r.vRel===null?'n/d':fmt(r.vRel,2)+'×');add(compactUSDT(r.vol));const cell=row.insertCell();const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Abrir no Scalping';b.onclick=()=>{switchSymbol(r.symbol);document.querySelector('[aria-label="Controles"]')?.scrollIntoView({behavior:'smooth',block:'start'})};cell.append(b);
   }
-  status.textContent='Busca concluída · '+new Date().toLocaleTimeString('pt-BR')+' · '+(period==='24h'?'pares elegíveis filtrados':'até 20 pares mais líquidos examinados')+' · '+results.length+' exibidos';
- }catch(e){clearMoment('Dados indisponíveis · nenhuma moeda da vez');status.textContent='Erro na busca: '+(e.message||e);rows.replaceChildren();const row=rows.insertRow(),td=row.insertCell();td.colSpan=7;td.textContent='Busca indisponível. Não usar resultados antigos.'}
+  syncScanSelection();status.textContent='Busca concluída · '+new Date().toLocaleTimeString('pt-BR')+' · '+(period==='24h'?'pares elegíveis filtrados':'até 20 pares mais líquidos examinados')+' · '+results.length+' exibidos';
+ }catch(e){scanResultsCache=null;syncScanSelection();clearMoment('Dados indisponíveis · nenhuma moeda da vez');status.textContent='Erro na busca: '+(e.message||e);rows.replaceChildren();const row=rows.insertRow(),td=row.insertCell();td.colSpan=7;td.textContent='Busca indisponível. Não usar resultados antigos.'}
  finally{scanning=false;btn.disabled=false;if(!lastMoment){const moment=$('momentCoin');moment.disabled=false;moment.textContent='🏆 Moeda da vez · 🔎 Buscar novamente';moment.title='Clique para tentar outra busca';}}
 }
 $('scanNow').onclick=scanVolatility;
 
-renderFavorites();logRender();resetAuto();drawEmpty('chart','Consultando Binance…');drawEmpty('rsiChart','—');refresh();
+renderFavorites();syncScanSelection();logRender();resetAuto();drawEmpty('chart','Consultando Binance…');drawEmpty('rsiChart','—');refresh();
 })();
 </script>
 </body>
