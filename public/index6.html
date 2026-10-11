@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V8.9 • Professor de STOPs EGI</title>
+<title>RadarMME1 Light V9.0 • Professor de STOPs Etapa 2</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -358,7 +358,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V8.9 • Professor de STOPs • Somente estudo • ntfy preservado</div>
+    <div class="sub">V9.0 • Professor de STOPs Etapa 2 • Somente estudo • ntfy preservado</div>
   </div>
   <div class="badge">📲 MM1 V8.3.1 • PROFESSOR EGI + NTFY</div>
 </header>
@@ -662,10 +662,10 @@ header h1{font-size:26px}
     </div>
 
     <div class="panel" id="studyAuditPanel" style="margin-top:14px;border-color:#4d6585">
- <h3>🧪 Auditoria EGI — somente estudo e comparação • V8.9</h3>
+ <h3>🧪 Auditoria EGI — somente estudo e comparação • V9.0</h3>
  <div class="note">Os resultados são SIMULAÇÕES técnicas do RadarMME1, não ordens executadas nem lucros/prejuízos reais. STOP e 2R usam candles fechados; eventos na mesma vela permanecem INDETERMINADOS.</div>
  <div id="studyAuditStats" class="note" aria-live="polite">Sem histórico calculado.</div>
- <div id="studyAuditReasons" class="note"></div><div class="note"><b>Detalhes individuais dos STOPs simulados (até 30):</b><pre id="studyStopDetails" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre></div>
+ <div id="studyAuditReasons" class="note"></div><pre id="studyMethodComparison" class="note" style="white-space:pre-wrap"></pre><div class="note"><b>Detalhes individuais dos STOPs simulados (até 30):</b><pre id="studyStopDetails" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre></div>
  <button type="button" id="copyStudyAudit" class="secondary">📋 Copiar auditoria para ChatGPT</button>
  </div>
  <div class="trade-log event-log">
@@ -1381,6 +1381,7 @@ async function consultCoin(silent=false){
     });
     if(!Object.keys(results).length) throw new Error('Não foi possível calcular nenhum timeframe.');
 
+    studyCandleCache=Object.fromEntries(LIGHT_TFS.map((tf,i)=>[tf,candleSets[i]||null]));
     lastMultiTf={symbol,results,ts:Date.now()};
     lessonObserve(symbol,results,silent?'auto-consulta':'consulta');
     renderMultiTf(symbol,results);
@@ -1607,6 +1608,7 @@ function exportTxt(){
 const ROBOT_TRADES_KEY='radar_mme921_robot_trades_v1';
 const ROBOT_ALERT_KEY='radar_mme921_robot_last_alert_v1';
 const ROBOT_EVENTS_KEY='radar_mme921_robot_events_v1';
+let studyCandleCache={};
 let robotTrades=[];
 let robotEvents=[];
 
@@ -2084,6 +2086,43 @@ function bandText(stats){
 
 
 /* EGI V8.8: camada não operacional de auditoria; não altera critérios de sinais. */
+
+/* EGI V9.0: snapshot imutável no candle fechado, apenas pesquisa. */
+function studySafe(n){return Number.isFinite(Number(n)) && n!==null && n!==''?Number(n):null;}
+function studyMethodB(candles){
+ if(!Array.isArray(candles))return {status:'DADOS_INDISPONIVEIS'};
+ const i=egiClosedIndex(candles);
+ if(i<90)return {status:'AMOSTRA_INSUFICIENTE'};
+ const highs=candles.map(k=>Number(k[2])),lows=candles.map(k=>Number(k[3])),closes=candles.map(k=>Number(k[4]));
+ const e8=ema(closes,8),e80=ema(closes,80);
+ const fast=e8[i],slow=e80[i];
+ if(!Number.isFinite(fast)||!Number.isFinite(slow))return {status:'DADOS_INDISPONIVEIS'};
+ const kfast=closes.map((_,j)=>{
+  if(j<13)return null;
+  const h=Math.max(...highs.slice(j-13,j+1)),l=Math.min(...lows.slice(j-13,j+1));
+  return h===l?50:100*(closes[j]-l)/(h-l);
+ });
+ const smaAt=(a,j,p)=>{if(j<p-1)return null;const v=a.slice(j-p+1,j+1);return v.every(Number.isFinite)?v.reduce((x,y)=>x+y,0)/p:null;};
+ const kslow=kfast.map((_,j)=>smaAt(kfast,j,3));
+ const dslow=smaAt(kslow,i,3);
+ const k=kslow[i];
+ const direction=fast>slow?'ALTA':fast<slow?'BAIXA':'NEUTRO';
+ const cross=k!==null && dslow!==null?(k>dslow?'K_ACIMA_D':k<dslow?'K_ABAIXO_D':'EMPATE'):'INDETERMINADO';
+ return {status:'OK',ema8:fast,ema80:slow,slowK:k,slowD:dslow,trend:direction,kd:cross,candleClose:studySafe(candles[i][6])};
+}
+function studySignalSnapshot(symbol,tf,r,results,candles){
+ const mtf={};
+ for(const t of LIGHT_TFS){const x=results[t];mtf[t]=x?{state:x.state,iqe:studySafe(x.iqe),relOk:studySafe(x.parecerScore),volumeRatio:studySafe(x.volRatio),slope9:studySafe(x.slope9),slope21:studySafe(x.slope21),signalCandleClose:studySafe(x.signalCandleClose)}:{state:'SEM_DADOS'};}
+ return {version:'EGI_STUDY_SNAPSHOT_9_0',observedAt:new Date().toISOString(),symbol,tf,candleClose:studySafe(r.signalCandleClose),
+  methodA:{label:'MME9/21',ema9:studySafe(r.fast),ema21:studySafe(r.slow),slope9:studySafe(r.slope9),slope21:studySafe(r.slope21),sep:studySafe(r.sep),dist9:studySafe(r.dist9),iqe:studySafe(r.iqe),volRatio:studySafe(r.volRatio),trRatio:studySafe(r.trRatio),direction:r.state},
+  methodB:studyMethodB(candles),multiTf:mtf};
+}
+function studyMethodComparison(){
+ const data=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
+ const group=(key,pred)=>{const a=data.filter(t=>pred(t.studySnapshot));const wins=a.filter(t=>t.status==='2R').length;const r=a.reduce((acc,t)=>acc+(studySafe(t.resultR)||0),0);return key+': '+a.length+' encerrados, '+wins+' 2R, '+r.toFixed(1)+'R (mesmos sinais do método A; não é backtest do B)';};
+ return [group('Método A MME9/21',t=>t?.methodA?.direction),group('B EMA8/80 + Estocástico (snapshot disponível)',t=>t?.methodB?.status==='OK'), 'V9.0 não calcula acerto independente de B porque B não cria entradas/stops próprios. Históricos sem snapshot continuam sem classificação retrospectiva.'].join('\\n');
+}
+
 function studyAuditData(){
  const closed=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
  const side=dir=>closed.filter(t=>t.direction===dir);
@@ -2111,7 +2150,7 @@ function studyAuditData(){
 function studyAuditText(){
  const d=studyAuditData();
  const r=n=>n.toFixed(1)+'R';
- return 'RADARMME1 V8.9 — ESTUDO, SEM ORDENS REAIS\\n'+
+ return 'RADARMME1 V9.0 — ESTUDO, SEM ORDENS REAIS\\n'+
  'Registros: '+robotTrades.length+' | Abertos simulados: '+d.open+' | Fechados: '+d.closed.length+' | Indeterminados: '+d.unknown+'\\n'+
  '2R: '+d.closed.filter(t=>t.status==='2R').length+' | STOP: '+d.stops.length+
  ' | Acerto: '+(d.closed.length?(100*d.closed.filter(t=>t.status==='2R').length/d.closed.length).toFixed(1)+'%':'—')+'\\n'+
@@ -2119,12 +2158,13 @@ function studyAuditText(){
  ' | SHORT '+r(d.S.reduce((a,t)=>a+Number(t.resultR||0),0))+'\\n'+
  'Verificação de soma LONG + SHORT: '+(Math.abs(d.total-d.split)<0.000001?'CONSISTENTE':'DIVERGENTE — revisar direção dos registros')+'\\n'+
  'Indícios para STOP (sobrepostos, NÃO causas provadas): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' | ')+'\\n'+
- 'Detalhes por STOP:\\n'+d.details.map(x=>[x.t.symbol,x.t.direction,x.t.tf,x.t.exitAt||x.t.ts,'indícios '+(x.findings.join('/')||'nenhum'),'dados ausentes '+(x.missing.join('/')||'nenhum')].join(' | ')).join('\\n')+'\\nObservação: histórico local, não sessão; comparar somente períodos e denominadores iguais.';
+ 'Comparação de métodos:\\n'+studyMethodComparison()+'\\nDetalhes por STOP:\\n'+d.details.map(x=>[x.t.symbol,x.t.direction,x.t.tf,x.t.exitAt||x.t.ts,'indícios '+(x.findings.join('/')||'nenhum'),'dados ausentes '+(x.missing.join('/')||'nenhum')].join(' | ')).join('\\n')+'\\nObservação: histórico local, não sessão; comparar somente períodos e denominadores iguais.';
 }
 function renderStudyAudit(){
  const box=document.getElementById('studyAuditStats'),reasons=document.getElementById('studyAuditReasons');if(!box)return;
  const d=studyAuditData(),wins=d.closed.filter(t=>t.status==='2R').length;
  box.textContent='Histórico local: '+robotTrades.length+' sinais • '+d.open+' abertos • '+wins+' alvos 2R • '+d.stops.length+' STOPs • '+d.unknown+' indeterminados • '+(d.closed.length?(100*wins/d.closed.length).toFixed(1)+'%':'—')+' A2/fechados • '+d.total.toFixed(1)+'R técnico. '+(Math.abs(d.total-d.split)<0.000001&&d.other.length===0?'✅ Soma LONG/SHORT confere.':'⚠️ Há registros fora da comparação LONG/SHORT.');
+ const compare=document.getElementById('studyMethodComparison');if(compare)compare.textContent=studyMethodComparison();
  if(reasons)reasons.textContent='Indícios (podem se sobrepor): '+Object.entries(d.counts).map(([k,v])=>k+': '+v).join(' • ')+'. Os números não representam causas comprovadas.';
  const list=document.getElementById('studyStopDetails');
  if(list)list.textContent=d.details.length?d.details.slice(0,30).map(x=>[x.t.symbol||'?',x.t.direction||'?',x.t.tf||'?',x.t.exitAt||x.t.ts||'',x.findings.length?'Indícios: '+x.findings.join(', '):'Nenhum fator identificado',x.missing.length?'Dados ausentes: '+x.missing.join(', '):''].filter(Boolean).join(' | ')).join('\\n'):'Nenhum STOP registrado.';
@@ -2312,6 +2352,7 @@ function evaluateRobot(symbol,results,showUi=true){
       slope21:Number.isFinite(r.slope21)?r.slope21:null,
       trRatio:Number.isFinite(r.trRatio)?r.trRatio:null,
       entryType:classifyEntryType(r),
+      studySnapshot:studySignalSnapshot(symbol,tf,r,results,studyCandleCache[tf]),
       planModel:'V8.2_PIVO_2X2_ATR',stopMethod:r.stopMethod,stopAtrMult:Number.isFinite(r.stopAtrMult)?r.stopAtrMult:null,legacyStop:Number.isFinite(r.legacyStop)?r.legacyStop:null,
       signalCandleClose:Number(r.signalCandleClose||0),
       status:'ABERTA', hit1R:false, hit1RAt:null, exitAt:null, exitReason:'', resultR:null, durationMs:null
