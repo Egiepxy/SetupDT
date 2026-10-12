@@ -52,7 +52,7 @@
 <body><main>
 <section class="panel hero">
   <div class="heroTop">
-    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V16 CADASTRO + RELATÓRIO GERAL</div>
+    <div class="eyebrow">SINALTOP EGI V1 — DETECTOR DE REAÇÃO</div>
     <button class="topRefresh" id="topRefreshBtn" onclick="refreshAll()" title="Forçar nova leitura agora">🔄 ATUALIZAR</button>
   </div>
   <div class="pairTop" id="pairTop" role="button" tabindex="0" title="Abrir a moeda selecionada no TradingView" onclick="openTradingView()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTradingView();}">
@@ -60,7 +60,7 @@
     <span id="pairTopPrice" class="pairTopPrice">—</span>
     <span class="pairTopHint">📊 TradingView</span>
   </div>
-  <div class="muted">Máxima/mínima móvel de 24h + análise técnica no timeframe escolhido + topos e fundos estruturais fixos do 15m.</div>
+  <div class="muted">Aviso antecipado em 1m, confirmação com candle 5m fechado e contexto 15m. Os recursos de máxima/mínima permanecem disponíveis abaixo.</div>
   <div id="buySellSystem" class="buySellSystem">
     <div class="buySellHeader">🎯 SISTEMA EGI — COMPRAR EMBAIXO / VENDER EM CIMA</div>
     <div class="buySellGrid">
@@ -93,6 +93,8 @@
   </div>
   <div class="statusline" style="margin-top:10px"><span id="dot" class="dot"></span><span id="statusText">Aguardando atualização</span></div>
 </section>
+<section class="panel" id="stPanel"><div class="eyebrow">🎯 SINALTOP EGI V1 — REAÇÃO ANTECIPADA</div><h2>Monitor LONG / SHORT • 1m + 5m + 15m</h2><div class="grid2"><div class="metric" style="border-color:#328fc0"><small>🔵 1m — antecipação</small><strong id="stEarly">Aguardando</strong><div class="stamp" id="stEarlyWhy">—</div></div><div class="metric" style="border-color:#348e61"><small>🟢 5m — candle fechado</small><strong id="stConfirm">Aguardando</strong><div class="stamp" id="stConfirmWhy">—</div></div></div><div class="metric" style="margin-top:9px"><small>🧭 15m — contexto fechado</small><strong id="stContext">Aguardando</strong><div id="stContextWhy" class="stamp">—</div></div><div class="grid2" style="margin-top:9px"><div class="metric"><small>Preço / invalidação técnica</small><strong id="stPriceStop">—</strong></div><div class="metric"><small>Alvo / potencial risco:retorno bruto</small><strong id="stTargetRR">—</strong></div></div><div id="stStamp" class="stamp" style="margin-top:10px">Aguardando atualização…</div><div class="notice" style="margin-top:9px">⚠️ Reação antecipada não libera entrada. Fechamento 5m é exigido para confirmação. Invalidação, alvo e R são referências didáticas sem custos. Nenhuma ordem automática.</div></section>
+
 
 <section class="panel">
   <div class="controls three">
@@ -276,7 +278,7 @@
   <div class="audioRow"><button onclick="speakManual()">🔊 Ouvir manual</button><button onclick="stopSpeech()">⏹ Parar</button><select id="speechRate"><option value="0.8">0,8×</option><option value="1" selected>1,0×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option></select></div>
 </details>
 <div class="stamp" style="text-align:center;margin:14px 0">Radar técnico educativo • não executa ordens.</div>
-<section class="panel" id="stPanel"><div class="eyebrow">🎯 SINALTOP EGI V1 — REAÇÃO ANTECIPADA</div><h2>Monitor LONG / SHORT • 1m + 5m + 15m</h2><div class="grid2"><div class="metric" style="border-color:#328fc0"><small>🔵 1m — antecipação</small><strong id="stEarly">Aguardando</strong><div class="stamp" id="stEarlyWhy">—</div></div><div class="metric" style="border-color:#348e61"><small>🟢 5m — candle fechado</small><strong id="stConfirm">Aguardando</strong><div class="stamp" id="stConfirmWhy">—</div></div></div><div class="metric" style="margin-top:9px"><small>🧭 15m — contexto fechado</small><strong id="stContext">Aguardando</strong><div id="stContextWhy" class="stamp">—</div></div><div class="grid2" style="margin-top:9px"><div class="metric"><small>Preço / invalidação técnica</small><strong id="stPriceStop">—</strong></div><div class="metric"><small>Alvo / potencial risco:retorno bruto</small><strong id="stTargetRR">—</strong></div></div><div id="stStamp" class="stamp" style="margin-top:10px">Aguardando atualização…</div><div class="notice" style="margin-top:9px">⚠️ Reação antecipada não libera entrada. Fechamento 5m é exigido para confirmação. Invalidação, alvo e R são referências didáticas sem custos. Nenhuma ordem automática.</div></section></main>
+</main>
 <script>
 const $=id=>document.getElementById(id);
 const DEFAULT_COINS=['BTC','ETH','SOL','LINK','SUI','ENA'];
