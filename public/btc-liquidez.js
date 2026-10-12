@@ -18,7 +18,8 @@
     if (loading) return;
     loading = true;
     try {
-      const response = await fetch('/api/btc-liquidity?t=' + Date.now(), { cache: 'no-store' });
+      const endpoint = typeof serverUrl === 'function' ? serverUrl('/api/btc-liquidity') : '/api/btc-liquidity';
+      const response = await fetch(endpoint + '?t=' + Date.now(), { cache: 'no-store' });
       if (!response.ok) throw new Error('Servidor HTTP ' + response.status);
       const d = await response.json();
       if (!d.snapshot || d.stale) throw new Error(d.error || 'Aguardando novo livro de ofertas do servidor');
