@@ -93,7 +93,7 @@
   </div>
   <div class="statusline" style="margin-top:10px"><span id="dot" class="dot"></span><span id="statusText">Aguardando atualização</span></div>
 </section>
-<section class="panel" id="stPanel"><div class="eyebrow">🎯 SINALTOP EGI V1 — REAÇÃO ANTECIPADA</div><h2>Monitor LONG / SHORT • 1m + 5m + 15m</h2><div class="grid2"><div class="metric" style="border-color:#328fc0"><small>🔵 1m — antecipação</small><strong id="stEarly">Aguardando</strong><div class="stamp" id="stEarlyWhy">—</div></div><div class="metric" style="border-color:#348e61"><small>🟢 5m — candle fechado</small><strong id="stConfirm">Aguardando</strong><div class="stamp" id="stConfirmWhy">—</div></div></div><div class="metric" style="margin-top:9px"><small>🧭 15m — contexto fechado</small><strong id="stContext">Aguardando</strong><div id="stContextWhy" class="stamp">—</div></div><div class="grid2" style="margin-top:9px"><div class="metric"><small>Preço / invalidação técnica</small><strong id="stPriceStop">—</strong></div><div class="metric"><small>Alvo / potencial risco:retorno bruto</small><strong id="stTargetRR">—</strong></div></div><div id="stStamp" class="stamp" style="margin-top:10px">Aguardando atualização…</div><div class="notice" style="margin-top:9px">⚠️ Reação antecipada não libera entrada. Fechamento 5m é exigido para confirmação. Invalidação, alvo e R são referências didáticas sem custos. Nenhuma ordem automática.</div></section>
+<section class="panel" id="stPanel"><div class="eyebrow">🎯 SINALTOP EGI V1 — REAÇÃO ANTECIPADA</div><h2>Monitor LONG / SHORT • 1m + 5m + 15m</h2><div class="grid2"><div class="metric" style="border-color:#328fc0"><small>🔵 1m — antecipação</small><strong id="stEarly">Aguardando</strong><div class="stamp" id="stEarlyWhy">—</div></div><div class="metric" style="border-color:#348e61"><small>🟢 5m — candle fechado</small><strong id="stConfirm">Aguardando</strong><div class="stamp" id="stConfirmWhy">—</div></div></div><div class="metric" style="margin-top:9px"><small>🧭 15m — contexto fechado</small><strong id="stContext">Aguardando</strong><div id="stContextWhy" class="stamp">—</div></div><div class="grid2" style="margin-top:9px"><div class="metric"><small>Preço / invalidação técnica</small><strong id="stPriceStop">—</strong></div><div class="metric"><small>Alvo / potencial risco:retorno bruto</small><strong id="stTargetRR">—</strong></div></div><div class="metric" style="margin-top:9px;border-color:#5e819f"><small id="stMajorLabel">📏 Distância até resistência maior (15m)</small><strong id="stMajorDistance">Aguardando</strong><div class="stamp" id="stMajorWhy">Referência dos candles fechados de 15m, não garantia de alvo.</div></div><div id="stStamp" class="stamp" style="margin-top:10px">Aguardando atualização…</div><div class="notice" style="margin-top:9px">⚠️ Reação antecipada não libera entrada. Fechamento 5m é exigido para confirmação. Invalidação, alvo e R são referências didáticas sem custos. Nenhuma ordem automática.</div></section>
 
 
 <section class="panel">
@@ -768,6 +768,26 @@ async function refreshSinalTop(){
  stText('stConfirmWhy','RSI fechado '+r5.toFixed(1)+' • volume '+(Number.isFinite(v5)?v5.toFixed(2):'—')+'× • MACD '+(m5.now>m5.prev?'subindo':'caindo'));
  stText('stContext',r15>=55?'🟢 Tendência de alta 15m':r15<=45?'🔴 Tendência de baixa 15m':'🟡 Contexto neutro 15m');
  stText('stContextWhy','RSI fechado 15m '+r15.toFixed(1)+' • preço '+(d.at(-1).c>ema(dd,200)?'acima':'abaixo')+' da EMA200 • contexto não bloqueia sinal antecipado');
+ // Próxima barreira relevante: pivôs confirmados em candles fechados de 15m (2 à esquerda e 2 à direita).
+ const pivHi=[],pivLo=[];
+ for(let i=2;i<d.length-2;i++){
+  if(d[i].h>d[i-1].h&&d[i].h>d[i-2].h&&d[i].h>=d[i+1].h&&d[i].h>=d[i+2].h)pivHi.push(d[i].h);
+  if(d[i].l<d[i-1].l&&d[i].l<d[i-2].l&&d[i].l<=d[i+1].l&&d[i].l<=d[i+2].l)pivLo.push(d[i].l);
+ }
+ const higher=pivHi.filter(v=>v>p).sort((a,b)=>a-b);
+ const lower=pivLo.filter(v=>v<p).sort((a,b)=>b-a);
+ const majorSide=confirmed||early||'LONG';
+ const major=majorSide==='SHORT'?lower[0]:higher[0];
+ stText('stMajorLabel',majorSide==='SHORT'?'📏 Distância até suporte maior (15m)':'📏 Distância até resistência maior (15m)');
+ if(Number.isFinite(major)){
+  const distance=Math.abs(major-p)/p*100;
+  stText('stMajorDistance',fmt(major)+' • '+pct(distance));
+  stText('stMajorWhy','Pivô confirmado no 15m, calculado com candles fechados; '+(majorSide==='SHORT'?'suporte abaixo':'resistência acima')+' do último preço fechado 1m ('+fmt(p)+').');
+ }else{
+  stText('stMajorDistance','Sem nível confirmado');
+  stText('stMajorWhy','Nenhum pivô 15m confirmado '+(majorSide==='SHORT'?'abaixo':'acima')+' do preço no histórico consultado. Não interpretar como caminho livre.');
+ }
+ 
  const side=confirmed||early;
  if(!side){stText('stPriceStop',fmt(p)+' / sem direção');stText('stTargetRR','Aguardando');}
  else {
@@ -778,7 +798,7 @@ async function refreshSinalTop(){
  stText('stTargetRR',fmt(target)+' / '+(risk>0&&reward>0?(reward/risk).toFixed(2)+'R':'sem alvo favorável'));
  }
  stText('stStamp','1m fechado '+new Date(a.at(-1).end).toLocaleString('pt-BR')+' • 5m fechado '+new Date(b.at(-1).end).toLocaleString('pt-BR')+' • '+symbol+'/USDT • '+market);
- }catch(e){stText('stEarly','⚪ Sem dados');stText('stConfirm','⚪ Sem dados');stText('stContext','⚪ Sem dados');stText('stStamp','Falha: '+(e.message||e));}
+ }catch(e){stText('stEarly','⚪ Sem dados');stText('stConfirm','⚪ Sem dados');stText('stContext','⚪ Sem dados');stText('stMajorDistance','Indisponível');stText('stMajorWhy','Verifique a conexão com a corretora.');stText('stStamp','Falha: '+(e.message||e));}
 }
 
 async function refreshAll(){
