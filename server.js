@@ -946,6 +946,12 @@ app.get('/api/market/ticker', async (req, res) => {
   }
 });
 
+// EGI BTC: livro de ofertas Binance Spot e alertas de aproximação via Telegram (token no Render).
+require('./btc-liquidez-server')({
+  app, upstreamFirst, binanceBases, telegram, fs, path, dataDir: DATA_DIR,
+  telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length)
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { etag: true, maxAge: 0 }));
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
