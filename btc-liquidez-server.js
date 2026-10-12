@@ -64,11 +64,14 @@ module.exports = function installBtcLiquidity({ app, upstreamFirst, binanceBases
     if (!eligible.length) return { zone: null, nearValue, visibleValue, coveragePct: coverage };
     const baseline = median(eligible.map(z => z[1]));
     eligible.sort((a, b) => b[1] - a[1]);
-    const [center, notional] = eligible[0];
-    const distancePct = Math.abs(center / mid - 1) * 100;
+    const [bucket, notional] = eligible[0];
+    const low = side === 'bid' ? bucket : Math.max(mid, bucket - zoneStep);
+    const high = side === 'bid' ? Math.min(mid, bucket + zoneStep) : bucket;
+    const center = Number(((low + high) / 2).toFixed(2));
+    const distancePct = (side === 'bid' ? Math.max(0, mid - high) : Math.max(0, low - mid)) / mid * 100;
     return {
       zone: {
-        center, low: center - zoneStep / 2, high: center + zoneStep / 2,
+        center, low: Number(low.toFixed(2)), high: Number(high.toFixed(2)),
         distancePct: Number(distancePct.toFixed(3)),
         notionalUsd: Math.round(notional),
         relativeStrength: Number((notional / Math.max(1, baseline)).toFixed(2)),
@@ -114,7 +117,7 @@ module.exports = function installBtcLiquidity({ app, upstreamFirst, binanceBases
         if (z.distancePct >= thresholdPct * 1.8 && !n.armed) { n.armed = true; dirty = true; }
         const wasStable = previous && previous[side] && previous[side].center === z.center;
         const isNear = z.distancePct <= thresholdPct;
-        if (!enabled || !telegramConfigured || !wasStable || !isNear || !n.armed || Date.now() - n.time < cooldownMs) continue;
+        if (!enabled || !telegramConfigured || !wasStable || !isNear || z.relativeStrength < 2 || !n.armed || Date.now() - n.time < cooldownMs) continue;
         const text = [
           (side === 'bid' ? '🟢 BTC — APROXIMANDO DA PAREDE DE COMPRA' : '🔴 BTC — APROXIMANDO DA PAREDE DE VENDA'),
           'Binance Spot BTC/USDT — ordens visíveis, NÃO mapa de liquidações',
