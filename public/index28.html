@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setup Egi Ranking Binance</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b1220;color:#eef4ff}
+.w{max-width:1450px;margin:auto;padding:16px}
+.top,.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.card,.ctl{background:#121b2f;border:1px solid #23314f;border-radius:14px;padding:14px;margin:14px 0}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+label{font-size:12px;color:#8fa3bf;display:block;margin-bottom:5px}
+input,select,button{width:100%;padding:10px;border-radius:9px;border:1px solid #23314f;background:#0e1728;color:#eef4ff}
+button{background:#4ea1ff;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#18243a}
+button.good{background:#173827;color:#29d17d}
+button.bad{background:#40222a;color:#ff5f6d}
+.muted{color:#8fa3bf;font-size:12px}
+.long{color:#29d17d}.short{color:#ff5f6d}.wait{color:#f6c85f}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.kpi{background:#121b2f;border:1px solid #23314f;border-radius:12px;padding:10px}
+.kpi b{display:block;font-size:20px;margin-top:4px}
+.scroll{overflow:auto;max-height:650px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:9px;border-bottom:1px solid #23314f;white-space:nowrap;text-align:left}
+th{position:sticky;top:0;background:#121b2f;color:#8fa3bf;z-index:1}
+.link{color:#78b8ff;text-decoration:underline;cursor:pointer}
+.graphlink{color:#f6c85f;font-weight:900;cursor:pointer;text-decoration:underline}
+.pill{display:inline-block;padding:3px 7px;border-radius:999px;background:#0e1728;border:1px solid #23314f}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:20;padding:18px}
+.modal.on{display:flex;align-items:center;justify-content:center}
+.box{background:#121b2f;border:1px solid #23314f;border-radius:14px;padding:16px;width:min(950px,100%);max-height:90vh;overflow:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
+.v{background:#0e1728;padding:10px;border-radius:9px}
+.progress{height:8px;background:#0e1728;border-radius:99px;overflow:hidden;margin-top:8px}
+.progress>div{height:100%;background:#4ea1ff;width:0%}
+@media(max-width:700px){.w{padding:10px}table{font-size:11px}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="top">
+    <div>
+      <h2 style="margin:0">Setup Egi — Ranking Binance V10 • Sobrevenda 4H</h2>
+      <div class="muted">Melhores ou piores desempenhos • 5, 10, 15, 20, 50, 100 ou quantidade personalizada • análise técnica com candle fechado</div>
+    </div>
+    <div class="row" style="justify-content:flex-end">
+      <button id="featuresBtn" class="secondary" style="width:auto">📄 Funcionalidades</button>
+      <button id="refresh" style="width:auto">🔄 Buscar na Binance</button>
+    </div>
+  </div>
+
+  <div class="ctl">
+    <div>
+      <label>Ranking</label>
+      <select id="rankMode">
+        <option value="best" selected>🚀 Melhor desempenho</option>
+        <option value="worst">📉 Pior desempenho</option>
+      </select>
+    </div>
+    <div>
+      <label>Quantidade</label>
+      <select id="qtyMode">
+        <option value="5">5 criptos</option>
+        <option value="10" selected>10 criptos</option>
+        <option value="15">15 criptos</option>
+        <option value="20">20 criptos</option>
+        <option value="50">50 criptos</option>
+        <option value="100">100 criptos</option>
+        <option value="custom">Personalizar</option>
+      </select>
+    </div>
+    <div id="customWrap" style="display:none">
+      <label>Quantidade personalizada</label>
+      <input id="customQty" type="number" min="1" max="100" value="25">
+    </div>
+    <div>
+      <label>Timeframe principal</label>
+      <select id="tf">
+        <option>15m</option>
+        <option>1h</option>
+        <option selected>4h</option>
+        <option>1d</option>
+      </select>
+    </div>
+    <div>
+      <label>Volume mínimo 24h (USDT)</label>
+      <input id="minVol" type="number" min="0" step="100000" value="1000000">
+    </div>
+    <div>
+      <label>Capital R$</label>
+      <input id="capital" type="number" value="5000">
+    </div>
+    <div>
+      <label>Risco %</label>
+      <input id="risk" type="number" step=".1" value="1">
+    </div>
+    <div>
+      <label>Alavancagem</label>
+      <select id="lev"><option>1</option><option>2</option><option selected>3</option><option>5</option></select>
+    </div>
+    <div>
+      <label>USD/BRL usado no cálculo</label>
+      <input id="usdbrl" type="number" step=".01" value="5.30">
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:flex-start;margin:10px 0">
+    <button class="secondary" style="width:auto" onclick="showOnly('ALL')">📋 Todas</button>
+    <button style="width:auto" onclick="showOpportunities()">⭐ Oportunidades</button>
+    <button class="secondary" style="width:auto" onclick="showTop10()">🏆 Top 10</button>
+    <button class="good" style="width:auto" onclick="showEntryStatus('CONFIRMADA')">✅ Confirmadas</button>
+    <button class="secondary" style="width:auto" onclick="showEntryStatus('AGUARDAR')">⏳ Aguardar</button>
+    <button class="good" style="width:auto" onclick="showDirectionalReport('LONG')">📈 LONG</button>
+    <button class="bad" style="width:auto" onclick="showDirectionalReport('SHORT')">📉 SHORT</button>
+    <button class="good" style="width:auto" onclick="showRsiReport('oversold')">🌡️ Sobrevenda</button>
+    <button class="bad" style="width:auto" onclick="showRsiReport('overbought')">🔥 Sobrecompra</button>
+    <button class="good" style="width:auto" onclick="showOversoldStudy()">🔍 Radar Sobrevenda 4H</button>
+    <button class="good" style="width:auto" onclick="showRelativeBtc()">₿ Força vs BTC + Sobrevenda</button>
+    <button class="good" style="width:auto" onclick="showGptReport()">📋 Relatório ChatGPT</button>
+    <button class="secondary" style="width:auto" onclick="showRsi4h('oversold')">🕓 Sobrevenda 4H (original)</button>
+    <button class="bad" style="width:auto" onclick="showRsi4h('overbought')">🕓 Sobrecompra 4H</button>
+  </div>
+
+  <div id="status" class="muted">Pronto.</div>
+  <div class="progress"><div id="bar"></div></div>
+
+  <div class="kpis" style="margin-top:12px">
+    <div class="kpi">Exibidas<b id="kCount">0</b></div>
+    <div class="kpi">Sinais L<b id="kLong">0</b></div>
+    <div class="kpi">Sinais S<b id="kShort">0</b></div>
+    <div class="kpi">Neutras<b id="kNeutral">0</b></div>
+    <div class="kpi">Média 24h<b id="kAvg">0%</b></div>
+    <div class="kpi">Risco/operação<b id="kRisk">R$ 50</b></div>
+    <div class="kpi">Oportunidades fortes<b id="kOpp">0</b></div>
+    <div class="kpi">Entradas confirmadas<b id="kConfirmed">0</b></div>
+    <div class="kpi">No ranking<b id="kUniverse">0</b></div>
+    <div class="kpi">Pré-seleção<b id="kPre">0</b></div>
+  </div>
+
+  <div class="card">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Cripto</th><th>24h</th><th>Preço</th><th>Volume 24h</th>
+            <th>RSI</th><th>Score Conf.</th><th>Sinal Conf.</th><th>1H</th><th>4H</th><th>1D</th>
+            <th>Entrada</th><th>Stop</th><th>Alvo 1</th><th>Alvo 2</th><th>Alvo 3</th><th>G</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="muted">
+    Ranking por variação percentual de 24h da Binance. O filtro de volume ajuda a evitar pares com liquidez muito baixa.
+    Sinais técnicos são informativos e não garantem resultado.
+  </div>
+</div>
+
+<div id="modal" class="modal">
+  <div class="box">
+    <div class="row"><div><h3 id="mt" style="margin:0"></h3><div id="ms" class="muted"></div></div><button id="mc" style="width:auto">✕</button></div>
+    <div id="mb" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+const API='https://api.binance.com';
+let data=[], visibleMode='ALL', btcReference4h=null, btcRelativeIssue='Aguardando análise';
+const $=id=>document.getElementById(id);
+const fmt=n=>{
+  if(n==null||!isFinite(n))return '—';
+  if(Math.abs(n)>=1000)return n.toLocaleString('en-US',{maximumFractionDigits:2});
+  if(Math.abs(n)>=1)return n.toFixed(4);
+  return n.toPrecision(6);
+};
+async function j(u){const r=await fetch(u);if(!r.ok)throw Error('HTTP '+r.status);return r.json()}
+function ema(a,p){if(!a.length)return null;let k=2/(p+1),v=a[0];for(let i=1;i<a.length;i++)v=a[i]*k+v*(1-k);return v}
+function rsi(a,p=14){if(a.length<p+1)return null;let g=0,l=0;for(let i=a.length-p;i<a.length;i++){let d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}if(l===0)return 100;let rs=(g/p)/(l/p);return 100-100/(1+rs)}
+function atr(k,p=14){if(k.length<p+1)return null;let t=[];for(let i=1;i<k.length;i++){let h=+k[i][2],lo=+k[i][3],pc=+k[i-1][4];t.push(Math.max(h-lo,Math.abs(h-pc),Math.abs(lo-pc)))}let z=t.slice(-p);return z.reduce((a,b)=>a+b,0)/(z.length||1)}
+function sig(x){
+  let l=0,s=0;
+  if(x.r<=30)l+=25; else if(x.r<=40)l+=12;
+  if(x.r>=70)s+=25; else if(x.r>=60)s+=12;
+  x.e9>x.e21?l+=20:s+=20;
+  x.e21>x.e200?l+=20:s+=20;
+  x.cp>x.e200?l+=15:s+=15;
+  if(x.v>=1.2)(l>=s?l+=10:s+=10);
+  if(x.rel>=2)l+=10; else if(x.rel<=-2)s+=10;
+  x.ch>0?l+=5:s+=5;
+  let score=Math.min(100,Math.max(l,s)),signal='NEUTRO';
+  if(l>=70&&l>s)signal='LONG FORTE';
+  else if(l>=55&&l>s)signal='LONG';
+  else if(s>=70&&s>l)signal='SHORT FORTE';
+  else if(s>=55&&s>l)signal='SHORT';
+  let q=null;
+  if(x.a){
+    if(signal.startsWith('LONG'))q={e:x.cp,st:x.cp-1.2*x.a,a1:x.cp+x.a,a2:x.cp+2*x.a,a3:x.cp+3*x.a};
+    if(signal.startsWith('SHORT'))q={e:x.cp,st:x.cp+1.2*x.a,a1:x.cp-x.a,a2:x.cp-2*x.a,a3:x.cp-3*x.a};
+  }
+  return{score,signal,q}
+}
+function closedMetrics(k,base){
+  const closed=k.length>2?k.slice(0,-1):k;
+  const cl=closed.map(z=>+z[4]),vo=closed.map(z=>+z[5]);
+  const av=vo.slice(-20,-1).reduce((a,b)=>a+b,0)/(Math.min(19,Math.max(1,vo.length-1)));
+  const last=closed.at(-1);
+  const x={...base,cp:+last[4],r:rsi(cl),a:atr(closed),e9:ema(cl,9),e21:ema(cl,21),e200:ema(cl,200),v:vo.at(-1)/(av||1)};
+  Object.assign(x,sig(x)); return x;
+}
+function dir(s){return (s||'').startsWith('LONG')?'L':(s||'').startsWith('SHORT')?'S':'N'}
+function confluenceInfo(c){
+  const weights={'1h':25,'4h':35,'1d':40};
+  let lp=0,sp=0;
+  for(const tf of ['1h','4h','1d']){
+    const s=c?.[tf]?.signal||'NEUTRO',w=weights[tf];
+    let f=0,d='N';
+    if(s==='LONG FORTE'){f=1;d='L'} else if(s==='LONG'){f=.75;d='L'}
+    else if(s==='SHORT FORTE'){f=1;d='S'} else if(s==='SHORT'){f=.75;d='S'}
+    if(d==='L')lp+=w*f;if(d==='S')sp+=w*f;
+  }
+  const score=Math.round(Math.max(lp,sp));
+  const direction=lp>sp?'LONG':sp>lp?'SHORT':'NEUTRO';
+  let signal='NEUTRO';
+  if(direction==='LONG'&&score>=80)signal='LONG FORTE';
+  else if(direction==='LONG'&&score>=60)signal='LONG';
+  else if(direction==='SHORT'&&score>=80)signal='SHORT FORTE';
+  else if(direction==='SHORT'&&score>=60)signal='SHORT';
+  return{score,signal,direction,longPts:lp,shortPts:sp}
+}
+function signalClass(s){return (s||'').startsWith('LONG')?'long':(s||'').startsWith('SHORT')?'short':'wait'}
+function prefix(s){return s==='LONG FORTE'?'L+_':s==='LONG'?'L_':s==='SHORT FORTE'?'S+_':s==='SHORT'?'S_':'N_'}
+function qty(){
+  const m=$('qtyMode').value;
+  return m==='custom'?Math.max(1,Math.min(50,+$('customQty').value||5)):+m;
+}
+function excludedBase(a){
+  const bad=['USDT','USDC','FDUSD','TUSD','DAI','EUR','TRY','BRL','BIDR','AEUR'];
+  if(bad.includes(a))return true;
+  return /(UP|DOWN|BULL|BEAR)$/.test(a);
+}
+function setMode(m){$('rankMode').value=m;load()}
+function showOnly(m){visibleMode=m;render()}
+function openGraph(pair){window.open('https://www.tradingview.com/chart/?symbol=BINANCE:'+pair,'_blank')}
+function position(x){
+  if(!x.q)return null;
+  const capital=+$('capital').value||5000,risk=+$('risk').value||1,fx=+$('usdbrl').value||5.3,lev=+$('lev').value||3;
+  const rb=capital*risk/100,ru=rb/fx,d=Math.abs(x.q.e-x.q.st);
+  const q=d?ru/d:0,notional=q*x.q.e,margin=notional/lev;
+  return{rb,q,notional,margin}
+}
+async function load(){
+  try{
+    data=[];render();
+    $('bar').style.width='0%';
+    $('status').textContent='Etapa 1/2 • Buscando ranking de 24h na Binance...';
+    const tickers=await j(API+'/api/v3/ticker/24hr');
+    const minVol=+$('minVol').value||0,mode=$('rankMode').value,n=qty();
+    const btc=tickers.find(x=>x.symbol==='BTCUSDT');
+    const btcCh=btc?+btc.priceChangePercent:0;
+    btcReference4h=null;btcRelativeIssue='Consulta ao BTC pendente';
+    try{btcReference4h=await j(`${API}/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=5`);btcRelativeIssue='BTC 4H consultado';}catch(e){btcRelativeIssue='BTC 4H indisponível: '+e.message;}
+
+    let universe=tickers.map(t=>{
+      if(!t.symbol.endsWith('USDT'))return null;
+      const base=t.symbol.slice(0,-4);
+      return {s:base,pair:t.symbol,p:+t.lastPrice,ch:+t.priceChangePercent,vol:+t.quoteVolume};
+    }).filter(x=>x && !excludedBase(x.s) && x.vol>=minVol && isFinite(x.ch) && x.p>0);
+
+    universe.sort((a,b)=>mode==='best'?b.ch-a.ch:a.ch-b.ch);
+    const ranked=universe.slice(0,n);
+    $('kUniverse').textContent=ranked.length;
+
+    // Etapa rápida: para universos grandes, usa o timeframe principal para escolher
+    // candidatos técnicos antes de buscar todos os demais timeframes.
+    let candidates=ranked;
+    if(n>20){
+      const quick=[];
+      const tf=$('tf').value;
+      const batchSize=6;
+      for(let i=0;i<ranked.length;i+=batchSize){
+        const batch=ranked.slice(i,i+batchSize);
+        $('status').textContent=`Etapa 1/2 • Pré-analisando ${Math.min(i+batch.length,ranked.length)}/${ranked.length}...`;
+        $('bar').style.width=(45*Math.min(i+batch.length,ranked.length)/ranked.length).toFixed(0)+'%';
+        const rs=await Promise.all(batch.map(async b=>{
+          try{
+            const k=await j(`${API}/api/v3/klines?symbol=${b.pair}&interval=${tf}&limit=220`);
+            const x=closedMetrics(k,{...b,rel:b.ch-btcCh});
+            const directional=(x.signal||'').startsWith(mode==='best'?'LONG':'SHORT');
+            // Score leve para preservar fortes movers e sinais alinhados.
+            const quickScore=(directional?40:0)+(x.v>=1.2?15:0)+(Math.min(30,Math.abs(b.ch)*2))+
+              ((mode==='best'&&x.r<70)||(mode==='worst'&&x.r>30)?15:0);
+            return {...b,quickScore};
+          }catch(e){return {...b,quickScore:0}}
+        }));
+        quick.push(...rs);
+      }
+      // 50 -> até 20 candidatos; 100 -> até 30. Reduz chamadas sem perder a varredura ampla.
+      const keep=n>=100?30:20;
+      candidates=quick.sort((a,b)=>b.quickScore-a.quickScore).slice(0,keep);
+    }
+    $('kPre').textContent=candidates.length;
+
+    // Etapa completa: somente candidatos pré-selecionados.
+    const concurrency=4;
+    let done=0;
+    async function analyze(b){
+      try{
+        const wanted=[...new Set([$('tf').value,'15m','1h','4h','1d'])];
+        const sets=await Promise.all(wanted.map(async tf=>[tf,await j(`${API}/api/v3/klines?symbol=${b.pair}&interval=${tf}&limit=220`)]));
+        const km=Object.fromEntries(sets),base={...b,rel:b.ch-btcCh};
+        const x=closedMetrics(km[$('tf').value],base);
+        x.conf={};
+        for(const tf of ['1h','4h','1d'])x.conf[tf]=closedMetrics(km[tf],base);
+        x.times={};
+        for(const tf of ['15m','1h','4h','1d'])x.times[tf]=closedMetrics(km[tf],base);
+        x.confluence=confluenceInfo(x.conf);
+        x.btcRelative=relativeToBtc4h(km['4h'],btcReference4h);
+        data.push(x);
+      }catch(e){console.warn(b.pair,e)}
+      done++;
+      $('status').textContent=`Etapa 2/2 • Análise completa ${done}/${candidates.length}...`;
+      $('bar').style.width=(45+55*done/candidates.length).toFixed(0)+'%';
+      render();
+    }
+    for(let i=0;i<candidates.length;i+=concurrency){
+      await Promise.all(candidates.slice(i,i+concurrency).map(analyze));
+    }
+
+    $('bar').style.width='100%';
+    const confirmed=data.filter(x=>entryTrigger(x).status==='CONFIRMADA').length;
+    $('status').textContent=`Pronto • ${ranked.length} no ranking → ${candidates.length} pré-selecionadas → ${data.length} analisadas completamente → ${confirmed} entrada(s) confirmada(s).`;
+  }catch(e){
+    console.error(e);$('status').textContent='Falha ao carregar dados da Binance. Verifique sua conexão.';
+  }
+}
+function render(){
+  let a=[...data];
+  if(visibleMode==='LONG')a=a.filter(x=>(x.confluence?.signal||'').startsWith('LONG'));
+  if(visibleMode==='SHORT')a=a.filter(x=>(x.confluence?.signal||'').startsWith('SHORT'));
+  const mode=$('rankMode').value;
+  a.sort((x,y)=>mode==='best'?y.ch-x.ch:x.ch-y.ch);
+  $('rows').innerHTML=a.map((x,i)=>{
+    const cs=signalClass(x.confluence?.signal),p=position(x);
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b class="link" onclick="showSetup('${x.pair}')">${prefix(x.confluence?.signal)}${x.s}</b></td>
+      <td class="${x.ch>=0?'long':'short'}"><b>${x.ch>=0?'+':''}${x.ch.toFixed(2)}%</b></td>
+      <td>$ ${fmt(x.p)}</td>
+      <td>${Math.round(x.vol).toLocaleString('en-US')}</td>
+      <td>${x.r?.toFixed(1)??'—'}</td>
+      <td><b>${x.confluence?.score??0}</b></td>
+      <td class="${cs}"><b>${x.confluence?.signal||'NEUTRO'}</b></td>
+      <td class="${signalClass(x.conf?.['1h']?.signal)}">${x.conf?.['1h']?.signal||'—'}</td>
+      <td class="${signalClass(x.conf?.['4h']?.signal)}">${x.conf?.['4h']?.signal||'—'}</td>
+      <td class="${signalClass(x.conf?.['1d']?.signal)}">${x.conf?.['1d']?.signal||'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.e):'—'}</td><td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.a1):'—'}</td><td>${x.q?'$ '+fmt(x.q.a2):'—'}</td><td>${x.q?'$ '+fmt(x.q.a3):'—'}</td>
+      <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+    </tr>`
+  }).join('');
+
+  $('kCount').textContent=a.length;
+  $('kLong').textContent=data.filter(x=>(x.confluence?.signal||'').startsWith('LONG')).length;
+  $('kShort').textContent=data.filter(x=>(x.confluence?.signal||'').startsWith('SHORT')).length;
+  $('kNeutral').textContent=data.filter(x=>(x.confluence?.signal||'NEUTRO')==='NEUTRO').length;
+  const avg=data.length?data.reduce((s,x)=>s+x.ch,0)/data.length:0;
+  $('kAvg').textContent=(avg>=0?'+':'')+avg.toFixed(2)+'%';
+  $('kRisk').textContent='R$ '+(((+$('capital').value||5000)*(+$('risk').value||1)/100).toFixed(2));
+  $('kOpp').textContent=data.filter(x=>opportunity(x).points>=85).length;
+  $('kConfirmed').textContent=data.filter(x=>entryTrigger(x).status==='CONFIRMADA').length;
+}
+function showSetup(pair){
+  const x=data.find(z=>z.pair===pair);if(!x)return;
+  const p=position(x),opp=opportunity(x),tr=entryTrigger(x);
+  $('mt').textContent=prefix(x.confluence?.signal)+x.s+' — '+(x.confluence?.signal||'NEUTRO');
+  $('ms').textContent=`24h ${x.ch>=0?'+':''}${x.ch.toFixed(2)}% • Score Conf. ${x.confluence?.score??0}/100 • Candle fechado`;
+  const study=egiFourHourStatus(x);
+  const items=[
+    ['Sobrevenda 4H / reação',study.label],['RSI 4H',x.times?.['4h']?.r?.toFixed(1)??'—'],['Volume 4H',Number.isFinite(x.times?.['4h']?.v)?x.times['4h'].v.toFixed(2)+'×':'—'],['RSI 1H',x.times?.['1h']?.r?.toFixed(1)??'—'],['RSI 15m',x.times?.['15m']?.r?.toFixed(1)??'—'],
+    ['Semáforo',opp.light+' '+opp.points+'/100'],['Gatilho',tr.status==='CONFIRMADA'?'✅ ENTRADA CONFIRMADA':'⏳ AGUARDAR ENTRADA'],['Preço atual','$ '+fmt(x.p)],['RSI',x.r?.toFixed(1)??'—'],['R:R Alvo 2',rrText(x)],['1H',x.conf?.['1h']?.signal||'—'],
+    ['4H',x.conf?.['4h']?.signal||'—'],['1D',x.conf?.['1d']?.signal||'—'],['Sinal principal',x.signal],
+    ['Entrada',x.q?'$ '+fmt(x.q.e):'—'],['Stop',x.q?'$ '+fmt(x.q.st):'—'],
+    ['Alvo 1',x.q?'$ '+fmt(x.q.a1):'—'],['Alvo 2',x.q?'$ '+fmt(x.q.a2):'—'],['Alvo 3',x.q?'$ '+fmt(x.q.a3):'—'],
+    ['Risco R$',p?'R$ '+p.rb.toFixed(2):'—'],['Quantidade',p?fmt(p.q):'—'],['Margem estimada',p?fmt(p.margin)+' USDT':'—']
+  ];
+  $('mb').innerHTML=`<div class="grid">${items.map(v=>`<div class="v"><div class="muted">${v[0]}</div><b>${v[1]}</b></div>`).join('')}</div>
+  <div style="margin-top:12px"><b>Critérios confirmados:</b><div class="muted">${tr.checks.length?tr.checks.join(' • '):'—'}</div></div>
+  <div style="margin-top:8px"><b>Pendências:</b><div class="muted">${tr.pending.length?tr.pending.join(' • '):'Nenhuma'}</div></div>
+  <div class="row" style="justify-content:flex-start;margin-top:14px"><button style="width:auto" onclick="openGraph('${pair}')">Abrir gráfico G</button></div>`;
+  $('modal').classList.add('on');
+}
+
+
+
+
+function entryTrigger(x){
+  const conf=x.confluence?.signal||'NEUTRO';
+  const side=conf.startsWith('LONG')?'LONG':conf.startsWith('SHORT')?'SHORT':'NEUTRO';
+  const checks=[], pending=[];
+  if(side==='NEUTRO') return {status:'AGUARDAR',side,checks,pending:['Confluência ainda neutra']};
+
+  const main=x.signal||'NEUTRO';
+  const score=x.confluence?.score||0;
+  if(score>=80) checks.push('Score de confluência ≥ 80'); else pending.push('Score de confluência abaixo de 80');
+
+  if(side==='LONG'){
+    if(main.startsWith('LONG')) checks.push('Timeframe principal confirma LONG'); else pending.push('Timeframe principal ainda não confirma LONG');
+    if(x.cp>x.e9) checks.push('Fechamento acima da EMA 9'); else pending.push('Aguardar fechamento acima da EMA 9');
+    if(x.e9>x.e21) checks.push('EMA 9 acima da EMA 21'); else pending.push('EMA 9 ainda abaixo da EMA 21');
+    if(x.r<70) checks.push('RSI sem sobrecompra'); else pending.push('RSI já sobrecomprado');
+    if(x.v>=1) checks.push('Volume relativo suficiente'); else pending.push('Volume abaixo da média');
+  }else{
+    if(main.startsWith('SHORT')) checks.push('Timeframe principal confirma SHORT'); else pending.push('Timeframe principal ainda não confirma SHORT');
+    if(x.cp<x.e9) checks.push('Fechamento abaixo da EMA 9'); else pending.push('Aguardar fechamento abaixo da EMA 9');
+    if(x.e9<x.e21) checks.push('EMA 9 abaixo da EMA 21'); else pending.push('EMA 9 ainda acima da EMA 21');
+    if(x.r>30) checks.push('RSI sem sobrevenda'); else pending.push('RSI já sobrevendido');
+    if(x.v>=1) checks.push('Volume relativo suficiente'); else pending.push('Volume abaixo da média');
+  }
+
+  return {status:pending.length===0?'CONFIRMADA':'AGUARDAR',side,checks,pending};
+}
+function opportunity(x){
+  const s=x.confluence?.signal||'NEUTRO';
+  const score=x.confluence?.score||0;
+  const side=s.startsWith('LONG')?'LONG':s.startsWith('SHORT')?'SHORT':'NEUTRO';
+  let points=score, reasons=[], warnings=[];
+  if(side==='NEUTRO') return {points:0,side,reasons:['Sem direção confirmada'],warnings:['Aguardar confirmação'],light:'⚪'};
+
+  const tfMain=$('tf').value, mainR=x.r;
+  const r15=x.times?.['15m']?.r, r1=x.times?.['1h']?.r, r4=x.times?.['4h']?.r, rd=x.times?.['1d']?.r;
+  const all=[r15,r1,r4,rd].filter(v=>v!=null);
+
+  if(side==='LONG'){
+    if(mainR>=70){points-=15;warnings.push('RSI principal sobrecomprado')}
+    if(r4>=70||rd>=70){points-=10;warnings.push('4H/Diário esticado')}
+    if(all.some(v=>v>=30&&v<=45)){points+=5;reasons.push('RSI com espaço para alta')}
+    if(x.ch>0){points+=4;reasons.push('Desempenho 24h positivo')}
+    if(x.conf?.['1d']?.signal?.startsWith('LONG')){points+=6;reasons.push('Diário confirma LONG')}
+    else warnings.push('Diário não confirma LONG');
+  } else {
+    if(mainR<=30){points-=15;warnings.push('RSI principal sobrevendido')}
+    if(r4<=30||rd<=30){points-=10;warnings.push('4H/Diário esticado para baixo')}
+    if(all.some(v=>v>=55&&v<=70)){points+=5;reasons.push('RSI com espaço para queda')}
+    if(x.ch<0){points+=4;reasons.push('Desempenho 24h negativo')}
+    if(x.conf?.['1d']?.signal?.startsWith('SHORT')){points+=6;reasons.push('Diário confirma SHORT')}
+    else warnings.push('Diário não confirma SHORT');
+  }
+  if(x.v>=1.2){points+=5;reasons.push('Volume relativo confirmado')}
+  else if(x.v<.7){points-=5;warnings.push('Volume relativo fraco')}
+
+  points=Math.max(0,Math.min(100,Math.round(points)));
+  const light=points>=85?'🟢':points>=70?'🟡':'⚪';
+  return {points,side,reasons,warnings,light};
+}
+function rrText(x){
+  if(!x.q)return '—';
+  const risk=Math.abs(x.q.e-x.q.st),reward=Math.abs(x.q.a2-x.q.e);
+  return risk?`1:${(reward/risk).toFixed(2)}`:'—';
+}
+function opportunityTable(arr){
+  return `<div class="scroll"><table><thead><tr>
+  <th>#</th><th>Semáforo</th><th>Cripto</th><th>Direção</th><th>Gatilho</th><th>Nota</th><th>Conf.</th><th>24h</th><th>RSI</th>
+  <th>Entrada</th><th>Stop</th><th>A1</th><th>A2</th><th>A3</th><th>R:R A2</th><th>Avisos</th><th>G</th>
+  </tr></thead><tbody>${arr.length?arr.map((x,i)=>{
+    const o=opportunity(x),tr=entryTrigger(x);
+    return `<tr><td>${i+1}</td><td style="font-size:20px">${o.light}</td>
+    <td><b class="link" onclick="showSetup('${x.pair}')">${prefix(x.confluence?.signal)}${x.s}</b></td>
+    <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal}</b></td>
+    <td class="${tr.status==='CONFIRMADA'?'long':'wait'}"><b>${tr.status==='CONFIRMADA'?'✅ CONFIRMADA':'⏳ AGUARDAR'}</b></td>
+    <td><b>${o.points}</b></td><td>${x.confluence?.score||0}</td>
+    <td class="${x.ch>=0?'long':'short'}">${x.ch>=0?'+':''}${x.ch.toFixed(2)}%</td><td>${x.r?.toFixed(1)??'—'}</td>
+    <td>${x.q?'$ '+fmt(x.q.e):'—'}</td><td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+    <td>${x.q?'$ '+fmt(x.q.a1):'—'}</td><td>${x.q?'$ '+fmt(x.q.a2):'—'}</td><td>${x.q?'$ '+fmt(x.q.a3):'—'}</td>
+    <td><b>${rrText(x)}</b></td><td>${o.warnings.length?o.warnings.join(' • '):'✓ Sem alerta principal'}</td>
+    <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td></tr>`}).join(''):
+    `<tr><td colspan="17" class="muted">Nenhuma oportunidade direcional encontrada.</td></tr>`}</tbody></table></div>`;
+}
+function showOpportunities(){
+  const a=[...data].filter(x=>opportunity(x).side!=='NEUTRO').sort((a,b)=>opportunity(b).points-opportunity(a).points);
+  $('mt').textContent='⭐ Oportunidades Agora';
+  $('ms').textContent='Ranking prático combinando confluência, RSI, Diário, volume e desempenho 24h';
+  $('mb').innerHTML=opportunityTable(a)+`<div class="muted" style="margin-top:12px">🟢 85–100 = forte atenção • 🟡 70–84 = atenção • ⚪ abaixo de 70 = aguardar/melhor confirmar. A nota organiza oportunidades; não garante resultado.</div>`;
+  $('modal').classList.add('on');
+}
+function showTop10(){
+  const longs=[...data].filter(x=>opportunity(x).side==='LONG').sort((a,b)=>opportunity(b).points-opportunity(a).points).slice(0,10);
+  const shorts=[...data].filter(x=>opportunity(x).side==='SHORT').sort((a,b)=>opportunity(b).points-opportunity(a).points).slice(0,10);
+  $('mt').textContent='🏆 Top 10 — LONG / SHORT';
+  $('ms').textContent='As dez maiores notas de oportunidade de cada direção';
+  $('mb').innerHTML=`<h3 class="long">📈 TOP 10 LONG</h3>${opportunityTable(longs)}<h3 class="short" style="margin-top:22px">📉 TOP 10 SHORT</h3>${opportunityTable(shorts)}`;
+  $('modal').classList.add('on');
+}
+
+function showEntryStatus(status){
+  const a=[...data].filter(x=>entryTrigger(x).status===status && entryTrigger(x).side!=='NEUTRO')
+    .sort((a,b)=>opportunity(b).points-opportunity(a).points);
+  $('mt').textContent=status==='CONFIRMADA'?'✅ Entradas Confirmadas':'⏳ Aguardar Entrada';
+  $('ms').textContent=status==='CONFIRMADA'
+    ?'Todos os critérios do gatilho técnico estão atendidos no candle fechado'
+    :'Boas oportunidades que ainda têm um ou mais critérios pendentes';
+  $('mb').innerHTML=`<div class="scroll"><table>
+    <thead><tr><th>#</th><th>Cripto</th><th>Direção</th><th>Nota</th><th>Score Conf.</th><th>RSI</th><th>Status</th><th>Critérios / Pendências</th><th>Entrada</th><th>Stop</th><th>A2</th><th>G</th></tr></thead>
+    <tbody>${a.length?a.map((x,i)=>{
+      const tr=entryTrigger(x),o=opportunity(x);
+      const detail=status==='CONFIRMADA'?tr.checks.join(' • '):tr.pending.join(' • ');
+      return `<tr><td>${i+1}</td><td><b class="link" onclick="showSetup('${x.pair}')">${prefix(x.confluence?.signal)}${x.s}</b></td>
+      <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal}</b></td>
+      <td><b>${o.points}</b></td><td>${x.confluence?.score||0}</td><td>${x.r?.toFixed(1)??'—'}</td>
+      <td class="${tr.status==='CONFIRMADA'?'long':'wait'}"><b>${tr.status==='CONFIRMADA'?'✅ CONFIRMADA':'⏳ AGUARDAR'}</b></td>
+      <td>${detail||'—'}</td><td>${x.q?'$ '+fmt(x.q.e):'—'}</td><td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.a2):'—'}</td><td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td></tr>`}).join(''):
+      `<tr><td colspan="12" class="muted">Nenhuma moeda nesta condição.</td></tr>`}</tbody></table></div>
+      <div class="muted" style="margin-top:12px">Gatilho V5: confluência ≥80, direção confirmada no timeframe principal, relação EMA 9/21 correta, fechamento do candle do lado correto da EMA 9, RSI não extremo e volume relativo ≥1.</div>`;
+  $('modal').classList.add('on');
+}
+function showDirectionalReport(side){
+  const isLong=side==='LONG';
+  const a=[...data].filter(x=>isLong?(x.confluence?.signal||'').startsWith('LONG'):(x.confluence?.signal||'').startsWith('SHORT'))
+    .sort((a,b)=>(b.confluence?.score||0)-(a.confluence?.score||0)||(isLong?b.ch-a.ch:a.ch-b.ch));
+  $('mt').textContent=isLong?'📈 Relatório LONG':'📉 Relatório SHORT';
+  $('ms').textContent='Confluência 1H/4H/1D • candles fechados • ordenado pelo Score de Confluência';
+  $('mb').innerHTML=`<div class="scroll"><table>
+    <thead><tr><th>#</th><th>Cripto</th><th>Sinal</th><th>Score</th><th>24h</th><th>RSI</th><th>1H</th><th>4H</th><th>1D</th><th>Entrada</th><th>Stop</th><th>A1</th><th>A2</th><th>A3</th><th>G</th></tr></thead>
+    <tbody>${a.length?a.map((x,i)=>`<tr>
+      <td>${i+1}</td><td><b>${prefix(x.confluence?.signal)}${x.s}</b></td>
+      <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal}</b></td>
+      <td><b>${x.confluence?.score??0}</b></td>
+      <td class="${x.ch>=0?'long':'short'}">${x.ch>=0?'+':''}${x.ch.toFixed(2)}%</td>
+      <td>${x.r?.toFixed(1)??'—'}</td>
+      <td class="${signalClass(x.conf?.['1h']?.signal)}">${x.conf?.['1h']?.signal||'—'}</td>
+      <td class="${signalClass(x.conf?.['4h']?.signal)}">${x.conf?.['4h']?.signal||'—'}</td>
+      <td class="${signalClass(x.conf?.['1d']?.signal)}">${x.conf?.['1d']?.signal||'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.e):'—'}</td><td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.a1):'—'}</td><td>${x.q?'$ '+fmt(x.q.a2):'—'}</td><td>${x.q?'$ '+fmt(x.q.a3):'—'}</td>
+      <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+    </tr>`).join(''):`<tr><td colspan="15" class="muted">Nenhuma sugestão ${side} entre as moedas analisadas.</td></tr>`}</tbody>
+  </table></div><div class="muted" style="margin-top:12px">Classificação técnica; não é ordem de compra ou venda.</div>`;
+  $('modal').classList.add('on');
+}
+
+function egiFourHourStatus(x){
+ const h=x.times?.['4h'], h1=x.times?.['1h'], m15=x.times?.['15m'];
+ if(!h||!Number.isFinite(h.r))return {label:'⚪ DADOS INSUFICIENTES',detail:'RSI 4H indisponível',score:0};
+ if(h.r>30)return {label:'⚪ FORA DA SOBREV ENDA'.replace('SOBREV ENDA','SOBREVENDA'),detail:'RSI 4H acima de 30',score:0};
+ const vol=Number.isFinite(h.v)&&h.v>=1;
+ const recovery=Number.isFinite(m15?.r)&&m15.r>30&&Number.isFinite(h1?.r)&&h1.r>30;
+ const trend= h.cp>h.e9 && h.e9>h.e21;
+ const score=(vol?1:0)+(recovery?1:0)+(trend?1:0);
+ if(vol&&recovery&&trend)return {label:'🟢 REAÇÃO TÉCNICA EM ESTUDO',detail:'RSI 4H ≤30, volume 4H ≥1×, RSI 1H/15m >30 e preço/médias 4H em recuperação; não é entrada confirmada',score};
+ if(recovery)return {label:'🟠 REAÇÃO INICIAL',detail:'RSI de 1H e 15m acima de 30, aguardando volume e/ou recuperação das médias no 4H',score};
+ return {label:'🟡 SOBREVENDA SEM REVERSÃO',detail:'Ainda falta reação conjunta de RSI em 1H e 15m; não antecipar compra',score};
+}
+
+
+function relativeToBtc4h(assetRows,btcRows){
+ if(!Array.isArray(assetRows)||!Array.isArray(btcRows))return null;
+ const now=Date.now()-1000;
+ const ac=assetRows.filter(k=>+k[6]<now&&Number.isFinite(+k[4])&&+k[4]>0);
+ const bc=new Map(btcRows.filter(k=>+k[6]<now&&+k[4]>0).map(k=>[+k[0],+k[4]]));
+ const shared=ac.filter(k=>bc.has(+k[0]));
+ if(shared.length<2)return null;
+ const last=shared.at(-1),prev=shared.at(-2);
+ const a=(+last[4]/+prev[4]-1)*100,b=(bc.get(+last[0])/bc.get(+prev[0])-1)*100;
+ const strength=((+last[4]/bc.get(+last[0]))/(+prev[4]/bc.get(+prev[0]))-1)*100;
+ return {asset:a,btc:b,strength,start:+last[0],close:+last[6]};
+}
+function btcRelativeStatus(x){
+ const d=x.btcRelative;
+ if(!d||!Number.isFinite(d.strength))return {label:'⚪ SEM DADOS',why:'Faltam candles 4H comparáveis com BTC'};
+ if(d.strength>=0.5)return {label:'🟢 MAIS FORTE QUE BTC',why:'Par ativo/BTC valorizou '+d.strength.toFixed(2)+'% no último candle 4H fechado'};
+ if(d.strength<=-0.5)return {label:'🔴 MAIS FRACA QUE BTC',why:'Par ativo/BTC recuou '+Math.abs(d.strength).toFixed(2)+'% no último candle 4H fechado'};
+ return {label:'🟡 SEMELHANTE AO BTC',why:'Diferença relativa inferior a 0,5% no 4H'};
+}
+function btcStudyLines(){
+ const list=data.filter(x=>Number.isFinite(x.times?.['4h']?.r)).map(x=>({x,st:egiFourHourStatus(x),rel:btcRelativeStatus(x)}));
+ const os=list.filter(z=>z.x.times['4h'].r<=30).sort((a,b)=>(b.x.btcRelative?.strength??-999)-(a.x.btcRelative?.strength??-999));
+ const fmt2=v=>Number.isFinite(v)?v.toFixed(2):'n/d';
+ const lines=['CRUZAMENTO SOBREVENDA 4H × FORÇA RELATIVA AO BTC','Comparação percentual do PAR ATIVO/BTC com fechamento sincronizado do último candle de 4H. Não usa somente a diferença de variação 24h.','Faixas experimentais: acima de +0,5% = forte; abaixo de -0,5% = fraca; demais = semelhante. Não representam garantia nem sinal de entrada.','Cobertura: '+data.length+' moedas analisadas; '+os.length+' sobrevendidas; BTC 4H: '+btcRelativeIssue+'.'];
+ if(!os.length)lines.push('Nenhuma moeda em sobrevenda na seleção analisada.');
+ for(const {x,st,rel} of os){
+  lines.push(x.s+'/USDT | RSI 4H '+fmt2(x.times['4h'].r)+' | '+st.label+' | '+rel.label+' | Força relativa 4H '+fmt2(x.btcRelative?.strength)+'% | Variação 4H ativo '+fmt2(x.btcRelative?.asset)+'% | BTC '+fmt2(x.btcRelative?.btc)+'% | Volume '+fmt2(x.times['4h'].v)+'x | Confirmação '+st.score+'/3 | '+rel.why);
+ }
+ lines.push('Moedas não sobrevendidas:');
+ for(const {x,rel} of list.filter(z=>z.x.times['4h'].r>30).sort((a,b)=>(b.x.btcRelative?.strength??-999)-(a.x.btcRelative?.strength??-999)).slice(0,15)){
+  lines.push(x.s+'/USDT | RSI4H '+fmt2(x.times['4h'].r)+' | '+rel.label+' | Força4H '+fmt2(x.btcRelative?.strength)+'%');
+ }
+ lines.push('Interpretação: sobrevenda + força relativa positiva pode sugerir resiliência, mas exige reversão técnica e validação independente no SetupDT.');
+ return lines;
+}
+function showRelativeBtc(){
+ const list=data.filter(x=>Number.isFinite(x.times?.['4h']?.r)&&x.times['4h'].r<=30)
+  .sort((a,b)=>(b.btcRelative?.strength??-999)-(a.btcRelative?.strength??-999));
+ $('mt').textContent='₿ Sobrevenda 4H + Força vs Bitcoin';
+ $('ms').textContent='Último candle 4H fechado sincronizado com BTC • comparação do par ativo/BTC • estudo, não ordem';
+ $('mb').replaceChildren();
+ const intro=document.createElement('p');intro.style.fontSize='17px';intro.textContent=list.length+' moeda(s) em sobrevenda entre '+data.length+' analisadas. '+btcRelativeIssue+'. Toque na moeda para analisar.';
+ $('mb').append(intro);
+ if(!list.length){const p=document.createElement('p');p.textContent='Nenhuma moeda em sobrevenda 4H nesta seleção. Experimente ampliar o universo ou mudar para pior desempenho.';$('mb').append(p);}
+ for(const x of list){
+  const st=egiFourHourStatus(x),rs=btcRelativeStatus(x),el=document.createElement('div');
+  el.style.cssText='background:#10263f;border:1px solid #577594;border-radius:12px;padding:12px;margin:10px 0;font-size:18px;line-height:1.55';
+  const btn=document.createElement('button');btn.textContent='🔎 '+x.s+'/USDT • RSI4H '+x.times['4h'].r.toFixed(1);btn.style.cssText='font-size:21px;width:100%;text-align:left';btn.onclick=()=>showSetup(x.pair);
+  const note=document.createElement('div');note.textContent=rs.label+' | força 4H '+(Number.isFinite(x.btcRelative?.strength)?x.btcRelative.strength.toFixed(2)+'%':'indisponível')+' | '+st.label+' | volume '+(Number.isFinite(x.times['4h'].v)?x.times['4h'].v.toFixed(2)+'×':'—');
+  const more=document.createElement('div');more.style.fontSize='15px';more.textContent=rs.why+' • Confirmações da reação: '+st.score+'/3. Não significa compra liberada.';
+  el.append(btn,note,more);$('mb').append(el);
+ }
+ const all=document.createElement('details');const summary=document.createElement('summary');summary.textContent='Ver todas as moedas analisadas e sua força relativa';all.append(summary);
+ const pre=document.createElement('pre');pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px';pre.textContent=btcStudyLines().join('\n');all.append(pre);$('mb').append(all);
+ $('modal').classList.add('on');
+}
+
+function gptReportText(){
+ const ts=new Date().toLocaleString('pt-BR');
+ const rows=data.filter(x=>Number.isFinite(x.times?.['4h']?.r))
+  .sort((a,b)=>a.times['4h'].r-b.times['4h'].r);
+ const oversold=rows.filter(x=>x.times['4h'].r<=30);
+ const n=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'n/d';
+ const lines=[
+  'RELATÓRIO PARA CHATGPT — SETUP EGI TOP10 V11 — RADAR SOBREVENDA 4H',
+  'Gerado: '+ts,
+  'FONTE: Binance Spot pública; análise de candles fechados conforme carregamento do app.',
+  'COBERTURA: '+data.length+' moedas analisadas; '+rows.length+' com RSI 4H válido; '+oversold.length+' em sobrevenda (RSI14 <=30).',
+  'IMPORTANTE: ranking inicial/pré-seleção não equivale a analisar toda a Binance.',
+  'SOBREVENDA NÃO É SINAL DE COMPRA. Estados e notas são heurísticas, não probabilidades.',
+  '',
+  'MOEDAS EM SOBREVENDA 4H (RSI ascendente):'
+ ];
+ if(!oversold.length)lines.push('Nenhuma encontrada na seleção atual.');
+ for(const x of oversold){
+  const h=x.times['4h'], st=egiFourHourStatus(x);
+  lines.push(
+   x.s+'/USDT | '+st.label+
+   ' | RSI4H '+n(h.r)+
+   ' | Vol4H '+n(h.v,2)+'x'+
+   ' | RSI1H '+n(x.times?.['1h']?.r)+
+   ' | RSI15m '+n(x.times?.['15m']?.r)+
+   ' | Fech.4H '+n(h.cp,8)+
+   ' | EMA9 4H '+n(h.e9,8)+' | EMA21 4H '+n(h.e21,8)+
+   ' | Confirmações '+st.score+'/3'+
+   ' | Variação 24h '+n(x.ch,2)+'%'+
+   ' | Confluência '+(x.confluence?.signal||'n/d')+
+   ' | Score '+(x.confluence?.score??'n/d')+
+   ' | Explicação: '+st.detail
+  );
+ }
+ lines.push('','OUTRAS MOEDAS COM RSI4H VÁLIDO (fora da sobrevenda):');
+ for(const x of rows.filter(x=>x.times['4h'].r>30).slice(0,30)){
+  lines.push(x.s+'/USDT | RSI4H '+n(x.times['4h'].r)+' | 24h '+n(x.ch,2)+'%');
+ }
+ lines.push('','PEDIDO DE ANÁLISE AO CHATGPT: Comparar somente as moedas efetivamente analisadas; separar sobrevenda, reação inicial e reação técnica; avaliar alinhamento de 4H/1H/15m, volume, riscos e gatilhos pendentes. Não inventar preço atual, não confundir score com probabilidade, não liberar operação sem confirmação no SetupDT.');
+ lines.push('',...btcStudyLines());
+ return lines.join('\n');
+}
+function showGptReport(){
+ const txt=gptReportText();
+ $('mt').textContent='📋 Relatório para ChatGPT — Radar Sobrevenda 4H';
+ $('ms').textContent='Relatório completo para copiar, baixar em TXT ou compartilhar manualmente.';
+ $('mb').replaceChildren();
+ const actions=document.createElement('div');actions.className='row';actions.style.cssText='gap:10px;margin-bottom:12px';
+ const copy=document.createElement('button');copy.type='button';copy.textContent='📋 Copiar para ChatGPT';
+ copy.onclick=async()=>{try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(txt);else{const t=document.createElement('textarea');t.value=txt;document.body.append(t);t.select();if(!document.execCommand('copy'))throw Error('Cópia bloqueada');t.remove();}copy.textContent='✅ Copiado! Cole no ChatGPT';}catch(e){copy.textContent='⚠ Selecione e copie o texto abaixo';}};
+ const down=document.createElement('button');down.type='button';down.textContent='📄 Baixar TXT';
+ down.onclick=()=>{const url=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='Relatorio_ChatGPT_Sobrevenda4H_EGI.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)};
+ actions.append(copy,down);
+ const pre=document.createElement('pre');pre.textContent=txt;pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.6;background:#0b2034;border:1px solid #557b9b;padding:13px;border-radius:12px';
+ $('mb').append(actions,pre);$('modal').classList.add('on');
+}
+
+function showOversoldStudy(){
+ const matches=data.filter(x=>Number.isFinite(x.times?.['4h']?.r)&&x.times['4h'].r<=30)
+  .sort((a,b)=>a.times['4h'].r-b.times['4h'].r);
+ $('mt').textContent='🔍 Radar EGI — Sobrevenda + Força BTC V11';
+ $('ms').textContent='RSI14 4H ≤30 • candles fechados • volume relativo 4H • reação em 1H/15m • estudo, não ordem';
+ $('mb').innerHTML='<div style="font-size:16px;line-height:1.55;margin-bottom:12px">Encontradas <b>'+matches.length+'</b> moedas em sobrevenda entre <b>'+data.length+'</b> analisadas completamente. O ranking inicial e a pré-seleção limitam a cobertura do mercado; nenhuma moeda fora dessa seleção foi classificada.</div>'+
+  (matches.length?matches.map(x=>{const st=egiFourHourStatus(x),h=x.times['4h'];return `<div style="padding:15px;border:1px solid #56718b;border-radius:13px;margin:11px 0;font-size:17px;line-height:1.65;background:#0c2237"><button style="font-size:22px;width:100%;text-align:left" onclick="showSetup('${x.pair}')">🔎 ${x.s}/USDT · RSI 4H ${h.r.toFixed(1)}</button><div><b>${st.label}</b> · confirmações adicionais ${st.score}/3</div><div>Volume 4H: ${Number.isFinite(h.v)?h.v.toFixed(2)+'×':'—'} | RSI 1H: ${Number.isFinite(x.times?.['1h']?.r)?x.times['1h'].r.toFixed(1):'—'} | RSI 15m: ${Number.isFinite(x.times?.['15m']?.r)?x.times['15m'].r.toFixed(1):'—'}</div><div style="font-size:15px;color:#c4d6e8">${st.detail}</div></div>`}).join(''):'<p>Nenhuma moeda em sobrevenda 4H na seleção analisada.</p>')+
+ '<p style="font-size:15px">⚠ Sobrevenda não significa fundo. Mesmo a reação técnica não libera compra automaticamente. Confirme contexto, risco, liquidez e gatilho no SetupDT.</p>';
+ $('modal').classList.add('on');
+}
+function showRsi4h(mode){
+  const oversold=mode==='oversold';
+  const a=[...data].filter(x=>{
+    const r=x.times?.['4h']?.r;
+    return r!=null && (oversold?r<=30:r>=70);
+  }).sort((a,b)=>{
+    const ra=a.times?.['4h']?.r??0, rb=b.times?.['4h']?.r??0;
+    return oversold?ra-rb:rb-ra;
+  });
+
+  $('mt').textContent=oversold?'🕓 Sobrevenda no 4H':'🕓 Sobrecompra no 4H';
+  $('ms').textContent=(oversold?'RSI 14 ≤ 30':'RSI 14 ≥ 70')+' no timeframe 4H • candle fechado';
+  $('mb').innerHTML=`<div class="scroll"><table>
+    <thead><tr><th>#</th><th>Cripto</th><th>RSI 4H</th><th>Sinal 4H</th><th>Confluência</th><th>Score</th><th>24h</th><th>Entrada</th><th>Stop</th><th>A2</th><th>G</th></tr></thead>
+    <tbody>${a.length?a.map((x,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><b class="link" onclick="showSetup('${x.pair}')">${x.s}</b></td>
+      <td class="${oversold?'long':'short'}"><b>${x.times?.['4h']?.r?.toFixed(1)??'—'}</b></td>
+      <td class="${signalClass(x.conf?.['4h']?.signal)}"><b>${x.conf?.['4h']?.signal||'—'}</b></td>
+      <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal||'NEUTRO'}</b></td>
+      <td>${x.confluence?.score??0}</td>
+      <td class="${x.ch>=0?'long':'short'}">${x.ch>=0?'+':''}${x.ch.toFixed(2)}%</td>
+      <td>${x.q?'$ '+fmt(x.q.e):'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+      <td>${x.q?'$ '+fmt(x.q.a2):'—'}</td>
+      <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+    </tr>`).join(''):`<tr><td colspan="11" class="muted">Nenhuma moeda em ${oversold?'sobrevenda':'sobrecompra'} no 4H.</td></tr>`}</tbody>
+  </table></div>
+  <div class="muted" style="margin-top:12px">Filtro exclusivo do RSI 14 no 4H. ${oversold?'Sobrevenda não significa compra automática.':'Sobrecompra não significa venda automática.'}</div>`;
+  $('modal').classList.add('on');
+}
+
+function showRsiReport(mode){
+  const oversold=mode==='oversold';
+  const times=['15m','1h','4h','1d'];
+  const a=[...data].map(x=>{
+    const hits=times.filter(tf=>{
+      const r=x.times?.[tf]?.r;
+      return r!=null && (oversold?r<=30:r>=70);
+    });
+    return {...x,hits};
+  }).filter(x=>x.hits.length).sort((a,b)=>b.hits.length-a.hits.length);
+
+  $('mt').textContent=oversold?'🌡️ Relatório de Sobrevenda':'🔥 Relatório de Sobrecompra';
+  $('ms').textContent=(oversold?'RSI ≤ 30':'RSI ≥ 70')+' • 15m / 1H / 4H / 1D • candles fechados';
+  $('mb').innerHTML=`<div class="scroll"><table>
+    <thead><tr><th>#</th><th>Cripto</th><th>Tempos extremos</th><th>15m</th><th>1H</th><th>4H</th><th>1D</th><th>Sinal Conf.</th><th>Score</th><th>G</th></tr></thead>
+    <tbody>${a.length?a.map((x,i)=>`<tr>
+      <td>${i+1}</td><td><b>${x.s}</b></td><td><b>${x.hits.length}/4</b> — ${x.hits.join(', ')}</td>
+      ${rsiCell(x,'15m')}${rsiCell(x,'1h')}${rsiCell(x,'4h')}${rsiCell(x,'1d')}
+      <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal||'NEUTRO'}</b></td>
+      <td>${x.confluence?.score??0}</td>
+      <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+    </tr>`).join(''):`<tr><td colspan="10" class="muted">Nenhuma moeda em ${oversold?'sobrevenda':'sobrecompra'} nos tempos analisados.</td></tr>`}</tbody>
+  </table></div>`;
+  $('modal').classList.add('on');
+}
+
+function showSignalReport(){
+  const longs=[...data].filter(x=>(x.confluence?.signal||'').startsWith('LONG'))
+    .sort((a,b)=>(b.confluence?.score||0)-(a.confluence?.score||0)||b.ch-a.ch);
+  const shorts=[...data].filter(x=>(x.confluence?.signal||'').startsWith('SHORT'))
+    .sort((a,b)=>(b.confluence?.score||0)-(a.confluence?.score||0)||a.ch-b.ch);
+
+  $('mt').textContent='📋 Relatório de Sugestão — LONG / SHORT';
+  $('ms').textContent='Classificação técnica das criptos atualmente carregadas • confluência 1H/4H/1D • candles fechados';
+
+  const section=(title,arr,cls)=>`
+    <h3 class="${cls}" style="margin-top:18px">${title} (${arr.length})</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>#</th><th>Cripto</th><th>Sinal</th><th>Score Conf.</th><th>24h</th><th>RSI</th><th>1H</th><th>4H</th><th>1D</th><th>Entrada</th><th>Stop</th><th>A2</th><th>G</th></tr></thead>
+      <tbody>${arr.length?arr.map((x,i)=>`<tr>
+        <td>${i+1}</td>
+        <td><b>${prefix(x.confluence?.signal)}${x.s}</b></td>
+        <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal}</b></td>
+        <td><b>${x.confluence?.score??0}</b></td>
+        <td class="${x.ch>=0?'long':'short'}">${x.ch>=0?'+':''}${x.ch.toFixed(2)}%</td>
+        <td>${x.r?.toFixed(1)??'—'}</td>
+        <td class="${signalClass(x.conf?.['1h']?.signal)}">${x.conf?.['1h']?.signal||'—'}</td>
+        <td class="${signalClass(x.conf?.['4h']?.signal)}">${x.conf?.['4h']?.signal||'—'}</td>
+        <td class="${signalClass(x.conf?.['1d']?.signal)}">${x.conf?.['1d']?.signal||'—'}</td>
+        <td>${x.q?'$ '+fmt(x.q.e):'—'}</td>
+        <td>${x.q?'$ '+fmt(x.q.st):'—'}</td>
+        <td>${x.q?'$ '+fmt(x.q.a2):'—'}</td>
+        <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+      </tr>`).join(''):`<tr><td colspan="13" class="muted">Nenhuma sugestão ${title.includes('LONG')?'LONG':'SHORT'} no momento.</td></tr>`}</tbody>
+    </table></div>`;
+
+  $('mb').innerHTML=section('📈 Sugestões LONG',longs,'long')+section('📉 Sugestões SHORT',shorts,'short')+
+    `<div class="muted" style="margin-top:14px">Sugestão técnica não é ordem de compra ou venda. Confirme o gráfico e respeite o gerenciamento de risco.</div>`;
+  $('modal').classList.add('on');
+}
+
+function rsiState(v){
+  if(v==null||!isFinite(v))return {txt:'—',cls:'wait'};
+  if(v<=30)return {txt:'SOBREVENDA',cls:'long'};
+  if(v>=70)return {txt:'SOBRECOMPRA',cls:'short'};
+  return {txt:'NEUTRO',cls:'wait'};
+}
+function rsiCell(x,tf){
+  const v=x.times?.[tf]?.r;
+  const s=rsiState(v);
+  return `<td class="${s.cls}"><b>${v==null?'—':v.toFixed(1)}</b><br><span style="font-size:10px">${s.txt}</span></td>`;
+}
+function showRsiTimesReport(){
+  const a=[...data].sort((x,y)=>{
+    const extreme=z=>['15m','1h','4h','1d'].filter(tf=>{const r=z.times?.[tf]?.r;return r<=30||r>=70}).length;
+    return extreme(y)-extreme(x);
+  });
+  $('mt').textContent='🌡️ Sobrevenda / Sobrecompra por Tempo';
+  $('ms').textContent='RSI 14 com candles fechados • Sobrevenda ≤ 30 • Sobrecompra ≥ 70';
+  $('mb').innerHTML=`<div class="scroll"><table>
+    <thead><tr><th>#</th><th>Cripto</th><th>15m</th><th>1H</th><th>4H</th><th>1D</th><th>Sinal Conf.</th><th>Score</th><th>G</th></tr></thead>
+    <tbody>${a.length?a.map((x,i)=>`<tr>
+      <td>${i+1}</td><td><b>${x.s}</b></td>
+      ${rsiCell(x,'15m')}${rsiCell(x,'1h')}${rsiCell(x,'4h')}${rsiCell(x,'1d')}
+      <td class="${signalClass(x.confluence?.signal)}"><b>${x.confluence?.signal||'NEUTRO'}</b></td>
+      <td>${x.confluence?.score??0}</td>
+      <td><span class="graphlink" onclick="openGraph('${x.pair}')">G</span></td>
+    </tr>`).join(''):`<tr><td colspan="9" class="muted">Nenhuma criptomoeda carregada.</td></tr>`}</tbody>
+  </table></div>
+  <div class="muted" style="margin-top:14px">Verde = sobrevenda; vermelho = sobrecompra; amarelo = RSI neutro.</div>`;
+  $('modal').classList.add('on');
+}
+
+function features(){
+  $('mt').textContent='📄 Funcionalidades — Setup Egi Ranking Binance';
+  $('ms').textContent='Novo app derivado do Setup_Egi1';
+  $('mb').innerHTML=`<div style="line-height:1.6">
+  <b>Ranking Binance</b><br>
+  • Busca pares USDT diretamente da Binance.<br>
+  • Mostra as 5, 10, 15 ou 20 criptos com melhor ou pior desempenho em 24h.<br>
+  • A opção Personalizar aceita de 1 a 50 criptos.<br>
+  • Filtro de volume mínimo de 24h para reduzir moedas com baixa liquidez.<br><br>
+  <b>Análise técnica</b><br>
+  • Timeframe principal selecionável: 15m, 1h, 4h ou 1d.<br>
+  • RSI 14, EMA 9/21/200, ATR, volume relativo e força contra BTC.<br>
+  • Sinais calculados usando candles fechados.<br>
+  • Confluência 1H/4H/1D com Score de 0 a 100.<br>
+  • Prefixos L+_, L_, N_, S_ e S+_.<br><br>
+  <b>Setup</b><br>
+  • Clique no nome da moeda para ver entrada, stop, 3 alvos e tamanho estimado da posição.<br>
+  • G abre o gráfico da moeda no TradingView.<br>• Relatório de sugestão LONG / SHORT com Score, entrada, stop e alvo.<br>• Relatório de Sobrevenda / Sobrecompra por 15m, 1H, 4H e 1D.<br>
+  • Capital, risco %, alavancagem e USD/BRL podem ser ajustados.<br><br>
+  <b>Atenção</b><br>
+  O ranking de desempenho não é recomendação de compra ou venda. Criptos com alta de 24h podem estar esticadas; as de pior desempenho podem continuar caindo.
+  </div>`;
+  $('modal').classList.add('on');
+}
+$('mc').onclick=()=> $('modal').classList.remove('on');
+$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('on')}
+$('featuresBtn').onclick=features;
+$('refresh').onclick=load;
+$('rankMode').onchange=load;
+$('tf').onchange=load;
+$('minVol').onchange=load;
+$('qtyMode').onchange=()=>{$('customWrap').style.display=$('qtyMode').value==='custom'?'block':'none';load()};
+$('customQty').onchange=load;
+['capital','risk','lev','usdbrl'].forEach(id=>$(id).oninput=render);
+load();
+</script>
+</body>
+</html>
