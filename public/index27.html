@@ -119,6 +119,7 @@ th{position:sticky;top:0;background:#121b2f;color:#8fa3bf;z-index:1}
     <button class="good" style="width:auto" onclick="showRsiReport('oversold')">🌡️ Sobrevenda</button>
     <button class="bad" style="width:auto" onclick="showRsiReport('overbought')">🔥 Sobrecompra</button>
     <button class="good" style="width:auto" onclick="showOversoldStudy()">🔍 Radar Sobrevenda 4H</button>
+    <button class="good" style="width:auto" onclick="showGptReport()">📋 Relatório ChatGPT</button>
     <button class="secondary" style="width:auto" onclick="showRsi4h('oversold')">🕓 Sobrevenda 4H (original)</button>
     <button class="bad" style="width:auto" onclick="showRsi4h('overbought')">🕓 Sobrecompra 4H</button>
   </div>
@@ -551,6 +552,63 @@ function egiFourHourStatus(x){
  if(recovery)return {label:'🟠 REAÇÃO INICIAL',detail:'RSI de 1H e 15m acima de 30, aguardando volume e/ou recuperação das médias no 4H',score};
  return {label:'🟡 SOBREVENDA SEM REVERSÃO',detail:'Ainda falta reação conjunta de RSI em 1H e 15m; não antecipar compra',score};
 }
+
+function gptReportText(){
+ const ts=new Date().toLocaleString('pt-BR');
+ const rows=data.filter(x=>Number.isFinite(x.times?.['4h']?.r))
+  .sort((a,b)=>a.times['4h'].r-b.times['4h'].r);
+ const oversold=rows.filter(x=>x.times['4h'].r<=30);
+ const n=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'n/d';
+ const lines=[
+  'RELATÓRIO PARA CHATGPT — SETUP EGI TOP10 V10 — RADAR SOBREVENDA 4H',
+  'Gerado: '+ts,
+  'FONTE: Binance Spot pública; análise de candles fechados conforme carregamento do app.',
+  'COBERTURA: '+data.length+' moedas analisadas; '+rows.length+' com RSI 4H válido; '+oversold.length+' em sobrevenda (RSI14 <=30).',
+  'IMPORTANTE: ranking inicial/pré-seleção não equivale a analisar toda a Binance.',
+  'SOBREVENDA NÃO É SINAL DE COMPRA. Estados e notas são heurísticas, não probabilidades.',
+  '',
+  'MOEDAS EM SOBREVENDA 4H (RSI ascendente):'
+ ];
+ if(!oversold.length)lines.push('Nenhuma encontrada na seleção atual.');
+ for(const x of oversold){
+  const h=x.times['4h'], st=egiFourHourStatus(x);
+  lines.push(
+   x.s+'/USDT | '+st.label+
+   ' | RSI4H '+n(h.r)+
+   ' | Vol4H '+n(h.v,2)+'x'+
+   ' | RSI1H '+n(x.times?.['1h']?.r)+
+   ' | RSI15m '+n(x.times?.['15m']?.r)+
+   ' | Fech.4H '+n(h.cp,8)+
+   ' | EMA9 4H '+n(h.e9,8)+' | EMA21 4H '+n(h.e21,8)+
+   ' | Confirmações '+st.score+'/3'+
+   ' | Variação 24h '+n(x.ch,2)+'%'+
+   ' | Confluência '+(x.confluence?.signal||'n/d')+
+   ' | Score '+(x.confluence?.score??'n/d')+
+   ' | Explicação: '+st.detail
+  );
+ }
+ lines.push('','OUTRAS MOEDAS COM RSI4H VÁLIDO (fora da sobrevenda):');
+ for(const x of rows.filter(x=>x.times['4h'].r>30).slice(0,30)){
+  lines.push(x.s+'/USDT | RSI4H '+n(x.times['4h'].r)+' | 24h '+n(x.ch,2)+'%');
+ }
+ lines.push('','PEDIDO DE ANÁLISE AO CHATGPT: Comparar somente as moedas efetivamente analisadas; separar sobrevenda, reação inicial e reação técnica; avaliar alinhamento de 4H/1H/15m, volume, riscos e gatilhos pendentes. Não inventar preço atual, não confundir score com probabilidade, não liberar operação sem confirmação no SetupDT.');
+ return lines.join('\n');
+}
+function showGptReport(){
+ const txt=gptReportText();
+ $('mt').textContent='📋 Relatório para ChatGPT — Radar Sobrevenda 4H';
+ $('ms').textContent='Relatório completo para copiar, baixar em TXT ou compartilhar manualmente.';
+ $('mb').replaceChildren();
+ const actions=document.createElement('div');actions.className='row';actions.style.cssText='gap:10px;margin-bottom:12px';
+ const copy=document.createElement('button');copy.type='button';copy.textContent='📋 Copiar para ChatGPT';
+ copy.onclick=async()=>{try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(txt);else{const t=document.createElement('textarea');t.value=txt;document.body.append(t);t.select();if(!document.execCommand('copy'))throw Error('Cópia bloqueada');t.remove();}copy.textContent='✅ Copiado! Cole no ChatGPT';}catch(e){copy.textContent='⚠ Selecione e copie o texto abaixo';}};
+ const down=document.createElement('button');down.type='button';down.textContent='📄 Baixar TXT';
+ down.onclick=()=>{const url=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='Relatorio_ChatGPT_Sobrevenda4H_EGI.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)};
+ actions.append(copy,down);
+ const pre=document.createElement('pre');pre.textContent=txt;pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.6;background:#0b2034;border:1px solid #557b9b;padding:13px;border-radius:12px';
+ $('mb').append(actions,pre);$('modal').classList.add('on');
+}
+
 function showOversoldStudy(){
  const matches=data.filter(x=>Number.isFinite(x.times?.['4h']?.r)&&x.times['4h'].r<=30)
   .sort((a,b)=>a.times['4h'].r-b.times['4h'].r);
