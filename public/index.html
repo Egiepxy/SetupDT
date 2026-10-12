@@ -170,6 +170,7 @@
 <div class="session-card"><small>🔴 SHORT R</small><strong id="sessionShortR">0R</strong></div>
 </div>
 <div id="sessionWarning" class="note">Aguardando o servidor. O placar R técnico usa A2 = +2R e STOP antes de A2 = -1R; não é P&amp;L real.</div>
+<div id="sessionAudit" class="note" style="margin:9px 0;padding:12px;border:1px solid #587087;border-radius:10px;line-height:1.6" role="status">🔍 Auditoria de fontes e denominadores: aguardando dados.</div>
 <div id="sessionStatus" class="hint" role="status" style="margin-top:8px">Atualiza automaticamente a cada 60 segundos quando o servidor estiver disponível.</div>
 <div id="sessionRecent" class="session-recent"><p class="muted">Nenhum evento carregado.</p></div>
 <p class="hint">A1/A2/A3 são eventos técnicos. O placar não inclui taxas, slippage, tamanho de posição nem execução real. Se A2 foi atingido antes de um STOP posterior, a estatística mantém A2 como vitória técnica, igual ao estudo local.</p></section>
@@ -1438,6 +1439,27 @@ function renderSessionSummary(q){
   val('sessionLongEntries',d.longEntries||0);val('sessionShortEntries',d.shortEntries||0);val('sessionLongA2',d.longA2||0);val('sessionShortA2',d.shortA2||0);
   val('sessionLongRate',d.longRate==null?'—':Number(d.longRate).toFixed(1).replace('.',',')+'%');val('sessionShortRate',d.shortRate==null?'—':Number(d.shortRate).toFixed(1).replace('.',',')+'%');
   val('sessionLongR',sessionFmtR(d.longR));val('sessionShortR',sessionFmtR(d.shortR));
+  // Auditoria informativa: nao altera sinais, regras, contagens ou calculos anteriores.
+  const audit=$('sessionAudit');
+  if(audit){
+    const serverDir=['longEntries','shortEntries','longA2','shortA2','longRate','shortRate','longR','shortR'].every(k=>q[k]!=null);
+    const srcGeneral=q.source==='server'?'Render (sessão diária)':'Navegador (histórico local)';
+    const srcDirection=serverDir?'Render':'Navegador (histórico local)';
+    const longDecisions=(Number(d.longA2)||0)+(Number(d.longStops)||0);
+    const shortDecisions=(Number(d.shortA2)||0)+(Number(d.shortStops)||0);
+    const percent=(n,v)=>v?(100*n/v).toFixed(1).replace('.',',')+'%':'—';
+    const parts=[
+      '🔍 AUDITORIA EGI — origem e definição',
+      'Total: '+srcGeneral+' | LONG/SHORT: '+srcDirection+'.',
+      'Taxa A2/STOP = A2 ÷ (A2 + STOP antes A2), não A2 ÷ entradas.',
+      'LONG: '+(d.longA2||0)+' A2 / '+longDecisions+' decisões = '+percent(Number(d.longA2)||0,longDecisions)+' | Entradas: '+(d.longEntries||0)+'.',
+      'SHORT: '+(d.shortA2||0)+' A2 / '+shortDecisions+' decisões = '+percent(Number(d.shortA2)||0,shortDecisions)+' | Entradas: '+(d.shortEntries||0)+'.',
+      'Placar técnico hipotético: 2R por A2 e -1R por STOP antes A2 (não é lucro real).'
+    ];
+    if(!serverDir&&q.source==='server')parts.push('⚠️ FONTES MISTURADAS: não somar o R geral do Render com os placares LONG/SHORT locais; períodos e registros podem diferir.');
+    if(Math.abs((Number(d.longR)||0)+(Number(d.shortR)||0)-(Number(q.scoreR)||0)>0.001)parts.push('⚠️ Placar geral difere da soma direcional; confira a origem e o escopo antes de comparar.');
+    audit.textContent=parts.join('\n');audit.style.whiteSpace='pre-line';
+  }
   const warn=$('sessionWarning');
   let text='Sessão equilibrada até aqui. Continue avaliando contexto e qualidade, não apenas quantidade de sinais.';
   if((q.longStops||0)>=3&&(q.longStops||0)>=(q.shortStops||0)*2+1) text='⚠️ LONGs estão sofrendo mais STOPs nesta sessão. O sinal continua visível, mas fica marcado como LONG EXIGE RECONFIRMAÇÃO: priorize 15m + 1h alinhados, fluxo/volume comprador confirmando e contexto do BTC sem contrariar a compra.';
