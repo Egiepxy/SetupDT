@@ -26,7 +26,7 @@
 <body>
 <main>
 <header>
-<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.4.7 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
+<div class="top"><div><div class="eyebrow">RADARMME1 · LABORATÓRIO EGI · MÉTODO C</div><h1>⚡ Scalping Essencial <span style="font-size:12px;color:var(--cyan);vertical-align:middle">V1.5 TESTE</span></h1></div><span class="pill warn">🧪 ESTUDO · SEM ORDENS</span></div>
 <p class="sub">MME 9/21/200 + RSI 14 + volume. 5m encontra gatilho, 15m filtra direção. Somente candles fechados.</p>
 <div class="stack"><span class="pill">5m · execução técnica</span><span class="pill">15m · contexto</span><span class="pill">Binance Spot pública</span><span class="pill">Sem API key</span></div>
 </header>
@@ -42,6 +42,10 @@
 <div id="notice" role="alert"></div>
 </section>
 <section class="card"><div class="top"><h2>📊 Quadro rápido dos períodos</h2><span class="mini">Tendências por candles fechados · toque para abrir o gráfico</span></div><div class="quote-banner"><div><span class="quote-caption">COTAÇÃO ATUAL · <span id="quoteSymbol">—</span></span><strong id="quoteSingle">—</strong><small id="quoteWhen">Aguardando consulta…</small></div><span class="quote-note">Preço de mercado consultado, não é o fechamento do candle</span></div><div class="mini" style="margin:4px 0 8px">RSI do candle <b>fechado</b> orienta o estudo; no 15m, o RSI <b>em formação</b> é provisório e pode mudar até fechar.</div><div id="tfSummary" class="tf-summary"><div class="muted">Aguardando leituras…</div></div></section><section class="card" aria-label="Estudo de reversão RSI 5m"><div class="rsi-study"><div class="rsi-study-head"><h2 style="margin:0">🎯 Scalping RSI 5m — fundo, saída e reentrada</h2><div class="field"><label for="rsiStudyMode">Modo de estudo</label><select id="rsiStudyMode"><option value="off">Desligado</option><option value="study" selected>RSI 30/70 · estudo</option></select></div></div><div class="rsi-stage" id="rsiStage">⚪ Aguardando candles 5m</div><div class="rsi-note" id="rsiExplanation">RSI abaixo de 30: observar possível fundo. Acima de 70: observar possível topo e saída de uma compra hipotética.</div><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:10px"><span class="rsi-pill" id="rsiPrevNow">RSI anterior → atual: —</span><span class="rsi-pill" id="rsiContext">Contexto 15m: —</span><span class="rsi-pill" id="rsiVol">Volume 5m: —</span></div><div class="rsi-foot" id="rsiStudyFoot">Gatilho educacional: cruzar acima de 30 com candle comprador; saída em estudo: cruzar abaixo de 70 com candle vendedor. Não é ordem, nem substitui o checklist 6/6. Sobrevenda pode persistir.</div></div></section>
+<section class="card" aria-label="Radar de candidatos scalping"><div class="top"><h2>🎯 Radar de Candidatos EGI · V1.5</h2><span class="pill warn">ESTUDO · NÃO EXECUTA ORDENS</span></div>
+<p class="muted" style="font-size:12px">Varredura manual de até 15 moedas já exibidas no Garimpo (ou favoritas, antes do primeiro garimpo). Direções LONG/SHORT e pendências sempre visíveis. O checklist original 6/6 não foi alterado.</p>
+<div class="actions"><button type="button" class="btn primary" id="candidateScan">🔎 Analisar candidatos</button><span id="candidateStatus" class="mini" role="status">Aguardando análise manual</span></div>
+<div class="scan-table"><table style="min-width:690px"><thead><tr><th>Moeda</th><th>Viés 5m / 15m</th><th>LONG</th><th>SHORT</th><th>Estado</th><th>Pendência principal</th><th>Abrir</th></tr></thead><tbody id="candidateRows"><tr><td colspan="7">Clique em Analisar candidatos para comparar as moedas.</td></tr></tbody></table></div><div class="summary" id="candidateTotals">Ainda sem contagem de candidatos. 3/6, 4/6 e 5/6 são preparação, não entradas liberadas.</div></section>
 <div class="hero">
 <section class="card"><h2>Semáforo do método</h2><div id="signal" class="signal neutral"><div class="tag">LEITURA TÉCNICA</div><div class="big" id="bias">⚪ AGUARDANDO DADOS</div><div class="muted" id="biasDesc">Atualize para verificar condições de 5m e 15m.</div><div class="line"></div><div class="decision" id="decision">— Entrada ainda não avaliada</div><div class="reason" id="reason">—</div></div><div class="statusline" id="candlesInfo">Candle 5m: — · Candle 15m: —</div></section>
 <section class="card"><h2>Indicadores (últimos fechamentos)</h2><div class="facts"><div class="fact"><span>Preço 5m (USDT)</span><b id="price">—</b></div><div class="fact"><span>RSI14 · 5m</span><b id="rsi">—</b></div><div class="fact"><span>Volume 5m / média 20</span><b id="volume">—</b></div><div class="fact"><span>Contexto · 15m</span><b id="trend">—</b></div><div class="fact"><span>MME9 / MME21 · 5m</span><b id="emas">—</b></div><div class="fact"><span>MME200 · 5m</span><b id="ema200">—</b></div></div></section>
@@ -293,6 +297,61 @@ async function scanVolatility(){
  finally{scanning=false;btn.disabled=false;if(!lastMoment){const moment=$('momentCoin');moment.disabled=false;moment.textContent='🏆 Moeda da vez · 🔎 Buscar novamente';moment.title='Clique para tentar outra busca';}}
 }
 $('scanNow').onclick=scanVolatility;
+
+
+let candidateRunning=false;
+async function scanCandidates(){
+ if(candidateRunning)return;
+ const btn=$('candidateScan'),status=$('candidateStatus'),body=$('candidateRows'),totals=$('candidateTotals');
+ candidateRunning=true;btn.disabled=true;body.replaceChildren();status.textContent='Preparando varredura…';
+ const source=(scanResultsCache?.length?scanResultsCache.map(x=>x.symbol):state.favorites).slice(0,15);
+ const unique=[...new Set(source.map(normalizeSymbol).filter(Boolean))];
+ const evaluations=[];let cursor=0,done=0;
+ const candidatesServerTime=Date.now()-3000;
+ async function analyze(sym){
+  const bases=['https://data-api.binance.vision','https://api.binance.com'];
+  let lastErr;
+  for(const base of bases){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);
+   try{
+    const [clock,five,fifteen]=await Promise.all([
+      fetchJSON(base,'/api/v3/time',ctl.signal),
+      fetchJSON(base,'/api/v3/klines?symbol='+encodeURIComponent(sym)+'&interval=5m&limit=450',ctl.signal),
+      fetchJSON(base,'/api/v3/klines?symbol='+encodeURIComponent(sym)+'&interval=15m&limit=450',ctl.signal)
+    ]);
+    const server=Number(clock.serverTime);if(!Number.isFinite(server))throw Error('Sem horário do servidor');
+    const a=indicators(parseKlines(five,server,'5m')),b=indicators(parseKlines(fifteen,server,'15m'));
+    const conf=cfg();const lng=grade('LONG',a,b,conf),sht=grade('SHORT',a,b,conf);
+    return {sym,lng,sht,t5:trend(a),t15:trend(b),closed:a.c.end};
+   }catch(e){lastErr=e}finally{clearTimeout(timer)}
+  }
+  throw lastErr||Error('Falha na consulta');
+ }
+ const workers=Array.from({length:3},async()=>{while(cursor<unique.length){const sym=unique[cursor++];try{evaluations.push(await analyze(sym))}catch(err){evaluations.push({sym,error:String(err.message||err)})}finally{done++;status.textContent='Analisadas '+done+'/'+unique.length+' moedas'}}});
+ try{
+  await Promise.all(workers);
+  evaluations.sort((a,b)=>Math.max(b.lng?.score||0,b.sht?.score||0)-Math.max(a.lng?.score||0,a.sht?.score||0));
+  const count={prep:0,complete:0,fail:0};
+  for(const x of evaluations){
+   const row=body.insertRow();const cell=(value)=>{const c=row.insertCell();c.textContent=value;return c};
+   cell(x.sym.replace(/USDT$/,''));
+   if(x.error){count.fail++;cell('—');cell('—');cell('—');cell('⚪ Sem leitura');cell(x.error);cell('—');continue}
+   cell(x.t5+' / '+x.t15);cell(x.lng.score+'/6');cell(x.sht.score+'/6');
+   const stronger=x.lng.score>=x.sht.score?x.lng:x.sht;
+   const consistent=x.t5===x.t15&&x.t5===stronger.dir;
+   const ready=stronger.eligible&&consistent;
+   const phase=ready?'🟢 6/6 · simulação':stronger.score>=3?'🟡 Preparar '+stronger.dir:'⚪ Observar '+stronger.dir;
+   if(ready)count.complete++;else if(stronger.score>=3)count.prep++;
+   cell(phase);
+   const missing=stronger.checks.filter(c=>!c.ok).map(c=>c.label);
+   cell(missing.join(' · ')||'Filtros completos; avaliar custos, spread e risco');
+   const c=row.insertCell(),button=document.createElement('button');button.type='button';button.className='btn';button.textContent='Analisar';button.onclick=()=>switchSymbol(x.sym);c.append(button);
+  }
+  totals.textContent='Total '+evaluations.length+' · preparação ≥3/6: '+count.prep+' · 6/6 alinhado (estudo): '+count.complete+' · sem leitura: '+count.fail+'. Indicadores baseados em candles fechados. Contagem não é taxa de acerto.';
+  status.textContent='Varredura concluída · '+new Date().toLocaleTimeString('pt-BR');
+ }catch(e){status.textContent='Falha: '+(e.message||e)}
+ finally{candidateRunning=false;btn.disabled=false}
+}
+$('candidateScan').onclick=scanCandidates;
 
 renderFavorites();syncScanSelection();logRender();resetAuto();drawEmpty('chart','Consultando Binance…');drawEmpty('rsiChart','—');refresh();
 })();
