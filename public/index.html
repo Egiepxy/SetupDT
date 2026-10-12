@@ -116,6 +116,14 @@
 #egiFunnelPanel details{margin-top:8px;padding:8px 10px}
 #egiFunnelPanel details summary{font-size:13px;min-height:28px}
 @media(max-width:410px){#egiFunnelGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.egi-funnel-card strong{font-size:24px}}
+</style><style>
+.egi-real-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:9px;margin-top:12px}
+.egi-real-item{background:#0c1c31;border:1px solid #46617e;border-radius:12px;text-align:left;padding:13px;min-height:85px;white-space:normal;font-size:15px}
+.egi-real-item strong{display:block;font-size:19px}.egi-real-item small{display:block;color:#c4d8ed;font-size:13px;margin-top:5px}
+.egi-real-overlay:not([hidden]){position:fixed;inset:0;z-index:10000;background:#000d;display:flex;align-items:center;justify-content:center;padding:12px}
+.egi-real-dialog{width:min(720px,100%);max-height:94dvh;overflow:auto;background:#101f35;color:#f0f7ff;border:2px solid #6b95b9;border-radius:17px;padding:17px}
+.egi-real-report{font-size:22px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.egi-real-report h2{font-size:1.35em}.egi-real-report p{margin:12px 0}.egi-real-dialog button{min-height:43px}
 </style></head><body>
 <header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.49 • Semáforo BTC + Radar Liquidez</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
@@ -148,6 +156,18 @@
 </details>
 </section>
 
+<section class="panel" id="egiRealSix" aria-label="Sinais 6 de 6 situação real">
+<h2>🎯 SINAIS 6/6 — SITUAÇÃO REAL</h2>
+<p class="hint">Dados do ciclo atual • checklist completo não libera entrada sozinho. Toque na moeda para ler a ficha ampliada.</p>
+<div id="egiRealSixSummary" class="hint" role="status">Aguardando a próxima varredura.</div>
+<div id="egiRealSixList" class="egi-real-grid"></div>
+</section>
+<div id="egiRealSixModal" class="egi-real-overlay" hidden role="dialog" aria-modal="true" aria-label="Relatório individual ampliado">
+<div class="egi-real-dialog"><div class="row" style="justify-content:space-between"><strong>🔎 RELATÓRIO INDIVIDUAL • SETUPDT</strong><button type="button" id="egiRealClose">✕ Fechar</button></div>
+<div class="row" style="margin:10px 0"><button type="button" id="egiRealSmaller">A−</button><button type="button" id="egiRealLarger">A+</button><button type="button" id="egiRealSpeak">🔊 Ouvir</button><button type="button" id="egiRealStop">⏹ Parar</button></div>
+<div id="egiRealReport" class="egi-real-report" tabindex="0"></div>
+<p class="hint">Somente dados do último ciclo disponível; sem ordem ou autorização automática.</p>
+</div></div>
 <section class="module-launcher" id="moduleLauncher" aria-label="Abrir módulos do SetupDT">
   <div class="ml-title">📂 ABRIR MÓDULO</div>
   <div class="ml-sub">Escolha um Index e toque em ABRIR. O último escolhido fica salvo neste aparelho.</div>
@@ -2339,11 +2359,71 @@ function egiFunnelRender(){
    '. O Radar registra histórico; os demais contadores usam somente o ciclo atual. Sem ordens.';
 }
 
+
+// Painel visual independente: não altera evaluate, sinais nem regras de liberação.
+let egiRealFont=22,egiRealSpeech='';
+function egiRealCategory(ev){
+ if(ev.tradable===true)return {key:'validated',label:'🟢 VALIDADA',detail:'Todos os filtros de liberação do SetupDT foram aprovados'};
+ const r=ev.marketRisk||{},tri=r.tripleScreen||{},status=String(r.status||'').toUpperCase(),reason=String(ev.disciplineReason||r.disciplineReason||'').toUpperCase();
+ if(ev.disciplineBlocked||r.disciplineBlocked||r.lowLiquidity||r.wideSpread||r.late||r.counterTrendReset||/BLOQUEAD|TARDIA|LIQUIDEZ|SPREAD|DUPLIC/.test(status+' '+reason))return {key:'blocked',label:'🔴 BLOQUEADA',detail:'Liquidez, entrada tardia, estrutura ou disciplina pendente'};
+ if(ev.flowBlocked||ev.liveEntryState==='WAITING_FLOW'||!ev.flowGate||!(/CONFIRMADO/.test(String(ev.flowGate.label||'').toUpperCase())))return {key:'flow',label:'🟡 AGUARDANDO FLUXO',detail:ev.flowGate?.label||'Fluxo 15m não confirmado'};
+ return {key:'trigger',label:'🟠 AGUARDANDO GATILHO',detail:ev.liveEntryState==='WAITING_ENTRY'?'Aguardar entrada/pullback':tri.ready===false?'Triple Screen/gatilho pendente':'Aguardar próximo gatilho ou confirmação operacional'};
+}
+function egiRealOpen(item,category){
+ const ev=item.result.ev, report=$('egiRealReport'); if(!report)return;
+ const risk=ev.marketRisk||{},tri=risk.tripleScreen||{},f=ev.flowGate||{};
+ const lines=[item.coin+'/USDT • '+(ev.day||'Direção não definida'),
+ 'SITUAÇÃO REAL: '+category.label,
+ 'Checklist técnico: '+ev.count+'/6',
+ 'Motivo: '+category.detail,
+ 'Fluxo: '+(f.label||'Não disponível'),
+ 'Triple Screen: '+(tri.state||'Não disponível')+(Number.isFinite(tri.score)?' • '+tri.score+'/100':''),
+ 'Janela operacional: '+(ev.liveEntryState||'Não avaliada'),
+ 'Filtro adicional: '+(risk.status||ev.final||'Não informado'),
+ 'Qualidade técnica: '+(risk.quality??'n/d')+'/100',
+ 'Entrada efetivamente liberada: '+(ev.tradable?'SIM, tecnicamente':'NÃO'),
+ 'Entrada, stop e alvos: '+(ev.tradable&&ev.levels?'Verificar no painel principal do SetupDT':'Não autorizados neste estado'),
+ 'Dados da última varredura. Não é ordem de operação.'];
+ egiRealSpeech=lines.join('. ');report.textContent=lines.join('\n\n');report.style.fontSize=egiRealFont+'px';
+ $('egiRealSixModal').hidden=false;document.body.style.overflow='hidden';$('egiRealClose').focus();
+}
+function egiRealRender(entries){
+ const root=$('egiRealSixList'),summary=$('egiRealSixSummary');if(!root||!summary)return;
+ root.replaceChildren();const groups={validated:[],trigger:[],flow:[],blocked:[]};
+ for(const item of entries){
+  const ev=item.result?.ev;if(ev?.count!==6)continue;
+  const cat=egiRealCategory(ev);groups[cat.key].push({item,cat});
+ }
+ const total=Object.values(groups).reduce((n,a)=>n+a.length,0);
+ summary.textContent='Último ciclo • '+total+' moedas com 6/6 | 🟢 '+groups.validated.length+' validadas | 🟠 '+groups.trigger.length+' gatilho | 🟡 '+groups.flow.length+' fluxo | 🔴 '+groups.blocked.length+' bloqueadas.';
+ for(const key of ['validated','trigger','flow','blocked']){
+  for(const {item,cat} of groups[key]){
+   const b=document.createElement('button');b.type='button';b.className='egi-real-item';
+   const h=document.createElement('strong');h.textContent=item.coin+' • '+(item.result.ev.day||'');
+   const st=document.createElement('small');st.textContent=cat.label+' • 6/6';
+   const why=document.createElement('small');why.textContent=cat.detail;
+   b.append(h,st,why);b.onclick=()=>egiRealOpen(item,cat);root.append(b);
+  }
+ }
+ if(!total)root.textContent='Nenhuma moeda com checklist 6/6 no ciclo atual.';
+}
+(function(){
+ const close=()=>{$('egiRealSixModal').hidden=true;document.body.style.overflow='';if('speechSynthesis'in window)speechSynthesis.cancel();};
+ $('egiRealClose').onclick=close;
+ $('egiRealSixModal').addEventListener('click',e=>{if(e.target===$('egiRealSixModal'))close();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('egiRealSixModal').hidden)close();});
+ $('egiRealLarger').onclick=()=>{$('egiRealReport').style.fontSize=(egiRealFont=Math.min(36,egiRealFont+2))+'px';};
+ $('egiRealSmaller').onclick=()=>{$('egiRealReport').style.fontSize=(egiRealFont=Math.max(16,egiRealFont-2))+'px';};
+ $('egiRealSpeak').onclick=()=>{if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const utter=new SpeechSynthesisUtterance(egiRealSpeech);utter.lang='pt-BR';utter.rate=.9;speechSynthesis.speak(utter);};
+ $('egiRealStop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel();};
+})();
+
 function signalDiagnosisRender(){
  const summary=$('signalDiagnosisSummary'),root=$('signalDiagnosisRows');if(!summary||!root)return;
  const oppStages=Array.from(scanCache.values()).filter(x=>x.result).map(x=>({coin:x.coin,opp:egiOppCalc(x.result.rows)})); const oppWarm=oppStages.filter(x=>['PRÉ-OPORTUNIDADE','SUPORTE EM TESTE','REAÇÃO INICIAL','REAÇÃO VALIDADA'].includes(x.opp.stage));
  const entries=Array.from(scanCache.values()),ok=entries.filter(x=>x.result),failed=entries.filter(x=>x.error),confirmed=ok.filter(x=>x.result.ev.tradable),prep=ok.filter(x=>x.result.ev.count>=3&&!x.result.ev.tradable),six=ok.filter(x=>x.result.ev.count===6),missing5=ok.filter(x=>!Array.isArray(x.result.rows?.['5m']));
  summary.textContent=`${new Date().toLocaleTimeString('pt-BR')} • ${ok.length} moedas analisadas • ${failed.length} falhas • ${confirmed.length} entradas confirmadas • ${prep.length} em formação (3/6+) • ${six.length} com checklist 6/6 • ${oppWarm.length} janelas em observação • ${missing5.length} sem candles 5m • Auto ${state.auto?'ON':'OFF'} • Alertas ${state.alerts?'ON':'OFF'}.`;
+ egiRealRender(ok);
  egiFunnelRender();
  const confirmedHead=$('egiConfirmedHeader'),confirmedRows=$('egiConfirmedRows'),failedSummary=$('egiFailedSummary'),failedRows=$('egiFailedRows');
  if(confirmedHead&&confirmedRows&&failedSummary&&failedRows){
