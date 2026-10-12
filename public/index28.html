@@ -42,6 +42,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;borde
 <button id="weakBtn">🧊 Mais fracas vs BTC</button>
 <button id="accelBtn">🚀 Aceleradoras do BTC</button>
 <button id="allBtn">📊 Todas</button>
+<label>Tipo de ativo <select id="assetType"><option value="crypto">🪙 Criptos operacionais</option><option value="all">📚 Todos os ativos</option><option value="other">🏦 Outros / estáveis</option></select></label>
 <button id="gptBtn">🤖 Relatório GPT</button>
 <button id="myBtn">👤 Relatório para mim</button>
 </div>
@@ -75,10 +76,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;borde
 <th>Dif. 7D</th>
 <th>Vol 24H</th>
 <th>Vol/Cap</th>
+<th>Concordância<br>1H / 24H / 7D</th>
 <th>Leitura</th>
 <th class="hideM">Gráfico</th>
 </tr></thead>
-<tbody id="rows"><tr><td colspan="12">Toque em Atualizar.</td></tr></tbody>
+<tbody id="rows"><tr><td colspan="13">Toque em Atualizar.</td></tr></tbody>
 </table>
 </div>
 
@@ -141,10 +143,17 @@ function metrics(c,btc){
  else if(rel<0)label='🟠 FRACA NO HORIZONTE';
  return {a1,a24,a7,b1,b24,b7,r1,r24,r7,alt,b,rel,mult,positiveFrames,negativeFrames,strength,label,vr:volCap(c)};
 }
+const otherSymbols=new Set(['usd','usdg','usdgo','rlusd','u','figr_heloc','usdc','usdt','usde','usdd','usds','usdt0','pyusd','tusd','fdusd','usdp','dai','frax','usdf','eurc','eurcv','eurt','usdy','susd','usd1','cbbtc','wbtc','weth','steth','wsteth','cbeth','weeth','reth','ezeth']);
+function nonOperational(c){const symbol=String(c.symbol||'').toLowerCase();const name=String(c.name||'').toLowerCase();return stable.has(symbol)||otherSymbols.has(symbol)||/stablecoin|tokenized stock|tokenised stock|treasury bill|money market fund|wrapped bitcoin|tokenized equity|tokenised equity|heloc/.test(name);}
+function concordance(c){
+ const vals=[c.r1,c.r24,c.r7],positive=vals.filter(v=>v>0).length,negative=vals.filter(v=>v<0).length;
+ return positive===3?'🟢 FORTE 3/3':negative===3?'🔴 FRACA 3/3':positive===2?'🟡 FORTE 2/3':negative===2?'🟠 FRACA 2/3':'⚪ MISTA';
+}
 function universe(){
  const btc=data.find(x=>x.symbol==='btc'); if(!btc)return {btc:null,arr:[]};
  const minVol=Number($('minVol').value)||0;
- const arr=data.filter(c=>c.symbol!=='btc'&&!stable.has(c.symbol)&&Number(c.total_volume||0)>=minVol)
+ const mode=$('assetType')?.value||'crypto';
+ const arr=data.filter(c=>c.symbol!=='btc'&&(mode==='all'||(mode==='other'?nonOperational(c):!nonOperational(c)))&&Number(c.total_volume||0)>=minVol)
    .map(c=>({...c,...metrics(c,btc)}));
  return {btc,arr};
 }
@@ -187,8 +196,8 @@ function render(){
  <td class="${colorFor(c)}"><b>${pct(c.rel)}</b><div class="bar"><div class="fill" style="width:${c.strength}%"></div></div><span class="small">Índice ${c.strength}/100</span></td>
  <td><b>${Number.isFinite(c.mult)?c.mult.toFixed(2)+'×':'—'}</b></td>
  <td>${pct(c.alt)}</td><td>${pct(c.b)}</td><td>${pct(c.r1)}</td><td>${pct(c.r24)}</td><td>${pct(c.r7)}</td>
- <td>${money(Number(c.total_volume)||0)}</td><td>${pct(c.vr)}</td><td>${c.label}</td>
- <td class="hideM"><button onclick="openTV('${c.symbol}')">📈</button></td></tr>`).join('') || '<tr><td colspan="12">Nenhum ativo passou pelo filtro atual.</td></tr>';
+ <td>${money(Number(c.total_volume)||0)}</td><td>${pct(c.vr)}</td><td><b>${concordance(c)}</b></td><td>${c.label}</td>
+ <td class="hideM"><button onclick="openTV('${c.symbol}')">📈</button></td></tr>`).join('') || '<tr><td colspan="13">Nenhum ativo passou pelo filtro atual.</td></tr>';
 }
 
 function showDetail(i){
@@ -217,8 +226,8 @@ function showReport(txt){$('report').textContent=txt;$('reportCard').classList.r
 function makeGPT(){
  const {btc,arr}=universe(); if(!btc){alert('Atualize primeiro.');return}
  const strong=[...arr].sort((a,b)=>b.rel-a.rel).slice(0,10), weak=[...arr].sort((a,b)=>a.rel-b.rel).slice(0,10);
- let txt=`RELATÓRIO INTELIGENTE PARA CHATGPT — RADAR EGI FORÇA & FRAQUEZA VS BTC V1.1\nGerado em: ${new Date().toLocaleString('pt-BR')}\nHorizonte principal: ${horizonLabel()}\nUniverso válido: ${arr.length} altcoins\nBTC 1H ${pct(ret(btc,'1h'))} | 24H ${pct(ret(btc,'24h'))} | 7D ${pct(ret(btc,'7d'))}\n\nOBJETIVO\nIdentificar as moedas que estão superando o BTC e as que estão ficando para trás, procurando especialmente as que aceleram mais quando o BTC sobe.\n\nTOP 10 MAIS FORTES VS BTC — ${horizonLabel()}\n`;
- strong.forEach((c,i)=>{txt+=`${i+1}. ${c.symbol.toUpperCase()} | força ${pct(c.rel)} | moeda ${pct(c.alt)} | BTC ${pct(c.b)} | ${Number.isFinite(c.mult)?c.mult.toFixed(2)+'× BTC':'×BTC —'} | dif 1H ${pct(c.r1)} | 24H ${pct(c.r24)} | 7D ${pct(c.r7)} | Vol/Cap ${pct(c.vr)} | ${c.label}\n`});
+ let txt=`RELATÓRIO INTELIGENTE PARA CHATGPT — RADAR EGI FORÇA & FRAQUEZA VS BTC V1.1\nGerado em: ${new Date().toLocaleString('pt-BR')}\nHorizonte principal: ${horizonLabel()}\nUniverso selecionado: ${$('assetType').selectedOptions[0].text} | ${arr.length} ativos\nBTC 1H ${pct(ret(btc,'1h'))} | 24H ${pct(ret(btc,'24h'))} | 7D ${pct(ret(btc,'7d'))}\n\nOBJETIVO\nIdentificar as moedas que estão superando o BTC e as que estão ficando para trás, procurando especialmente as que aceleram mais quando o BTC sobe.\n\nTOP 10 MAIS FORTES VS BTC — ${horizonLabel()}\n`;
+ strong.forEach((c,i)=>{txt+=`${i+1}. ${c.symbol.toUpperCase()} | força ${pct(c.rel)} | moeda ${pct(c.alt)} | BTC ${pct(c.b)} | ${Number.isFinite(c.mult)?c.mult.toFixed(2)+'× BTC':'×BTC —'} | dif 1H ${pct(c.r1)} | 24H ${pct(c.r24)} | 7D ${pct(c.r7)} | Vol/Cap ${pct(c.vr)} | ${concordance(c)} | ${c.label}\n`});
  txt+=`\nTOP 10 MAIS FRACAS VS BTC — ${horizonLabel()}\n`;
  weak.forEach((c,i)=>{txt+=`${i+1}. ${c.symbol.toUpperCase()} | força ${pct(c.rel)} | moeda ${pct(c.alt)} | BTC ${pct(c.b)} | ${Number.isFinite(c.mult)?c.mult.toFixed(2)+'× BTC':'×BTC —'} | dif 1H ${pct(c.r1)} | 24H ${pct(c.r24)} | 7D ${pct(c.r7)} | Vol/Cap ${pct(c.vr)} | ${c.label}\n`});
  txt+=`\nTAREFA PARA O CHATGPT\nAnalise somente os dados acima. Separe: 🚀 aceleradoras do BTC; 🟢 fortes e consistentes; ⚪ neutras/mistas; 🧊 fracas; 🔴 muito fracas. Explique se a força/fraqueza aparece em 1H, 24H e 7D, dê atenção ao multiplicador ×BTC somente quando disponível, e não trate o índice como probabilidade. Aponte quais merecem conferência visual no gráfico, sem executar operação.\n\nAVISO: relatório educacional de força relativa; não é ordem automática de compra ou venda.`;
@@ -238,13 +247,14 @@ function makeMine(){
 let scanning=false;
 async function scan(){
  if(scanning)return; scanning=true; const btn=$('scan'); const n=$('limit').value; const started=Date.now();
- btn.disabled=true;btn.textContent='⏳ Atualizando...';setStatus('loading','Atualizando Radar…',`Buscando top ${n} por valor de mercado.`);$('rows').innerHTML='<tr><td colspan="12">Coletando dados…</td></tr>';
+ btn.disabled=true;btn.textContent='⏳ Atualizando...';setStatus('loading','Atualizando Radar…',`Buscando top ${n} por valor de mercado.`);$('rows').innerHTML='<tr><td colspan="13">Coletando dados…</td></tr>';
  const url=`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${n}&page=1&sparkline=false&price_change_percentage=1h,24h,7d`;
  try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();render();setStatus('ok','✅ Radar atualizado',`Última leitura ${new Date().toLocaleTimeString('pt-BR')} · ${data.length} ativos recebidos · ${((Date.now()-started)/1000).toFixed(1)}s.`)}
- catch(e){setStatus('error','❌ Falha na atualização',e.message);$('rows').innerHTML=`<tr><td colspan="12">Falha: ${e.message}</td></tr>`}
+ catch(e){setStatus('error','❌ Falha na atualização',e.message);$('rows').innerHTML=`<tr><td colspan="13">Falha: ${e.message}</td></tr>`}
  finally{scanning=false;btn.disabled=false;btn.textContent='🔄 Atualizar'}
 }
 $('scan').onclick=scan;
+$('assetType').onchange=render;
 $('horizon').onchange=render;$('minVol').onchange=render;$('limit').onchange=scan;
 $('strongBtn').onclick=()=>showMode('strong');
 $('weakBtn').onclick=()=>showMode('weak');
