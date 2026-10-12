@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1627">
+<title>PH Azul/Vermelho EGI V1.1.5 — Direção BTC e Altcoins</title>
+<style>
+:root{color-scheme:dark;--bg:#091522;--card:#12263a;--card2:#102135;--line:#365471;--text:#eff6ff;--muted:#b9cbdd;--blue:#66bdff;--red:#ff7488;--green:#71e6b0;--yellow:#ffd47f;--shadow:#0006}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.48 system-ui,-apple-system,Segoe UI,Arial,sans-serif}main{max-width:1020px;margin:auto;padding:12px 12px 38px}h1{font-size:clamp(23px,3.4vw,32px);line-height:1.2;margin:0 0 7px}h2{font-size:18px;margin:0 0 9px}h3{font-size:15px;margin:10px 0 7px}.hero-title{font-size:clamp(23px,4vw,33px);font-weight:850;line-height:1.24;letter-spacing:-.25px}.muted,.hint{color:var(--muted)}.hint{font-size:12px;line-height:1.6}.panel{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px;margin:12px 0;box-shadow:0 4px 16px var(--shadow)}.head{background:linear-gradient(130deg,#122b43,#0b2430);border-color:#406581}.badge{display:inline-block;border:1px solid #6b849e;border-radius:40px;background:#213d51;color:#ecf7ff;padding:3px 9px;font-size:12px;font-weight:750;vertical-align:middle}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}label{display:block;color:#cee0f1;font-size:12px;margin-bottom:5px;font-weight:650}input,select,button,textarea{font:inherit;color:var(--text);background:#1b3953;border:1px solid #6080a3;border-radius:10px;padding:10px;min-height:43px;min-width:0}input,select,textarea{width:100%}button{cursor:pointer;font-weight:760}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px}button:disabled{opacity:.5;cursor:not-allowed}.btn-main{background:#1677a0;border-color:#69c8ea}.controls{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:12px}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}.metric{background:#0b1d30;border:1px solid #385975;border-radius:11px;padding:10px;min-width:0}.metric small{display:block;font-size:12px;color:var(--muted);line-height:1.35}.metric strong{display:block;font-size:clamp(16px,2.4vw,24px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.metric em{display:block;font-size:11px;color:var(--muted);font-style:normal}.market{border:2px solid #4d6b88;padding:16px;border-radius:15px;background:#132b41}.market.down{border-color:var(--red);background:linear-gradient(125deg,#471e2a,#211c35)}.market.up{border-color:var(--green);background:linear-gradient(125deg,#104334,#11253b)}.market.transition{border-color:var(--yellow);background:#343026}.market.unknown{border-color:#56738c}.market-detail{font-size:14px;color:#edf5ff;margin-top:8px}.bar{height:18px;border-radius:30px;display:flex;overflow:hidden;background:#536479;border:1px solid #6f8aa2;margin-top:9px}.bar span{height:100%}.bar .down{background:#dd5875}.bar .up{background:#389c7e}.bar .flat{background:#9aa7b9}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.three .metric{text-align:center}.three .metric strong{font-size:22px}.blue{color:var(--blue)}.red{color:var(--red)}.green{color:var(--green)}.yellow{color:var(--yellow)}.status{font-size:13px;line-height:1.65;margin:8px 0 0;overflow-wrap:anywhere}.status.error{color:#ffacb8}.status.ok{color:#abf3cb}#chart{width:100%;height:240px;border:1px solid #385a76;border-radius:10px;background:#09192a;display:block;margin:12px 0}#coins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.coin{border:1px solid #3b5675;border-radius:11px;padding:11px;background:#0b1e32;min-width:0}.coin .topline{display:flex;justify-content:space-between;align-items:center;gap:6px}.coin b{font-size:16px}.coin .little{font-size:12px;color:var(--muted);margin:5px 0}.coin button{min-height:35px;font-size:12px;padding:4px 8px;width:auto;max-width:100%;margin-top:6px}.tag{display:inline-block;padding:2px 7px;border:1px solid #66819f;border-radius:20px;font-size:11px;color:#d9e8fa}.tag.out{background:#34321e;border-color:#b1a057;color:#fff0ad}.tag.fav{background:#123d37;border-color:#398d81;color:#9fe9d2}.tag.short{border-color:#b65f71;color:#ffc0cc}.tag.long{border-color:#3d987d;color:#8feac7}.nowrap{white-space:nowrap}.scroll{max-height:420px;overflow:auto}.event{border:1px solid #476079;border-radius:10px;padding:10px;margin:7px 0;background:#0c1e31;font-size:13px}.event strong{font-size:14px}.event .when{font-size:12px;color:var(--muted)}.event .metrics{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}.event .chip{border:1px solid #45607b;border-radius:6px;padding:3px 6px;background:#172f46;font-variant-numeric:tabular-nums}.buttonrow{display:flex;gap:8px;flex-wrap:wrap}.buttonrow button{flex:1 1 150px}.disclosure{font-size:12px;color:#c1d3e7;line-height:1.65}.disclosure li{margin:6px 0}details{border:1px solid #43617d;background:#0b1e30;border-radius:11px;padding:9px 12px;margin-top:10px}summary{font-weight:760;cursor:pointer;padding:4px}textarea{font-size:12px;font-family:ui-monospace,Consolas,monospace;min-height:200px;resize:vertical;white-space:pre}#watchlist{font-size:14px}#watchBackup{min-height:120px;max-height:260px}#watchStatus{padding:8px 10px;border:1px solid #43617d;border-radius:9px;background:#0b1d30}#watchImportFile{display:none}footer{color:var(--muted);font-size:12px;line-height:1.65;margin:15px 5px}.secondary{background:#243850}#clock{font-variant-numeric:tabular-nums}a{color:#a3eaff}@media(max-width:700px){.fields{grid-template-columns:1fr 1fr}.metric-grid{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.three .metric strong{font-size:19px}}@media(max-width:460px){main{padding:9px 8px}.panel{padding:11px}.fields,.controls{grid-template-columns:1fr}.metric-grid{gap:6px}#coins{grid-template-columns:1fr}.three{gap:5px}.three .metric{padding:7px}.three .metric strong{font-size:17px}#chart{height:195px}}
+
+/* V1.1.5 — separação direção BTC x altcoins e monitor de coorte congelada */
+.direction-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:11px}
+.direction-card{background:#0b1e30;border:1px solid #58718b;border-radius:13px;padding:12px;min-width:0}
+.direction-card h3{margin:0 0 7px;font-size:14px}
+.direction-card strong{display:block;font-size:clamp(17px,2.7vw,22px);line-height:1.3}
+.direction-card .hint{margin:5px 0 0}.direction-card.bear{border-color:#dc6981}.direction-card.bull{border-color:#44a884}.direction-card.alert{border-color:#c2a156}
+.event .altmetrics{margin-top:8px;padding:7px;border-radius:8px;border:1px solid #345777;background:#10283d;font-size:12px}
+#fixedBasket{margin:9px 0 0;line-height:1.65;padding:9px;border:1px dashed #517392;border-radius:9px}
+@media(max-width:520px){.direction-split{grid-template-columns:1fr}}
+
+/* V1.1.5 — camadas não bloqueantes: pressão, continuidade, exaustão e reação */
+.exhaust-panel{border:1px solid #8c8157;background:#191f2a;border-radius:14px;padding:13px;margin-top:12px}
+.exhaust-panel.stretched{border-color:#f0b874;background:#362927}
+.exhaust-panel.recover{border-color:#5ac5aa;background:#17352e}
+.exhaust-panel.falling{border-color:#d66a79;background:#302333}
+.exhaust-panel.rising{border-color:#59bb9b;background:#19352d}
+.exhaust-panel .lead{font-size:clamp(17px,3vw,23px);font-weight:850;line-height:1.3;margin:8px 0}
+.exhaust-panel .explain{font-size:13px;line-height:1.55;margin:6px 0;color:#e6eaf1}
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.stages div{border:1px solid #576d7c;border-radius:9px;background:#0d2336;padding:9px;min-width:0}
+.stages small{font-size:11px;color:#c2d1e4;display:block}.stages strong{display:block;font-size:13px;margin-top:4px}
+#stretchContext{font-size:12px;margin-top:9px;color:#d9e5f2;line-height:1.65}
+@media(max-width:560px){.stages{grid-template-columns:1fr}.stages div{padding:7px}}
+</style>
+</head>
+<body>
+<main>
+<header class="panel head">
+<h1>🔵🔴 PH EGI — Direção do Mercado <span class="badge">V1.1.5 • ESTUDO</span></h1>
+<div class="muted">BTC como referência + participação coletiva das altcoins + descoberta de moedas fora do radar</div>
+<p class="hint">Adaptação experimental: a fórmula original do PH_Azul_Vermelho.stg não pôde ser recuperada. Este aplicativo usa regras próprias, explícitas e testáveis. <b>Não envia ordens</b> e não prova antecipação de movimentos.</p>
+</header>
+<section class="panel">
+<h2>1. Controle da leitura</h2>
+<div class="fields">
+<div><label for="sensitivity">Sensibilidade</label><select id="sensitivity"><option value="fast">Rápida — alerta precoce</option><option value="medium" selected>Equilibrada</option><option value="slow">Conservadora</option></select></div>
+<div><label for="universe">Moedas dinâmicas por liquidez</label><select id="universe"><option value="20">Top 20 + referências</option><option value="35" selected>Top 35 + referências</option><option value="50">Top 50 + referências</option></select></div>
+<div><label for="auto">Atualização com a página aberta</label><select id="auto"><option value="60">A cada 60 segundos</option><option value="90" selected>A cada 90 segundos</option><option value="120">A cada 120 segundos</option><option value="0">Somente manual</option></select></div>
+</div>
+<div class="controls"><button class="btn-main" id="update">↻ Analisar BTC + mercado agora</button><button class="secondary" id="sound" aria-pressed="false">🔕 Som desligado</button></div>
+<p class="status" id="status" role="status">Aguardando consulta à Binance Spot pública.</p>
+<p class="hint" id="clock">—</p>
+</section>
+<section class="panel">
+<h2>2. Direção do mercado — primeiro sinal</h2>
+<div class="market unknown" id="marketBox" aria-live="polite"><div class="hero-title" id="marketState">⚪ Aguardando dados do mercado</div><div class="market-detail" id="marketReason">O app diferencia pressão inicial e movimento confirmado. Os indicadores de cada moeda continuam separados.</div></div>
+<div class="direction-split" aria-label="Direção do Bitcoin comparada às altcoins">
+ <div class="direction-card" id="btcDirectionCard"><h3>₿ BTC — direção independente</h3><strong id="btcDirection">⚪ Aguardando</strong><p class="hint" id="btcDirectionWhy">Variação 1m, 3m, 5m, volume e agressão de compra.</p></div>
+ <div class="direction-card" id="altDirectionCard"><h3>🌐 Altcoins — direção coletiva</h3><strong id="altDirection">⚪ Aguardando</strong><p class="hint" id="altDirectionWhy">Participação de alta/baixa em 5m, com cobertura mínima.</p></div>
+</div>
+
+<div class="exhaust-panel" id="exhaustBox" aria-live="polite">
+ <h3>🧭 Detector EGI — Exaustão e Recuperação <span class="badge">SOMENTE ESTUDO</span></h3>
+ <div class="lead" id="exhaustTitle">⚪ Aguardando leitura de candles fechados</div>
+ <p class="explain" id="exhaustReason">O alerta de queda ou alta continua visível. Este diagnóstico é apenas uma camada adicional de risco e possível reação.</p>
+ <div class="stages" aria-label="Etapas independentes do movimento">
+  <div><small>1. Pressão inicial</small><strong id="stageStart">Aguardando</strong></div>
+  <div><small>2. Continuidade coletiva</small><strong id="stageContinue">Aguardando</strong></div>
+  <div><small>3. Exaustão / reação</small><strong id="stageExhaust">Aguardando</strong></div>
+ </div>
+ <div id="stretchContext">Indicadores e histórico aguardando dados reais.</div>
+ <p class="hint">Regra experimental: exaustão não significa fundo/topo nem autoriza operação. A reação exige comparação com um extremo realmente observado nesta versão; não é inferida de alertas antigos.</p>
+</div>
+<div class="metric-grid">
+<div class="metric"><small>BTC referência atual</small><strong id="btcPrice">—</strong><em>Preço de ticker, não fechamento</em></div>
+<div class="metric"><small>BTC últimos 1m / 3m</small><strong id="btc13">—</strong><em>Candles fechados</em></div>
+<div class="metric"><small>BTC últimos 5m / 15m</small><strong id="btc515">—</strong><em>Candles fechados</em></div>
+<div class="metric"><small>Volume 1m / compra executada</small><strong id="btcFlow">—</strong><em>Volume relativo e taker buy</em></div>
+</div>
+<p class="status" id="btcPulse">⚡ Vigia BTC 15s: aguardando a primeira leitura; movimento provisório ainda não é candle fechado.</p>
+<p class="hint" id="btcTF">Análise do BTC em 1m, 5m, 15m e 1h aguardando coleta.</p>
+<h3>Confirmação coletiva — variação dos últimos 5 minutos</h3>
+<div class="bar" aria-label="Proporção de altcoins em alta, baixa e neutras"><span class="down" id="breadthDown" style="width:0%"></span><span class="flat" id="breadthFlat" style="width:100%"></span><span class="up" id="breadthUp" style="width:0%"></span></div>
+<div class="three">
+<div class="metric"><small>🔴 Caindo</small><strong id="downCount">—</strong></div>
+<div class="metric"><small>⚪ Neutras</small><strong id="flatCount">—</strong></div>
+<div class="metric"><small>🟢 Subindo</small><strong id="upCount">—</strong></div>
+</div>
+<p class="status" id="breadthStatus">Contagem será feita por candles 1m fechados de cada altcoin, sem usar a variação de 24h como direção instantânea.</p>
+<p class="hint" id="fixedBasket">📌 Cesta fixa de referências (ETH, SOL, SUI, AAVE, AVAX, PEPE e outras): aguardando dados.</p>
+<canvas id="chart" role="img" aria-label="Gráfico BTC fechado 1m com MME9 e MME21"></canvas>
+<p class="hint">Gráfico BTCUSDT com últimas 75 velas de 1m fechadas; linha branca = preço, azul = MME9, vermelha = MME21.</p>
+</section>
+<section class="panel">
+<h2>3. Descoberta automática — moedas que se destacam</h2>
+<p class="hint">Compara força relativa de 5m ao BTC e volume de 1m. <b>FORA DA LISTA</b> identifica moeda ainda não cadastrada na sua lista de observação. Não são ordens de entrada.</p>
+<div><label for="watchlist">Minha lista de observação (separar por vírgulas)</label><input id="watchlist" value="BTC,ETH,SOL,SUI,AAVE,AVAX,PEPE,LINK,XRP,DOGE" spellcheck="false"></div>
+<div class="buttonrow" style="margin-top:8px">
+<button id="saveWatch" type="button" class="btn-main">💾 Salvar lista + arquivo</button>
+<button id="importWatch" type="button" class="secondary">📂 Restaurar lista</button>
+<button id="clearHistory" type="button" class="secondary">🗑 Limpar histórico de alertas</button>
+</div>
+<input id="watchImportFile" type="file" accept=".json,.txt,application/json,text/plain" aria-label="Escolher arquivo com lista de moedas">
+<p id="watchStatus" class="status" role="status" aria-live="polite">Sua lista pode ser editada aqui. Clique em Salvar lista + arquivo: o app guardará no navegador, quando permitido, e solicitará o download de um arquivo JSON para backup.</p>
+<details id="watchManualBackup"><summary>📋 Backup manual da lista (se o download for bloqueado)</summary>
+<p class="hint">Selecione e copie o JSON abaixo para guardar em outro local. Depois use Restaurar lista para importar o arquivo salvo.</p>
+<textarea id="watchBackup" readonly aria-label="Backup JSON da lista de moedas"></textarea>
+<button id="copyWatch" type="button" class="secondary">📋 Copiar JSON da lista</button>
+</details>
+<p class="hint" id="universeStatus">O universo será escolhido entre os pares USDT líquidos da Binance e complementado por moedas de referência.</p>
+<div id="coins" aria-live="polite"><p class="muted">Aguardando varredura das altcoins.</p></div>
+</section>
+<section class="panel">
+<h2>4. Histórico — o que aconteceu depois de cada alerta?</h2>
+<p class="hint">A primeira leitura somente descreve o estado atual. Um alerta novo só é registrado após uma <b>mudança relevante observada com o monitor ativo</b>. Após 3, 5 e 15 minutos, o app compara o BTC <b>e as mesmas altcoins presentes no momento do alerta</b>. Moedas ausentes posteriormente reduzem a cobertura; não são substituídas. Eventos antigos sem cesta congelada continuam mostrando somente BTC. Sem atualização, o acompanhamento para.</p>
+<div class="metric-grid">
+<div class="metric"><small>Alertas de mudança</small><strong id="totalEvents">0</strong></div>
+<div class="metric"><small>Último alerta</small><strong id="lastEvent">—</strong></div>
+<div class="metric"><small>3m avaliados</small><strong id="done3">0</strong></div>
+<div class="metric"><small>15m avaliados</small><strong id="done15">0</strong></div>
+</div>
+<div class="scroll" id="events"><p class="muted">Nenhuma transição registrada ainda.</p></div>
+</section>
+<section class="panel">
+<h2>5. Relatório para ChatGPT</h2>
+<div class="buttonrow"><button id="copy" type="button" class="btn-main">📋 Copiar relatório</button><button id="selectAll" type="button" class="secondary">🔎 Selecionar todo o texto</button><button id="download" type="button" class="secondary">💾 Salvar TXT</button></div>
+<p id="copyStatus" class="status" role="status" aria-live="polite">Para enviar ao ChatGPT, clique em Copiar relatório. Se o navegador bloquear a cópia automática, use Selecionar todo o texto e Ctrl+C (ou Copiar no celular).</p>
+<textarea id="report" readonly aria-label="Relatório completo para copiar">Aguardando dados reais da Binance. Nada será inventado se a conexão falhar.</textarea>
+<details><summary>📚 Como interpretar cada estágio</summary>
+<ul class="disclosure">
+<li><b>🟡 Pressão inicial:</b> BTC começa a ganhar velocidade numa direção, ainda sem alinhamento coletivo suficiente; não significa tendência confirmada.</li>
+<li><b>🟢 Alta confirmada / 🔴 Baixa confirmada:</b> preço do BTC e participação relevante das altcoins concordam; não é sinal de compra/venda nem garantia de continuidade.</li>
+<li><b>🟠 Divergência:</b> altcoins pressionadas, mas BTC ainda quase não acompanha ou caminha na direção oposta.</li>
+<li><b>🔴/🟢 Altcoins lideram:</b> a maioria das altcoins se move fortemente numa direção e o BTC começa a acompanhar, mas ainda sem completar os critérios rigorosos de confirmação coletiva. Não é entrada.</li>
+<li><b>📡 Descoberta:</b> moedas com movimento relativo mais forte que BTC, inclusive fora da lista escolhida; o volume e a liquidez ajudam a interpretar a qualidade.</li>
+<li><b>🧭 Exaustão/Recuperação V1.1.5:</b> extremo em BTC 1m e altcoins com participação generalizada sinaliza risco de esticamento; reação só aparece após melhoria observada do preço, RSI e cesta fixa. É alerta de risco, não confirmação de fundo/topo.</li>
+<li><b>📊 Medição:</b> resultados de 3, 5 e 15 minutos indicam deslocamento observado após o alerta, não lucro de estratégia.</li>
+</ul>
+</details>
+</section>
+<footer>Dados: API pública Binance Spot (candles fechados, ticker 24h para seleção por liquidez e ticker atual do BTC). Em caso de falha da API, o aplicativo declara cobertura insuficiente ou indisponibilidade; não simula cotações como reais. O detector V1.1.5 usa limiares experimentais de RSI, variação, volume e participação; sem validação estatística. Intervalos curtos podem gerar sinais falsos. Este HTML não vigia 24h com a página fechada; amostras de moedas são congeladas somente após cada novo alerta e requerem atualização futura para medição; não executa ordens, não usa a fórmula original do arquivo STG e não foi validado em backtest. Spot não oferece operação short alavancada.</footer>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const REF=['ETH','SOL','SUI','AAVE','AVAX','PEPE','LINK','XRP','DOGE','BNB','ADA','ONDO','HYPE','NEAR','PENDLE','ENA'];
+const EXCLUDED=new Set(['BTC','USDT','USDC','FDUSD','TUSD','BUSD','DAI','USDP','EUR','EURC','TRY','BRL','AEUR','USD1','RLUSD','XUSD','PAX','USTC']);
+const TFMS=60000;const HIST_KEY='ph_egi_v11_direction_history',WATCH_KEY='ph_egi_v11_watch',SOUND_KEY='ph_egi_v11_sound',EXH_KEY='ph_egi_v115_exhaust_watch';
+let busy=false,clockTimer=null,pulseTimer=null,pulseBusy=false,lastPulseKey="",lastPulseAt=0,lastData=null,firstRun=true,lastState=null,lastUniverse=null,universeAt=0,audioEnabled=false,soundContext=null,preferredBase='https://data-api.binance.vision',lastRenderedChart=null;
+const pct=(v,dec=2)=>Number.isFinite(v)?(v>0?'+':'')+v.toFixed(dec).replace('.',',')+'%':'n/d';
+const val=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}):'n/d';
+const price=v=>!Number.isFinite(v)?'n/d':v.toLocaleString('pt-BR',{minimumFractionDigits:v>=100?2:v>=1?3:5,maximumFractionDigits:v>=100?2:v>=1?4:8});
+const normalize=s=>String(s||'').toUpperCase().replace(/USDT$/,'').replace(/[^A-Z0-9]/g,'').slice(0,15);
+const when=t=>Number.isFinite(t)?new Date(t).toLocaleString('pt-BR'):'n/d';
+const span=(id,t)=>$(id).textContent=String(t);
+function store(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch(_){}}
+function restore(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v===null?fallback:v}catch(_){return fallback}}
+function ema(closes,period){const output=Array(closes.length).fill(NaN);if(closes.length<period)return output;let x=closes.slice(0,period).reduce((a,b)=>a+b,0)/period;output[period-1]=x;for(let i=period;i<closes.length;i++){x=closes[i]*(2/(period+1))+x*(1-2/(period+1));output[i]=x}return output}
+function rsi(cs,n=14){if(cs.length<n+1)return NaN;let g=0,l=0;for(let i=1;i<=n;i++){const z=cs[i]-cs[i-1];g+=Math.max(z,0);l+=Math.max(-z,0)}g/=n;l/=n;for(let i=n+1;i<cs.length;i++){const z=cs[i]-cs[i-1];g=(g*(n-1)+Math.max(z,0))/n;l=(l*(n-1)+Math.max(-z,0))/n}return l===0?(g===0?50:100):100-100/(1+g/l)}
+function change(cs,n){return cs.length>n&&cs.at(-1-n)>0?(cs.at(-1)/cs.at(-1-n)-1)*100:NaN}
+function parseRows(raw,tf,now=Date.now()){
+ if(!Array.isArray(raw))throw Error('API não devolveu candles '+tf);
+ const rows=raw.filter(a=>Array.isArray(a)&&Number(a[6])<=now-800).map(a=>({start:Number(a[0]),end:Number(a[6]),open:Number(a[1]),high:Number(a[2]),low:Number(a[3]),close:Number(a[4]),volume:Number(a[5]),buy:Number(a[9])}));
+ const need=tf==='1m'?22:35;if(rows.length<need)throw Error('Histórico '+tf+' insuficiente: '+rows.length+'/'+need);
+ if(rows.some(x=>![x.start,x.end,x.open,x.high,x.low,x.close,x.volume].every(Number.isFinite)||x.open<=0||x.close<=0||x.low<=0||x.high<Math.max(x.open,x.close)||x.low>Math.min(x.open,x.close)||x.volume<0))throw Error('Candles inconsistentes em '+tf);
+ const tail=rows.slice(-22);for(let i=1;i<tail.length;i++)if(tail[i].start-tail[i-1].start!==({ '1m':60000,'5m':300000,'15m':900000,'1h':3600000}[tf]))throw Error('Lacuna de candles em '+tf);
+ if(now-rows.at(-1).end>({ '1m':180000,'5m':900000,'15m':2700000,'1h':10800000}[tf]))throw Error('Último candle '+tf+' está atrasado');
+ return rows;
+}
+async function apiJSON(endpoint){
+ const bases=[preferredBase,...['https://data-api.binance.vision','https://api.binance.com'].filter(x=>x!==preferredBase)];let error=null;
+ for(const base of bases){const ctl=new AbortController(),kill=setTimeout(()=>ctl.abort(),12500);try{const res=await fetch(base+endpoint,{cache:'no-store',signal:ctl.signal});if(!res.ok)throw Error('HTTP '+res.status);const data=await res.json();if(data?.code&&data.code<0)throw Error(data.msg||'Erro da Binance');preferredBase=base;return data}catch(e){error=e}finally{clearTimeout(kill)}}
+ throw Error('Binance indisponível (rede, CORS ou bloqueio): '+(error?.message||'sem dados'));
+}
+async function klines(coin,tf,limit){const raw=await apiJSON('/api/v3/klines?symbol='+encodeURIComponent(coin+'USDT')+'&interval='+tf+'&limit='+limit);return parseRows(raw,tf)}
+function btcStats(rows){const cs=rows['1m'].map(x=>x.close),last=rows['1m'].at(-1),vs=rows['1m'].slice(-21,-1).map(x=>x.volume),mean=vs.reduce((a,b)=>a+b,0)/vs.length;const em9=ema(cs,9),em21=ema(cs,21);
+ return {price:last.close,lastEnd:last.end,d1:change(cs,1),d3:change(cs,3),d5:change(cs,5),d15:change(cs,15),prev3:(cs.length>=7?100*(cs.at(-4)/cs.at(-7)-1):NaN),ema9:em9.at(-1),ema21:em21.at(-1),rsi:rsi(cs),vol:mean>0?last.volume/mean:NaN,buyShare:last.volume>0&&Number.isFinite(last.buy)?last.buy/last.volume:NaN,tf:Object.fromEntries(['5m','15m','1h'].map(tf=>{const closes=rows[tf].map(x=>x.close),m9=ema(closes,9),m21=ema(closes,21);return [tf,{rsi:rsi(closes),dir:closes.at(-1)>m9.at(-1)&&m9.at(-1)>m21.at(-1)?'ALTA':closes.at(-1)<m9.at(-1)&&m9.at(-1)<m21.at(-1)?'BAIXA':'MISTO'}]})),rows:rows['1m']};
+}
+function altStats(coin,rows){const cs=rows.map(x=>x.close),last=rows.at(-1),v=rows.slice(-21,-1).reduce((a,b)=>a+b.volume,0)/20;
+ return {coin,price:last.close,end:last.end,d1:change(cs,1),d3:change(cs,3),d5:change(cs,5),d15:change(cs,15),volume:v>0?last.volume/v:NaN,buyShare:last.volume&&Number.isFinite(last.buy)?last.buy/last.volume:NaN,
+ // Histórico transitório para avaliar o mesmo grupo depois do alerta; não persistido no relatório.
+ closes:rows.map(c=>({end:c.end,close:c.close}))};
+}
+function breadthStats(assets){const n=assets.length,down=assets.filter(a=>a.d5<=-.02).length,up=assets.filter(a=>a.d5>=.02).length,flat=n-down-up;return {n,down,up,flat,downShare:n?down/n:0,upShare:n?up/n:0,upFast:assets.filter(a=>a.d5>=.25).length,downFast:assets.filter(a=>a.d5<=-.25).length};}
+// Detector separado do sinal direcional: não muda decideMarket nem autoriza trades.
+const EXH_WINDOW=45*60*1000;
+function exhaustionCriteria(b,br,coverage,basket){
+ const enough=br.n>=12&&coverage>=.65&&basket.n>=12&&basket.n/REF.length>=.75;
+ const volStrong=Number.isFinite(b.vol)&&b.vol>=1.25;
+ const down=enough&&Number.isFinite(b.rsi)&&b.rsi<=23&&b.d5<=-.35&&br.downShare>=.80&&basket.downShare>=.75&&volStrong;
+ const up=enough&&Number.isFinite(b.rsi)&&b.rsi>=77&&b.d5>=.35&&br.upShare>=.80&&basket.upShare>=.75&&volStrong;
+ return {enough,down,up,volStrong};
+}
+function readExtreme(){const v=restore(EXH_KEY,null);if(!v||!['DOWN','UP'].includes(v.side)||!Number.isFinite(v.at)||!Number.isFinite(v.price)||!Number.isFinite(v.extremeClose)||!Number.isFinite(v.rsi)||!Number.isFinite(v.fixedShare)||!Number.isFinite(v.candleEnd))return null;
+ if(Date.now()-v.at>EXH_WINDOW||v.at>Date.now()+30000)return null;return v;}
+function evaluateExhaustion(b,br,coverage,basket,prior=null,now=Date.now()){
+ const cond=exhaustionCriteria(b,br,coverage,basket);
+ let base=prior&&['DOWN','UP'].includes(prior.side)&&now-prior.at<=EXH_WINDOW?{...prior}:null;
+ const measured=cond.down?'DOWN':cond.up?'UP':null;
+ const share=measured==='DOWN'?basket.downShare:basket.upShare;
+ const mk=(code,title,reason,css,baseline)=>({code,title,reason,css,baseline,conditions:cond});
+ if(measured){
+  if(!base||base.side!==measured){base={side:measured,at:now,candleEnd:b.lastEnd,price:b.price,extremeClose:b.price,rsi:b.rsi,fixedShare:share};}
+  else if((measured==='DOWN'&&b.price<base.extremeClose)||(measured==='UP'&&b.price>base.extremeClose)){
+   // Novo extremo da MESMA direção; não muda o instante de origem da observação.
+   base.extremeClose=b.price;base.rsi=b.rsi;base.fixedShare=Math.max(base.fixedShare,share);base.candleEnd=b.lastEnd;
+  }
+  const label=measured==='DOWN'?'⚠️ QUEDA ESTICADA — RISCO DE REPIQUE':'⚠️ ALTA ESTICADA — RISCO DE CORREÇÃO';
+  return mk(measured+'_STRETCHED',label,'BTC RSI 1m '+val(b.rsi,1)+'; 5m '+pct(b.d5)+'; volume '+val(b.vol,2)+'×; altcoins '+val((measured==='DOWN'?br.downShare:br.upShare)*100,1)+'% na '+(measured==='DOWN'?'baixa':'alta')+'; cesta fixa '+val(share*100,1)+'%. Risco de esgotamento, NÃO virada confirmada.','stretched',base);
+ }
+ if(base&&cond.enough&&b.lastEnd>base.candleEnd){
+  const sign=base.side==='DOWN'?1:-1;
+  const priceMove=sign*(b.price/base.extremeClose-1)*100;
+  const nowShare=base.side==='DOWN'?basket.downShare:basket.upShare;
+  const dispersion=(base.fixedShare-nowShare)*100;
+  const rsiShift=base.side==='DOWN'?b.rsi-base.rsi:base.rsi-b.rsi;
+  const rsiOK=base.side==='DOWN'?b.rsi>=35:b.rsi<=65;
+  const paceOK=base.side==='DOWN'?(b.d5>=-.10||b.d3>=0):(b.d5<=.10||b.d3<=0);
+  const meets=priceMove>=.18&&dispersion>=18&&rsiShift>=12&&rsiOK&&paceOK;
+  const reason='Após extremo visto em '+when(base.at)+': BTC '+pct(sign*priceMove)+' '+(base.side==='DOWN'?'desde a mínima fechada':'desde a máxima fechada')+'; RSI mudou '+val(rsiShift,1)+' pontos; participação da cesta na direção anterior caiu '+val(dispersion,1)+' p.p. '+(meets?'Reação detectada, mas ainda NÃO é reversão de tendência.':'Ainda falta confirmação conjunta de preço, RSI e redução da pressão coletiva.');
+  if(meets)return mk(base.side==='DOWN'?'RECOVERY_WATCH':'PULLBACK_WATCH',base.side==='DOWN'?'🟢 REAÇÃO COMPRADORA DETECTADA — VIRADA NÃO CONFIRMADA':'🟠 REAÇÃO VENDEDORA DETECTADA — VIRADA NÃO CONFIRMADA',reason,'recover',base);
+  if(priceMove>=.08||dispersion>=10||rsiShift>=8)return mk(base.side+'_COOLING',base.side==='DOWN'?'🟡 PRESSÃO VENDEDORA PERDENDO FORÇA — EM OBSERVAÇÃO':'🟡 PRESSÃO COMPRADORA PERDENDO FORÇA — EM OBSERVAÇÃO',reason,'',base);
+ }
+ if(cond.enough&&br.downShare>=.65&&b.d5<=-.12)return mk('DOWN_ACTIVE','🔴 PRESSÃO VENDEDORA ATIVA — SEM EXAUSTÃO EXTREMA', 'BTC 5m '+pct(b.d5)+'; '+val(br.downShare*100,1)+'% das altcoins em queda. Não confundir força vendedora com oportunidade de SHORT.','falling',base);
+ if(cond.enough&&br.upShare>=.65&&b.d5>=.12)return mk('UP_ACTIVE','🟢 PRESSÃO COMPRADORA ATIVA — SEM EXAUSTÃO EXTREMA','BTC 5m '+pct(b.d5)+'; '+val(br.upShare*100,1)+'% das altcoins em alta. Não confundir força compradora com oportunidade de LONG.','rising',base);
+ return mk('NO_EXTREME','⚪ SEM EXAUSTÃO EXTREMA IDENTIFICADA',cond.enough?'Não há conjunto de condições simultâneas suficiente para caracterizar esticamento extremo ou reação acompanhada nesta leitura.':'Amostra insuficiente para caracterizar exaustão coletiva; aguarde maior cobertura.', '',base);
+}
+function renderExhaustion(result,d,b,br,basket){
+ $('exhaustBox').className='exhaust-panel '+result.css;
+ span('exhaustTitle',result.title);span('exhaustReason',result.reason);
+ const pressure=['UP_EARLY','DOWN_EARLY','ALT_UP_LEADING','ALT_DOWN_LEADING','DIVERGENT'].includes(d.code);
+ const continuity=['UP_CONFIRMED','DOWN_CONFIRMED'].includes(d.code);
+ span('stageStart',pressure?'🟡 Detectada':'⚪ '+(continuity?'Etapa anterior ou simultânea':'Não caracterizada'));
+ span('stageContinue',continuity?'✅ Critérios atendidos':'⏳ Não confirmada');
+ span('stageExhaust',result.code.endsWith('_STRETCHED')?'⚠️ Risco de esticamento':result.code==='RECOVERY_WATCH'||result.code==='PULLBACK_WATCH'?'🔎 Reação observada':result.code.endsWith('_COOLING')?'🟡 Perda de pressão':'⚪ Não caracterizada');
+ span('stretchContext','RSI BTC 1m '+val(b.rsi,1)+' • BTC 5m '+pct(b.d5)+' • Vol. 1m '+val(b.vol,2)+'× • Altcoins baixa/alta '+val(br.downShare*100,1)+'%/'+val(br.upShare*100,1)+'% • Cesta fixa baixa/alta '+val(basket.downShare*100,1)+'%/'+val(basket.upShare*100,1)+'%'+(result.baseline?' • Extremo acompanhado desde '+when(result.baseline.at):' • Sem extremo registrado nesta versão'));
+}
+const PROFILES={fast:{early3:.14,early1:.055,early5:.25,confirm5:.38,breadth:.56,volume:1.10},medium:{early3:.23,early1:.08,early5:.38,confirm5:.55,breadth:.62,volume:1.28},slow:{early3:.35,early1:.12,early5:.58,confirm5:.8,breadth:.70,volume:1.55}};
+function decideMarket(b,br,sensitivity,coverage){
+ if(!Number.isFinite(b.d3)||!Number.isFinite(b.d5))return {code:'UNKNOWN',side:0,title:'⚪ Dados insuficientes',reason:'BTC sem candles válidos'};
+ const p=PROFILES[sensitivity]||PROFILES.medium,ready=coverage&&br.n>=12&&coverage>=.65;
+ const assess=sign=>{
+  const side=sign>0?'alta':'baixa',share=sign>0?br.upShare:br.downShare;
+  const pace3=sign*b.d3>=p.early3,pace5=sign*b.d5>=p.early5,pace1=sign*b.d1>=p.early1;
+  const tech=sign*(b.ema9-b.ema21)>0,vol=Number.isFinite(b.vol)&&b.vol>=p.volume;
+  const agreement=ready&&share>=p.breadth;
+  const early=(pace3&&(pace1||pace5||tech))||(pace5&&pace1);
+  const confirmed=early&&sign*b.d5>=p.confirm5&&agreement&&(vol||tech||sign*(b.d3-b.prev3)>=.1);
+  const score=(pace3?2:0)+(pace5?2:0)+(pace1?1:0)+(tech?1:0)+(vol?1:0)+(agreement?2:0);
+  return {sign,side,share,early,confirmed,score,vol,agreement,pace3,pace5,pace1,tech};
+ };
+ const up=assess(1),down=assess(-1);let best=up.score>=down.score?up:down;
+ if(up.confirmed&&!down.confirmed)best=up;
+ if(down.confirmed&&!up.confirmed)best=down;
+ if(best.confirmed){return {code:best.sign>0?'UP_CONFIRMED':'DOWN_CONFIRMED',side:best.sign,title:best.sign>0?'🟢 ALTA COLETIVA CONFIRMADA':'🔴 BAIXA COLETIVA CONFIRMADA',reason:'BTC acelerou na '+best.side+' e '+val(best.share*100,1)+'% das '+br.n+' altcoins analisadas acompanha a direção (5m). '+(best.vol?'Volume do BTC elevado.':'Confirmação por estrutura ou aceleração.')}}
+ if(best.early){return {code:best.sign>0?'UP_EARLY':'DOWN_EARLY',side:best.sign,title:best.sign>0?'🔵 PRESSÃO COMPRADORA INICIAL':'🟡 PRESSÃO VENDEDORA INICIAL',reason:'BTC ganhou velocidade na '+best.side+' (3m '+pct(b.d3)+'; 5m '+pct(b.d5)+'). '+(ready?'Participação das altcoins na direção: '+val(best.share*100,1)+'%.':'Confirmação coletiva insuficiente ou ainda não disponível.')+' O movimento ainda NÃO está confirmado.'}}
+ if(ready&&(br.downShare>=.72||br.upShare>=.72)){
+  const side=br.downShare>br.upShare?-1:1;
+  const share=side>0?br.upShare:br.downShare;
+  const pctShare=val(share*100,1);
+  // Pressão disseminada nas altcoins NÃO pode virar mercado neutro só porque o BTC
+  // começou a acompanhar levemente, sem atingir o gatilho de aceleração.
+  const btcSame=side*b.d3>=.10||side*b.d5>=.10;
+  if(btcSame)return {code:side>0?'ALT_UP_LEADING':'ALT_DOWN_LEADING',side,
+   title:side>0?'🟢 ALTCOINS LIDERAM A ALTA · BTC SEM CONFIRMAÇÃO':'🔴 ALTCOINS LIDERAM A BAIXA · BTC SEM CONFIRMAÇÃO',
+   reason:pctShare+'% das altcoins seguem em '+(side>0?'alta':'queda')+' nos últimos 5m; BTC 3m '+pct(b.d3)+' e 5m '+pct(b.d5)+' acompanha com deslocamento ainda insuficiente para tendência coletiva confirmada. Pressão de mercado, NÃO sinal de entrada.'};
+  return {code:'DIVERGENT',side:0,title:'🟠 ALTCOINS EM DIVERGÊNCIA COM BTC',
+   reason:pctShare+'% das altcoins mostra direção '+(side>0?'compradora':'vendedora')+' em 5m, mas BTC ainda não acompanha com força suficiente (3m '+pct(b.d3)+'; 5m '+pct(b.d5)+').'};
+ }
+ return {code:'NEUTRAL',side:0,title:'⚪ MERCADO SEM DIREÇÃO COLETIVA CLARA',reason:'BTC em 3m '+pct(b.d3)+' e 5m '+pct(b.d5)+(ready?'; '+val(br.upShare*100,1)+'% subindo e '+val(br.downShare*100,1)+'% caindo em 5m.':'; confirmação coletiva indisponível.')};
+}
+function rankCandidates(assets,b,watch){
+ return assets.map(a=>{
+  const relative=a.d5-b.d5,sign=a.d5>.12?1:a.d5<-.12?-1:0;
+  const volFactor=Number.isFinite(a.volume)?Math.min(a.volume,4):1;
+  const follows=sign!==0&&sign===Math.sign(b.d5)&&Math.abs(b.d5)>=.12;
+  const relativeStrength=Math.abs(relative)>=.2;
+  const score=Math.abs(a.d5)*1.0+Math.abs(relative)*.65+(volFactor>=1.3?.4:0)+(follows?.2:0);
+  return {...a,relative,sign,score,follows,highlight:relativeStrength&&Math.abs(a.d5)>=.25&&volFactor>=1.25,outsider:!watch.has(a.coin)};
+ }).sort((a,b)=>b.score-a.score);
+}
+function chooseUniverse(raw,top){
+ if(!Array.isArray(raw))throw Error('Lista de moedas do ticker 24h inválida');
+ const ranked=raw.filter(t=>typeof t.symbol==='string'&&/^[A-Z0-9]+USDT$/.test(t.symbol)&&Number(t.quoteVolume)>10_000_000&&Number(t.lastPrice)>0)
+  .map(t=>({coin:t.symbol.slice(0,-4),volume:Number(t.quoteVolume)}))
+  .filter(t=>!EXCLUDED.has(t.coin)&&!/^(UP|DOWN|BULL|BEAR)/.test(t.coin)&&!/((UP|DOWN|BULL|BEAR)[0-9]*)$/.test(t.coin))
+  .sort((a,b)=>b.volume-a.volume).map(t=>t.coin);
+ const names=[...new Set([...ranked.slice(0,top),...REF])].filter(x=>x!=='BTC');
+ return {names,liquidTotal:ranked.length};
+}
+async function getUniverse(size){
+ if(lastUniverse&&Date.now()-universeAt<15*60*1000)return {names:[...new Set([...lastUniverse.slice(0,size),...REF])],fallback:false,total:lastUniverse.length};
+ try{const raw=await apiJSON('/api/v3/ticker/24hr');const picked=chooseUniverse(raw,Math.max(50,size));lastUniverse=picked.names;universeAt=Date.now();return {names:[...new Set([...lastUniverse.slice(0,size),...REF])],fallback:false,total:picked.liquidTotal};}
+ catch(e){if(lastUniverse)return {names:[...new Set([...lastUniverse.slice(0,size),...REF])],fallback:true,total:lastUniverse.length,error:e.message};return {names:REF.slice(),fallback:true,total:REF.length,error:e.message};}
+}
+async function batchCollect(names,onProgress){let cur=0,done=0;const out=[],errors=[];async function worker(){while(cur<names.length){const coin=names[cur++];try{const rows=await klines(coin,'1m',90);out.push(altStats(coin,rows))}catch(e){errors.push({coin,error:String(e.message||e)})}done++;if(onProgress)onProgress(done,names.length)}}await Promise.all(Array.from({length:5},worker));return {out,errors};}
+function drawChart(rows){if(!rows?.length)return;lastRenderedChart=rows;const canvas=$('chart'),rect=canvas.getBoundingClientRect(),w=Math.max(260,rect.width),h=Math.max(160,rect.height),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext('2d');if(!ctx)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const closes=rows.slice(-75).map(c=>c.close),m9=ema(closes,9),m21=ema(closes,21),all=[...closes,...m9,...m21].filter(Number.isFinite),min=Math.min(...all),max=Math.max(...all),pad=(max-min)*.10||Math.max(.1,max*.001);const lo=min-pad,hi=max+pad;
+ const left=12,right=w-14,top=12,bottom=h-15,X=i=>left+(right-left)*i/(closes.length-1),Y=v=>bottom-(v-lo)/(hi-lo)*(bottom-top);
+ ctx.lineWidth=1;ctx.strokeStyle='#36506c';for(let i=1;i<5;i++){let y=top+i*(bottom-top)/5;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke()}
+ const stroke=(ys,color,width)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();let seen=false;ys.forEach((v,i)=>{if(!Number.isFinite(v))return;if(!seen){ctx.moveTo(X(i),Y(v));seen=true}else ctx.lineTo(X(i),Y(v))});ctx.stroke()};
+ stroke(m21,'#ff7488',2);stroke(m9,'#66bdff',2);stroke(closes,'#f2f6ff',1.6);ctx.fillStyle='#cbddf1';ctx.font='12px system-ui';ctx.fillText(price(max),left+3,11);ctx.fillText(price(min),left+3,h-3);
+}
+function renderBreadth(br,names,total,errors,fallback){span('downCount',br.down+'/'+br.n);span('upCount',br.up+'/'+br.n);span('flatCount',br.flat+'/'+br.n);
+ span('breadthStatus','Movimento 5m fechado • '+br.n+'/'+names+' pares com dados válidos • '+errors+' falhas • universo líquido identificado: '+total+' • '+(fallback?'⚠ Seleção parcial: ticker 24h indisponível':'Binance Spot')+'.');
+ const w=v=>br.n?val(v/br.n*100,2).replace(',','.')+'%':'0%';$('breadthDown').style.width=w(br.down);$('breadthUp').style.width=w(br.up);$('breadthFlat').style.width=w(br.flat);
+}
+function renderBTC(b,ticker){span('btcPrice',price(ticker)+' USDT');span('btc13',pct(b.d1)+' / '+pct(b.d3));span('btc515',pct(b.d5)+' / '+pct(b.d15));span('btcFlow',val(b.vol,2)+'× / '+val(b.buyShare*100,1)+'%');
+ span('btcTF','BTC • candle 1m fechado: '+when(b.lastEnd)+' • RSI 1m '+val(b.rsi,1)+' • 5m '+b.tf['5m'].dir+' (RSI '+val(b.tf['5m'].rsi,1)+') • 15m '+b.tf['15m'].dir+' • 1h '+b.tf['1h'].dir+'.');drawChart(b.rows);
+}
+function renderMarket(d){const style=d.side<0?'down':d.side>0?'up':d.code==='DIVERGENT'?'transition':'unknown';$('marketBox').className='market '+style;span('marketState',d.title);span('marketReason',d.reason)}
+function renderIndependentDirections(b,br,coverage,assets){
+ // Leitura experimental: não confunde agressão em um candle com tendência já confirmada.
+ let bTitle='⚪ BTC em transição',bWhy='Deslocamento curto sem aceleração direcional consistente.',bCls='';
+ const neg=b.d3<=-.12||b.d5<=-.20,pos=b.d3>=.12||b.d5>=.20;
+ if(neg&&!pos){bTitle='🔴 BTC: pressão de baixa';bWhy='BTC 3m '+pct(b.d3)+' • 5m '+pct(b.d5)+'; verificar confirmação e persistência.';bCls='bear'}
+ else if(pos&&!neg){bTitle='🔵 BTC: pressão de alta';bWhy='BTC 3m '+pct(b.d3)+' • 5m '+pct(b.d5)+'; verificar confirmação e persistência.';bCls='bull'}
+ else if(Number.isFinite(b.vol)&&b.vol>=1.5&&Number.isFinite(b.buyShare)){
+  if(b.buyShare<=.30){bTitle='🟠 BTC: venda agressiva pontual';bWhy='Taker buy '+val(b.buyShare*100,1)+'% • volume '+val(b.vol,2)+'× no último 1m. Ainda NÃO confirma baixa.';bCls='alert'}
+  else if(b.buyShare>=.70){bTitle='🟠 BTC: compra agressiva pontual';bWhy='Taker buy '+val(b.buyShare*100,1)+'% • volume '+val(b.vol,2)+'× no último 1m. Ainda NÃO confirma alta.';bCls='alert'}
+ }
+ const ready=br.n>=12&&coverage>=.65;
+ let aTitle='⚪ Altcoins sem domínio claro',aWhy='Alta '+val(br.upShare*100,1)+'% • baixa '+val(br.downShare*100,1)+'% dos '+br.n+' pares válidos.',aCls='';
+ if(!ready){aTitle='⚪ Cobertura coletiva insuficiente';aWhy='Necessário ao menos 12 moedas válidas e cobertura de 65% da seleção.'}
+ else if(br.downShare>=.72){aTitle='🔴 Altcoins: venda predominante';aCls='bear'}
+ else if(br.upShare>=.72){aTitle='🟢 Altcoins: compra predominante';aCls='bull'}
+ else if(br.downShare>=.60){aTitle='🟠 Altcoins: pressão vendedora';aCls='alert'}
+ else if(br.upShare>=.60){aTitle='🟠 Altcoins: pressão compradora';aCls='alert'}
+ if(ready)aWhy='Em 5m: '+br.down+'/'+br.n+' caindo ('+val(br.downShare*100,1)+'%) e '+br.up+'/'+br.n+' subindo ('+val(br.upShare*100,1)+'%).';
+ $('btcDirectionCard').className='direction-card '+bCls;$('altDirectionCard').className='direction-card '+aCls;
+ span('btcDirection',bTitle);span('btcDirectionWhy',bWhy);
+ span('altDirection',aTitle);span('altDirectionWhy',aWhy);
+ // Cesta de referências FIXA, independente das mudanças no top por liquidez.
+ const basket=assets.filter(x=>REF.includes(x.coin)), f=breadthStats(basket);
+ span('fixedBasket','📌 Cesta fixa: '+f.n+'/'+REF.length+' moedas com dados • '+f.down+' caindo, '+f.up+' subindo, '+f.flat+' neutras nos últimos 5m.'+(f.n<10?' ⚠ Amostra pequena; interpretação limitada.':'')+' O universo dinâmico acima é contado separadamente.');
+}
+function watchlist(){return new Set($('watchlist').value.split(/[\s,;]+/).map(normalize).filter(Boolean))}
+function renderCoins(items,b){const root=$('coins');root.replaceChildren();if(!items.length){root.textContent='Sem leitura de altcoins. Confira a conexão e tente novamente.';return}
+ for(const a of items.slice(0,12)){const box=document.createElement('div');box.className='coin';const top=document.createElement('div');top.className='topline';const head=document.createElement('b');head.textContent=(a.sign>0?'🟢 ':a.sign<0?'🔴 ':'⚪ ')+a.coin+'/USDT';const tag=document.createElement('span');tag.className='tag '+(a.outsider?'out':'fav');tag.textContent=a.outsider?'FORA DA LISTA':'MINHA LISTA';top.append(head,tag);
+ const m=document.createElement('div');m.className='little';m.textContent='Últimos 3m '+pct(a.d3)+' • 5m '+pct(a.d5)+' • vs BTC '+pct(a.relative);const v=document.createElement('div');v.className='little';v.textContent='Cotação '+price(a.price)+' USDT • volume 1m '+val(a.volume,2)+'× • '+(a.follows?'segue BTC':'movimento independente/divergente');
+ const tip=document.createElement('div');tip.className='tag '+(a.sign>0?'long':a.sign<0?'short':'');tip.textContent=a.highlight?'📡 DESTAQUE RELATIVO':'🔎 OBSERVAR';
+ const button=document.createElement('button');button.className='secondary';button.textContent=a.outsider?'＋ Adicionar à minha lista':'✓ Na minha lista';button.disabled=!a.outsider;button.addEventListener('click',()=>{const current=watchlist();current.add(a.coin);$('watchlist').value=[...current].join(',');const saved=saveWatchToBrowser([...current]);updateWatchBackup([...current]);refreshWatchDisplays();watchFeedback((saved?'✅ ':'⚠️ ')+a.coin+'/USDT adicionado à lista. '+(saved?'Salvo neste navegador.':'Armazenamento local bloqueado.')+' Use Salvar lista + arquivo para gerar um backup portátil.',saved)});
+ box.append(top,m,v,tip,document.createElement('div'),button);root.append(box)}
+}
+function historyLoad(){const h=restore(HIST_KEY,[]);return Array.isArray(h)?h.slice(-100):[]}
+function historySave(events){store(HIST_KEY,events.slice(-100))}
+function evaluateEvents(rows,assets=[]){
+ const hist=historyLoad(),byCoin=new Map(assets.map(a=>[a.coin,a])),now=Date.now();let changed=false;
+ for(const ev of hist){
+  for(const min of [3,5,15]){
+   const prop='after'+min,altProp='altAfter'+min,target=ev.at+min*60000;
+   if(now<target)continue;
+   if(!Number.isFinite(ev[prop])&&ev[prop]!=='N/A'){
+    const candle=rows.find(c=>c.end>=target&&c.end<=target+120000);
+    if(candle&&ev.entryPrice>0){ev[prop]=100*(candle.close/ev.entryPrice-1);ev['afterTime'+min]=candle.end;changed=true}
+    else if(now>ev.at+3*60*60*1000){ev[prop]='N/A';changed=true}
+   }
+   if(!Array.isArray(ev.cohort)||!ev.cohort.length||ev[altProp])continue;
+   const outcomes=[];
+   for(const base of ev.cohort){
+    const asset=byCoin.get(base.coin);if(!asset||!(base.price>0))continue;
+    const candle=asset.closes?.find(c=>c.end>=target&&c.end<=target+120000);
+    if(candle&&candle.close>0)outcomes.push(100*(candle.close/base.price-1));
+   }
+   // Sem dados suficientes, não atribuir resultado aos ausentes nem mudar o grupo.
+   const coverage=outcomes.length/ev.cohort.length;
+   if(outcomes.length&&coverage>=.70){
+    const sorted=outcomes.slice().sort((a,b)=>a-b);
+    const med=sorted.length%2?sorted[(sorted.length-1)/2]:(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+    const down=outcomes.filter(v=>v<=-.02).length,up=outcomes.filter(v=>v>=.02).length;
+    ev[altProp]={valid:outcomes.length,total:ev.cohort.length,down,up,flat:outcomes.length-down-up,downShare:down/outcomes.length*100,upShare:up/outcomes.length*100,median:med,mean:outcomes.reduce((a,b)=>a+b,0)/outcomes.length};
+    changed=true;
+   }else if(now>ev.at+3*60*60*1000){ev[altProp]={unavailable:true,valid:outcomes.length,total:ev.cohort.length};changed=true}
+  }
+ }
+ if(changed)historySave(hist);return hist;
+}
+function altOutcomeText(data){
+ if(!data)return 'aguardando medição';
+ if(data.unavailable)return 'n/d (cobertura '+data.valid+'/'+data.total+')';
+ return data.down+'/'+data.valid+' caindo ('+val(data.downShare,1)+'%) • mediana '+pct(data.median)+' • cobertura '+data.valid+'/'+data.total;
+}
+function renderHistory(){const hist=historyLoad(),root=$('events');root.replaceChildren();span('totalEvents',hist.length);span('lastEvent',hist.length?new Date(hist.at(-1).at).toLocaleTimeString('pt-BR'):'—');span('done3',hist.filter(e=>Number.isFinite(e.after3)).length);span('done15',hist.filter(e=>Number.isFinite(e.after15)).length);
+ if(!hist.length){root.textContent='Nenhuma mudança de direção detectada nesta sessão ou em sessões anteriores.';return}
+ for(const e of hist.slice().reverse().slice(0,35)){
+  const div=document.createElement('div');div.className='event';const header=document.createElement('strong');header.textContent=e.title;
+  const date=document.createElement('div');date.className='when';date.textContent='Alerta '+when(e.at)+' • BTC '+price(e.entryPrice)+' • '+e.n+' altcoins analisadas';
+  const metrics=document.createElement('div');metrics.className='metrics';
+  for(const min of [3,5,15]){
+   const chip=document.createElement('span');chip.className='chip';chip.textContent='BTC após '+min+'m: '+(Number.isFinite(e['after'+min])?pct(e['after'+min]):e['after'+min]==='N/A'?'n/d':'aguardando');metrics.append(chip);
+  }
+  const alt=document.createElement('div');alt.className='altmetrics';
+  alt.textContent=Array.isArray(e.cohort)&&e.cohort.length
+   ?'Altcoins FIXAS no alerta ('+e.cohort.length+'): '+[3,5,15].map(min=>min+'m: '+altOutcomeText(e['altAfter'+min])).join(' | ')
+   :'Altcoins: sem grupo congelado nesta versão/alerta; não calcular retroativamente.';
+  if(e.exhaustAtSignal){const risk=document.createElement('div');risk.className='altmetrics';risk.textContent='Exaustão/reação no instante do alerta: '+e.exhaustAtSignal;div.append(header,date,metrics,alt,risk)}else div.append(header,date,metrics,alt);root.append(div);
+ }
+}
+function sound(){if(!audioEnabled)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!soundContext)soundContext=new C();if(soundContext.state==='suspended')soundContext.resume();const osc=soundContext.createOscillator(),gain=soundContext.createGain();osc.type='sine';osc.frequency.setValueAtTime(640,soundContext.currentTime);osc.frequency.exponentialRampToValueAtTime(470,soundContext.currentTime+.28);gain.gain.setValueAtTime(.09,soundContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,soundContext.currentTime+.32);osc.connect(gain).connect(soundContext.destination);osc.start();osc.stop(soundContext.currentTime+.32)}catch(_){}
+}
+function noteTransition(d,ticker,br,assets=[],btc,exhaust=null){
+ // Detecta também a mudança de lado dentro de DIVERGENT, sem tratar estado inicial como antecipação.
+ const altSide=br.downShare>br.upShare?'DOWN':br.upShare>br.downShare?'UP':'MIXED';
+ const signature=d.code==='DIVERGENT'?'DIVERGENT_'+altSide:d.code;
+ if(firstRun){firstRun=false;lastState=signature;return}
+ if(lastState===signature)return;
+ const old=lastState;lastState=signature;
+ if(!['UP_EARLY','UP_CONFIRMED','DOWN_EARLY','DOWN_CONFIRMED','DIVERGENT','ALT_UP_LEADING','ALT_DOWN_LEADING'].includes(d.code))return;
+ const hist=historyLoad(),now=Date.now(),currentShare=Math.max(br.downShare,br.upShare);
+ const recent=hist.slice().reverse().find(e=>e.signature===signature&&now-e.at<15*60000);
+ if(recent){
+  const changedShare=Math.abs(currentShare-Number(recent.dominantShare||0))>=.15;
+  const changedBTC=Math.abs((btc?.d5||0)-(recent.btcD5||0))>=.25;
+  if(!changedShare&&!changedBTC)return; // Só registra repetição após mudança material da força.
+ }
+ const cohort=assets.filter(a=>a.coin&&a.price>0&&Math.abs(now-a.end)<180000)
+                    .map(a=>({coin:a.coin,price:a.price,end:a.end}));
+ const ev={code:d.code,signature,from:old,title:d.title,at:now,entryPrice:ticker,n:br.n,
+   dominantShare:currentShare,btcD5:btc?.d5??null,breadthUp:br.upShare,breadthDown:br.downShare,cohort,exhaustAtSignal:exhaust?.title||null};
+ hist.push(ev);historySave(hist);sound();renderHistory();
+}
+async function quickPulse(){
+ if(pulseBusy||!lastData||document.visibilityState!=='visible')return;
+ pulseBusy=true;try{
+  const b=lastData.btc,age=Date.now()-b.lastEnd;
+  if(age>135000){span('btcPulse','⚪ Vigia 15s: candle-base BTC ficou antigo. Aguardando próxima varredura completa.');return}
+  const raw=await apiJSON('/api/v3/ticker/price?symbol=BTCUSDT');
+  const now=Number(raw?.price);if(!(now>0))throw Error('Ticker BTC inválido');
+  const delta=(now/b.price-1)*100, threshold={fast:.12,medium:.18,slow:.28}[$('sensitivity').value]||.18;
+  const dir=delta<=-threshold?-1:delta>=threshold?1:0;
+  const prefix=dir<0?'🔴 PRE-ALERTA BTC: QUEDA PROVISÓRIA':dir>0?'🔵 PRE-ALERTA BTC: ALTA PROVISÓRIA':'⚪ BTC sem aceleração provisória relevante';
+  span('btcPulse','⚡ Vigia BTC 15s • preço atual '+price(now)+' USDT • desde último fechamento 1m '+pct(delta)+' • '+prefix+' • sem confirmação coletiva nova');
+  span('btcPrice',price(now)+' USDT');
+  if(dir){const key=b.lastEnd+'|'+dir;
+   if(key!==lastPulseKey&&Date.now()-lastPulseAt>=120000){
+    lastPulseKey=key;lastPulseAt=Date.now();
+    const item={code:dir<0?'PULSE_DOWN':'PULSE_UP',title:prefix+' (ainda sem candle fechado)',at:Date.now(),entryPrice:now,n:lastData.br.n,preview:true};
+    const hist=historyLoad();hist.push(item);historySave(hist);sound();renderHistory();report();
+   }
+  }
+ }catch(e){span('btcPulse','⚠️ Vigia rápido temporariamente indisponível: '+(e.message||e))}finally{pulseBusy=false}
+}
+function report(){if(!lastData){$('report').value='Sem leitura real disponível. Aguardando primeira consulta da Binance.';return}const {btc:b,br,decision:d,ranked,source,coverage,fallback,errorCount,ticker}=lastData,errors=lastData.errors||[],lines=['PH AZUL/VERMELHO EGI V1.1.5 — RADAR DIREÇÃO DO MERCADO','Consulta '+when(lastData.at),'FONTE: Binance Spot pública • candles fechados 1m/5m/15m/1h • ticker BTC atual','AVISO: fórmula original .stg não extraída; estratégia experimental; sem ordens; sem vigilância 24h com a página fechada.','', 'DIREÇÃO: '+d.title,'Diagnóstico: '+d.reason,'BTC referência '+price(ticker)+' USDT • candle 1m '+price(b.price)+' fechado '+when(b.lastEnd),'BTC 1m '+pct(b.d1)+' | 3m '+pct(b.d3)+' | 5m '+pct(b.d5)+' | 15m '+pct(b.d15),'BTC RSI 1m '+val(b.rsi,1)+' | Volume 1m '+val(b.vol,2)+'x | TakerBuy '+val(b.buyShare*100,1)+'%','BTC 5m '+b.tf['5m'].dir+' | 15m '+b.tf['15m'].dir+' | 1h '+b.tf['1h'].dir,'', 'DETECTOR EXAUSTÃO E RECUPERAÇÃO (independente / não bloqueante): '+(lastData.exhaust?.title||'n/d'),'Interpretação: '+(lastData.exhaust?.reason||'n/d'),'ETAPAS: Pressão inicial '+$('stageStart').textContent+' | Continuidade '+$('stageContinue').textContent+' | Exaustão/reação '+$('stageExhaust').textContent,'Referência fixa: '+(lastData.exhaust?.baseline?'extremo acompanhado desde '+when(lastData.exhaust.baseline.at):'sem extremo observado e acompanhado nesta versão'),'AVISO: exaustão não confirma fundo/topo; reação não confirma reversão nem autoriza entrada.','', 'DIREÇÃO BTC INDEPENDENTE: '+$('btcDirection').textContent,'DIREÇÃO ALTCOINS: '+$('altDirection').textContent,$('fixedBasket').textContent,'', 'ALTCOINS 5m: '+br.n+' válidas; '+br.down+' caindo; '+br.up+' subindo; '+br.flat+' neutras.','Cobertura '+val(coverage*100,1)+'% dos pares consultados; '+errorCount+' falhas; seleção '+(fallback?'PARCIAL/FALLBACK':'DINÂMICA por liquidez 24h'),'Requisições de altcoins: '+source,'', 'DESTAQUES vs BTC (5m):'];for(const a of ranked.slice(0,12))lines.push(a.coin+' | '+(a.outsider?'FORA DA LISTA':'MINHA LISTA')+' | '+(a.sign>0?'ALTA':a.sign<0?'BAIXA':'MISTO')+' | 3m '+pct(a.d3)+' | 5m '+pct(a.d5)+' | relativo '+pct(a.relative)+' | vol '+val(a.volume,2)+'x');
+ lines.push('','TRANSIÇÕES REGISTRADAS:');for(const e of historyLoad().slice(-10).reverse()){lines.push(when(e.at)+' | '+e.title+' | BTC '+price(e.entryPrice)+' | após 3m '+(Number.isFinite(e.after3)?pct(e.after3):'n/d')+' | após 5m '+(Number.isFinite(e.after5)?pct(e.after5):'n/d')+' | após 15m '+(Number.isFinite(e.after15)?pct(e.after15):'n/d'));if(e.exhaustAtSignal)lines.push('  EXAUSTÃO NO ALERTA: '+e.exhaustAtSignal);lines.push('  COORTE FIXA: '+(Array.isArray(e.cohort)&&e.cohort.length?e.cohort.length+' moedas | após 3m '+altOutcomeText(e.altAfter3)+' | após 5m '+altOutcomeText(e.altAfter5)+' | após 15m '+altOutcomeText(e.altAfter15):'não disponível (alerta da versão anterior; não pode ser medida retroativamente)'));}
+ if(errors.length){lines.push('','FALHAS:');for(const e of errors.slice(0,20))lines.push(e.coin+': '+e.error)}lines.push('','DIREÇÃO NÃO É ENTRADA. Avaliar stop, liquidez, custos, risco, e confirmação técnica separadamente.');$('report').value=lines.join('\n');}
+async function scan(){if(busy)return;busy=true;$('update').disabled=true;span('update','⏳ Consultando...');span('status','Buscando BTC e universo de altcoins na Binance Spot...');$('status').className='status';
+ try{
+  const uPromise=getUniverse(Number($('universe').value));const tfKeys=['1m','5m','15m','1h'];const btcPromise=Promise.all(tfKeys.map(tf=>klines('BTC',tf,tf==='1m'?190:90)));const tickerPromise=apiJSON('/api/v3/ticker/price?symbol=BTCUSDT').catch(()=>null);
+  const btcRows=await btcPromise,b=btcStats(Object.fromEntries(tfKeys.map((tf,i)=>[tf,btcRows[i]])));
+  const tickerResult=await tickerPromise,tickerPrice=Number(tickerResult?.price)>0?Number(tickerResult.price):b.price;
+  renderBTC(b,tickerPrice);span('status','✅ BTC atualizado • analisando a participação das altcoins...');
+  const universe=await uPromise,names=universe.names.filter(x=>x!=='BTC');let progress=0;
+  const scanned=await batchCollect(names,(done,total)=>{if(done-progress>=5||done===total){progress=done;span('status','Varredura Binance Spot: '+done+'/'+total+' altcoins consultadas...')}});
+  const br=breadthStats(scanned.out),coverage=names.length?br.n/names.length:0,d=decideMarket(b,br,$('sensitivity').value,coverage);
+  const latestTicker=await apiJSON('/api/v3/ticker/price?symbol=BTCUSDT').catch(()=>null);
+  const freshPrice=Number(latestTicker?.price)>0?Number(latestTicker.price):tickerPrice;
+  const ranked=rankCandidates(scanned.out,b,watchlist());renderMarket(d);renderBreadth(br,names.length,universe.total,scanned.errors.length,universe.fallback);renderIndependentDirections(b,br,coverage,scanned.out);
+  const basket=breadthStats(scanned.out.filter(x=>REF.includes(x.coin)));
+  const exhaust=evaluateExhaustion(b,br,coverage,basket,readExtreme());
+  renderExhaustion(exhaust,d,b,br,basket);
+  if(exhaust.baseline)store(EXH_KEY,exhaust.baseline);else{try{localStorage.removeItem(EXH_KEY)}catch(_){}}
+  span('universeStatus','🔎 Top selecionado por volume negociado em 24h + referências • '+names.length+' pares previstos • '+scanned.out.length+' válidos • '+scanned.errors.length+' falhas. '+(universe.fallback?'⚠ Seleção parcial devido à indisponibilidade do ticker global.':''));
+  renderCoins(ranked,b);span('btcPrice',price(freshPrice)+' USDT');lastData={btc:b,br,decision:d,ranked,at:Date.now(),ticker:freshPrice,errors:scanned.errors,source:names.length+' pares solicitados',errorCount:scanned.errors.length,coverage,fallback:universe.fallback,exhaust,basket};
+  evaluateEvents(b.rows,scanned.out);noteTransition(d,freshPrice,br,scanned.out,b,exhaust);renderHistory();report();span('status','✅ Leitura concluída '+new Date().toLocaleTimeString('pt-BR')+' • '+br.n+'/'+names.length+' altcoins válidas • '+scanned.errors.length+' falhas • '+d.title+'.');$('status').className='status ok';
+ }catch(e){span('status','❌ Atualização não concluída: '+String(e.message||e)+'. Dados antigos, se houver, não representam leitura atual. Tente novamente ou confira a Binance.');$('status').className='status error';span('marketState','⚪ LEITURA ATUAL INDISPONÍVEL');span('marketReason','Não são emitidos sinais novos sem candles válidos. Verifique rede, CORS e disponibilidade da Binance.');$('marketBox').className='market unknown';if(lastData){lastData=null;$('report').value='Erro na leitura atual. Os dados anteriores foram retirados para evitar interpretação de sinal obsoleto.';}}
+ finally{busy=false;$('update').disabled=false;span('update','↻ Analisar BTC + mercado agora');span('clock','Última tentativa: '+new Date().toLocaleString('pt-BR')+' • A atualização automática só funciona com esta página aberta, visível e sem suspensão do navegador.');}
+}
+function restartTimer(){if(clockTimer)clearInterval(clockTimer);let sec=Number($('auto').value);if(sec>0)clockTimer=setInterval(()=>{if(document.visibilityState==='visible')scan();else span('clock','⏸ Página em segundo plano: monitoramento pode parar. Não é serviço 24h.')},sec*1000)}
+// V1.1.5 — backup portátil e confirmação local, também para HTML aberto por file://.
+function watchPayload(coins){return {format:'setupdt-light-watchlist',version:1,source:'PH Azul/Vermelho EGI V1.1.5',exportedAt:new Date().toISOString(),coins};}
+function watchFeedback(message,ok){span('watchStatus',message);$('watchStatus').className='status '+(ok?'ok':'error');}
+function saveWatchToBrowser(coins){
+ try{
+  const data=JSON.stringify(coins);
+  localStorage.setItem(WATCH_KEY,data);
+  return localStorage.getItem(WATCH_KEY)===data;
+ }catch(_){return false;}
+}
+function updateWatchBackup(coins){$('watchBackup').value=JSON.stringify(watchPayload(coins),null,2);}
+function refreshWatchDisplays(){
+ if(!lastData)return;
+ lastData.ranked=rankCandidates(lastData.ranked,lastData.btc,watchlist());
+ renderCoins(lastData.ranked,lastData.btc);report();
+}
+function downloadWatchBackup(json){
+ const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ const d=new Date(),date=[String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('-');
+ link.href=url;link.download='LMoedas('+date+')PH_EGI_V1_1_5.json';link.style.display='none';document.body.append(link);
+ try{link.click();return link.download}finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+}
+function saveWatch(){
+ const coins=[...watchlist()];
+ if(!coins.length){watchFeedback('⚠️ Lista vazia: informe uma ou mais moedas, como BTC, SOL, SUI.',false);return;}
+ $('watchlist').value=coins.join(',');
+ const localOK=saveWatchToBrowser(coins);
+ updateWatchBackup(coins);refreshWatchDisplays();
+ let filename='',error='';
+ try{filename=downloadWatchBackup($('watchBackup').value)}catch(e){error=String(e?.message||e)}
+ const message=(localOK?'✅ Lista confirmada no armazenamento deste navegador. ':'⚠️ O navegador não permitiu confirmar o armazenamento local. ')
+ + (filename?'📁 Download solicitado: '+filename+'. Confira a pasta Downloads. ':'⚠️ Não foi possível iniciar o download: '+error+'. ')
+ + 'Moedas salvas: '+coins.length+'. Se não aparecer o arquivo, abra Backup manual e copie o JSON.';
+ watchFeedback(message,Boolean(localOK||filename));
+}
+function parseImportedWatch(text){
+ let data;
+ try{data=JSON.parse(text)}catch(_){data=text;}
+ const values=Array.isArray(data)?data:
+   typeof data==='string'?data.split(/[\s,;]+/):
+   Array.isArray(data?.coins)?data.coins:
+   Array.isArray(data?.watchlist)?data.watchlist:null;
+ if(!Array.isArray(values))throw Error('Arquivo sem lista válida (esperado JSON com campo coins, array ou texto separado por vírgulas).');
+ const coins=[...new Set(values.map(normalize).filter(c=>/^[A-Z0-9]{1,15}$/.test(c)))];
+ if(!coins.length)throw Error('Arquivo não contém moedas válidas.');
+ if(coins.length>100)throw Error('O arquivo ultrapassa o limite de 100 moedas; reduza antes de importar.');
+ return coins;
+}
+function restoreWatchFromText(text){
+ const coins=parseImportedWatch(text);
+ if(watchlist().size&&![...watchlist()].every((v,i)=>v===coins[i])){
+  if(!confirm('Substituir sua lista atual por '+coins.length+' moedas do arquivo selecionado?'))return false;
+ }
+ $('watchlist').value=coins.join(',');
+ const ok=saveWatchToBrowser(coins);updateWatchBackup(coins);refreshWatchDisplays();
+ watchFeedback('✅ Lista restaurada: '+coins.length+' moedas. '+(ok?'Armazenamento local confirmado.':'⚠ Armazenamento local indisponível; guarde o arquivo JSON para reabrir depois.')+' Para exportar novamente, clique em Salvar lista + arquivo.',true);
+ return true;
+}
+$('watchlist').addEventListener('input',()=>{
+ $('watchStatus').className='status';
+ span('watchStatus','✏️ Lista alterada. Clique em Salvar lista + arquivo para preservar a seleção e obter um backup.');
+ updateWatchBackup([...watchlist()]);
+});
+$('importWatch').addEventListener('click',()=>$('watchImportFile').click());
+$('watchImportFile').addEventListener('change',async()=>{
+ const file=$('watchImportFile').files?.[0];if(!file)return;
+ try{
+  if(file.size>200000)throw Error('Arquivo muito grande; use um backup de lista com menos de 200 KB.');
+  const text=await file.text();restoreWatchFromText(text);
+ }catch(e){watchFeedback('❌ Erro ao restaurar lista: '+String(e?.message||e),false)}
+ finally{$('watchImportFile').value='';}
+});
+$('copyWatch').addEventListener('click',async()=>{
+ const area=$('watchBackup');area.value=JSON.stringify(watchPayload([...watchlist()]),null,2);
+ let copied=false;
+ try{area.focus({preventScroll:true});area.select();area.setSelectionRange(0,area.value.length);copied=Boolean(document.execCommand&&document.execCommand('copy'))}catch(_){}
+ if(!copied&&navigator.clipboard?.writeText)try{await navigator.clipboard.writeText(area.value);copied=true}catch(_){}
+ if(copied)watchFeedback('✅ JSON da lista copiado. Cole e salve como arquivo .json.',true);
+ else{area.focus();area.select();watchFeedback('⚠️ Cópia automática bloqueada: JSON selecionado. Use Ctrl+C ou Copiar no celular.',false);}
+});
+$('update').addEventListener('click',scan);$('sound').addEventListener('click',async()=>{audioEnabled=!audioEnabled;try{if(audioEnabled){const C=window.AudioContext||window.webkitAudioContext;if(C&&!soundContext){soundContext=new C();await soundContext.resume()}}}catch(_){}span('sound',audioEnabled?'🔔 Som ligado':'🔕 Som desligado');$('sound').setAttribute('aria-pressed',String(audioEnabled));store(SOUND_KEY,audioEnabled)});
+$('saveWatch').addEventListener('click',saveWatch);$('clearHistory').addEventListener('click',()=>{if(!confirm('Apagar somente os registros de alerta PH EGI V1.1?'))return;historySave([]);renderHistory();report()});
+// Cópia robusta também em arquivo local (file://), quando a Clipboard API pode ser bloqueada.
+function selectFullReport(){
+ const area=$('report');
+ try{area.focus({preventScroll:true})}catch(_){area.focus()}
+ area.select();try{area.setSelectionRange(0,area.value.length)}catch(_){}
+ area.scrollIntoView({block:'center',behavior:'smooth'});
+}
+async function copyFullReport(){
+ const area=$('report'),value=String(area.value||'');
+ if(!value.trim()||value.startsWith('Aguardando dados')||value.startsWith('Sem leitura real')){
+   span('copyStatus','⚠️ Ainda não há relatório completo. Clique em Analisar BTC + mercado agora e aguarde a leitura.');return;
+ }
+ // Tentativa síncrona mantém a ativação do clique para navegadores que abrem HTML local.
+ let copied=false;
+ try{area.focus({preventScroll:true});area.select();area.setSelectionRange(0,value.length);copied=Boolean(document.execCommand&&document.execCommand('copy'))}catch(_){copied=false}
+ // Tenta API moderna, onde disponível, somente se a tentativa anterior não tiver êxito.
+ if(!copied&&navigator.clipboard&&typeof navigator.clipboard.writeText==='function'){
+   try{await navigator.clipboard.writeText(value);copied=true}catch(_){}
+ }
+ if(copied){
+   span('copyStatus','✅ Relatório copiado ('+value.length+' caracteres). Agora abra o ChatGPT e cole na conversa.');
+   $('copyStatus').className='status ok';
+   return;
+ }
+ // Nunca informar sucesso sem confirmação da API; manter o texto selecionado para cópia manual.
+ selectFullReport();
+ span('copyStatus','⚠️ Este navegador bloqueou a cópia automática. O relatório foi selecionado abaixo: pressione Ctrl+C no computador ou toque e segure o texto e escolha Copiar no celular. O botão Salvar TXT continua disponível.');
+ $('copyStatus').className='status error';
+}
+$('copy').addEventListener('click',copyFullReport);
+$('selectAll').addEventListener('click',()=>{
+ selectFullReport();
+ span('copyStatus','📋 Todo o relatório selecionado. Pressione Ctrl+C (ou escolha Copiar no celular) e depois cole no ChatGPT.');
+ $('copyStatus').className='status';
+});
+$('download').addEventListener('click',()=>{const blob=new Blob([$('report').value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='PH_EGI_V1_1_5_Direcao_Mercado_'+new Date().toISOString().slice(0,10)+'.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+for(const id of ['sensitivity','universe'])$(id).addEventListener('change',()=>{if(!busy)scan()});$('auto').addEventListener('change',restartTimer);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!busy&&Number($('auto').value)>0)scan()});window.addEventListener('resize',()=>{if(lastRenderedChart)drawChart(lastRenderedChart)});
+const saved=restore(WATCH_KEY,null);if(Array.isArray(saved)&&saved.length){$('watchlist').value=saved.join(',');watchFeedback('✅ Lista restaurada do navegador: '+saved.length+' moedas. Você pode salvar um backup em arquivo JSON.',true);}updateWatchBackup([...watchlist()]);audioEnabled=restore(SOUND_KEY,false)===true;span('sound',audioEnabled?'🔔 Som ligado (toque p/ ativar áudio)':'🔕 Som desligado');renderHistory();restartTimer();pulseTimer=setInterval(quickPulse,15000);scan();
+window.PHEGI_V11_TEST={ema,rsi,change,parseRows,btcStats,altStats,breadthStats,decideMarket,rankCandidates,chooseUniverse,exhaustionCriteria,evaluateExhaustion,renderExhaustion};
+})();
+</script>
+</body>
+</html>
