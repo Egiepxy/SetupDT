@@ -63,7 +63,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;borde
 <div id="summary" class="muted">Atualize o Radar.</div>
 </div>
 
-<div class="card scroll">
+<div class="card" id="turnWatch"><h2>🔄 Virada de Força vs BTC — histórico</h2><p class="muted">Comparação entre duas consultas concluídas da mesma moeda. Sem ordens nem vigilância com página fechada.</p><div class="top noPrint"><button id="clearTurnHistory">🗑️ Limpar histórico</button></div><div id="turnSummary" class="muted">Aguardando comparações.</div><div id="turnRows"></div></div><div class="card scroll">
 <table>
 <thead><tr>
 <th># / Ativo</th>
@@ -107,6 +107,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;borde
 
 <script>
 let data=[], view='strong', ranked=[];
+const TURN_KEY='egi_btc_turnwatch_v12';let turnWatch={previous:null,events:[]};
+try{const saved=JSON.parse(localStorage.getItem(TURN_KEY)||'null');if(saved&&Array.isArray(saved.events))turnWatch={previous:saved.previous||null,events:saved.events.slice(0,100)};}catch(e){}
 const $=id=>document.getElementById(id);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const pct=n=>Number.isFinite(n)?`${n>=0?'+':''}${n.toFixed(2)}%`:'—';
@@ -148,6 +150,33 @@ function nonOperational(c){const symbol=String(c.symbol||'').toLowerCase();const
 function concordance(c){
  const vals=[c.r1,c.r24,c.r7],positive=vals.filter(v=>v>0).length,negative=vals.filter(v=>v<0).length;
  return positive===3?'🟢 FORTE 3/3':negative===3?'🔴 FRACA 3/3':positive===2?'🟡 FORTE 2/3':negative===2?'🟠 FRACA 2/3':'⚪ MISTA';
+}
+function storeTurns(){try{localStorage.setItem(TURN_KEY,JSON.stringify(turnWatch));}catch(e){}}
+function captureTurns(){
+ const {arr}=universe();if(!arr.length)return;
+ const curr={at:new Date().toISOString(),assets:Object.fromEntries(arr.map(c=>[c.id||c.symbol,{symbol:c.symbol,label:concordance(c),r1:c.r1,r24:c.r24,r7:c.r7,rel:c.rel}]))};
+ const prior=turnWatch.previous;
+ if(prior&&prior.assets){
+  for(const [id,n] of Object.entries(curr.assets)){
+   const p=prior.assets[id];if(!p||p.label===n.label)continue;
+   const isMajor=p.label==='🔴 FRACA 3/3'&&(n.label==='🟡 FORTE 2/3'||n.label==='🟢 FORTE 3/3');
+   turnWatch.events.unshift({at:curr.at,symbol:n.symbol,from:p.label,to:n.label,major:isMajor,relative:n.rel,r1:n.r1,r24:n.r24,r7:n.r7});
+  }
+ }
+ turnWatch.previous=curr;turnWatch.events=turnWatch.events.slice(0,100);storeTurns();renderTurns();
+}
+function renderTurns(){
+ const root=$('turnRows'),summary=$('turnSummary');if(!root||!summary)return;
+ root.replaceChildren();
+ const events=turnWatch.events;
+ summary.textContent=events.length+' mudança(s) • '+events.filter(e=>e.major).length+' virada(s) importantes. Salvas neste navegador; não há monitoramento com a página fechada.';
+ if(!events.length){root.textContent='Ainda sem mudanças. Atualize novamente mais tarde para comparar.';return;}
+ for(const e of events.slice(0,25)){
+  const div=document.createElement('div');div.style.cssText='padding:10px;margin:6px 0;border:1px solid #355579;border-radius:9px;line-height:1.5';
+  const head=document.createElement('strong');head.textContent=(e.major?'🎯 VIRADA IMPORTANTE • ':'↔ Mudança • ')+e.symbol.toUpperCase()+' • '+e.from+' → '+e.to;
+  const meta=document.createElement('div');meta.className='muted';meta.textContent=new Date(e.at).toLocaleString('pt-BR')+' • força relativa '+pct(e.relative)+' • 1H '+pct(e.r1)+' / 24H '+pct(e.r24)+' / 7D '+pct(e.r7);
+  div.append(head,meta);root.append(div);
+ }
 }
 function universe(){
  const btc=data.find(x=>x.symbol==='btc'); if(!btc)return {btc:null,arr:[]};
@@ -231,6 +260,8 @@ function makeGPT(){
  txt+=`\nTOP 10 MAIS FRACAS VS BTC — ${horizonLabel()}\n`;
  weak.forEach((c,i)=>{txt+=`${i+1}. ${c.symbol.toUpperCase()} | força ${pct(c.rel)} | moeda ${pct(c.alt)} | BTC ${pct(c.b)} | ${Number.isFinite(c.mult)?c.mult.toFixed(2)+'× BTC':'×BTC —'} | dif 1H ${pct(c.r1)} | 24H ${pct(c.r24)} | 7D ${pct(c.r7)} | Vol/Cap ${pct(c.vr)} | ${c.label}\n`});
  txt+=`\nTAREFA PARA O CHATGPT\nAnalise somente os dados acima. Separe: 🚀 aceleradoras do BTC; 🟢 fortes e consistentes; ⚪ neutras/mistas; 🧊 fracas; 🔴 muito fracas. Explique se a força/fraqueza aparece em 1H, 24H e 7D, dê atenção ao multiplicador ×BTC somente quando disponível, e não trate o índice como probabilidade. Aponte quais merecem conferência visual no gráfico, sem executar operação.\n\nAVISO: relatório educacional de força relativa; não é ordem automática de compra ou venda.`;
+ txt+='\n\nHISTÓRICO DE VIRADAS ENTRE ATUALIZAÇÕES\n';
+ txt+=turnWatch.events.length?turnWatch.events.slice(0,15).map(e=>e.symbol.toUpperCase()+' | '+e.from+' → '+e.to+(e.major?' | VIRADA IMPORTANTE':'')+' | '+new Date(e.at).toLocaleString('pt-BR')).join('\n'):'Sem mudanças observadas entre consultas registradas.';
  showReport(txt);
 }
 function makeMine(){
@@ -249,10 +280,12 @@ async function scan(){
  if(scanning)return; scanning=true; const btn=$('scan'); const n=$('limit').value; const started=Date.now();
  btn.disabled=true;btn.textContent='⏳ Atualizando...';setStatus('loading','Atualizando Radar…',`Buscando top ${n} por valor de mercado.`);$('rows').innerHTML='<tr><td colspan="13">Coletando dados…</td></tr>';
  const url=`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${n}&page=1&sparkline=false&price_change_percentage=1h,24h,7d`;
- try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();render();setStatus('ok','✅ Radar atualizado',`Última leitura ${new Date().toLocaleTimeString('pt-BR')} · ${data.length} ativos recebidos · ${((Date.now()-started)/1000).toFixed(1)}s.`)}
+ try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();render();captureTurns();setStatus('ok','✅ Radar atualizado',`Última leitura ${new Date().toLocaleTimeString('pt-BR')} · ${data.length} ativos recebidos · ${((Date.now()-started)/1000).toFixed(1)}s.`)}
  catch(e){setStatus('error','❌ Falha na atualização',e.message);$('rows').innerHTML=`<tr><td colspan="13">Falha: ${e.message}</td></tr>`}
  finally{scanning=false;btn.disabled=false;btn.textContent='🔄 Atualizar'}
 }
+$('clearTurnHistory').onclick=()=>{if(!confirm('Limpar somente o histórico de viradas?'))return;turnWatch={previous:null,events:[]};storeTurns();renderTurns();};
+renderTurns();
 $('scan').onclick=scan;
 $('assetType').onchange=render;
 $('horizon').onchange=render;$('minVol').onchange=render;$('limit').onchange=scan;
