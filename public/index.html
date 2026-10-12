@@ -1457,7 +1457,7 @@ function renderSessionSummary(q){
       'Placar técnico hipotético: 2R por A2 e -1R por STOP antes A2 (não é lucro real).'
     ];
     if(!serverDir&&q.source==='server')parts.push('⚠️ FONTES MISTURADAS: não somar o R geral do Render com os placares LONG/SHORT locais; períodos e registros podem diferir.');
-    if(Math.abs((Number(d.longR)||0)+(Number(d.shortR)||0)-(Number(q.scoreR)||0)>0.001)parts.push('⚠️ Placar geral difere da soma direcional; confira a origem e o escopo antes de comparar.');
+    if(Math.abs((Number(d.longR)||0)+(Number(d.shortR)||0)-(Number(q.scoreR)||0))>0.001)parts.push('⚠️ Placar geral difere da soma direcional; confira a origem e o escopo antes de comparar.');
     audit.textContent=parts.join('\n');audit.style.whiteSpace='pre-line';
   }
   const warn=$('sessionWarning');
