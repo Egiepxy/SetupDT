@@ -125,7 +125,7 @@
 .egi-real-report{font-size:22px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .egi-real-report h2{font-size:1.35em}.egi-real-report p{margin:12px 0}.egi-real-dialog button{min-height:43px}
 </style></head><body>
-<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.49 • Semáforo BTC + Radar Liquidez</div></div><span class="tag">SEM ORDENS</span></div></header>
+<header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.50 • Relatórios MME1 + Radar Liquidez</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
 <nav class="quick-nav" aria-label="Acesso rápido às seções do SetupDT"><button id="jumpTracker" type="button" class="secondary">📡 Rastreador</button><button id="jumpOil" type="button" class="secondary">🛢️ OIL</button><button id="jumpDiary" type="button" class="secondary">📓 Diário</button><button id="jumpStudy" type="button" class="secondary">📊 Resultados</button><button id="jumpSession" type="button" class="secondary">📈 Sessão</button></nav>
 <section id="egiDayRegime" aria-label="Semáforo do mercado BTC" data-regime="INDEFINIDO">
@@ -2868,7 +2868,8 @@ function renderBridge(){
  if(selected.length){
    const confirmed=selected.filter(x=>x.confirmed);
    const buys=confirmed.filter(x=>x.direction==='LONG').length,sells=confirmed.filter(x=>x.direction==='SHORT').length;
-   const confluence=buys&&sells?'⚠️ conflito LONG/SHORT':buys>=2?'🟢 LONG em '+buys+' tempos':sells>=2?'🔴 SHORT em '+sells+' tempos':'sem dupla confirmação';
+   const mixed=selected.some(x=>['LONG','SHORT'].includes(x.direction)&&x.direction==='LONG')&&selected.some(x=>['LONG','SHORT'].includes(x.direction)&&x.direction==='SHORT');
+   const confluence=mixed?'⚠️ conflito LONG/SHORT':buys>=2?'🟢 LONG em '+buys+' tempos':sells>=2?'🔴 SHORT em '+sells+' tempos':'sem dupla confirmação';
    const details=selected.map(x=>{
      const volume=Number.isFinite(x.volumeRatio)?Number(x.volumeRatio).toFixed(2)+'×':'n/d';
      return '<div class="detailitem"><b>'+escapeHtml(x.tf)+' • '+escapeHtml(headingFor(x))+'</b> • Score '+escapeHtml(x.quality)+'/100 • IQE '+escapeHtml(x.iqe)+'/100 • RelOk '+escapeHtml(x.relOk)+'/100 • Vol. '+volume+' • '+(x.riskValid?'risco técnico calculável':'stop/custos requerem revisão')+'</div>';
