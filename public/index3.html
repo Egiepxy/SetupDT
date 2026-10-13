@@ -409,7 +409,11 @@ function updateBuySellSystem({structure,spike,bot,top,price,hi,lo}){
   const pos=(Number.isFinite(hi)&&Number.isFinite(lo)&&hi>lo)?(price-lo)/(hi-lo)*100:50;
   const greenSpike=(structure?.structuralSpike||'').startsWith('INFERIOR')||spike?.type==='bottom';
   const redSpike=(structure?.structuralSpike||'').startsWith('SUPERIOR')||spike?.type==='top';
-  const nearSup=!!structure?.nearSup, nearRes=!!structure?.nearRes;
+  // Usa a mesma tolerância de proximidade do quadro Próximo Movimento (ATR 15m).
+  const nearThreshold=structure?.ready&&Number.isFinite(structure.atr15)&&price>0
+    ?Math.max(.2,Math.min(.7,structure.atr15/price*120)):.2;
+  const nearSup=!!structure?.nearSup||(structure?.ready&&Number.isFinite(structure.sup)&&Math.abs(price-structure.sup)/Math.max(price,1)*100<=nearThreshold);
+  const nearRes=!!structure?.nearRes||(structure?.ready&&Number.isFinite(structure.res)&&Math.abs(price-structure.res)/Math.max(price,1)*100<=nearThreshold);
 
   let buyStatus='⚪ AGUARDAR', buyReason='Preço ainda sem evidência suficiente de fundo/reação.';
   if(greenSpike){
