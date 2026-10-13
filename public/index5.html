@@ -3018,8 +3018,9 @@ function updateSelectedTfReversal(d){
     const rsi=Number.isFinite(a.R)?a.R.toFixed(1):'n/d';
     const vol=Number.isFinite(a.vmult)?a.vmult.toFixed(2)+'×':'n/d';
     const status=p.type==='NONE'?'⚪ Sem figura forte':(p.confirmed?'🟢 Figura com rompimento detectado':'🟡 Figura em formação');
-    result.textContent=status+' • '+(p.type==='NONE'?'Sem figura':p.name+' '+p.score+'/100')+' • '+t.dir+' '+t.label;
-    details.textContent='RSI '+rsi+' • Volume '+vol+' • '+(p.type==='NONE'?'Acompanhar próximo fechamento':p.confirmed?'Conferir fechamento e reteste; não é autorização de entrada':'Sem confirmação de rompimento')+' • Pontuação técnica, não probabilidade.';
+    result.textContent=status+' • '+(p.type==='NONE'?'Sem figura':p.name+' • Figura '+p.score+'/100')+' • '+t.dir+' '+t.label;
+    const neck=Number.isFinite(p.neckline)&&Number.isFinite(p.price)&&p.neckline>0?' • Neckline '+formatMaybe(p.neckline)+' • Distância '+((p.price/p.neckline-1)*100).toFixed(2)+'%':' • Neckline n/d';
+    details.textContent='RSI '+rsi+' • Volume '+vol+(p.type==='W'||p.type==='M'?neck:'')+' • '+(p.type==='NONE'?'Acompanhar próximo fechamento':p.confirmed?'Rompimento detectado; conferir fechamento/reteste e volume; não é autorização de entrada':'Sem rompimento confirmado')+' • Pontuação não é probabilidade.';
   }catch(err){
     result.textContent='⚪ Análise indisponível neste período.';
     details.textContent='Preservada leitura principal 15m/1h/4h.';
@@ -3031,13 +3032,13 @@ function renderReversalPanel(d){
   const r=buildReversalAnalysis(d),p=r.best;
   let e=document.getElementById('revState');if(e){e.textContent=r.state;e.className='reversalMain '+(r.state.includes('CONFIRMADA')?'green':r.state.includes('PREPARAR')?'yellow':'yellow');}
   e=document.getElementById('revStateSub');if(e)e.textContent=`Prioridade de reversão ${r.score}/100 • Exaustão Day Trade ${r.ex?r.ex.score:'n/d'}/100`;
-  e=document.getElementById('revFigure');if(e)e.textContent=p.type==='NONE'?'Sem figura forte':`${p.name} • ${reversalTfLabel(p.tf)} • ${r.score}/100`;
-  e=document.getElementById('revFigureSub');if(e)e.textContent=p.type==='NONE'?'15m é o timeframe prioritário para procurar a figura.':`${r.stage} • a figura foi encontrada no ${reversalTfLabel(p.tf)}`;
+  e=document.getElementById('revFigure');if(e)e.textContent=p.type==='NONE'?'Sem figura forte':`${p.name} • ${reversalTfLabel(p.tf)} • Figura ${p.score}/100`;
+  e=document.getElementById('revFigureSub');if(e)e.textContent=p.type==='NONE'?'15m é o timeframe prioritário para procurar a figura.':`${r.stage} • Reversão ajustada ${r.score}/100 (1h + 4h + exaustão) • figura encontrada no ${reversalTfLabel(p.tf)}`;
   e=document.getElementById('revConfirm1h');if(e)e.textContent=`${r.t1.dir} ${r.t1.label}`;
   e=document.getElementById('revConfirm1hSub');if(e)e.textContent=`${r.confirm1h} • RSI ${Number.isFinite(r.t1.rsi)?r.t1.rsi.toFixed(1):'n/d'}`;
   e=document.getElementById('revContext4h');if(e)e.textContent=`${r.t4.dir} ${r.t4.label}`;
   e=document.getElementById('revContext4hSub');if(e)e.textContent=`Contexto ${r.context4h.toLowerCase()} • RSI ${Number.isFinite(r.t4.rsi)?r.t4.rsi.toFixed(1):'n/d'}`;
-  e=document.getElementById('revLevels');if(e)e.textContent=reversalLevelsText(r);
+  e=document.getElementById('revLevels');if(e){const gap=(Number.isFinite(p.price)&&Number.isFinite(p.neckline)&&p.neckline>0)?' • Distância até neckline: '+((p.price/p.neckline-1)*100).toFixed(2)+'% (preço − neckline)':' • Distância até neckline: n/d';e.textContent=reversalLevelsText(r)+((p.type==='M'||p.type==='W')?gap:'');}
   e=document.getElementById('revBeginner');if(e)e.innerHTML='<b>Leitura para iniciante:</b> '+reversalBeginnerText(r).replace(/^Leitura para iniciante:\s*/,'');
   d.reversal=r; return r;
 }
