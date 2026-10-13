@@ -2182,7 +2182,7 @@ function studySignalSnapshot(symbol,tf,r,results,candles){
 function studyMethodComparison(){
  const data=robotTrades.filter(t=>['2R','STOP'].includes(t.status));
  const group=(key,pred)=>{const a=data.filter(t=>pred(t.studySnapshot));const wins=a.filter(t=>t.status==='2R').length;const r=a.reduce((acc,t)=>acc+(studySafe(t.resultR)||0),0);return key+': '+a.length+' encerrados, '+wins+' 2R, '+r.toFixed(1)+'R (mesmos sinais do método A; não é backtest do B)';};
- return [group('Método A MME9/21',t=>t?.methodA?.direction),group('B EMA8/80 + Estocástico (snapshot disponível)',t=>t?.methodB?.status==='OK'), 'V9.0 não calcula acerto independente de B porque B não cria entradas/stops próprios. Históricos sem snapshot continuam sem classificação retrospectiva.'].join('\\n');
+ return [group('Método A MME9/21',t=>t?.methodA?.direction),group('B EMA8/80 + Estocástico (snapshot disponível)',t=>t?.methodB?.status==='OK'), 'A comparação não calcula acerto independente de B porque B não cria entradas/stops próprios. Históricos sem snapshot continuam sem classificação retrospectiva.'].join('\\n');
 }
 
 function studyAuditData(){
@@ -2212,7 +2212,7 @@ function studyAuditData(){
 function studyAuditText(){
  const d=studyAuditData();
  const r=n=>n.toFixed(1)+'R';
- return 'RADARMME1 V9.0 — ESTUDO, SEM ORDENS REAIS\\n'+
+ return 'RADARMME1 V9.1 — AUDITORIA DE SIMULAÇÕES, SEM ORDENS REAIS\\n'+
  'Registros: '+robotTrades.length+' | Abertos simulados: '+d.open+' | Fechados: '+d.closed.length+' | Indeterminados: '+d.unknown+'\\n'+
  '2R: '+d.closed.filter(t=>t.status==='2R').length+' | STOP: '+d.stops.length+
  ' | Acerto: '+(d.closed.length?(100*d.closed.filter(t=>t.status==='2R').length/d.closed.length).toFixed(1)+'%':'—')+'\\n'+
@@ -3850,7 +3850,7 @@ function lessonSummary(){
   const r=results[tf],z=lessonRiskNumbers(r);
   const current=r?lessonStatus(r):null;
   const lines=[
-    'RADARMME1 LIGHT V9.0 — PROFESSOR EGI — DIAGNÓSTICO DE RETOMADA',
+    'RADARMME1 LIGHT V9.1 — PROFESSOR EGI — DIAGNÓSTICO DE RETOMADA',
     `Gerado: ${new Date().toLocaleString('pt-BR')}`,
     `Ativo: ${symbol} | TF selecionado: ${tf}`,
     'Fonte: Binance Spot pública. Indicadores calculados sobre candles com fechamento verificado por timestamp.',
