@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V9.1 • Relatórios para SetupDT</title>
+<title>RadarMME1 Light V9.1.1 • SetupDT no topo</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -364,10 +364,16 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V9.1 • Antecipação e ponte SetupDT • Somente estudo • ntfy preservado</div>
+    <div class="sub">V9.1.1 • Ponte SetupDT no topo • Sinais preservados</div>
   </div>
-  <div class="badge">📡 MM1 V9.1 • ANTECIPAÇÃO + NTFY</div>
+  <div class="badge">📡 MM1 V9.1.1 • SETUPDT + NTFY</div>
 </header>
+
+<section class="panel" id="mme1ReportPanel"><h3 style="margin:0 0 8px;font-size:19px">📡 MME1 → SetupDT • Acesso rápido</h3>
+<p class="note">1. Consulte uma moeda ou toque em Gerar relatório agora. 2. Abra o SetupDT. 3. O SetupDT verifica os avisos nas atualizações sem alterar seus sinais. Nenhuma ordem é enviada.</p>
+<div class="note" id="mme1ReportStatus" role="status">Aguardando consulta ou monitoramento com candle fechado.</div>
+<div class="controls"><button id="mme1ReportPublishNow" type="button">📡 Gerar relatório agora</button><button id="mme1OpenSetupDT" type="button">🎯 Abrir SetupDT</button><button id="mme1ReportSave" type="button" class="secondary">💾 Exportar JSON</button></div>
+<p class="note">Compartilhamento automático requer os dois apps na mesma origem do Render. Se estiverem em endereços diferentes, exporte e importe o JSON. Navegador fechado não monitora.</p></section>
 
 <div class="panel">
   <div class="controls">
@@ -555,11 +561,7 @@ header h1{font-size:26px}
     <div id="lessonHistory" class="lesson-history" hidden></div>
   </section>
 
-  <section class="panel" id="mme1ReportPanel"><h3>📡 Relatório de antecipação → SetupDT</h3>
-<p class="note">Os sinais por moeda e timeframe são publicados no navegador para o SetupDT consultar. Scores e volume relativo são informativos; não liberam operação.</p>
-<div class="note" id="mme1ReportStatus" role="status">Aguardando consulta ou monitoramento com candle fechado.</div>
-<div class="controls"><button id="mme1ReportSave" type="button" class="secondary">💾 Exportar relatório JSON</button><button id="mme1OpenSetupDT" type="button">🎯 Abrir SetupDT</button></div>
-<p class="note">Compartilhamento automático requer os dois apps na mesma origem do Render. Se estiverem em endereços diferentes, exporte e importe o JSON. Navegador fechado não monitora.</p></section>
+  
 <div id="mobileResult" class="light-result"></div>
 
   <div class="robot-panel" id="robotPanel">
@@ -1656,6 +1658,7 @@ function mmePublish(symbol,results,source){
   }catch(e){if($('mme1ReportStatus'))$('mme1ReportStatus').textContent='⚠️ Não foi possível salvar relatório: '+String(e.message||e);}
 }
 function mmeReportInit(){
+  $('mme1ReportPublishNow')?.addEventListener('click',()=>consultCoin(false));
   $('mme1ReportSave')?.addEventListener('click',()=>{
     const raw=localStorage.getItem(MME_REPORT_KEY);
     if(!raw){alert('Consulte ou monitore uma moeda antes de exportar.');return;}
