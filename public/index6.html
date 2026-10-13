@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RadarMME1 Light V9.0 • Professor de STOPs Etapa 2</title>
+<title>RadarMME1 Light V9.1 • Relatórios para SetupDT</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2b;--card2:#172238;--text:#edf3ff;--muted:#91a0bb;
@@ -364,9 +364,9 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V9.0 • Professor de STOPs Etapa 2 • Somente estudo • ntfy preservado</div>
+    <div class="sub">V9.1 • Antecipação e ponte SetupDT • Somente estudo • ntfy preservado</div>
   </div>
-  <div class="badge">📲 MM1 V9.0 • PROFESSOR EGI + NTFY</div>
+  <div class="badge">📡 MM1 V9.1 • ANTECIPAÇÃO + NTFY</div>
 </header>
 
 <div class="panel">
@@ -541,7 +541,7 @@ header h1{font-size:26px}
       <label class="lesson-opt"><input type="checkbox" id="lessonMaterialNtfy"><span>Notificar perda, retomada ou inversão de um sinal LONG/SHORT (inicialmente desligado)</span></label>
       <label for="lessonMaterialTf">Tempos gráficos para alertas de evolução</label>
       <select id="lessonMaterialTf"><option value="15m">Somente 15m (padrão)</option><option value="15m,30m,1h">15m + 30m + 1h</option><option value="5m,15m,30m,1h,4h,1d">Todos (mais alertas)</option></select>
-      <label class="lesson-opt"><input type="checkbox" id="lessonEarlyNtfy"><span>📲 Pré-alerta de nova preparação no 15m (desligado inicialmente)</span></label>
+      <label class="lesson-opt"><input type="checkbox" id="lessonEarlyNtfy"><span>📲 Pré-alerta de preparação ou pullback no 15m (opcional)</span></label>
       <div class="lesson-small">Somente novas transições com candles fechados e dados atuais, durante monitoramento da lista ou atualização automática de uma moeda. Não envia alertas antigos nem ordens. Para notificações, ative também o canal ntfy no painel original. O navegador pode interromper a análise quando o celular coloca o app em segundo plano. Ativar alertas não garante monitoramento 24h nem entrega do ntfy.</div>
     </div>
     <div class="lesson-small">Relatório, eventos e estados ficam apenas neste navegador. Os alertas de evolução só são enviados durante o monitoramento da lista ou a atualização automática; consultas manuais atualizam o histórico, mas não disparam essas notificações.</div>
@@ -555,7 +555,12 @@ header h1{font-size:26px}
     <div id="lessonHistory" class="lesson-history" hidden></div>
   </section>
 
-  <div id="mobileResult" class="light-result"></div>
+  <section class="panel" id="mme1ReportPanel"><h3>📡 Relatório de antecipação → SetupDT</h3>
+<p class="note">Os sinais por moeda e timeframe são publicados no navegador para o SetupDT consultar. Scores e volume relativo são informativos; não liberam operação.</p>
+<div class="note" id="mme1ReportStatus" role="status">Aguardando consulta ou monitoramento com candle fechado.</div>
+<div class="controls"><button id="mme1ReportSave" type="button" class="secondary">💾 Exportar relatório JSON</button><button id="mme1OpenSetupDT" type="button">🎯 Abrir SetupDT</button></div>
+<p class="note">Compartilhamento automático requer os dois apps na mesma origem do Render. Se estiverem em endereços diferentes, exporte e importe o JSON. Navegador fechado não monitora.</p></section>
+<div id="mobileResult" class="light-result"></div>
 
   <div class="robot-panel" id="robotPanel">
     <div class="robot-title">
@@ -1156,12 +1161,11 @@ function analyze(symbol, quoteVolume, candles, tolPct, stretchPct, bidPrice, ask
   const extended = (longBias && dist9>=stretchPct) || (shortBias && dist9<=-stretchPct);
   const deepRisk = (longBias && dist9<=-stretchPct) || (shortBias && dist9>=stretchPct);
 
-  // zona entre as duas médias, com tolerância percentual
-  const zoneLo=Math.min(fast,slow)*(1-tolPct/100);
-  const zoneHi=Math.max(fast,slow)*(1+tolPct/100);
-
+  // Zona histórica de cada candle: evita comparar barras passadas com MMEs de hoje.
   let pullLong=false, pullShort=false, rejLong=false, rejShort=false;
   for(let j=i;j>=Math.max(i-2,1);j--){
+    const zoneLo=Math.min(e9[j],e21[j])*(1-tolPct/100);
+    const zoneHi=Math.max(e9[j],e21[j])*(1+tolPct/100);
     const touched = l[j] <= zoneHi && h[j] >= zoneLo;
     if(touched && longBias){
       pullLong=true;
@@ -1393,6 +1397,7 @@ async function consultCoin(silent=false){
     studyCandleCache=Object.fromEntries(LIGHT_TFS.map((tf,i)=>[tf,candleSets[i]||null]));
     lastMultiTf={symbol,results,ts:Date.now()};
     lessonObserve(symbol,results,silent?'auto-consulta':'consulta');
+    mmePublish(symbol,results,silent?'auto-consulta':'consulta');
     renderMultiTf(symbol,results);
 
     const detailTf=results[selectedTf] ? selectedTf : Object.keys(results)[0];
@@ -1572,6 +1577,7 @@ async function scan(){
         }catch(e){ return null; }
       }));
       rows.push(...got.filter(Boolean));
+      for(const r of got.filter(Boolean))mmePublish(r.symbol,{[tf]:r},'varredura');
       updateStats(); render();
       const done=Math.min(start+batch.length,tops.length);
       $('bar').style.width=`${done/tops.length*100}%`;
@@ -1619,6 +1625,52 @@ const ROBOT_ALERT_KEY='radar_mme921_robot_last_alert_v1';
 const ROBOT_EVENTS_KEY='radar_mme921_robot_events_v1';
 let studyCandleCache={};
 let mme1LatestQuote=null;
+const MME_REPORT_KEY='egi_mme1_reports_v1';
+function mmeReportDirection(r){
+  if(['LONG','SHORT'].includes(r.state))return r.state;
+  if(['PULLBACK','PREPARAR'].includes(r.state))return String(r.label||'').includes('LONG')?'LONG':String(r.label||'').includes('SHORT')?'SHORT':'NEUTRO';
+  return 'NEUTRO';
+}
+function mmePublish(symbol,results,source){
+  const now=Date.now(), reports=[];
+  for(const tf of LIGHT_TFS){
+    const r=results?.[tf];
+    if(!r||egiFreshness(r,tf,now).code!=='ATUAL')continue;
+    const gate=egiRiskGate(r,Number($('lessonFee')?.value??0.10)+Number($('lessonSlip')?.value??0.03));
+    reports.push({asset:symbol,tf,state:r.state,direction:mmeReportDirection(r),label:r.label,confirmed:['LONG','SHORT'].includes(r.state),
+      quality:r.quality,iqe:r.iqe,relOk:r.parecerScore,parecerCode:r.parecerCode,volumeRatio:Number.isFinite(r.volRatio)?r.volRatio:null,
+      dist9:r.dist9,sep:r.sep,entry:r.entry,stop:Number.isFinite(r.stop)?r.stop:null,
+      r1:Number.isFinite(r.r1)?r.r1:null,r2:Number.isFinite(r.r2)?r.r2:null,riskValid:gate.ok,
+      riskNotes:gate.issues.slice(0,3),candleClose:r.signalCandleClose,reportAt:now,source});
+  }
+  if(!reports.length)return;
+  try{
+    let old;try{old=JSON.parse(localStorage.getItem(MME_REPORT_KEY)||'null');}catch{old=null;}
+    const entries=old?.schema==='EGI-MME1-REPORT-V1'&&Array.isArray(old.entries)?old.entries:[];
+    const map=new Map();
+    for(const x of entries)if(x&&now-Number(x.reportAt||0)<86400000)map.set(x.asset+'|'+x.tf,x);
+    for(const x of reports){const k=x.asset+'|'+x.tf,prev=map.get(k);if(!prev||Number(x.candleClose)>=Number(prev.candleClose||0))map.set(k,x);}
+    const all=[...map.values()].sort((a,b)=>b.reportAt-a.reportAt).slice(0,600);
+    localStorage.setItem(MME_REPORT_KEY,JSON.stringify({schema:'EGI-MME1-REPORT-V1',version:'9.1',updatedAt:now,entries:all}));
+    if($('mme1ReportStatus'))$('mme1ReportStatus').textContent='✅ Publicado '+symbol+' • '+reports.map(x=>x.tf+' '+x.state).join(' | ')+' • '+new Date(now).toLocaleTimeString('pt-BR')+' • '+all.length+' registros.';
+  }catch(e){if($('mme1ReportStatus'))$('mme1ReportStatus').textContent='⚠️ Não foi possível salvar relatório: '+String(e.message||e);}
+}
+function mmeReportInit(){
+  $('mme1ReportSave')?.addEventListener('click',()=>{
+    const raw=localStorage.getItem(MME_REPORT_KEY);
+    if(!raw){alert('Consulte ou monitore uma moeda antes de exportar.');return;}
+    downloadText('RadarMME1_Relatorio_SetupDT_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(JSON.parse(raw),null,2));
+  });
+  $('mme1OpenSetupDT')?.addEventListener('click',()=>{
+    const win=window.open('./index.html','_blank');
+    if(!win)$('mme1ReportStatus').textContent='Abra o SetupDT pelo menu caso a nova aba tenha sido bloqueada.';
+  });
+  try{
+    const p=JSON.parse(localStorage.getItem(MME_REPORT_KEY)||'null');
+    if(p?.schema==='EGI-MME1-REPORT-V1')$('mme1ReportStatus').textContent='📁 '+p.entries.length+' registros existentes • última publicação '+new Date(p.updatedAt).toLocaleString('pt-BR')+'.';
+  }catch{}
+}
+
 let robotTrades=[];
 let robotEvents=[];
 
@@ -1967,7 +2019,7 @@ function robotCandidate(results){
     .filter(x=>!isDuplicateSignalBlocked(x.r.symbol,x.tf,x.r))
     .sort((a,b)=>(b.r.parecerScore-a.r.parecerScore) || (b.r.iqe-a.r.iqe))[0] || null;
 }
-function tradeSignature(symbol,tf,r){ return `${symbol}|${tf}|${r.state}|${Math.round(r.parecerScore||0)}`; }
+function tradeSignature(symbol,tf,r){ return `${symbol}|${tf}|${r.state}|${Math.round(r.parecerScore||0)}|${Number(r.signalCandleClose||0)}`; }
 
 function tfToMs(tf){
   const map={'5m':300000,'15m':900000,'30m':1800000,'1h':3600000,'4h':14400000,'1d':86400000};
@@ -3022,7 +3074,7 @@ function bestRawSignal(results){
     .filter(x=>x.r && ['LONG','SHORT'].includes(x.r.state) && x.r.parecerCode==='APROVADO')
     .sort((a,b)=>(b.r.parecerScore-a.r.parecerScore)||(b.r.iqe-a.r.iqe));
   const strong=approved.find(x=>Number(x.r.parecerScore)>=min);
-  if(strong) return {kind:strong.r.state,tf:strong.tf,score:strong.r.parecerScore,iqe:strong.r.iqe,text:`${strong.r.state} GERAL | ${strong.tf}: ${strong.r.state} confirmado`};
+  if(strong) return {kind:strong.r.state,tf:strong.tf,score:strong.r.parecerScore,iqe:strong.r.iqe,text:`${strong.r.state} em ${strong.tf} • confirmar confluência`};
   if(approved[0]) return {kind:'WAIT',tf:approved[0].tf,score:approved[0].r.parecerScore,iqe:approved[0].r.iqe,text:`AGUARDAR GERAL | ${approved[0].tf}: ${approved[0].r.state} confirmado`};
 
   const confirmed=LIGHT_TFS.map(tf=>({tf,r:results[tf]}))
@@ -3125,6 +3177,7 @@ async function scanOneMonitoredAsset(base){
   });
   if(!Object.keys(results).length) throw new Error('sem timeframes válidos');
   lessonObserve(symbol,results,'monitor');
+  mmePublish(symbol,results,'monitor');
 
   updateOpenTrades(symbol,candleSets);
   evaluateRobot(symbol,results,false);
@@ -3607,7 +3660,7 @@ function lessonObserve(symbol,results,origin='consulta'){
           // Enfileirar uma mudança material por ciclo, sem transformar gatilho em ordem.
           materialSent=true;void lessonNotifyMaterial(ev,r);
         }
-        if(!preparationSent&&tf==='15m'&&r.state==='PREPARAR'&&event.kind==='MUDANÇA EM OBSERVAÇÃO'&&(origin==='monitor'||origin==='auto-consulta')&&
+        if(!preparationSent&&tf==='15m'&&['PREPARAR','PULLBACK'].includes(r.state)&&event.kind==='MUDANÇA EM OBSERVAÇÃO'&&(origin==='monitor'||origin==='auto-consulta')&&
            egiCanUseForNewAlert(r,tf)&&$('lessonEarlyNtfy')?.checked&&now-lessonLastPushAt>20*60*1000){
           lessonLastPushAt=now;preparationSent=true;
           const msg=`PREPARAÇÃO • ${symbol.replace('USDT','/USDT')} • 15m\n${r.label}\nScore ${r.quality}/100 • RelOk ${r.parecerScore}/100\nSem entrada liberada. Aguarde confirmação e avalie o risco.`;
@@ -3964,6 +4017,7 @@ $('resumeSignalsBtn')?.addEventListener('click',()=>{
 loadRobotSettings();
 loadNtfySettings();
 lessonInit();
+mmeReportInit();
 
 loadAssets();
 loadMultiMonitorPrefs();
