@@ -43,6 +43,8 @@
 .movementItem small{display:block;font-size:11px;color:#9eb2cd;margin-bottom:5px}
 .movementItem strong{display:block;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
 .movementItem .detail{color:#bdcee1;font-size:11px;margin-top:4px;line-height:1.4}
+.levelEvolution{color:#ffe1a0;font-size:11px;line-height:1.5;margin-top:8px;white-space:pre-wrap}
+.levelEvolution.ok{color:#a8d6c8}
 .levelWarning{font-size:12px;color:#ffe2a4;margin-top:8px}
 @media(max-width:520px){.movementGrid{grid-template-columns:1fr}.movementItem.wide{grid-column:auto}}
 </style>
@@ -50,7 +52,7 @@
 <body><main>
 <section class="panel hero">
   <div class="heroTop">
-    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V15.1 PRÓXIMO MOVIMENTO + NÍVEIS CORRIGIDOS</div>
+    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V15.2 CONTEXTO 24H/15M + EVOLUÇÃO DOS NÍVEIS</div>
     <button class="topRefresh" id="topRefreshBtn" onclick="refreshAll()" title="Forçar nova leitura agora">🔄 ATUALIZAR</button>
   </div>
   <div class="pairTop" id="pairTop" role="button" tabindex="0" title="Abrir a moeda selecionada no TradingView" onclick="openTradingView()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTradingView();}">
@@ -84,7 +86,10 @@
       <div class="movementItem"><small>🟢 COMPRA / LONG</small><strong id="movementBuy">⚪ Não confirmada</strong></div>
       <div class="movementItem"><small>🔴 VENDA SPOT / SHORT</small><strong id="movementSell">⚪ Não confirmada</strong><div class="detail">Venda Spot ≠ abertura automática de Short.</div></div>
       <div class="movementItem"><small>🌡️ EXAUSTÃO</small><strong id="movementExhaustion">⚪ Aguardando</strong></div>
-      <div class="movementItem wide"><small>✅ QUALIDADE DA CONFIRMAÇÃO</small><strong id="movementConfirmation">⏳ Aguardando candles fechados</strong><div class="levelWarning" id="movementLevels">Suporte/resistência a calcular.</div></div>
+      <div class="movementItem"><small>📊 POSIÇÃO NA FAIXA 24H</small><strong id="movementRange24">⏳ Aguardando</strong><div class="detail">Faixa móvel de 24h, não é ponto de entrada.</div></div>
+      <div class="movementItem"><small>🧱 ESTRUTURA 15M</small><strong id="movementStructure15">⏳ Aguardando</strong><div class="detail">Suporte e resistência de candles 15m.</div></div>
+      <div class="movementItem wide"><small>🎯 PRÓXIMO EVENTO DE PREÇO (15M)</small><strong id="movementNextEvent">⏳ Aguardando</strong></div>
+      <div class="movementItem wide"><small>✅ QUALIDADE DA CONFIRMAÇÃO</small><strong id="movementConfirmation">⏳ Aguardando candles fechados</strong><div class="levelWarning" id="movementLevels">Suporte/resistência a calcular.</div><div class="levelEvolution" id="movementEvolution">Histórico dos níveis aguardando.</div></div>
     </div>
   </section>
   <div class="semaforo">
@@ -380,7 +385,7 @@ function analyzeStructure15(rows15,price){
   else if(nearRes)reading='🟡 TESTANDO RESISTÊNCIA 15m — preço muito próximo da linha superior projetada; aguarde fechamento ou rejeição.';
   else if(nearSup)reading='🟡 TESTANDO SUPORTE 15m — preço muito próximo da linha inferior projetada; aguarde fechamento ou reação.';
   else if(compression==='SIM')reading='📐 '+type+' — distância entre suporte e resistência está comprimindo.';
-  return {ready:true,type,compression,topDir,botDir,res,sup,dRes,dSup,nearRes,nearSup,breakout,structuralSpike,reading,nearPct,crossed,levelSource,projectedRes,projectedSup};
+  return {ready:true,type,compression,topDir,botDir,res,sup,dRes,dSup,nearRes,nearSup,breakout,structuralSpike,reading,nearPct,crossed,levelSource,projectedRes,projectedSup,atr15};
 }
 function renderStructure(rows15,price){
   const z=analyzeStructure15(rows15,price);
@@ -413,12 +418,12 @@ function updateBuySellSystem({structure,spike,bot,top,price,hi,lo}){
   }else if(bot.score>=65&&bot.score>=top.score+10){
     buyStatus='🟢 COMPRA EM OBSERVAÇÃO';
     buyReason='Exaustão de fundo predominante. Falta validar a reação pelo fechamento do 15m e pelas confirmações.';
-  }else if(nearSup||bot.score>=35||pos<=30){
+  }else if(nearSup||bot.score>=35){
     buyStatus='🟡 PREPARAR / OBSERVAR FUNDO';
     buyReason='Preço está na parte baixa ou perto do suporte, mas ainda não há confirmação suficiente para a compra.';
   }else{
-    buyStatus='⚪ LONGE DA COMPRA';
-    buyReason='O preço não está em uma região baixa suficientemente interessante agora.';
+    buyStatus='⚪ SEM REGIÃO DE COMPRA NO 15M';
+    buyReason=pos<=30?'Na parte baixa das últimas 24h, mas sem confirmação de fundo na estrutura de 15m.':'Sem fundo/reação relevante na estrutura de 15m.';
   }
 
   let sellStatus='⚪ AGUARDAR', sellReason='Preço ainda sem evidência suficiente de topo/rejeição.';
@@ -428,12 +433,12 @@ function updateBuySellSystem({structure,spike,bot,top,price,hi,lo}){
   }else if(top.score>=65&&top.score>=bot.score+10){
     sellStatus='🔴 VENDA EM OBSERVAÇÃO';
     sellReason='Exaustão de topo predominante. Falta validar a rejeição pelo fechamento do 15m e pelas confirmações.';
-  }else if(nearRes||top.score>=35||pos>=70){
+  }else if(nearRes||top.score>=35){
     sellStatus='🟡 PREPARAR / OBSERVAR TOPO';
     sellReason='Preço está na parte alta ou perto da resistência, mas ainda não há confirmação suficiente para a venda.';
   }else{
-    sellStatus='⚪ LONGE DA VENDA';
-    sellReason='O preço não está em uma região alta suficientemente interessante agora.';
+    sellStatus='⚪ SEM REGIÃO DE VENDA NO 15M';
+    sellReason=pos>=70?'Na parte alta das últimas 24h, mas sem topo/rejeição confirmado no 15m.':'Sem topo/rejeição relevante na estrutura de 15m.';
   }
 
   let focus='🟡 MEIO DA FAIXA — AGUARDAR', focusClass='wait';
@@ -443,12 +448,24 @@ function updateBuySellSystem({structure,spike,bot,top,price,hi,lo}){
   }else if(redSpike||(top.score>=65&&top.score>=bot.score+10)){
     focus='🔴 FOCO AGORA: POSSÍVEL VENDA EM CIMA — conferir rejeição e fechamento 15m';
     focusClass='sell';
+  }else if(nearSup&&pos>=70){
+    focus='🟡 ATENÇÃO: PARTE ALTA 24H, MAS JUNTO AO SUPORTE 15M — SEM VENDA CONFIRMADA';
+    focusClass='wait';
+  }else if(nearRes&&pos<=30){
+    focus='🟡 ATENÇÃO: PARTE BAIXA 24H, MAS JUNTO À RESISTÊNCIA 15M — SEM COMPRA CONFIRMADA';
+    focusClass='wait';
+  }else if(nearSup){
+    focus='🟡 PRÓXIMO DO SUPORTE 15M — AGUARDAR REAÇÃO FECHADA';
+    focusClass='wait';
+  }else if(nearRes){
+    focus='🟡 PRÓXIMO DA RESISTÊNCIA 15M — AGUARDAR REJEIÇÃO FECHADA';
+    focusClass='wait';
   }else if(pos<=30){
-    focus='🟢 PREÇO NA PARTE BAIXA DA FAIXA — radar procurando confirmação de COMPRA';
-    focusClass='buy';
+    focus='⚪ FAIXA 24H BAIXA • SEM FUNDO 15M CONFIRMADO';
+    focusClass='wait';
   }else if(pos>=70){
-    focus='🔴 PREÇO NA PARTE ALTA DA FAIXA — radar procurando confirmação de VENDA';
-    focusClass='sell';
+    focus='⚪ FAIXA 24H ALTA • SEM TOPO 15M CONFIRMADO';
+    focusClass='wait';
   }
 
   $('buyStatus').textContent=buyStatus;
@@ -540,48 +557,110 @@ function buildNextTrigger(d){
 function buildMovementPanel(d){
   const brokeDown=String(d.breakout||'').includes('abaixo do suporte');
   const brokeUp=String(d.breakout||'').includes('acima da resistência');
-  const rsi=Number(d.rsi), macd=Number(d.macd), volume=Number(d.volRatio);
+  const rsi=d.rsi, macd=d.macd, volume=d.volRatio;
   const rsiAvailable=Number.isFinite(rsi),macdAvailable=Number.isFinite(macd),volAvailable=Number.isFinite(volume);
   const volOk=volAvailable&&volume>=1;
   const bearish=(rsiAvailable&&rsi<50?1:0)+(macdAvailable&&macd<0?1:0);
   const bullish=(rsiAvailable&&rsi>50?1:0)+(macdAvailable&&macd>0?1:0);
+  const pos=Number.isFinite(d.position24)?d.position24:NaN;
+  const range24=Number.isFinite(pos)?(pos>=70?'🔴 Parte alta':pos<=30?'🟢 Parte baixa':'🟡 Região intermediária')+' ('+pos.toFixed(1).replace('.',',')+'% da faixa)':'⚪ Faixa 24h indisponível';
+  const validLevels=Number.isFinite(d.support)&&Number.isFinite(d.resistance)&&d.resistance>d.support;
+  const distance=(level)=>Math.abs(d.price-level)/Math.max(Math.abs(d.price),1)*100;
+  const tol=validLevels?Math.max(.2,Math.min(.7,1.2*(Number.isFinite(d.atr15)?d.atr15:d.price*.002)/Math.max(d.price,1)*100)):.2;
+  const nearSup=validLevels&&distance(d.support)<=tol,nearRes=validLevels&&distance(d.resistance)<=tol;
+  let structure15='⚪ Aguardando estrutura';
+  if(validLevels){
+    if(brokeDown)structure15='🔴 Suporte perdido em candle fechado';
+    else if(brokeUp)structure15='🟢 Resistência superada em candle fechado';
+    else if(d.price<d.support)structure15='🟡 Abaixo do suporte (preço ao vivo)';
+    else if(d.price>d.resistance)structure15='🟡 Acima da resistência (preço ao vivo)';
+    else if(nearSup&&nearRes)structure15='🟡 Faixa estreita: dois níveis próximos';
+    else if(nearSup)structure15='🟡 Próximo do suporte 15m';
+    else if(nearRes)structure15='🟡 Próximo da resistência 15m';
+    else structure15='⚪ Entre suporte e resistência 15m';
+  }
+  const priceFmt=(x)=>Number.isFinite(x)?fmt(x):'—';
+  let nextEvent='Aguardar níveis estruturais válidos.';
+  if(validLevels){
+    if(brokeDown)nextEvent='Reteste ou recuperação do suporte '+priceFmt(d.support)+' em fechamento 15m.';
+    else if(brokeUp)nextEvent='Reteste da resistência superada '+priceFmt(d.resistance)+' em fechamento 15m.';
+    else if(d.price<d.support)nextEvent='Observar fechamento 15m abaixo ou recuperação do suporte '+priceFmt(d.support)+'.';
+    else if(d.price>d.resistance)nextEvent='Observar fechamento 15m acima ou retorno sob a resistência '+priceFmt(d.resistance)+'.';
+    else {
+      const supDist=distance(d.support),resDist=distance(d.resistance);
+      nextEvent=(supDist<=resDist?'Teste do suporte '+priceFmt(d.support)+' ('+supDist.toFixed(2)+'% de distância)':'Teste da resistência '+priceFmt(d.resistance)+' ('+resDist.toFixed(2)+'% de distância)')+'; aguardar fechamento e volume.';
+    }
+  }
   let direction='⚪ Sem direção clara';
   if(brokeDown)direction='🔴 Pressão baixista • suporte perdido';
   else if(brokeUp)direction='🟢 Pressão compradora • rompimento fechado';
   else if(bearish===2)direction='🔴 Predomínio vendedor nos indicadores';
   else if(bullish===2)direction='🟢 Predomínio comprador nos indicadores';
   let buy='⚪ Aguardar confirmação de compra';
-  let sell='⚪ Aguardar região de venda';
-  if(brokeDown){buy='🔴 Compra invalidada pela perda do suporte';sell='🟡 Estudar pressão SHORT, sem gatilho liberado';}
+  let sell='⚪ Sem rejeição de topo / SHORT confirmado';
+  if(brokeDown){buy='🔴 Compra invalidada pela perda do suporte';sell='🟡 Pressão SHORT em estudo • aguardar confirmação';}
   else if(brokeUp){buy='🟡 Acompanhar reteste antes de considerar LONG';sell='⚪ Sem venda por topo confirmada';}
-  else {
-    if(d.bottom>=65)buy='🟡 Possível fundo • exigir reação fechada';
-    if(d.top>=65)sell='🟡 Possível topo • exigir rejeição fechada';
-    if(d.buySell?.buyStatus?.includes('PREPARAR'))buy='🟡 Região baixa em observação';
-    if(d.buySell?.sellStatus?.includes('PREPARAR'))sell='🟡 Região alta em observação';
+  else{
+    if(validLevels&&nearSup&&d.bottom>=35)buy='🟡 Fundo próximo • procurar reação fechada';
+    else if(d.bottom>=65)buy='🟡 Exaustão de fundo • confirmar localização 15m';
+    if(validLevels&&nearRes&&d.top>=35)sell='🟡 Resistência próxima • estudar rejeição 15m';
+    else if(d.top>=65)sell='🟡 Exaustão de topo • confirmar localização 15m';
   }
   const exhaustion=d.bottom>=65&&d.bottom>d.top+10?'🟢 Possível exaustão de queda':d.top>=65&&d.top>d.bottom+10?'🔴 Possível exaustão de alta':'⚪ Exaustão sem predomínio forte';
-  const confirmation=(brokeDown||brokeUp?'Rompimento por fechamento detectado':'Sem rompimento fechado decisivo')+
-    ' • RSI fechado '+(rsiAvailable?rsi.toFixed(1):'indisponível')+
+  const confirmation=(brokeDown||brokeUp?'Rompimento por fechamento 15m detectado':'Sem rompimento fechado 15m decisivo')+
+    ' • RSI fechado '+(d.tf||'TF')+' '+(rsiAvailable?rsi.toFixed(1):'indisponível')+
     ' • MACD '+(macdAvailable?(macd>0?'positivo':macd<0?'negativo':'neutro'):'indisponível')+
     ' • Volume '+(volAvailable?volume.toFixed(2)+'×':'indisponível')+
     (volOk?' (≥ 1×)':' (sem confirmação ≥ 1×)')+
     '. Não é autorização de entrada.';
   const levelSource=d.levelSource||'Estrutura 15m não calculada';
-  const levels='Suporte '+(Number.isFinite(d.support)?fmt(d.support):'—')+
-    ' | Resistência '+(Number.isFinite(d.resistance)?fmt(d.resistance):'—')+
+  const levels='Suporte '+priceFmt(d.support)+' | Resistência '+priceFmt(d.resistance)+
     ' • '+levelSource+(d.crossed?' ⚠️ Projeções cruzadas, níveis alternativos.':'');
-  const pressureNote='RSI/MACD/volume do candle fechado; o RSI ao vivo é apenas antecipação.';
-  for(const [id,value] of Object.entries({movementDirection:direction,movementBuy:buy,movementSell:sell,movementExhaustion:exhaustion,movementConfirmation:confirmation,movementLevels:levels,movementPressureNote:pressureNote})){
+  const pressureNote='RSI/MACD/volume do TF selecionado ('+d.tf+'); estrutura de 15m usa fechamentos próprios.';
+  const evolution=d.levelHistory?.text||'Sem comparação histórica';
+  for(const [id,value] of Object.entries({movementDirection:direction,movementBuy:buy,movementSell:sell,movementExhaustion:exhaustion,movementConfirmation:confirmation,movementLevels:levels,movementPressureNote:pressureNote,movementRange24:range24,movementStructure15:structure15,movementNextEvent:nextEvent,movementEvolution:evolution})){
     const node=$(id);if(node)node.textContent=value;
   }
-  return {direction,buy,sell,exhaustion,confirmation,levels};
+  const warning=$('movementEvolution');if(warning)warning.classList.toggle('ok',!d.levelHistory?.warning);
+  return {direction,buy,sell,exhaustion,confirmation,levels,range24,structure15,nextEvent,evolution};
+}
+function trackLevelHistory(d){
+  const key='EGI_MAXMIN_LEVELS_V152_'+(d.marketKey||'')+'_'+d.coin;
+  const candle=Number(d.closed15End);
+  const value={candle,support:d.support,resistance:d.resistance,source:d.levelSource||'indefinida',crossed:!!d.crossed};
+  const unavailable={text:'Histórico dos níveis indisponível neste navegador.',warning:false};
+  if(!Number.isFinite(candle)||![d.support,d.resistance].every(Number.isFinite))return {text:'Estrutura 15m insuficiente; sem histórico de níveis.',warning:false};
+  let data;
+  try{
+    data=JSON.parse(localStorage.getItem(key)||'null');
+    if(!data||typeof data!=='object'||!data.current||!Number.isFinite(data.current.candle)||data.current.candle>candle){
+      data={current:value,previous:null};
+    }else if(data.current.candle<candle){
+      data={current:value,previous:data.current};
+    }else{
+      data.current=value;
+    }
+    localStorage.setItem(key,JSON.stringify(data));
+  }catch(e){return unavailable;}
+  const old=data.previous;
+  if(!old||!Number.isFinite(old.candle))return {text:'Primeiro candle 15m registrado neste navegador. Ainda sem comparação histórica.',warning:false};
+  const elapsed=(candle-old.candle)/60000;
+  if(elapsed<=0||elapsed>45)return {text:'Referência anterior de 15m desatualizada; comparação de níveis suspensa.',warning:false};
+  if(old.source!==value.source||old.crossed!==value.crossed){
+    return {text:'⚠️ MÉTODO DOS NÍVEIS MUDOU entre candles fechados. Não interpretar diferenças como rompimento/recuperação do mesmo suporte. Referência anterior: suporte '+fmt(old.support)+' e resistência '+fmt(old.resistance)+'.',warning:true};
+  }
+  const difSup=Math.abs(d.support-old.support),difRes=Math.abs(d.resistance-old.resistance);
+  const base=Math.max(1,Math.abs(d.price)), threshold=Math.max(base*.0015,(Number.isFinite(d.atr15)?d.atr15:0)*.5);
+  const changed=difSup>threshold||difRes>threshold;
+  const prefix=changed?'⚠️ NÍVEIS RECALCULADOS: mudança relevante entre candles fechados.':'✅ Níveis relativamente estáveis entre dois candles 15m.';
+  return {text:prefix+' Suporte anterior '+fmt(old.support)+' → '+fmt(d.support)+'; resistência anterior '+fmt(old.resistance)+' → '+fmt(d.resistance)+'. Níveis móveis não são fixos.',warning:changed};
 }
 function buildReports(d){
   const when=new Date().toLocaleString('pt-BR');
   const fmtN=v=>Number.isFinite(v)?fmt(v):'—';
   const pctN=v=>Number.isFinite(v)?v.toFixed(2).replace('.',',')+'%':'—';
   const rsiLive=Number.isFinite(d.liveRsi)?d.liveRsi.toFixed(1):'—',rsiClosed=Number.isFinite(d.rsi)?d.rsi.toFixed(1):'—';
+  d.levelHistory=trackLevelHistory(d);
   const movement=buildMovementPanel(d); d.movement=movement;
   const nextTrigger=buildNextTrigger(d); d.nextTrigger=nextTrigger; const nt=$('nextTriggerText'); if(nt)nt.textContent=nextTrigger;
   const user=`RELATÓRIO RÁPIDO — RADAR MÁX/MÍN EGI\n${when}\nAtivo: ${d.coin}/USDT | TF: ${d.tf}\n\n${d.semaphore}\nO QUE FAZER AGORA: ${d.action.main}\n${d.action.sub}\n\nPRÓXIMO MOVIMENTO: ${movement.direction}
@@ -590,6 +669,10 @@ VENDA/SHORT: ${movement.sell}
 EXAUSTÃO: ${movement.exhaustion}
 CONFIRMAÇÃO: ${movement.confirmation}
 NÍVEIS: ${movement.levels}
+FAIXA 24H: ${movement.range24}
+ESTRUTURA 15M: ${movement.structure15}
+PRÓXIMO EVENTO: ${movement.nextEvent}
+EVOLUÇÃO DOS NÍVEIS: ${movement.evolution}
 
 PRÓXIMO GATILHO: ${nextTrigger}
 
@@ -601,6 +684,10 @@ Venda/Short: ${movement.sell}
 Exaustão: ${movement.exhaustion}
 Confirmação: ${movement.confirmation}
 ${movement.levels}
+Faixa 24h: ${movement.range24}
+Estrutura 15m: ${movement.structure15}
+Próximo evento 15m: ${movement.nextEvent}
+Histórico dos níveis: ${movement.evolution}
 
 PRÓXIMO GATILHO
 ${nextTrigger}
@@ -620,7 +707,7 @@ if(structure.structuralSpike&&structure.structuralSpike.startsWith('SUPERIOR')){
 const action=decideAction({structure,spike,bot,top,rr,prevRsi,liveRsi,mh,liveMacd,vr,liveVr,lastClosed,live,price});
 const buySell=updateBuySellSystem({structure,spike,bot,top,price,hi,lo});
 const semaphore=$('semaforoText').textContent;
-lastData={coin,tf,price,hi,lo,dHigh,dLow,top:top.score,bottom:bot.score,rsi:rr,liveRsi,macd:mh.now,liveMacd,volRatio:vr,liveVolRatio:liveVr,atr:a,ema9:e9,ema14:e14,ema200:e200,spike:spike.type,structure:structure.type,structureType:structure.type,compression:structure.compression||'—',topDir:structure.topDir||'—',botDir:structure.botDir||'—',resistance:structure.res,support:structure.sup,crossed:!!structure.crossed,levelSource:structure.levelSource||'Níveis não definidos',breakout:structure.breakout||'—',structureSpike:structure.structuralSpike||'—',semaphore,action,buySell,marketLabel:$('market').selectedOptions[0]?.textContent||$('market').value};
+lastData={coin,tf,price,hi,lo,dHigh,dLow,top:top.score,bottom:bot.score,rsi:rr,liveRsi,macd:mh.now,liveMacd,volRatio:vr,liveVolRatio:liveVr,atr:a,atr15:structure.atr15,closed15End:splitClosedLive(rows15).closed.at(-1)?.end,position24:pos,marketKey:$('market').value,ema9:e9,ema14:e14,ema200:e200,spike:spike.type,structure:structure.type,structureType:structure.type,compression:structure.compression||'—',topDir:structure.topDir||'—',botDir:structure.botDir||'—',resistance:structure.res,support:structure.sup,crossed:!!structure.crossed,levelSource:structure.levelSource||'Níveis não definidos',breakout:structure.breakout||'—',structureSpike:structure.structuralSpike||'—',semaphore,action,buySell,marketLabel:$('market').selectedOptions[0]?.textContent||$('market').value};
 buildReports(lastData);
 $('reasons').innerHTML=[['TOPO',top.reasons,top.score],['FUNDO',bot.reasons,bot.score]].map(([n,rs,sc])=>'<div class="reason"><b>'+n+' '+sc+'/100</b><div class="muted">'+(rs.length?rs.join(' • '):'Poucas evidências neste momento.')+'</div></div>').join('');renderSwings(rows15,price);setStatus('Atualizado '+new Date().toLocaleTimeString('pt-BR')+' • TF '+tf+' • RSI ao vivo '+(liveRsi!=null?liveRsi.toFixed(1):'—'),'ok');}
 function setAutoUi(){
