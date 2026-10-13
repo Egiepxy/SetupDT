@@ -268,6 +268,7 @@ canvas{width:100%!important;height:320px!important}
       <option value="4h">Gráfico 4h</option>
       <option value="1d">Gráfico 1D</option>
     </select>
+    <div id="egiSelectedTfCard" role="status" aria-live="polite" style="border:1px solid #3a5877;border-radius:12px;padding:9px 12px;background:#10243a;min-width:255px;max-width:440px;font-size:13px;line-height:1.45"><b id="egiSelectedTfTitle">⏱ RESULTADO DO TEMPO SELECIONADO — 1h</b><div id="egiSelectedTfResult">Aguardando dados reais…</div><div id="egiSelectedTfDetails" style="color:#a9bad0">Figura, RSI, volume e contexto; não é entrada.</div></div>
     <button class="primary" id="btnUpdate" onclick="updateAll()">🔄 Atualizar Tudo</button>
     <button class="warn" id="btnAlerts" onclick="enableNotifications()">🔔 Ativar Avisos LONG/SHORT</button>
     <button onclick="openManual()">📘 Manual Completo</button>
@@ -1742,6 +1743,7 @@ function drawCandleChart(rows, labels, e9, e14, e200, topIndex, bottomIndex){
 
 function renderChartsFromLast(){
   if(!lastData) return;
+  updateSelectedTfReversal(lastData);
   const tf = document.getElementById("chartTf").value;
   const rows = lastData.sets[tf];
   const labels = rows.map(r => {
@@ -2996,7 +2998,36 @@ function reversalBeginnerText(r){
   const what=p.type==='W'?'possível fundo duplo':p.type==='M'?'possível topo duplo':p.name.toLowerCase();
   return `Leitura para iniciante: foi encontrado ${what} no gráfico de ${reversalTfLabel(p.tf)}. O gráfico de 1 hora está em ${r.t1.label.toLowerCase()} e ${r.confirm1h==='CONFIRMA'?'já ajuda a confirmar':r.confirm1h==='NÃO CONFIRMA'?'ainda vai contra a reversão':'ainda não confirmou claramente'}. O gráfico de 4 horas está em ${r.t4.label.toLowerCase()} e funciona como contexto maior. Figura em formação não é o mesmo que entrada confirmada.`;
 }
+
+// EGI — leitura contextual do timeframe selecionado: independente do gatilho principal 15m.
+function updateSelectedTfReversal(d){
+  const title=document.getElementById('egiSelectedTfTitle');
+  const result=document.getElementById('egiSelectedTfResult');
+  const details=document.getElementById('egiSelectedTfDetails');
+  if(!title||!result||!details)return;
+  const tf=document.getElementById('chartTf')?.value||'1h';
+  title.textContent='⏱ RESULTADO DO TEMPO SELECIONADO — '+(tf==='1d'?'1D':tf);
+  const rows=d?.sets?.[tf],a=d?.analysis?.[tf];
+  if(!Array.isArray(rows)||rows.length<30||!a){
+    result.textContent='⚪ Dados insuficientes para análise.';
+    details.textContent='Não considerar como sinal de entrada.';return;
+  }
+  try{
+    const p=detectChartPattern(d,tf);
+    const t=reversalTrend(d,tf);
+    const rsi=Number.isFinite(a.R)?a.R.toFixed(1):'n/d';
+    const vol=Number.isFinite(a.vmult)?a.vmult.toFixed(2)+'×':'n/d';
+    const status=p.type==='NONE'?'⚪ Sem figura forte':(p.confirmed?'🟢 Figura com rompimento detectado':'🟡 Figura em formação');
+    result.textContent=status+' • '+(p.type==='NONE'?'Sem figura':p.name+' '+p.score+'/100')+' • '+t.dir+' '+t.label;
+    details.textContent='RSI '+rsi+' • Volume '+vol+' • '+(p.type==='NONE'?'Acompanhar próximo fechamento':p.confirmed?'Conferir fechamento e reteste; não é autorização de entrada':'Sem confirmação de rompimento')+' • Pontuação técnica, não probabilidade.';
+  }catch(err){
+    result.textContent='⚪ Análise indisponível neste período.';
+    details.textContent='Preservada leitura principal 15m/1h/4h.';
+  }
+}
+
 function renderReversalPanel(d){
+  updateSelectedTfReversal(d);
   const r=buildReversalAnalysis(d),p=r.best;
   let e=document.getElementById('revState');if(e){e.textContent=r.state;e.className='reversalMain '+(r.state.includes('CONFIRMADA')?'green':r.state.includes('PREPARAR')?'yellow':'yellow');}
   e=document.getElementById('revStateSub');if(e)e.textContent=`Prioridade de reversão ${r.score}/100 • Exaustão Day Trade ${r.ex?r.ex.score:'n/d'}/100`;
