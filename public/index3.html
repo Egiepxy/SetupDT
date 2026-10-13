@@ -32,12 +32,25 @@
 .bsNote{grid-column:1/-1;color:#8fa9c5;font-size:10px;line-height:1.4}
 @media(max-width:470px){.buySellGrid{grid-template-columns:1fr}.rangeDecision,.bsNote{grid-column:1}}
 
+
+/* EGI V15.1 — Estado do movimento separado da decisão operacional */
+.movementPanel{border-color:#385a79;background:linear-gradient(145deg,#11253a,#102034)}
+.movementTitle{font-size:15px;font-weight:950;color:#8df2ff;margin:0 0 4px}
+.movementNote{font-size:11px;color:var(--muted);margin-bottom:12px}
+.movementGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.movementItem{background:#0a1727;border:1px solid #2e4864;padding:12px;border-radius:12px;min-width:0}
+.movementItem.wide{grid-column:1/-1}
+.movementItem small{display:block;font-size:11px;color:#9eb2cd;margin-bottom:5px}
+.movementItem strong{display:block;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.movementItem .detail{color:#bdcee1;font-size:11px;margin-top:4px;line-height:1.4}
+.levelWarning{font-size:12px;color:#ffe2a4;margin-top:8px}
+@media(max-width:520px){.movementGrid{grid-template-columns:1fr}.movementItem.wide{grid-column:auto}}
 </style>
 </head>
 <body><main>
 <section class="panel hero">
   <div class="heroTop">
-    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V15 COMPRA EMBAIXO / VENDA EM CIMA</div>
+    <div class="eyebrow">RADAR EGI — MÁXIMA / MÍNIMA • V15.1 PRÓXIMO MOVIMENTO + NÍVEIS CORRIGIDOS</div>
     <button class="topRefresh" id="topRefreshBtn" onclick="refreshAll()" title="Forçar nova leitura agora">🔄 ATUALIZAR</button>
   </div>
   <div class="pairTop" id="pairTop" role="button" tabindex="0" title="Abrir a moeda selecionada no TradingView" onclick="openTradingView()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTradingView();}">
@@ -63,6 +76,17 @@
       <div class="bsNote">Regra do app: verde = procurar oportunidade de compra em região baixa; vermelho = procurar oportunidade de venda em região alta. “Venda” aqui significa realizar/reduzir posição Spot — não abrir Short automaticamente.</div>
     </div>
   </div>
+  <section class="panel movementPanel" id="movementPanel" aria-label="Próximo movimento EGI">
+    <h2 class="movementTitle">🧭 PRÓXIMO MOVIMENTO — EGI</h2>
+    <div class="movementNote">Aviso de pressão e regiões técnicas; NÃO libera entradas. SetupDT verifica confirmação e risco.</div>
+    <div class="movementGrid">
+      <div class="movementItem"><small>📈 PRESSÃO IMEDIATA</small><strong id="movementDirection">⚪ Aguardando leitura</strong><div class="detail" id="movementPressureNote">Priorizar candles fechados do 15m.</div></div>
+      <div class="movementItem"><small>🟢 COMPRA / LONG</small><strong id="movementBuy">⚪ Não confirmada</strong></div>
+      <div class="movementItem"><small>🔴 VENDA SPOT / SHORT</small><strong id="movementSell">⚪ Não confirmada</strong><div class="detail">Venda Spot ≠ abertura automática de Short.</div></div>
+      <div class="movementItem"><small>🌡️ EXAUSTÃO</small><strong id="movementExhaustion">⚪ Aguardando</strong></div>
+      <div class="movementItem wide"><small>✅ QUALIDADE DA CONFIRMAÇÃO</small><strong id="movementConfirmation">⏳ Aguardando candles fechados</strong><div class="levelWarning" id="movementLevels">Suporte/resistência a calcular.</div></div>
+    </div>
+  </section>
   <div class="semaforo">
     <div class="lights"><span id="lampRed" class="lamp red"></span><span id="lampYellow" class="lamp yellow on"></span><span id="lampGreen" class="lamp green"></span></div>
     <div><div id="semaforoText" class="semaforoText">🟡 AGUARDANDO</div><div id="semaforoSub" class="semaforoSub">Semáforo de região, não é ordem de compra ou venda.</div></div>
@@ -314,10 +338,18 @@ function analyzeStructure15(rows15,price){
   const tops=a.tops.slice(-4),bottoms=a.bottoms.slice(-4);
   const topDir=directionLabel(tops,tol),botDir=directionLabel(bottoms,tol);
   const rt=lineFit(tops.slice(-3)),rs=lineFit(bottoms.slice(-3)),idx=closed.length-1;
-  const res=rt?rt.at(idx):tops.at(-1).p,sup=rs?rs.at(idx):bottoms.at(-1).p;
+  const projectedRes=rt?rt.at(idx):tops.at(-1).p, projectedSup=rs?rs.at(idx):bottoms.at(-1).p;
+  const crossed=!(projectedRes>projectedSup);
+  // Quando regressões se cruzam, não exibir um suporte acima da resistência.
+  // Níveis alternativos vêm de pivôs confirmados; em caso extremo, da faixa de candles fechados.
+  const pivotRes=Math.max(...tops.slice(-3).map(p=>p.p)),pivotSup=Math.min(...bottoms.slice(-3).map(p=>p.p));
+  const recent=closed.slice(-48);
+  const res=crossed?(pivotRes>pivotSup?pivotRes:Math.max(...recent.map(c=>c.h))):projectedRes;
+  const sup=crossed?(pivotRes>pivotSup?pivotSup:Math.min(...recent.map(c=>c.l))):projectedSup;
+  const levelSource=crossed?'Pivôs confirmados (projeções cruzadas)':'Linhas projetadas 15m';
   const gapNow=res-sup,oldIdx=Math.max(0,idx-16);
   const gapOld=(rt&&rs)?rt.at(oldIdx)-rs.at(oldIdx):gapNow;
-  const narrowing=gapNow>0&&gapOld>0&&gapNow<gapOld*.92;
+  const narrowing=!crossed&&gapNow>0&&gapOld>0&&gapNow<gapOld*.92;
   const topDesc=topDir.includes('descendente'),topFlat=topDir.includes('horizontal');
   const botAsc=botDir.includes('ascendente'),botFlat=botDir.includes('horizontal');
   let type='Estrutura sem padrão claro';
@@ -328,26 +360,27 @@ function analyzeStructure15(rows15,price){
   const nearPct=Math.max(.18,(atr15/price*100)*.8);
   const dRes=(res-price)/price*100,dSup=(price-sup)/price*100;
   const nearRes=Math.abs(dRes)<=nearPct,nearSup=Math.abs(dSup)<=nearPct;
-  const last=closed.at(-1),resLast=rt?rt.at(idx):res,supLast=rs?rs.at(idx):sup;
+  const last=closed.at(-1),resLast=crossed?res:(rt?rt.at(idx):res),supLast=crossed?sup:(rs?rs.at(idx):sup);
   let breakout='NÃO';
   const closeTol=Math.max(price*.0004,atr15*.06);
   if(last.c>resLast+closeTol)breakout='SIM — acima da resistência';
   else if(last.c<supLast-closeTol)breakout='SIM — abaixo do suporte';
   let structuralSpike='NÃO';
   if(live){
-    const liveIdx=idx+1,resLive=rt?rt.at(liveIdx):res,supLive=rs?rs.at(liveIdx):sup;
+    const liveIdx=idx+1,resLive=crossed?res:(rt?rt.at(liveIdx):res),supLive=crossed?sup:(rs?rs.at(liveIdx):sup);
     if(live.h>resLive&&price<resLive)structuralSpike='SUPERIOR — saiu e voltou';
     else if(live.l<supLive&&price>supLive)structuralSpike='INFERIOR — saiu e voltou';
   }
   const compression=(type.includes('Triângulo')||narrowing)?'SIM':'NÃO/FRACA';
   let reading='⚖️ Estrutura 15m sem teste decisivo agora.';
-  if(structuralSpike.startsWith('SUPERIOR'))reading='⚡ Possível falsa saída/agulhada acima da resistência projetada; o preço voltou para dentro da estrutura.';
+  if(crossed)reading='⚠️ As linhas projetadas se cruzaram. Níveis exibidos recalculados com pivôs/candles fechados; aguarde nova formação estrutural. '+(breakout.startsWith('SIM')?'Rompimento fechado dos níveis alternativos: '+breakout+'.':'');
+  else if(structuralSpike.startsWith('SUPERIOR'))reading='⚡ Possível falsa saída/agulhada acima da resistência projetada; o preço voltou para dentro da estrutura.';
   else if(structuralSpike.startsWith('INFERIOR'))reading='⚡ Possível falsa saída/agulhada abaixo do suporte projetado; o preço voltou para dentro da estrutura.';
   else if(breakout.startsWith('SIM'))reading='✅ '+breakout+' no último candle 15m fechado. Confirme volume e continuidade antes de interpretar como rompimento sustentado.';
   else if(nearRes)reading='🟡 TESTANDO RESISTÊNCIA 15m — preço muito próximo da linha superior projetada; aguarde fechamento ou rejeição.';
   else if(nearSup)reading='🟡 TESTANDO SUPORTE 15m — preço muito próximo da linha inferior projetada; aguarde fechamento ou reação.';
   else if(compression==='SIM')reading='📐 '+type+' — distância entre suporte e resistência está comprimindo.';
-  return {ready:true,type,compression,topDir,botDir,res,sup,dRes,dSup,nearRes,nearSup,breakout,structuralSpike,reading,nearPct};
+  return {ready:true,type,compression,topDir,botDir,res,sup,dRes,dSup,nearRes,nearSup,breakout,structuralSpike,reading,nearPct,crossed,levelSource,projectedRes,projectedSup};
 }
 function renderStructure(rows15,price){
   const z=analyzeStructure15(rows15,price);
@@ -357,8 +390,8 @@ function renderStructure(rows15,price){
   $('bottomsDirection').textContent=z.botDir||'—';
   $('resistance15').textContent=z.ready?fmt(z.res):'—';
   $('support15').textContent=z.ready?fmt(z.sup):'—';
-  $('nearResistance').textContent=z.ready?(z.nearRes?'TESTANDO • distância '+pct(z.dRes):'distância '+pct(z.dRes)):'—';
-  $('nearSupport').textContent=z.ready?(z.nearSup?'TESTANDO • distância '+pct(z.dSup):'distância '+pct(z.dSup)):'—';
+  $('nearResistance').textContent=z.ready?((z.nearRes?'TESTANDO • ':'')+'distância '+pct(z.dRes)+' • '+z.levelSource):'—';
+  $('nearSupport').textContent=z.ready?((z.nearSup?'TESTANDO • ':'')+'distância '+pct(z.dSup)+' • '+z.levelSource):'—';
   $('closedBreakout').textContent=z.breakout||'—';
   $('structureSpike').textContent=z.structuralSpike||'—';
   $('structureReading').textContent=z.reading||'—';
@@ -503,14 +536,76 @@ function buildNextTrigger(d){
   }
   return 'Aguardar novo fechamento de 15m com estrutura definida; use RSI fechado, MACD e volume como confirmação, não o candle em formação isoladamente.';
 }
+
+function buildMovementPanel(d){
+  const brokeDown=String(d.breakout||'').includes('abaixo do suporte');
+  const brokeUp=String(d.breakout||'').includes('acima da resistência');
+  const rsi=Number(d.rsi), macd=Number(d.macd), volume=Number(d.volRatio);
+  const rsiAvailable=Number.isFinite(rsi),macdAvailable=Number.isFinite(macd),volAvailable=Number.isFinite(volume);
+  const volOk=volAvailable&&volume>=1;
+  const bearish=(rsiAvailable&&rsi<50?1:0)+(macdAvailable&&macd<0?1:0);
+  const bullish=(rsiAvailable&&rsi>50?1:0)+(macdAvailable&&macd>0?1:0);
+  let direction='⚪ Sem direção clara';
+  if(brokeDown)direction='🔴 Pressão baixista • suporte perdido';
+  else if(brokeUp)direction='🟢 Pressão compradora • rompimento fechado';
+  else if(bearish===2)direction='🔴 Predomínio vendedor nos indicadores';
+  else if(bullish===2)direction='🟢 Predomínio comprador nos indicadores';
+  let buy='⚪ Aguardar confirmação de compra';
+  let sell='⚪ Aguardar região de venda';
+  if(brokeDown){buy='🔴 Compra invalidada pela perda do suporte';sell='🟡 Estudar pressão SHORT, sem gatilho liberado';}
+  else if(brokeUp){buy='🟡 Acompanhar reteste antes de considerar LONG';sell='⚪ Sem venda por topo confirmada';}
+  else {
+    if(d.bottom>=65)buy='🟡 Possível fundo • exigir reação fechada';
+    if(d.top>=65)sell='🟡 Possível topo • exigir rejeição fechada';
+    if(d.buySell?.buyStatus?.includes('PREPARAR'))buy='🟡 Região baixa em observação';
+    if(d.buySell?.sellStatus?.includes('PREPARAR'))sell='🟡 Região alta em observação';
+  }
+  const exhaustion=d.bottom>=65&&d.bottom>d.top+10?'🟢 Possível exaustão de queda':d.top>=65&&d.top>d.bottom+10?'🔴 Possível exaustão de alta':'⚪ Exaustão sem predomínio forte';
+  const confirmation=(brokeDown||brokeUp?'Rompimento por fechamento detectado':'Sem rompimento fechado decisivo')+
+    ' • RSI fechado '+(rsiAvailable?rsi.toFixed(1):'indisponível')+
+    ' • MACD '+(macdAvailable?(macd>0?'positivo':macd<0?'negativo':'neutro'):'indisponível')+
+    ' • Volume '+(volAvailable?volume.toFixed(2)+'×':'indisponível')+
+    (volOk?' (≥ 1×)':' (sem confirmação ≥ 1×)')+
+    '. Não é autorização de entrada.';
+  const levelSource=d.levelSource||'Estrutura 15m não calculada';
+  const levels='Suporte '+(Number.isFinite(d.support)?fmt(d.support):'—')+
+    ' | Resistência '+(Number.isFinite(d.resistance)?fmt(d.resistance):'—')+
+    ' • '+levelSource+(d.crossed?' ⚠️ Projeções cruzadas, níveis alternativos.':'');
+  const pressureNote='RSI/MACD/volume do candle fechado; o RSI ao vivo é apenas antecipação.';
+  for(const [id,value] of Object.entries({movementDirection:direction,movementBuy:buy,movementSell:sell,movementExhaustion:exhaustion,movementConfirmation:confirmation,movementLevels:levels,movementPressureNote:pressureNote})){
+    const node=$(id);if(node)node.textContent=value;
+  }
+  return {direction,buy,sell,exhaustion,confirmation,levels};
+}
 function buildReports(d){
   const when=new Date().toLocaleString('pt-BR');
   const fmtN=v=>Number.isFinite(v)?fmt(v):'—';
   const pctN=v=>Number.isFinite(v)?v.toFixed(2).replace('.',',')+'%':'—';
   const rsiLive=Number.isFinite(d.liveRsi)?d.liveRsi.toFixed(1):'—',rsiClosed=Number.isFinite(d.rsi)?d.rsi.toFixed(1):'—';
+  const movement=buildMovementPanel(d); d.movement=movement;
   const nextTrigger=buildNextTrigger(d); d.nextTrigger=nextTrigger; const nt=$('nextTriggerText'); if(nt)nt.textContent=nextTrigger;
-  const user=`RELATÓRIO RÁPIDO — RADAR MÁX/MÍN EGI\n${when}\nAtivo: ${d.coin}/USDT | TF: ${d.tf}\n\n${d.semaphore}\nO QUE FAZER AGORA: ${d.action.main}\n${d.action.sub}\n\nPRÓXIMO GATILHO: ${nextTrigger}\n\nPreço: ${fmtN(d.price)}\nMáxima 24h: ${fmtN(d.hi)} | distância ${pctN(d.dHigh)}\nMínima 24h: ${fmtN(d.lo)} | distância ${pctN(d.dLow)}\nRSI: ao vivo ${rsiLive} | fechado ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nVolume/média: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nExaustão: topo ${d.top}/100 | fundo ${d.bottom}/100\nEstrutura 15m: ${d.structureType}\nSuporte: ${fmtN(d.support)} | Resistência: ${fmtN(d.resistance)}\nAgulhada: ${d.structureSpike||d.spike||'NÃO'}\n\nRegra: verde = procurar COMPRA em região baixa; vermelho = procurar VENDA em região alta. Sempre confirmar pelo fechamento do 15m, RSI fechado, MACD, volume e estrutura. Venda Spot não significa abrir Short.`;
-  const gpt=`RELATÓRIO INTELIGENTE PARA CHATGPT — RADAR MÁXIMA/MÍNIMA EGI\nGerado em: ${when}\n\nATIVO / MERCADO\nAtivo: ${d.coin}/USDT\nMercado: ${d.marketLabel}\nTimeframe técnico: ${d.tf}\nPreço atual: ${fmtN(d.price)}\n\nESTADO OPERACIONAL\nSemáforo: ${d.semaphore}\nO que fazer agora: ${d.action.main}\nOrientação do app: ${d.action.sub}\n\nPRÓXIMO GATILHO\n${nextTrigger}\n\nEXTREMOS 24H\nMáxima: ${fmtN(d.hi)} | distância até a máxima: ${pctN(d.dHigh)}\nMínima: ${fmtN(d.lo)} | distância até a mínima: ${pctN(d.dLow)}\n\nINDICADORES\nRSI 14 ao vivo: ${rsiLive}\nRSI 14 último candle fechado: ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nMACD hist. ao vivo: ${fmtN(d.liveMacd)}\nVolume último fechado / média 20: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nVolume candle em formação / média 20: ${Number.isFinite(d.liveVolRatio)?d.liveVolRatio.toFixed(2)+'×':'—'}\nATR 14: ${fmtN(d.atr)}\nEMA 9: ${fmtN(d.ema9)} | EMA 14: ${fmtN(d.ema14)} | EMA 200: ${fmtN(d.ema200)}\n\nEXAUSTÃO\nTopo: ${d.top}/100\nFundo: ${d.bottom}/100\n\nESTRUTURA 15m\nTipo: ${d.structureType}\nCompressão: ${d.compression}\nTopos: ${d.topDir}\nFundos: ${d.botDir}\nResistência projetada: ${fmtN(d.resistance)}\nSuporte projetado: ${fmtN(d.support)}\nRompimento fechado: ${d.breakout}\nAgulhada estrutural: ${d.structureSpike}\nAgulhada 15m: ${d.spike}\n\nPEDIDO AO CHATGPT\nAnalise esta leitura como confirmação técnica, não como ordem automática. Diga: (1) o que está confirmado, (2) o que ainda falta confirmar, (3) o que invalidaria a reação/estrutura, e (4) quais níveis técnicos merecem acompanhamento, e (5) se o PRÓXIMO GATILHO calculado pelo app está coerente com os dados. Diferencie RSI ao vivo do RSI fechado e dê prioridade ao fechamento do candle e à estrutura de 15m.`;
+  const user=`RELATÓRIO RÁPIDO — RADAR MÁX/MÍN EGI\n${when}\nAtivo: ${d.coin}/USDT | TF: ${d.tf}\n\n${d.semaphore}\nO QUE FAZER AGORA: ${d.action.main}\n${d.action.sub}\n\nPRÓXIMO MOVIMENTO: ${movement.direction}
+COMPRA: ${movement.buy}
+VENDA/SHORT: ${movement.sell}
+EXAUSTÃO: ${movement.exhaustion}
+CONFIRMAÇÃO: ${movement.confirmation}
+NÍVEIS: ${movement.levels}
+
+PRÓXIMO GATILHO: ${nextTrigger}
+
+Preço: ${fmtN(d.price)}\nMáxima 24h: ${fmtN(d.hi)} | distância ${pctN(d.dHigh)}\nMínima 24h: ${fmtN(d.lo)} | distância ${pctN(d.dLow)}\nRSI: ao vivo ${rsiLive} | fechado ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nVolume/média: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nExaustão: topo ${d.top}/100 | fundo ${d.bottom}/100\nEstrutura 15m: ${d.structureType}\nSuporte: ${fmtN(d.support)} | Resistência: ${fmtN(d.resistance)}\nAgulhada: ${d.structureSpike||d.spike||'NÃO'}\n\nRegra: verde = procurar COMPRA em região baixa; vermelho = procurar VENDA em região alta. Sempre confirmar pelo fechamento do 15m, RSI fechado, MACD, volume e estrutura. Venda Spot não significa abrir Short.`;
+  const gpt=`RELATÓRIO INTELIGENTE PARA CHATGPT — RADAR MÁXIMA/MÍNIMA EGI\nGerado em: ${when}\n\nATIVO / MERCADO\nAtivo: ${d.coin}/USDT\nMercado: ${d.marketLabel}\nTimeframe técnico: ${d.tf}\nPreço atual: ${fmtN(d.price)}\n\nESTADO OPERACIONAL\nSemáforo: ${d.semaphore}\nO que fazer agora: ${d.action.main}\nOrientação do app: ${d.action.sub}\n\nPRÓXIMO MOVIMENTO / SEM AUTORIZAÇÃO DE ENTRADA
+${movement.direction}
+Compra: ${movement.buy}
+Venda/Short: ${movement.sell}
+Exaustão: ${movement.exhaustion}
+Confirmação: ${movement.confirmation}
+${movement.levels}
+
+PRÓXIMO GATILHO
+${nextTrigger}
+
+EXTREMOS 24H\nMáxima: ${fmtN(d.hi)} | distância até a máxima: ${pctN(d.dHigh)}\nMínima: ${fmtN(d.lo)} | distância até a mínima: ${pctN(d.dLow)}\n\nINDICADORES\nRSI 14 ao vivo: ${rsiLive}\nRSI 14 último candle fechado: ${rsiClosed}\nMACD hist. fechado: ${fmtN(d.macd)}\nMACD hist. ao vivo: ${fmtN(d.liveMacd)}\nVolume último fechado / média 20: ${Number.isFinite(d.volRatio)?d.volRatio.toFixed(2)+'×':'—'}\nVolume candle em formação / média 20: ${Number.isFinite(d.liveVolRatio)?d.liveVolRatio.toFixed(2)+'×':'—'}\nATR 14: ${fmtN(d.atr)}\nEMA 9: ${fmtN(d.ema9)} | EMA 14: ${fmtN(d.ema14)} | EMA 200: ${fmtN(d.ema200)}\n\nEXAUSTÃO\nTopo: ${d.top}/100\nFundo: ${d.bottom}/100\n\nESTRUTURA 15m\nTipo: ${d.structureType}\nCompressão: ${d.compression}\nTopos: ${d.topDir}\nFundos: ${d.botDir}\nResistência projetada: ${fmtN(d.resistance)}\nSuporte projetado: ${fmtN(d.support)}\nRompimento fechado: ${d.breakout}\nAgulhada estrutural: ${d.structureSpike}\nAgulhada 15m: ${d.spike}\n\nPEDIDO AO CHATGPT\nAnalise esta leitura como confirmação técnica, não como ordem automática. Diga: (1) o que está confirmado, (2) o que ainda falta confirmar, (3) o que invalidaria a reação/estrutura, e (4) quais níveis técnicos merecem acompanhamento, e (5) se o PRÓXIMO GATILHO calculado pelo app está coerente com os dados. Diferencie RSI ao vivo do RSI fechado e dê prioridade ao fechamento do candle e à estrutura de 15m.`;
   lastReports={user,gpt};$('userReport').textContent=user;$('gptReport').textContent=gpt;
 }
 async function copyReport(kind){const t=lastReports[kind]||'';if(!t)return alert('Atualize o radar primeiro.');try{await navigator.clipboard.writeText(t);alert('Relatório copiado.');}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Relatório copiado.');}}
@@ -525,7 +620,7 @@ if(structure.structuralSpike&&structure.structuralSpike.startsWith('SUPERIOR')){
 const action=decideAction({structure,spike,bot,top,rr,prevRsi,liveRsi,mh,liveMacd,vr,liveVr,lastClosed,live,price});
 const buySell=updateBuySellSystem({structure,spike,bot,top,price,hi,lo});
 const semaphore=$('semaforoText').textContent;
-lastData={coin,tf,price,hi,lo,dHigh,dLow,top:top.score,bottom:bot.score,rsi:rr,liveRsi,macd:mh.now,liveMacd,volRatio:vr,liveVolRatio:liveVr,atr:a,ema9:e9,ema14:e14,ema200:e200,spike:spike.type,structure:structure.type,structureType:structure.type,compression:structure.compression||'—',topDir:structure.topDir||'—',botDir:structure.botDir||'—',resistance:structure.res,support:structure.sup,breakout:structure.breakout||'—',structureSpike:structure.structuralSpike||'—',semaphore,action,buySell,marketLabel:$('market').selectedOptions[0]?.textContent||$('market').value};
+lastData={coin,tf,price,hi,lo,dHigh,dLow,top:top.score,bottom:bot.score,rsi:rr,liveRsi,macd:mh.now,liveMacd,volRatio:vr,liveVolRatio:liveVr,atr:a,ema9:e9,ema14:e14,ema200:e200,spike:spike.type,structure:structure.type,structureType:structure.type,compression:structure.compression||'—',topDir:structure.topDir||'—',botDir:structure.botDir||'—',resistance:structure.res,support:structure.sup,crossed:!!structure.crossed,levelSource:structure.levelSource||'Níveis não definidos',breakout:structure.breakout||'—',structureSpike:structure.structuralSpike||'—',semaphore,action,buySell,marketLabel:$('market').selectedOptions[0]?.textContent||$('market').value};
 buildReports(lastData);
 $('reasons').innerHTML=[['TOPO',top.reasons,top.score],['FUNDO',bot.reasons,bot.score]].map(([n,rs,sc])=>'<div class="reason"><b>'+n+' '+sc+'/100</b><div class="muted">'+(rs.length?rs.join(' • '):'Poucas evidências neste momento.')+'</div></div>').join('');renderSwings(rows15,price);setStatus('Atualizado '+new Date().toLocaleTimeString('pt-BR')+' • TF '+tf+' • RSI ao vivo '+(liveRsi!=null?liveRsi.toFixed(1):'—'),'ok');}
 function setAutoUi(){
