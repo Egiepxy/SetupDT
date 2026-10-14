@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RadarEgi Viradas 15m V1.3.1 — SetupDT</title>
+<title>RadarEgi Viradas 15m V1.4 — SetupDT</title>
 <style>
 :root{
   --bg:#08111f;--panel:#101a2c;--panel2:#162237;--text:#e8eef8;--muted:#98a8bd;
@@ -119,6 +119,7 @@ textarea{width:100%;min-height:270px;background:#07101d;color:#dbeafe;border:1px
     <textarea id="setupList" placeholder="Depois do garimpo, a lista curta aparecerá aqui."></textarea>
   </div>
 
+  <div class="report"><b>📚 Histórico: sinais confirmados • 1/3/6 candles fechados</b><div id="historyBox">Nenhum sinal registrado.</div><button class="ghost" id="clearHistory">Limpar histórico</button></div>
   <div class="report">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><b>🧠 Relatório inteligente — RadarEgi Viradas</b><button class="primary" id="copyGptBottom" style="background:#22c55e;color:#071523;font-weight:800">📋 Copiar para ChatGPT</button></div>
     <textarea id="report" placeholder="Toque em Relatório depois da varredura."></textarea>
@@ -171,7 +172,7 @@ async function jfetch(url){
 }
 async function klines(symbol,interval,limit=180){
   const a=await jfetch(`https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}`);
-  return a.map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}));
+  return a.filter(x=>+x[6]<Date.now()).map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}));
 }
 function pivots(c,type){
   const arr=[];
@@ -239,16 +240,21 @@ function classifyStructure(c){
   return {label:"Lateral / sem figura adicional clara",score:45};
 }
 
+const HISTKEY="radaregi_viradas_v14_history";let hist=[];try{hist=JSON.parse(localStorage.getItem(HISTKEY)||"[]");if(!Array.isArray(hist))hist=[]}catch(e){hist=[]}
+function saveHist(){try{localStorage.setItem(HISTKEY,JSON.stringify(hist.slice(-500)))}catch(e){}}
+function renderHist(){const h=hist.slice(-30).reverse();$("#historyBox").innerHTML=h.length?h.map(r=>`<div style="padding:5px;border-bottom:1px solid #334155">${r.sym} ${r.side} ${new Date(r.t).toLocaleString("pt-BR")} • base ${r.price} • 1c: ${r.r1==null?"aguardando":r.r1.toFixed(2)+"%"} • 3c: ${r.r3==null?"aguardando":r.r3.toFixed(2)+"%"} • 6c: ${r.r6==null?"aguardando":r.r6.toFixed(2)+"%"}</div>`).join(""):"Nenhum sinal registrado."}
+function assessHistory(sym,c){for(const h of hist){if(h.sym!==sym)continue;const after=c.filter(x=>x.t>h.t);for(const n of [1,3,6])if(h["r"+n]==null&&after.length>=n)h["r"+n]=((after[n-1].c/h.price)-1)*100*(h.side==="LONG"?1:-1)}}
+function logSignal(r,c){if(!eligible(r)||r.stage!=="CONFIRMED"||r.vr<1)return;const t=c.at(-1).t;if(hist.some(h=>h.sym===r.symbol&&h.side===r.side&&h.t===t))return;hist.push({sym:r.symbol,side:r.side,t,price:r.price,r1:null,r3:null,r6:null});hist=hist.slice(-500)}
 function detectBottom(c,tol,minSep){
   if(c.length<80)return null;
   const lows=pivots(c,"low"),cl=c.map(x=>x.c),R=rsi(cl),H=macdHist(cl);
   let best=null;
   for(let a=0;a<lows.length-1;a++)for(let b=a+1;b<lows.length;b++){
-    const i=lows[a],j=lows[b]; if(j-i<minSep||j-i>70)continue;
+    const i=lows[a],j=lows[b]; if(j-i<minSep||j-i>70||j<c.length-22)continue;
     const f1=c[i].l,f2=c[j].l,dif=Math.abs(f2-f1)/((f1+f2)/2)*100;if(dif>tol)continue;
     let neck=-Infinity,ni=i;
     for(let k=i;k<=j;k++)if(c[k].h>neck){neck=c[k].h;ni=k}
-    if(!isFinite(neck)||neck<=Math.max(f1,f2))continue;
+    if(!isFinite(neck)||neck<=Math.max(f1,f2)*1.008)continue;
     const price=c.at(-1).c,dist=(neck-price)/neck*100,post=price>neck?(price-neck)/neck*100:null;
     const vr=avg(c.slice(-3).map(x=>x.v))/(avg(c.slice(-23,-3).map(x=>x.v))||1);
     const div=(R[i]!=null&&R[j]!=null&&f2<=f1*1.01&&R[j]>R[i]+2);
@@ -261,13 +267,13 @@ function detectBottom(c,tol,minSep){
     if(vr>=1.25)entry+=16; else if(vr>=1)entry+=8; else entry-=8;
     if(div)entry+=8;if(macdBetter)entry+=6;
     let status="🔵 POSSÍVEL FUNDO DUPLO",stage="WATCH";
-    if(price>=neck&&post<=3){status=vr>=1?"🟢 ROMPIMENTO LONG":"🟠 ROMPEU SEM VOLUME";stage="CONFIRMED"}
+    if(price>=neck&&post<=3){status=vr>=1?"🟢 ROMPIMENTO LONG":"🟠 ROMPEU SEM VOLUME";stage=vr>=1?"CONFIRMED":"PRE"}
     else if(dist<=1.5){status="🟠 PRÉ-GATILHO LONG";stage="PRE"}
     else if(dist<=3.5){status="🟡 FUNDO DUPLO REAGINDO";stage="NEAR"}
     else if(post!=null&&post>3){status="🔴 LONG TARDIO";stage="STRETCHED"}
     const extra=classifyStructure(c);
     const cand={side:"LONG",pattern:"W",i1:i,i2:j,p1:f1,p2:f2,neck,price,dif,dist,post,vr,div,macd:macdBetter,patternQ:pattern,baseEntry:entry,status,stage,rsi1:R[i],rsi2:R[j],rsiNow:R.at(-1),extraStructure:extra.label,extraScore:extra.score};
-    if(!best||cand.patternQ>best.patternQ)best=cand;
+    if(!best||j>best.i2||(j===best.i2&&cand.patternQ>best.patternQ))best=cand;
   }
   return best;
 }
@@ -276,11 +282,11 @@ function detectTop(c,tol,minSep){
   const highs=pivots(c,"high"),cl=c.map(x=>x.c),R=rsi(cl),H=macdHist(cl);
   let best=null;
   for(let a=0;a<highs.length-1;a++)for(let b=a+1;b<highs.length;b++){
-    const i=highs[a],j=highs[b];if(j-i<minSep||j-i>70)continue;
+    const i=highs[a],j=highs[b];if(j-i<minSep||j-i>70||j<c.length-22)continue;
     const t1=c[i].h,t2=c[j].h,dif=Math.abs(t2-t1)/((t1+t2)/2)*100;if(dif>tol)continue;
     let neck=Infinity,ni=i;
     for(let k=i;k<=j;k++)if(c[k].l<neck){neck=c[k].l;ni=k}
-    if(!isFinite(neck)||neck>=Math.min(t1,t2))continue;
+    if(!isFinite(neck)||neck>=Math.min(t1,t2)*.992)continue;
     const price=c.at(-1).c,dist=(price-neck)/neck*100,post=price<neck?(neck-price)/neck*100:null;
     const vr=avg(c.slice(-3).map(x=>x.v))/(avg(c.slice(-23,-3).map(x=>x.v))||1);
     const div=(R[i]!=null&&R[j]!=null&&t2>=t1*.99&&R[j]<R[i]-2);
@@ -293,13 +299,13 @@ function detectTop(c,tol,minSep){
     if(vr>=1.25)entry+=16; else if(vr>=1)entry+=8; else entry-=8;
     if(div)entry+=8;if(macdWeak)entry+=6;
     let status="🔵 POSSÍVEL TOPO DUPLO",stage="WATCH";
-    if(price<=neck&&post<=3){status=vr>=1?"🔴 ROMPIMENTO SHORT":"🟠 ROMPEU SEM VOLUME";stage="CONFIRMED"}
+    if(price<=neck&&post<=3){status=vr>=1?"🔴 ROMPIMENTO SHORT":"🟠 ROMPEU SEM VOLUME";stage=vr>=1?"CONFIRMED":"PRE"}
     else if(dist<=1.5){status="🟠 PRÉ-GATILHO SHORT";stage="PRE"}
     else if(dist<=3.5){status="🟡 TOPO DUPLO REAGINDO";stage="NEAR"}
     else if(post!=null&&post>3){status="🔴 SHORT TARDIO";stage="STRETCHED"}
     const extra=classifyStructure(c);
     const cand={side:"SHORT",pattern:"M",i1:i,i2:j,p1:t1,p2:t2,neck,price,dif,dist,post,vr,div,macd:macdWeak,patternQ:pattern,baseEntry:entry,status,stage,rsi1:R[i],rsi2:R[j],rsiNow:R.at(-1),extraStructure:extra.label,extraScore:extra.score};
-    if(!best||cand.patternQ>best.patternQ)best=cand;
+    if(!best||j>best.i2||(j===best.i2&&cand.patternQ>best.patternQ))best=cand;
   }
   return best;
 }
@@ -318,7 +324,7 @@ function resolvePair(symbol,w,m){
   if(m&&!w)return [{...m,symbol}];
   const strengthW=w.patternQ*.45+w.entryQ*.55;
   const strengthM=m.patternQ*.45+m.entryQ*.55;
-  if(Math.abs(strengthW-strengthM)<12 || (w.stage==="PRE"&&m.stage==="PRE")){
+  if(Math.abs(strengthW-strengthM)<18 || (w.stage==="PRE"&&m.stage==="PRE")){
     return [{symbol,side:"CONFLICT",pattern:"W/M",status:"⚪ INDEFINIDA — W e M em conflito",stage:"CONFLICT",
       patternQ:Math.round((w.patternQ+m.patternQ)/2),entryQ:Math.round((w.entryQ+m.entryQ)/2),
       finalScore:Math.round((w.finalScore+m.finalScore)/2),price:w.price,neck:null,vr:Math.max(w.vr,m.vr),w,m}];
@@ -413,7 +419,7 @@ function report(){
   }
   const completedAttempts=scanned+failed15m;
   const scanState=running?"EM ANDAMENTO":symbolsTotal===0?(scanFatalError?"FALHA ANTES DA LISTA":"SEM MOEDAS SELECIONADAS"):completedAttempts<symbolsTotal?"INCOMPLETA / INTERROMPIDA":scanErrors?"CONCLUÍDA COM FALHAS":"COMPLETA";
-  let t=`RADAREGI VIRADAS 15m V1.3 — RELATÓRIO GPT\nData/Hora: ${new Date().toLocaleString("pt-BR")}\nFinalidade: garimpo Day Trade em 15m para alimentar o SetupDT.\nBTC: ${btc.label} | ${btc.detail} | ajuste LONG ${btc.longAdj} | SHORT ${btc.shortAdj}\n\n`;
+  let t=`RADAREGI VIRADAS 15m V1.4 — RELATÓRIO GPT\nData/Hora: ${new Date().toLocaleString("pt-BR")}\nFinalidade: garimpo Day Trade em 15m para alimentar o SetupDT.\nBTC: ${btc.label} | ${btc.detail} | ajuste LONG ${btc.longAdj} | SHORT ${btc.shortAdj}\n\n`;
   t+=`DIAGNÓSTICO DA VARREDURA\nEstado: ${scanState}\nPares selecionados: ${symbolsTotal}\nConsultas 15m bem-sucedidas: ${scanned}\nFalhas ao consultar 15m: ${failed15m}\nFalhas ao buscar contexto 1h/4h: ${contextErrors}\nMoedas com estrutura W/M bruta: ${rawSymbols}\nSem estrutura W/M entre as consultas 15m bem-sucedidas: ${Math.max(0,scanned-rawSymbols)}\nPadrões brutos encontrados: W/LONG ${rawLong} • M/SHORT ${rawShort}\nEstruturas após desempate W/M: ${allResults.length}\n`;
   if(scanFatalError)t+=`Falha geral: ${scanFatalError}\n`;
   const fav=favorite();
@@ -425,7 +431,8 @@ function report(){
   t+="\n🔴 MELHORES SHORT\n";
   if(S.length)S.slice(0,8).forEach((r,i)=>t+=`${i+1}. ${r.symbol} | ${r.status} | M ${r.patternQ}/100 | Entrada ${r.entryQ}/100 | Vol ${r.vr.toFixed(2)}x | 1h ${r.t1.state} | 4h ${r.t4.state} | Figura ${r.extraStructure||"-"}\n`);
   else t+="Nenhum.\n";
-  if(C.length){t+="\n⚪ INDEFINIDAS / CONFLITO\n";C.slice(0,8).forEach(r=>t+=`• ${r.symbol}: W e M simultâneos; não enviar ao SetupDT até desempatar.\n`)}
+  if(C.length){t+="\n⚪ INDEFINIDAS / CONFLITO\n";C.forEach(r=>t+=`• ${r.symbol}: W e M simultâneos; não enviar ao SetupDT até desempatar.\n`)}
+  t+=`\nAUDITORIA V1.4\nPivôs recentes (22 candles), relevo mínimo 0,8%, candles fechados e volume relativo >=1 para confirmação de rompimento. Histórico local: ${hist.length} sinais; variações observadas após 1/3/6 candles não representam lucro operacional.\n`;
   t+="\nREGRA\nO RadarEgi Viradas apenas garimpa. A Favorita e as figuras gráficas são camadas de prioridade/compatibilidade, não autorização de entrada. A decisão operacional final pertence ao SetupDT, que deve confirmar tendência, gatilho, liquidez, stop e relação risco/retorno.";
   $("#report").value=t;return t;
 }
@@ -498,7 +505,7 @@ async function scan(){
       const sym=symbols[z];$("#msg").textContent=`Analisando ${sym} (${z+1}/${symbols.length})...`;$("#bar").style.width=((z+1)/symbols.length*100).toFixed(1)+"%";
       let phase="15m";
       try{
-        const c15=await klines(sym,"15m",180);scanned++;
+        const c15=await klines(sym,"15m",180);scanned++;assessHistory(sym,c15);
         let w=detectBottom(c15,tol,sep),m=detectTop(c15,tol,sep);
         if(w||m){
           rawSymbols++;if(w)rawLong++;if(m)rawShort++;
@@ -506,18 +513,20 @@ async function scan(){
           const [c1,c4]=await Promise.all([klines(sym,"1h",120),klines(sym,"4h",120)]);
           if(w)w=scoreFinal(w,tfContext(c1,"LONG"),tfContext(c4,"LONG"));
           if(m)m=scoreFinal(m,tfContext(c1,"SHORT"),tfContext(c4,"SHORT"));
-          allResults.push(...resolvePair(sym,w,m));render();
+          const chosen=resolvePair(sym,w,m);allResults.push(...chosen);chosen.forEach(r=>logSignal(r,c15));render();
         }
       }catch(e){scanErrors++;if(phase==="15m")failed15m++;else contextErrors++;console.warn(sym,e)}
       await sleep(70);
     }
-    $("#bar").style.width="100%";render();report();
+    saveHist();renderHist();$("#bar").style.width="100%";render();report();
     $("#msg").textContent=running?`Concluído: ${scanned} consultas 15m concluídas • ${rawSymbols} moedas com estrutura bruta • ${allResults.length} estruturas após desempate${scanErrors?` • ${scanErrors} falhas`:""}.`:"Varredura interrompida.";
   }catch(e){scanFatalError=e.message;$("#msg").textContent="Erro na varredura: "+e.message}
   finally{running=false}
 }
 
 $("#scan").onclick=scan;
+$("#clearHistory").onclick=()=>{if(confirm("Limpar histórico de sinais?")){hist=[];saveHist();renderHist()}};
+renderHist();
 $("#stop").onclick=()=>{running=false;$("#msg").textContent="Parando varredura..."};
 $("#reportBtn").onclick=()=>{report();$("#report").scrollIntoView({behavior:"smooth"})};
 $("#copyGptBtn").onclick=async()=>{
