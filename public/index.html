@@ -292,6 +292,7 @@
 </div>
 <div id="sessionWarning" class="note">Aguardando o servidor. O placar R técnico usa A2 = +2R e STOP antes de A2 = -1R; não é P&amp;L real.</div>
 <div id="sessionAudit" class="note" style="margin:9px 0;padding:12px;border:1px solid #587087;border-radius:10px;line-height:1.6" role="status">🔍 Auditoria de fontes e denominadores: aguardando dados.</div>
+<div id="egiProfStopsV2" class="note" style="margin:10px 0;padding:12px;border:1px solid #587087;border-radius:10px;white-space:pre-line" role="status">Professor de STOPs V2: aguardando dados.</div><button type="button" class="secondary smallbtn" id="egiCopyProfV2">📋 Copiar Professor de STOPs</button>
 <div id="sessionStatus" class="hint" role="status" style="margin-top:8px">Atualiza automaticamente a cada 60 segundos quando o servidor estiver disponível.</div>
 <div id="sessionRecent" class="session-recent"><p class="muted">Nenhum evento carregado.</p></div>
 <p class="hint">A1/A2/A3 são eventos técnicos. O placar não inclui taxas, slippage, tamanho de posição nem execução real. Se A2 foi atingido antes de um STOP posterior, a estatística mantém A2 como vitória técnica, igual ao estudo local.</p></section>
@@ -1559,6 +1560,12 @@ function localSessionSummary(){
   const longR=longA2*2-longStops, shortR=shortA2*2-shortStops;
   return {entries,waiting,a1,a2,a3,stops,missed,reentries,longStops,shortStops,rate,scoreR,longEntries,shortEntries,longA2,shortA2,longRate,shortRate,longR,shortR,source:'local',recent:[]};
 }
+document.addEventListener('click',async ev=>{
+ if(ev.target?.id!=='egiCopyProfV2')return;
+ const t=[document.getElementById('sessionAudit')?.textContent||'',document.getElementById('egiProfStopsV2')?.textContent||''].join('\n\n');
+ try{await navigator.clipboard.writeText(t);ev.target.textContent='✅ Copiado para ChatGPT';}
+ catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();ev.target.textContent='📋 Relatorio copiado';}
+});
 function renderSessionSummary(q){
   const val=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
   val('sessionEntries',q.entries||0);val('sessionWaiting',q.waiting||0);val('sessionA1',q.a1||0);val('sessionA2',q.a2||0);val('sessionA3',q.a3||0);val('sessionStops',q.stops||0);val('sessionMissed',q.missed||0);val('sessionReentries',q.reentries||0);val('sessionLongStops',q.longStops||0);val('sessionShortStops',q.shortStops||0);val('sessionRate',q.rate==null?'—':Number(q.rate).toFixed(1).replace('.',',')+'%');val('sessionR',sessionFmtR(q.scoreR));
@@ -1588,6 +1595,27 @@ function renderSessionSummary(q){
     if(!serverDir&&q.source==='server')parts.push('⚠️ FONTES MISTURADAS: não somar o R geral do Render com os placares LONG/SHORT locais; períodos e registros podem diferir.');
     if(Math.abs((Number(d.longR)||0)+(Number(d.shortR)||0)-(Number(q.scoreR)||0))>0.001)parts.push('⚠️ Placar geral difere da soma direcional; confira a origem e o escopo antes de comparar.');
     audit.textContent=parts.join('\n');audit.style.whiteSpace='pre-line';
+  }
+  // Professor V2 e informativo; nao modifica gatilhos, stops, ordens ou historicos.
+  const prof=$('egiProfStopsV2');
+  if(prof){
+    const n=x=>Number(x)||0;
+    const decisions=n(q.a2)+n(q.stops);
+    const rate=decisions?(100*n(q.a2)/decisions).toFixed(1).replace('.',',')+'%':'—';
+    const mixed=q.source==='server'&&!['longEntries','shortEntries','longA2','shortA2','longRate','shortRate','longR','shortR'].every(k=>q[k]!=null);
+    const hypothesis=n(q.shortStops)>=3&&n(q.shortStops)>2*n(q.longStops)?'STOPs SHORT predominantes: investigar repiques, atrasos e distancia em ATR; causa ainda nao confirmada.':n(q.longStops)>=3&&n(q.longStops)>2*n(q.shortStops)?'STOPs LONG predominantes: investigar continuidade de baixa e confirmacao compradora; causa ainda nao confirmada.':'Sem predominio direcional forte para atribuir causa.';
+    prof.textContent=[
+      '🧪 PROFESSOR DE STOPs V2 — AUDITORIA INFORMATIVA',
+      'Total: '+(q.source==='server'?'Render (sessao diaria)':'Navegador (historico local)'),
+      'A2: '+n(q.a2)+' | STOP antes A2: '+n(q.stops)+' | Decisoes: '+decisions+' | Taxa A2/decisoes: '+rate,
+      'Placar hipotetico (+2R A2; -1R STOP): '+sessionFmtR(2*n(q.a2)-n(q.stops))+'; nao e P&L real.',
+      'Entradas totais: '+n(q.entries)+'; nao deduzir status individual das restantes.',
+      hypothesis,
+      mixed?'⚠️ FONTES MISTURADAS: nunca somar placares Render e navegador.':'Comparar somente mesmo periodo, origem e identificadores.',
+      'ATR, preco exato da entrada, stop e volume do momento: NAO DISPONIVEIS neste placar; diagnostico individual exige exportar operacoes.',
+      'Laboratorio de filtros: PENDENTE de dados individuais; nenhum backtest foi executado.',
+      'Modo observacao: sinais existentes e regras de entrada preservados.'
+    ].join('\n');
   }
   const warn=$('sessionWarning');
   let text='Sessão equilibrada até aqui. Continue avaliando contexto e qualidade, não apenas quantidade de sinais.';
