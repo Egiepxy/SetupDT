@@ -162,6 +162,7 @@ const OIL_DAYTRADE_SCAN_MS = 60 * 1000;
 let oilDaytradeLatest = null;
 let oilDaytradeRunning = false;
 let oilDaytradeAlertState = { direction: '', level: '', belowSince: 0 };
+const oilProfessor = require('./oil-professor').createOilProfessor({ dataDir: DATA_DIR });
 function loadOilDaytradeAlertState() {
   try {
     const value = JSON.parse(fs.readFileSync(OIL_DAYTRADE_STATE_FILE, 'utf8'));
@@ -245,6 +246,7 @@ async function monitorOilDaytrade() {
     const [data15, data4h] = await Promise.all([oilCandles('15m'), oilCandles('4h')]);
     const reading = calculateOilDaytrade(data15.rows, data4h.rows, [...new Set([data15.source, data4h.source].filter(Boolean))].join(' + '));
     oilDaytradeLatest = reading;
+    oilProfessor.update(data15.rows, data15.source);
     const now = Date.now();
     if (reading.level === 'WATCH') {
       if (!oilDaytradeAlertState.belowSince) oilDaytradeAlertState.belowSince = now;
@@ -258,6 +260,7 @@ async function monitorOilDaytrade() {
       const upgraded = reading.level === 'STRONG' && oilDaytradeAlertState.level !== 'STRONG';
       if ((directionChanged || upgraded || !oilDaytradeAlertState.level) && reading.telegramConfigured) {
         await telegram(oilDaytradeMessage(reading));
+        oilProfessor.record(reading, data15.source); // somente aviso Telegram efetivamente enviado
         oilDaytradeAlertState.direction = reading.direction;
         oilDaytradeAlertState.level = reading.level;
         console.log('Alerta OIL Day Trade enviado:', reading.direction, reading.level, reading.score);
@@ -930,6 +933,11 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/oil/daytrade', (_req, res) => {
   res.set('cache-control', 'no-store');
   res.json({ ok: true, latest: oilDaytradeLatest, telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length), scanSeconds: OIL_DAYTRADE_SCAN_MS / 1000 });
+});
+
+app.get('/api/oil/daytrade/history', (_req, res) => {
+  res.set('cache-control', 'no-store');
+  res.json({ ok: true, ...oilProfessor.snapshot() });
 });
 
 app.get('/api/watchlist', (_req, res) => res.json({ ok: true, ...serverWatch, scanSeconds: SIGNAL_SCAN_MS / 1000, scan: lastSignalScan }));
