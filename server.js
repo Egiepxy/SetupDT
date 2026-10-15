@@ -15,6 +15,7 @@ const TRADES_FILE = path.join(DATA_DIR, 'simulated-trades.json');
 const WATCHLIST_FILE = path.join(DATA_DIR, 'server-watchlist.json');
 const AGORA_FILE = path.join(DATA_DIR, 'agoracrypto-watch.json');
 const AGORA_STATE_FILE = path.join(DATA_DIR, 'agoracrypto-state.json');
+const OIL_DAYTRADE_STATE_FILE = path.join(DATA_DIR, 'oil-daytrade-state.json');
 const MONITOR_MS = Math.max(15000, Number(process.env.MONITOR_INTERVAL_MS) || 30000);
 const SIGNAL_SCAN_MS = Math.max(60000, Number(process.env.SIGNAL_SCAN_INTERVAL_MS) || 300000);
 const ENTRY_WAIT_MS = Math.max(5 * 60 * 1000, Number(process.env.ENTRY_WAIT_MS) || 60 * 60 * 1000);
@@ -157,6 +158,118 @@ async function oilCandles(tf) {
   }
 }
 
+const OIL_DAYTRADE_SCAN_MS = 60 * 1000;
+let oilDaytradeLatest = null;
+let oilDaytradeRunning = false;
+let oilDaytradeAlertState = { direction: '', level: '', belowSince: 0 };
+function loadOilDaytradeAlertState() {
+  try {
+    const value = JSON.parse(fs.readFileSync(OIL_DAYTRADE_STATE_FILE, 'utf8'));
+    oilDaytradeAlertState = {
+      direction: String(value?.direction || ''),
+      level: String(value?.level || ''),
+      belowSince: Number(value?.belowSince) || 0
+    };
+  } catch (error) {
+    if (error.code !== 'ENOENT') console.error('Falha ao restaurar estado de alerta OIL:', error.message);
+  }
+}
+function saveOilDaytradeAlertState() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  const temp = OIL_DAYTRADE_STATE_FILE + '.tmp';
+  fs.writeFileSync(temp, JSON.stringify(oilDaytradeAlertState, null, 2));
+  fs.renameSync(temp, OIL_DAYTRADE_STATE_FILE);
+}
+function calculateOilDaytrade(rows15, rows4h, source) {
+  const now = Date.now();
+  const closed15 = rows15.filter(row => Number(row[6]) < now);
+  const closed4h = rows4h.filter(row => Number(row[6]) < now);
+  if (closed15.length < 30 || closed4h.length < 30) throw new Error('Histórico fechado insuficiente para o índice OIL');
+  const closes = closed15.map(row => Number(row[4]));
+  const highs = closed15.map(row => Number(row[2]));
+  const lows = closed15.map(row => Number(row[3]));
+  const volumes = closed15.map(row => Number(row[5]));
+  const last = closed15.at(-1), previous = closed15.at(-2);
+  const price = Number(last[4]);
+  const ma9 = sma(closes, 9), ma21 = sma(closes, 21);
+  const priorMa9 = sma(closes.slice(0, -1), 9);
+  const averageVolume = sma(volumes.slice(0, -1), 20);
+  const volumeRatio = averageVolume > 0 ? Number(last[5]) / averageVolume : 0;
+  const atrValue = atr(highs, lows, closes, 14);
+  const atrPct = atrValue > 0 && price > 0 ? atrValue / price * 100 : 0;
+  let direction = 'NEUTRAL', directionScore = 0;
+  if (price > ma9 && ma9 > ma21 && ma9 > priorMa9) {
+    direction = 'LONG';
+    directionScore = 40 + (Number(last[4]) > Number(previous[4]) ? 10 : 0);
+  } else if (price < ma9 && ma9 < ma21 && ma9 < priorMa9) {
+    direction = 'SHORT';
+    directionScore = 40 + (Number(last[4]) < Number(previous[4]) ? 10 : 0);
+  }
+  const volumeScore = volumeRatio >= 2 ? 30 : volumeRatio >= 1.5 ? 24 : volumeRatio >= 1.2 ? 18 : volumeRatio >= 1 ? 10 : 0;
+  const volatilityScore = atrPct >= 0.05 && atrPct <= 1.5 ? 20 : atrPct >= 0.03 && atrPct <= 2 ? 12 : atrPct >= 0.02 ? 6 : 0;
+  const score = direction === 'NEUTRAL' ? 0 : Math.min(100, directionScore + volumeScore + volatilityScore);
+  const h4Closes = closed4h.map(row => Number(row[4]));
+  const h4Price = h4Closes.at(-1), h4Ma20 = sma(h4Closes, 20), h4Ma50 = sma(h4Closes, 50);
+  const context4h = h4Price > h4Ma20 && h4Ma20 > h4Ma50 ? 'UP' : h4Price < h4Ma20 && h4Ma20 < h4Ma50 ? 'DOWN' : 'NEUTRAL';
+  const strong = direction !== 'NEUTRAL' && volumeRatio >= 1.2 && atrPct >= 0.05 && score >= 75;
+  const attention = direction !== 'NEUTRAL' && volumeRatio >= 1 && atrPct >= 0.03 && score >= 60;
+  const level = strong ? 'STRONG' : attention ? 'ATTENTION' : 'WATCH';
+  const reasons = [];
+  if (direction !== 'NEUTRAL') reasons.push(direction === 'LONG' ? 'preço acima das médias 9/21' : 'preço abaixo das médias 9/21');
+  if (volumeRatio >= 1.2) reasons.push('volume acima da média');
+  if (volatilityScore > 0) reasons.push('volatilidade suficiente');
+  if ((direction === 'LONG' && context4h === 'DOWN') || (direction === 'SHORT' && context4h === 'UP')) reasons.push('4h em sentido contrário: atenção');
+  return {
+    time: now, candleClose: Number(last[6]), price, direction, score, level,
+    volumeRatio, atrPct, context4h, source, reasons,
+    telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length)
+  };
+}
+function oilDaytradeMessage(reading) {
+  const direction = reading.direction === 'LONG' ? 'POSSÍVEL MOVIMENTO DE ALTA' : 'POSSÍVEL MOVIMENTO DE BAIXA';
+  const level = reading.level === 'STRONG' ? 'MOVIMENTO FORTE' : 'ATENÇÃO';
+  const context = reading.context4h === 'UP' ? '4h em alta' : reading.context4h === 'DOWN' ? '4h em baixa' : '4h lateral';
+  return `🛢️ SETUPDT — OIL DAY TRADE • ${level}
+${direction} • Índice ${reading.score}/100
+Preço: $ ${Number(reading.price).toFixed(3)}
+15m fechado: ${new Date(reading.candleClose).toLocaleString('pt-BR')}
+Volume relativo 15m: ${Number(reading.volumeRatio).toFixed(2)}x • ATR14: ${Number(reading.atrPct).toFixed(2)}%
+Contexto 4h: ${context}
+Motivos: ${reading.reasons.join('; ')}
+Lembrete técnico para observar o gráfico. Não é ordem de compra/venda nem confirmação de entrada.`;
+}
+async function monitorOilDaytrade() {
+  if (oilDaytradeRunning) return;
+  oilDaytradeRunning = true;
+  try {
+    const [data15, data4h] = await Promise.all([oilCandles('15m'), oilCandles('4h')]);
+    const reading = calculateOilDaytrade(data15.rows, data4h.rows, [...new Set([data15.source, data4h.source].filter(Boolean))].join(' + '));
+    oilDaytradeLatest = reading;
+    const now = Date.now();
+    if (reading.level === 'WATCH') {
+      if (!oilDaytradeAlertState.belowSince) oilDaytradeAlertState.belowSince = now;
+      if (now - oilDaytradeAlertState.belowSince >= 15 * 60 * 1000) {
+        oilDaytradeAlertState.direction = '';
+        oilDaytradeAlertState.level = '';
+      }
+    } else {
+      oilDaytradeAlertState.belowSince = 0;
+      const directionChanged = oilDaytradeAlertState.direction !== reading.direction;
+      const upgraded = reading.level === 'STRONG' && oilDaytradeAlertState.level !== 'STRONG';
+      if ((directionChanged || upgraded || !oilDaytradeAlertState.level) && reading.telegramConfigured) {
+        await telegram(oilDaytradeMessage(reading));
+        oilDaytradeAlertState.direction = reading.direction;
+        oilDaytradeAlertState.level = reading.level;
+        console.log('Alerta OIL Day Trade enviado:', reading.direction, reading.level, reading.score);
+      }
+    }
+    saveOilDaytradeAlertState();
+  } catch (error) {
+    console.warn('Monitor OIL Day Trade:', error.message || error);
+  } finally {
+    oilDaytradeRunning = false;
+  }
+}
 async function oilTicker(market) {
   try {
     const json = await upstream(`https://contract.mexc.com/api/v1/contract/ticker?symbol=${encodeURIComponent('UKOIL_USDT')}`);
@@ -814,6 +927,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'SetupDT Light Multi-Exchange V2.4 Sessão + Proteções + AgoraCrypto', proxy: true, telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length), telegramRecipients: TELEGRAM_CHAT_IDS.length, simulatedTradesOpen: [...activeTrades.values()].filter(row => row.status === 'OPEN').length, waitingEntries: [...activeTrades.values()].filter(row => row.status === 'WAITING_ENTRY').length, monitorSeconds: MONITOR_MS / 1000, signalScanSeconds: SIGNAL_SCAN_MS / 1000, entryWaitMinutes: ENTRY_WAIT_MS / 60000, monitoredMarket: serverWatch.market, monitoredAssets: serverWatch.assets.length, signalScan: lastSignalScan, agoraCrypto: { markets: agoraWatch.markets, scan: lastAgoraScan }, binanceFallback: true, oil: 'MEXC UKOIL_USDT + reserva Brent BZ=F', time: new Date().toISOString() });
 });
 
+app.get('/api/oil/daytrade', (_req, res) => {
+  res.set('cache-control', 'no-store');
+  res.json({ ok: true, latest: oilDaytradeLatest, telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length), scanSeconds: OIL_DAYTRADE_SCAN_MS / 1000 });
+});
+
 app.get('/api/watchlist', (_req, res) => res.json({ ok: true, ...serverWatch, scanSeconds: SIGNAL_SCAN_MS / 1000, scan: lastSignalScan }));
 app.post('/api/watchlist', (req, res) => {
   try {
@@ -959,9 +1077,12 @@ loadTrades();
 loadWatchlist();
 loadAgoraWatch();
 loadAgoraStates();
+loadOilDaytradeAlertState();
 setInterval(monitorTrades, MONITOR_MS).unref();
 setInterval(monitorSignals, SIGNAL_SCAN_MS).unref();
 setInterval(monitorAgoraSignals, SIGNAL_SCAN_MS).unref();
+setInterval(monitorOilDaytrade, OIL_DAYTRADE_SCAN_MS).unref();
+setTimeout(monitorOilDaytrade, 20000).unref();
 setTimeout(monitorSignals, 10000).unref();
 setTimeout(monitorAgoraSignals, 15000).unref();
 app.listen(PORT, '0.0.0.0', () => console.log(`SetupDT Light V2.4 Sessão + Proteções + AgoraCrypto online na porta ${PORT}`));

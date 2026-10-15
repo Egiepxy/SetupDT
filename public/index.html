@@ -436,6 +436,7 @@
 <div class="oil-head"><div><span class="hint">Módulo independente • não entra no rastreador de criptos</span><h2>🛢️ OIL / Brent • Índice de Exaustão</h2></div><span id="oilBadge" class="oil-status normal">⚪ Aguardando</span></div>
 <p class="hint">Analisa somente candles fechados de 15m, 1h e 4h. Preço alto sozinho não conta como exaustão: o índice exige perda de impulso, RSI/divergência, rejeição, distância das médias/ATR e contexto de extremo. <b>Exaustão de alta não é ordem de SHORT; exaustão de baixa não é ordem de LONG.</b></p>
 <div class="oil-mini"><div class="metric"><small>Preço OIL / Brent</small><strong id="oilPrice">—</strong></div><div class="metric"><small>Índice dominante</small><strong id="oilScore">—/100</strong></div><div class="metric"><small>Última leitura</small><strong id="oilUpdated">—</strong></div></div>
+<div id="oilDaytradeCard" class="oil-reason"><strong>📊 Índice Day Trade OIL — aguardando leitura do servidor.</strong><div id="oilDaytradeBody" class="hint">Base: 15m + volume + volatilidade • 4h como contexto.</div></div>
 <div id="oilTfCards" class="oil-tfs"><div class="oil-tf"><strong>15m</strong><small>Aguardando atualização.</small></div><div class="oil-tf"><strong>1h</strong><small>Aguardando atualização.</small></div><div class="oil-tf"><strong>4h</strong><small>Aguardando atualização.</small></div></div>
 <div id="oilReasons" class="oil-reasons"><div class="oil-reason">Toque em “Atualizar OIL” para calcular a exaustão.</div></div>
 <div class="oil-buttons" style="margin-top:11px"><button id="oilRefresh" type="button" class="primary">↻ Atualizar OIL</button><button id="oilAuto" type="button" class="secondary" aria-pressed="false">▶ Auto OIL: OFF</button><button id="oilSpeak" type="button" class="secondary">🔊 Ouvir OIL</button></div>
@@ -1433,6 +1434,33 @@ function recordOilSignal(s){
   oilHistory.unshift(item);oilHistory=oilHistory.slice(0,200);saveOilHistory();drawOilHistory();$('oilReportStatus').textContent='✅ Novo evento OIL ('+(s.level==='STRONG'?'forte':'pré-exaustão')+') gravado às '+new Date(item.detected).toLocaleTimeString('pt-BR')+'.';return true;
 }
 function drawOilHistory(){const root=$('oilHistory');if(!root)return;root.replaceChildren();$('oilHistoryCount').textContent=oilHistory.length+' evento'+(oilHistory.length===1?'':'s');if(!oilHistory.length){root.append(element('p','muted','Nenhum sinal OIL gravado ainda.'));return;}for(const x of oilHistory){const article=element('article','oil-record '+(x.direction==='HIGH'?'high':'low'));article.append(element('div','head',(x.direction==='HIGH'?'🔴 Exaustão de alta':'🟢 Exaustão de baixa')+(x.level==='ATTENTION'?' • PRÉ-EXAUSTÃO':' • SINAL FORTE')+' • '+x.score+'/100 • $ '+fmt(x.price)),element('div','meta',new Date(x.detected).toLocaleString('pt-BR')+' • alta '+x.highScore+'/100 • baixa '+x.lowScore+'/100 • concordância '+x.agreement+'/3'),element('div','meta',(x.reasons||[]).slice(0,3).join(' | ')||'Sem detalhes adicionais.'));root.append(article);}}
+function drawOilDaytrade(data){
+  const title=$('oilDaytradeCard'),body=$('oilDaytradeBody');
+  if(!title||!body)return;
+  if(!data){
+    title.innerHTML='<strong>📊 Índice Day Trade OIL — aguardando leitura do servidor.</strong>';
+    body.textContent='O monitor roda no servidor e usa candles fechados de 15m, volume e ATR; o 4h serve de contexto.';
+    return;
+  }
+  const direction=data.direction==='LONG'?'ALTA':data.direction==='SHORT'?'BAIXA':'LATERAL';
+  const icon=data.direction==='LONG'?'🟢':data.direction==='SHORT'?'🔴':'⚪';
+  const label=data.level==='STRONG'?'MOVIMENTO FORTE':data.level==='ATTENTION'?'ATENÇÃO':'SEM GATILHO';
+  title.innerHTML='<strong>'+icon+' '+label+' • '+direction+' • '+data.score+'/100</strong>';
+  const context=data.context4h==='UP'?'4h em alta':data.context4h==='DOWN'?'4h em baixa':'4h lateral';
+  const reasons=Array.isArray(data.reasons)?data.reasons.join(' • '):'';
+  body.textContent='15m fechado '+new Date(data.candleClose).toLocaleString('pt-BR')+' • preço $ '+fmt(data.price)+' • volume '+Number(data.volumeRatio||0).toFixed(2)+'x • ATR14 '+Number(data.atrPct||0).toFixed(2)+'% • '+context+(data.telegramConfigured?' • Telegram ativo':' • Telegram indisponível')+(reasons?' • '+reasons:'');
+}
+async function refreshOilDaytrade(){
+  try{
+    const response=await fetch(serverUrl('/api/oil/daytrade'),{cache:'no-store'});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok)throw new Error(data.error||('HTTP '+response.status));
+    drawOilDaytrade(data.latest||null);
+  }catch(error){
+    const body=$('oilDaytradeBody');
+    if(body)body.textContent='Aviso Telegram depende do servidor SetupDT ativo. Leitura indisponível: '+(error.message||error);
+  }
+}
 async function refreshOil(){
   if(oilState.busy)return false;oilState.busy=true;$('oilRefresh').disabled=true;$('oilRefresh').textContent='⏳ Atualizando...';$('oilStatus').textContent='Consultando OIL/Brent em 15m, 1h e 4h...';
   try{
@@ -2622,7 +2650,7 @@ setInterval(()=>{if(!document.hidden)loadSessionSummary();},60000);
 let restoreAuto=false,restoreAlerts=false,restoreListLocked=true;try{const savedMarket=localStorage.getItem(MARKET_KEY);if(['binance','mexc_spot','mexc_futures'].includes(savedMarket))$('market').value=savedMarket;const x=Number(localStorage.getItem(INTERVAL_KEY));if([30,60,120,300,600].includes(x)){state.intervalSec=x;$('autoInterval').value=String(x);}restoreAuto=localStorage.getItem(AUTO_KEY)==='1';restoreAlerts=localStorage.getItem(ALERTS_KEY)==='1';const lockSaved=localStorage.getItem(LIST_LOCK_KEY);restoreListLocked=lockSaved===null?true:lockSaved==='1';}catch(e){}
 let restoreCrowdingMode='auto';try{const cm=localStorage.getItem(CROWDING_MODE_KEY);if(cm==='manual'||cm==='auto')restoreCrowdingMode=cm;}catch(e){}setCrowdingMode(restoreCrowdingMode,false);setTimeout(()=>{if(crowdingMode()==='auto')refreshCrowdingAuto(true);},700);setInterval(()=>{if(!document.hidden&&crowdingMode()==='auto')refreshCrowdingAuto(false);},300000);window.addEventListener('focus',()=>{if(crowdingMode()==='auto')refreshCrowdingAuto(false);});window.addEventListener('online',()=>{if(crowdingMode()==='auto')refreshCrowdingAuto(true);});
 if($('refreshKdjIntegrated'))$('refreshKdjIntegrated').addEventListener('click',refreshIntegratedKdj);
-loadConsciousRisk();renderConsciousPanel();setListLocked(restoreListLocked);readOilHistory();let restoreOilAuto=false;try{restoreOilAuto=localStorage.getItem(OIL_AUTO_KEY)==='1';}catch(e){}setOilAuto(restoreOilAuto);drawOil();setTimeout(()=>refreshOil(),1200);readDiary();drawDiary();if(!diaryStorageOK)$('diaryStatus').textContent='⚠ Armazenamento local indisponível; registros apenas nesta sessão.';readStudy();try{const sh=Number(localStorage.getItem(STUDY_HOURS_KEY));if([6,12,24,48].includes(sh))$('studyHours').value=String(sh);}catch(e){}drawStudy();renderWatch();importViradasFromUrl();setAlerts(restoreAlerts);setAuto(restoreAuto);updateCountdown();hostedTelegramWarning();checkTelegram().then(ok=>{if(ok)syncServerWatch();});loadAgoraWatch();setTimeout(loadSessionSummary,1500);
+loadConsciousRisk();renderConsciousPanel();setListLocked(restoreListLocked);readOilHistory();let restoreOilAuto=false;try{restoreOilAuto=localStorage.getItem(OIL_AUTO_KEY)==='1';}catch(e){}setOilAuto(restoreOilAuto);drawOil();setTimeout(()=>refreshOil(),1200);setTimeout(refreshOilDaytrade,1800);setInterval(refreshOilDaytrade,60000);readDiary();drawDiary();if(!diaryStorageOK)$('diaryStatus').textContent='⚠ Armazenamento local indisponível; registros apenas nesta sessão.';readStudy();try{const sh=Number(localStorage.getItem(STUDY_HOURS_KEY));if([6,12,24,48].includes(sh))$('studyHours').value=String(sh);}catch(e){}drawStudy();renderWatch();importViradasFromUrl();setAlerts(restoreAlerts);setAuto(restoreAuto);updateCountdown();hostedTelegramWarning();checkTelegram().then(ok=>{if(ok)syncServerWatch();});loadAgoraWatch();setTimeout(loadSessionSummary,1500);
 window.setupDtLightTest={normalizeImportCoin,parseIncomingWatch,importWatch,evaluate,adaptiveStopModel,applyLocalDisciplineFilter,technicalSnapshot,prepareCandles,trackerStrength,detectFigure,refresh,analyzeAndAutoRegister,smartReportText,sortCoins,automaticCycle,assess,addCoin,importViradasFromUrl,readWatch,scanOne,scanCoins,stopScan,setListLocked,tradeKey,setAlerts,setAuto,updateCountdown,recordConfirmedSignal,readDiary,drawDiary,clearDiary,recordStudySignal,updateStudyTrades,readStudy,drawStudy,exportStudyTxt,clearStudy,renderScanRows,checkTelegram,syncServerWatch,sendConfirmedTrade,testTelegramConnection,loadAgoraWatch,saveAgoraWatch,toggleAgoraCurrent,checkAgoraCurrent,refreshOil,oilAnalyzeTf,oilAggregate,oilReportText,readOilHistory,recordOilSignal,setOilAuto,consciousSnapshot,renderConsciousPanel,resetBehavior,loadSessionSummary,localSessionSummary,renderSessionSummary,flowGate15m,applyFlowGate,renderFlowGate,crowdingSnapshot,renderCrowdingPanel,refreshCrowdingAuto,setCrowdingMode,signalsReportText,copySignalsGPT};
 
 </script>
