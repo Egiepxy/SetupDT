@@ -211,8 +211,9 @@ function calculateOilDaytrade(rows15, rows4h, source) {
   const h4Closes = closed4h.map(row => Number(row[4]));
   const h4Price = h4Closes.at(-1), h4Ma20 = sma(h4Closes, 20), h4Ma50 = sma(h4Closes, 50);
   const context4h = h4Price > h4Ma20 && h4Ma20 > h4Ma50 ? 'UP' : h4Price < h4Ma20 && h4Ma20 < h4Ma50 ? 'DOWN' : 'NEUTRAL';
-  const eligible = direction !== 'NEUTRAL' && volumeRatio >= 1.2 && atrPct >= 0.05;
-  const level = eligible && score >= 75 ? 'STRONG' : eligible && score >= 60 ? 'ATTENTION' : 'WATCH';
+  const strong = direction !== 'NEUTRAL' && volumeRatio >= 1.2 && atrPct >= 0.05 && score >= 75;
+  const attention = direction !== 'NEUTRAL' && volumeRatio >= 1 && atrPct >= 0.03 && score >= 60;
+  const level = strong ? 'STRONG' : attention ? 'ATTENTION' : 'WATCH';
   const reasons = [];
   if (direction !== 'NEUTRAL') reasons.push(direction === 'LONG' ? 'preço acima das médias 9/21' : 'preço abaixo das médias 9/21');
   if (volumeRatio >= 1.2) reasons.push('volume acima da média');
