@@ -57,7 +57,7 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   const preliminary=weak5 || m5.upperReject || m15.upperReject ||
     (h4.stretchAtr!==null && h4.stretchAtr>=1.5 && m5.price<m5.prev);
   const stage=confirmed?4:possible?3:preliminary?2:1;
-  const titles={1:'ALTA / CONTEXTO — sem perda confirmada',2:'PRÉ-EXAUSTÃO — observar',3:'POSSÍVEL SHORT — não confirmado',4:'BAIXA CONFIRMADA NO INTRADIA — não significa reversão do 4h'};
+  const titles={1:'SEM ALERTA DE REVERSÃO — avaliar contexto 4h',2:'PRÉ-EXAUSTÃO — observar',3:'POSSÍVEL SHORT — não confirmado',4:'BAIXA CONFIRMADA NO INTRADIA — não significa reversão do 4h'};
   const reasons=[];
   if(h4.alignedUp)reasons.push('4h: preço > MA5 > MA10 > MA30 > MA60 (estrutura compradora)');
   else if(h4.alignedDown)reasons.push('4h: médias alinhadas para baixa');
@@ -75,7 +75,7 @@ function analyzeOilMA(data, sources, now=Date.now()) {
 }
 function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir}) {
   const file=path.join(dataDir,'oil-ma-history.json');
-  let stored={sentStage:0,stageOneSince:0,lastAlertAt:0,lastAlertCandle:0,history:[]};
+  let stored={source:'',sentStage:0,stageOneSince:0,lastAlertAt:0,lastAlertCandle:0,history:[]};
   try { const p=JSON.parse(fs.readFileSync(file,'utf8'));if(p && typeof p==='object')
     stored={...stored,...p,history:Array.isArray(p.history)?p.history.slice(0,100):[]};
   }catch(e){if(e.code!=='ENOENT')console.warn('Detector MA: falha ao ler arquivo:',e.message);}
@@ -110,6 +110,11 @@ function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir
       const current=analyzeOilMA(rows,sources,lastAttempt);
       latest=current;error=null;
       let changed=evaluateHistory(rows['5m'],current.source,lastAttempt);
+      // Troca de instrumento entre rodadas: recomeçar o estado e aguardar novo 5m.
+      if(stored.source!==current.source){
+        stored.source=current.source;stored.sentStage=0;stored.stageOneSince=0;
+        stored.lastAlertAt=lastAttempt;stored.lastAlertCandle=current.candleClose;changed=true;
+      }
       if(current.stage===1){
         if(!stored.stageOneSince){stored.stageOneSince=lastAttempt;changed=true;}
         if(lastAttempt-stored.stageOneSince>=15*60000 && stored.sentStage!==0){
