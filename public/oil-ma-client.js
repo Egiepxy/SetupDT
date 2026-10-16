@@ -39,7 +39,7 @@ function report(){
   if(!payload)return 'Detector OIL: ainda não consultado.';
   const s=payload.latest;
   const lines=['DETECTOR DE MÉDIAS OIL EGI — RELCHAT EDUCATIVO','Gerado: '+when(Date.now()),
-    'Estado servidor: '+(payload.error||'coleta válida'),'Última tentativa: '+when(payload.lastAttempt),
+    'Estado servidor: '+(payload.error?'ERRO / LEITURA EM CACHE: '+payload.error:'coleta válida'),'Última tentativa: '+when(payload.lastAttempt),
     'Telegram: '+(payload.telegramConfigured?'configurado':'não configurado')];
   if(!s){lines.push('Sem leitura atual válida. Não inferir tendência por dados ausentes.');return lines.join('\n');}
   lines.push('Fonte única: '+s.source,'5m fechado: '+when(s.candleClose),'FASE '+s.stage+': '+s.label,
@@ -67,8 +67,8 @@ function report(){
 function display(p){
   payload=p;
   const s=p.latest,good=p.ok&&s;
-  el('oilMaBadge').textContent=s?'FASE '+s.stage:'SEM LEITURA';
-  el('oilMaStatus').textContent=(p.error?'⚠ '+p.error+' • ':'')+
+  el('oilMaBadge').textContent=s?(p.error?'CACHE • FASE ':'FASE ')+s.stage:'SEM LEITURA';
+  el('oilMaStatus').textContent=(p.error?'⚠ '+p.error+' • última leitura em cache (não usar para novo alerta) • ':'')+
     (s?s.label+' • Fonte: '+s.source+' • candle 5m: '+when(s.candleClose):
       'Sem análise válida; confira o servidor e se todos os períodos vieram da mesma fonte.');
   const cards=el('oilMaCards');cards.replaceChildren();
