@@ -97,3 +97,25 @@ test('ignora candle em formação',()=>{
   assert.equal(second.candleClose,first.candleClose);
   assert.equal(second.stage,first.stage);
 });
+
+test('RSI6/12/24 e escala de histograma MEXC são calculados e auditáveis',()=>{
+  const {data,sources}=bearishScenario();
+  const result=analyzeOilMA(data,sources,NOW), z=result.t['15m'];
+  for(const n of [6,12,24]){
+    const value=z.rsi['rsi'+n];
+    assert.equal(Number.isFinite(value)&&value>=0&&value<=100,true);
+  }
+  assert.equal(z.histMexcScale,Number((z.macd.hist*2).toFixed(6)));
+  assert.equal(result.checklist.some(x=>x.name.includes('MACD vendedor')),true);
+});
+test('RSI pressionado identifica risco de repique, não gera fase quatro sem volume',()=>{
+  const {data,sources}=bearishScenario();
+  const result=analyzeOilMA(data,sources,NOW);
+  assert.equal(result.t['15m'].rsi.rsi6<=25,true);
+  assert.equal(result.reasons.some(x=>x.includes('risco de repique')||x.includes('cuidado com repique')),true);
+  assert.equal(result.stage,3);
+});
+test('OIL sem fechamentos recentes não produz sinal novo por cache antigo',()=>{
+  const {data,sources}=scenario();
+  assert.throws(()=>analyzeOilMA(data,sources,NOW+60*60000),/CANDLES DESATUALIZADOS/);
+});
