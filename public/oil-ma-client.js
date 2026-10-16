@@ -17,8 +17,8 @@ const css=document.createElement('style');css.textContent=`
 `;document.head.appendChild(css);
 const panel=document.createElement('section');panel.id='oilMaPanel';panel.className='oil-reason';
 panel.innerHTML=`
-<div class="ma-head"><strong>📉 Detector de Médias OIL EGI V1 — 5m / 15m / 1h / 4h</strong><span id="oilMaBadge" class="tag">Aguardando</span></div>
-<p class="hint">Exibe MA5/10/30/60 (SMA simples), distância do preço às médias e enfraquecimento precoce. A MA do gráfico MEXC pode divergir se a fonte ou o candle selecionado forem diferentes. Somente candles fechados.</p>
+<div class="ma-head"><strong>📉 Detector OIL EGI — Médias + MACD + Volume</strong><span id="oilMaBadge" class="tag">Aguardando</span></div>
+<p class="hint">SMA 5/10/30/60 + MACD (EMA 12/26/9) + volume relativo a 20 candles. Volume em candle vermelho é apenas proxy de participação vendedora, não fluxo líquido ou agressão de venda. Confirmação exige concordância; somente candles fechados e mesma fonte.</p>
 <div class="ma-info" id="oilMaStatus" role="status">Aguardando leitura do servidor…</div>
 <div id="oilMaCards" class="ma-stats"></div>
 <div id="oilMaReasons" class="ma-info">Não existe confirmação de SHORT apenas porque o RSI ou o preço estão elevados.</div>
@@ -28,11 +28,11 @@ panel.innerHTML=`
 <button type="button" id="oilMaTxt" class="secondary">📄 Salvar TXT</button>
 </div>
 <details style="margin-top:10px"><summary>📓 Histórico dos avisos de médias e auditoria 15/30/60 min</summary><div id="oilMaHistory" class="ma-info">Sem registros.</div></details>
-<p class="hint">Avisos no Telegram dependem da publicação no Render e do bot configurado. Registros ficam no servidor (exigem disco persistente). Etapa 4 confirma baixa apenas no intradia; o 4h pode continuar comprador. Não é ordem nem probabilidade.</p>
+<p class="hint">A fase 4 exige MA em deterioração, MACD vendedor no 15m, 1h enfraquecendo e aumento de volume em candles de queda no 15m ou 1h. Mesmo assim, não garante reversão no 4h. O volume não identifica agressor e pode divergir entre MEXC UKOIL e Brent BZ=F. Avisos via Telegram e histórico no Render dependem de publicação e disco persistente.</p>
 `;
 anchor.insertAdjacentElement('afterend',panel);
 const el=id=>document.getElementById(id);
-const fmt=(v,n=2)=>Number.isFinite(Number(v))?Number(v).toLocaleString('pt-BR',{minimumFractionDigits:n,maximumFractionDigits:n}):'n/d';
+const fmt=(v,n=2)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v).toLocaleString('pt-BR',{minimumFractionDigits:n,maximumFractionDigits:n}):'n/d';
 const when=v=>v?new Date(v).toLocaleString('pt-BR'):'n/d';
 let payload=null;
 function report(){
@@ -50,12 +50,22 @@ function report(){
       ' | MA5 '+fmt(t.ma5,3)+' | MA10 '+fmt(t.ma10,3)+' | MA30 '+fmt(t.ma30,3)+
       ' | MA60 '+fmt(t.ma60,3)+' | distância MA5 '+fmt(t.distanceMA5Pct,2)+'%' +
       ' | inclinação MA5 '+fmt(t.slope5Pct,3)+'%/candle' +
-      ' | ATR14 '+fmt(t.atrPct,3)+'% | volume '+fmt(t.volumeRatio,2)+'x');
+      ' | ATR14 '+fmt(t.atrPct,3)+'% | volume '+fmt(t.volumeRatio,2)+'x'+
+      ' | volume recente em queda '+fmt(t.sellVolumeRatio,2)+'x'+
+      ' | MACD linha '+fmt(t.macd?.line,5)+' | sinal '+fmt(t.macd?.signal,5)+
+      ' | histograma '+fmt(t.macd?.hist,5)+
+      ' | hist. caindo '+(t.macd?.histFalling?'sim':'não')+
+      ' | MACD vendedor '+(t.macd?.bearish?'sim':'não'));
   }
   lines.push('', 'MOTIVOS',...s.reasons.map(x=>'• '+x),'');
   lines.push('ALERTAS HISTÓRICOS: '+(payload.history||[]).length);
   for(const e of (payload.history||[]).slice(0,30)){
     lines.push('Fase '+e.stage+' | '+when(e.sentAt)+' | '+e.source+' | '+fmt(e.price,3));
+    for(const tf of ['5m','15m','1h','4h']){
+      const v=e.indicators?.[tf];if(v)lines.push('  '+tf+': MACD hist '+fmt(v.macd?.hist,5)+
+        ' | vendedor '+(v.macd?.bearish?'sim':'não')+
+        ' | volume '+fmt(v.volumeRatio,2)+'x | volume em queda '+fmt(v.sellVolumeRatio,2)+'x');
+    }
     for(const minutes of [15,30,60]){
       const r=e.results?.[minutes];lines.push(' '+minutes+'m: '+(r?(r.state+' '+fmt(r.directionalPct,3)+'% no fechamento'):'PENDENTE'));
     }
@@ -78,7 +88,12 @@ function display(p){
     const title=document.createElement('strong');title.textContent=tf+' • '+fmt(t.price,3);
     const sub=document.createElement('small');
     sub.textContent='MA5 '+fmt(t.ma5,3)+' | MA10 '+fmt(t.ma10,3)+' | MA30 '+fmt(t.ma30,3)+' | MA60 '+fmt(t.ma60,3)+
-    '\nΔ MA5 '+fmt(t.distanceMA5Pct,2)+'% | inclinação '+fmt(t.slope5Pct,3)+'%/candle | volume '+fmt(t.volumeRatio,2)+'x';
+    '\nΔ MA5 '+fmt(t.distanceMA5Pct,2)+'% | inclinação '+fmt(t.slope5Pct,3)+'%/candle'+
+    '\nVol '+fmt(t.volumeRatio,2)+'x | baixa '+fmt(t.sellVolumeRatio,2)+'x'+
+    '\nMACD (12/26/9): hist '+fmt(t.macd?.hist,5)+
+    ' • '+(t.macd?.bearish?'vendedor':'comprador')+
+    (t.macd?.bearishCross?' • cruzamento vendedor':'')+
+    (t.macd?.histFalling?' • impulso enfraquecendo':'');
     sub.style.whiteSpace='pre-line';b.append(title,sub);cards.appendChild(b);
   }
   el('oilMaReasons').textContent=s?('Contexto 4h: '+s.trend4h+' • '+s.reasons.join(' • ')):
