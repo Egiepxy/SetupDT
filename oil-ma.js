@@ -7,6 +7,20 @@ const PERIODS = ['5m', '15m', '1h', '4h'];
 const HORIZONS = [15, 30, 60];
 const round = (v, d = 4) => Number(Number(v).toFixed(d));
 const avg = (values, n) => values.slice(-n).reduce((a,b)=>a+b,0)/n;
+// EMA clássica: semente SMA(n) e somente fechamentos. A série MACD também precisa de 9 valores válidos.
+function emaSeries(values,n){
+  const out=Array(values.length).fill(null), alpha=2/(n+1);
+  let previous=null,seed=[];
+  for(let i=0;i<values.length;i++){
+    const v=values[i];
+    if(!Number.isFinite(v))continue;
+    if(previous===null){
+      seed.push(v);
+      if(seed.length===n){previous=seed.reduce((a,b)=>a+b,0)/n;out[i]=previous;}
+    }else {previous=previous+(v-previous)*alpha;out[i]=previous;}
+  }
+  return out;
+}
 function readTf(raw, now) {
   const rows = (Array.isArray(raw) ? raw : []).filter(r =>
     Array.isArray(r) && r.length >= 7 && Number(r[6]) < now &&
@@ -26,6 +40,25 @@ function readTf(raw, now) {
   const curr = rows.at(-1);
   const range = Number(curr[2])-Number(curr[3]);
   const upperWick = range>0 ? (Number(curr[2])-Math.max(Number(curr[1]),p))/range : 0;
+  const e12=emaSeries(c,12),e26=emaSeries(c,26);
+  const macdLine=c.map((_,i)=>Number.isFinite(e12[i])&&Number.isFinite(e26[i])?e12[i]-e26[i]:null);
+  const macdSignal=emaSeries(macdLine,9);
+  const mh=macdLine.map((x,i)=>Number.isFinite(x)&&Number.isFinite(macdSignal[i])?x-macdSignal[i]:null);
+  const lastI=mh.length-1,macdBearish=macdLine[lastI]<macdSignal[lastI];
+  const macd={
+    line:round(macdLine[lastI],6),signal:round(macdSignal[lastI],6),
+    hist:round(mh[lastI],6),previousHist:round(mh[lastI-1],6),
+    bearish:macdBearish,bearishCross:macdBearish && macdLine[lastI-1]>=macdSignal[lastI-1],
+    histFalling:mh[lastI]<mh[lastI-1] && mh[lastI-1]<mh[lastI-2]
+  };
+  // Negócios executados não identificam participantes: é volume DIRECIONAL APROXIMADO,
+  // classificado pela cor do candle fechado, e não fluxo comprador/vendedor real.
+  const recentDown=rows.slice(-3).filter(r=>Number(r[4])<Number(r[1]));
+  const sellVolumeRatio=volAvg>0&&recentDown.length?
+    Math.max(...recentDown.map(r=>Number(r[5])/volAvg)):null;
+  const volumeReliable=Number.isFinite(volAvg)&&volAvg>0 &&
+    Number.isFinite(Number(curr[5])) && volAvg>=0.00000001;
+  const sellVolumeConfirmed=volumeReliable && sellVolumeRatio>=1.2 && sellVolumeRatio<=20;
   const previousLows = rows.slice(-11,-1).map(r=>Number(r[3]));
   const priorHighs = rows.slice(-13,-1).map(r=>Number(r[2]));
   return {
@@ -34,6 +67,8 @@ function readTf(raw, now) {
     slope5Pct:round((ma[5]/pMa5-1)*100),distanceMA5Pct:round((p/ma[5]-1)*100),
     stretchAtr:atr>0?round((p-ma[5])/atr):null,
     atrPct:round(atr/p*100),volumeRatio:volAvg>0?round(Number(curr[5])/volAvg):null,
+    sellVolumeRatio:sellVolumeRatio===null?null:round(sellVolumeRatio),
+    sellVolumeConfirmed,volumeReliable,downCandle:p<Number(curr[1]),macd,
     below5Two: p<ma[5] && prev<pMa5, below10:p<ma[10],
     brokeLow:p<Math.min(...previousLows),
     upperReject: upperWick>=0.42 && Number(curr[2])>=Math.max(...priorHighs)*0.998,
@@ -52,9 +87,15 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   const weak15=m15.below5Two && m15.slope5Pct<0;
   const break5=m5.brokeLow || (m5.ma5<m5.ma10 && m5.below10);
   const break15= m15.brokeLow && m15.below10;
-  const confirmed=weak15 && break15 && h1.price<h1.ma5 && h1.slope5Pct<0;
-  const possible=weak5 && break5 && (weak15 || m15.slope5Pct<0);
+  // A perda da MA pode antecipar o movimento; MACD e volume qualificam o sinal.
+  // Fase 4 exige MACD vendedor 15m + participação vendedora 15m/1h.
+  const volumeSupport=m15.sellVolumeConfirmed || h1.sellVolumeConfirmed;
+  const confirmed=weak15 && break15 && h1.price<h1.ma5 && h1.slope5Pct<0 &&
+    m15.macd.bearish && volumeSupport;
+  const possible=weak5 && break5 && (weak15 || m15.slope5Pct<0) &&
+    (m5.macd.bearish || m15.macd.histFalling);
   const preliminary=weak5 || m5.upperReject || m15.upperReject ||
+    (m5.macd.histFalling && (m5.slope5Pct<=0 || m5.upperReject)) ||
     (h4.stretchAtr!==null && h4.stretchAtr>=1.5 && m5.price<m5.prev);
   const stage=confirmed?4:possible?3:preliminary?2:1;
   const titles={1:'SEM ALERTA DE REVERSÃO — avaliar contexto 4h',2:'PRÉ-EXAUSTÃO — observar',3:'POSSÍVEL SHORT — não confirmado',4:'BAIXA CONFIRMADA NO INTRADIA — não significa reversão do 4h'};
@@ -69,6 +110,17 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   if(weak15)reasons.push('15m: dois fechamentos abaixo da MA5, com inclinação negativa');
   if(break15)reasons.push('15m: fechamento abaixo de fundo recente e da MA10');
   if(h1.price<h1.ma5 && h1.slope5Pct<0)reasons.push('1h: preço abaixo da MA5 inclinada para baixo');
+  if(m5.macd.histFalling)reasons.push('5m: histograma MACD desacelerando por 2 fechamentos');
+  if(m5.macd.bearishCross || m15.macd.bearishCross)
+    reasons.push('Cruzamento MACD vendedor detectado em candle fechado '+(m5.macd.bearishCross?'5m':'15m'));
+  if(m15.macd.bearish)reasons.push('15m: MACD abaixo da linha de sinal');
+  if(m15.sellVolumeConfirmed)
+    reasons.push('15m: candle de baixa recente com volume >=1,2x dos 20 candles anteriores');
+  else if(h1.sellVolumeConfirmed)
+    reasons.push('1h: candle de baixa recente com volume >=1,2x dos 20 candles anteriores');
+  else reasons.push('Volume vendedor recente sem confirmação >=1,2x; não afirmar reversão confirmada');
+  if(weak15 && break15 && h1.price<h1.ma5 && h1.slope5Pct<0 && !confirmed)
+    reasons.push('Perda estrutural observada, porém confirmação de MACD e/ou volume insuficiente para fase 4');
   if(stage===1)reasons.push('Sem conjunto suficiente de perda de impulso nos candles curtos');
   return {stage,label:titles[stage],trend4h:h4.alignedUp?'ALTA':h4.alignedDown?'BAIXA':'MISTA',
     price:m5.price,candleClose:m5.candleClose,source:sourceNames[0],time:now,reasons,t};
@@ -130,12 +182,19 @@ function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir
           'FASE '+current.stage+' — '+current.label,
           'Fonte: '+current.source+' • 5m fechado: '+new Date(current.candleClose).toLocaleString('pt-BR'),
           'Preço 5m: $ '+current.price.toFixed(3)+' • contexto 4h: '+current.trend4h,
+          'MACD 5m hist: '+current.t['5m'].macd.hist+' • MACD 15m hist: '+current.t['15m'].macd.hist,
+          'Volume 15m: '+current.t['15m'].volumeRatio+'x • pressão vendedora aproximada: '+
+            (current.t['15m'].sellVolumeConfirmed?'acima de 1,2x':'sem confirmação'),
           ...current.reasons.slice(0,5).map(x=>'• '+x),
           'Aviso educativo, não é ordem nem confirmação de SHORT.'].join('\n');
         await telegram(msg);
         stored.sentStage=current.stage;stored.lastAlertAt=lastAttempt;stored.lastAlertCandle=current.candleClose;
         stored.history.unshift({stage:current.stage,label:current.label,price:current.price,
-          source:current.source,candleClose:current.candleClose,sentAt:lastAttempt,reasons:current.reasons,results:{}});
+          source:current.source,candleClose:current.candleClose,sentAt:lastAttempt,reasons:current.reasons,
+          indicators:Object.fromEntries(PERIODS.map(tf=>[tf,{
+            macd:{...current.t[tf].macd},volumeRatio:current.t[tf].volumeRatio,
+            sellVolumeRatio:current.t[tf].sellVolumeRatio,volumeReliable:current.t[tf].volumeReliable
+          }])),results:{}});
         stored.history=stored.history.slice(0,100);changed=true;
       }
       if(changed)save();
