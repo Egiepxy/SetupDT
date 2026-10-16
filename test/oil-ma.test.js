@@ -41,15 +41,47 @@ test('virada nos 5m/15m distingue possível short de reversão 4h',()=>{
   assert.equal(result.stage,3);
   assert.equal(result.trend4h,'ALTA');
 });
-test('estrutura de baixa 15m/1h atinge fase quatro sem inverter 4h',()=>{
-  const {data,sources}=scenario({
+function bearishScenario(){
+  return scenario({
     '5m':i=>i<78?100+.08*i:107-(i-78)*.33,
     '15m':i=>i<75?100+.08*i:106-(i-75)*.35,
     '1h':i=>i<80?95+.16*i:108-(i-80)*.26
   });
+}
+test('sem volume vendedor, queda intradiária continua possível short, não confirmada',()=>{
+  const {data,sources}=bearishScenario();
+  const r=analyzeOilMA(data,sources,NOW);
+  assert.equal(r.stage,3);
+  assert.equal(r.t['15m'].macd.bearish,true);
+  assert.equal(r.t['15m'].sellVolumeConfirmed,false);
+});
+test('queda 15m/1h com MACD vendedor e volume 1,8x atinge fase quatro, 4h segue em alta',()=>{
+  const {data,sources}=bearishScenario();
+  data['15m'].at(-1)[5]=360;
   const r=analyzeOilMA(data,sources,NOW);
   assert.equal(r.stage,4);
   assert.equal(r.trend4h,'ALTA');
+  assert.equal(r.t['15m'].macd.bearish,true);
+  assert.equal(r.t['15m'].sellVolumeConfirmed,true);
+});
+test('volume alto em candle verde não simula fluxo vendedor nem confirma fase quatro',()=>{
+  const {data,sources}=bearishScenario();
+  const last=data['15m'].at(-1);
+  last[1]=last[4]-0.5; // candle verde, mesmo em estrutura de baixa
+  last[2]=Math.max(last[1],last[4])+0.04;
+  last[5]=400;
+  const r=analyzeOilMA(data,sources,NOW);
+  assert.equal(r.t['15m'].sellVolumeConfirmed,false);
+  assert.equal(r.stage,3);
+});
+test('MACD calcula linha, sinal e histograma só de candles fechados',()=>{
+  const {data,sources}=bearishScenario();
+  const initial=analyzeOilMA(data,sources,NOW);
+  assert.equal(initial.t['15m'].macd.bearish,true);
+  data['15m'].push([NOW,5,500,1,5,100000,NOW+900000-1]);
+  const after=analyzeOilMA(data,sources,NOW);
+  assert.equal(after.t['15m'].macd.hist,initial.t['15m'].macd.hist);
+  assert.equal(after.t['15m'].volumeRatio,initial.t['15m'].volumeRatio);
 });
 test('não aceita fontes MEXC e Brent Yahoo misturadas',()=>{
   const {data,sources}=scenario();sources['4h']='Brent BZ=F';
