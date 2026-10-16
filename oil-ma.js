@@ -21,6 +21,23 @@ function emaSeries(values,n){
   }
   return out;
 }
+// RSI de Wilder. Usa exclusivamente fechamentos completos do instrumento selecionado.
+function rsiWilder(closes,n){
+  if(closes.length<=n)return null;
+  let gains=0,losses=0;
+  for(let i=1;i<=n;i++){
+    const change=closes[i]-closes[i-1];
+    gains+=Math.max(change,0);losses+=Math.max(-change,0);
+  }
+  gains/=n;losses/=n;
+  for(let i=n+1;i<closes.length;i++){
+    const change=closes[i]-closes[i-1];
+    gains=(gains*(n-1)+Math.max(change,0))/n;
+    losses=(losses*(n-1)+Math.max(-change,0))/n;
+  }
+  if(losses===0)return gains===0?50:100;
+  return 100-100/(1+gains/losses);
+}
 function readTf(raw, now) {
   const rows = (Array.isArray(raw) ? raw : []).filter(r =>
     Array.isArray(r) && r.length >= 7 && Number(r[6]) < now &&
@@ -59,6 +76,7 @@ function readTf(raw, now) {
   const volumeReliable=Number.isFinite(volAvg)&&volAvg>0 &&
     Number.isFinite(Number(curr[5])) && volAvg>=0.00000001;
   const sellVolumeConfirmed=volumeReliable && sellVolumeRatio>=1.2 && sellVolumeRatio<=20;
+  const rsi={rsi6:round(rsiWilder(c,6),2),rsi12:round(rsiWilder(c,12),2),rsi24:round(rsiWilder(c,24),2)};
   const previousLows = rows.slice(-11,-1).map(r=>Number(r[3]));
   const priorHighs = rows.slice(-13,-1).map(r=>Number(r[2]));
   return {
@@ -68,7 +86,9 @@ function readTf(raw, now) {
     stretchAtr:atr>0?round((p-ma[5])/atr):null,
     atrPct:round(atr/p*100),volumeRatio:volAvg>0?round(Number(curr[5])/volAvg):null,
     sellVolumeRatio:sellVolumeRatio===null?null:round(sellVolumeRatio),
-    sellVolumeConfirmed,volumeReliable,downCandle:p<Number(curr[1]),macd,
+    sellVolumeConfirmed,volumeReliable,downCandle:p<Number(curr[1]),macd,rsi,
+    histMexcScale:round(macd.hist*2,6), // MEXC Original costuma exibir 2 x (DIF - DEA); confira convenção no gráfico.
+    support10:round(Math.min(...previousLows)),
     below5Two: p<ma[5] && prev<pMa5, below10:p<ma[10],
     brokeLow:p<Math.min(...previousLows),
     upperReject: upperWick>=0.42 && Number(curr[2])>=Math.max(...priorHighs)*0.998,
@@ -82,6 +102,9 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   if(sourceNames.some(s=>!s)||new Set(sourceNames).size!==1)
     throw new Error('FONTES INCOMPATÍVEIS: não misturar UKOIL da MEXC e Brent BZ=F.');
   const t=Object.fromEntries(PERIODS.map(tf=>[tf,readTf(data[tf],now)]));
+  // OIL pode parar de negociar: leitura antiga não deve disparar fase como se fosse atual.
+  if(now-t['5m'].candleClose>20*60000 || now-t['15m'].candleClose>45*60000)
+    throw new Error('CANDLES DESATUALIZADOS: 5m/15m sem fechamento recente; monitor pausado.');
   const m5=t['5m'],m15=t['15m'],h1=t['1h'],h4=t['4h'];
   const weak5=m5.below5Two && m5.slope5Pct<=0;
   const weak15=m15.below5Two && m15.slope5Pct<0;
@@ -114,6 +137,15 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   if(m5.macd.bearishCross || m15.macd.bearishCross)
     reasons.push('Cruzamento MACD vendedor detectado em candle fechado '+(m5.macd.bearishCross?'5m':'15m'));
   if(m15.macd.bearish)reasons.push('15m: MACD abaixo da linha de sinal');
+  if(m15.rsi.rsi6<=25)reasons.push('15m: RSI6 muito pressionado ('+m15.rsi.rsi6+'); cuidado com repique. Não perseguir SHORT.');
+  else if(m15.rsi.rsi6<=30)reasons.push('15m: RSI6 abaixo de 30; risco de repique e entrada tardia.');
+  if(m15.macd.hist<0 && m15.macd.histFalling)
+    reasons.push('15m: histograma MACD negativo e ampliando a pressão vendedora.');
+  if(m15.price<m15.ma5 && m15.ma5<m15.ma10)
+    reasons.push('15m: preço abaixo da MA5 e MA5 abaixo da MA10.');
+  if(m15.price<m15.ma30)reasons.push('15m: fechamento abaixo da MA30.');
+  if(m15.price>m15.ma60)reasons.push('15m: ainda acima da MA60; não extrapolar para reversão estrutural.');
+
   if(m15.sellVolumeConfirmed)
     reasons.push('15m: candle de baixa recente com volume >=1,2x dos 20 candles anteriores');
   else if(h1.sellVolumeConfirmed)
@@ -122,8 +154,19 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   if(weak15 && break15 && h1.price<h1.ma5 && h1.slope5Pct<0 && !confirmed)
     reasons.push('Perda estrutural observada, porém confirmação de MACD e/ou volume insuficiente para fase 4');
   if(stage===1)reasons.push('Sem conjunto suficiente de perda de impulso nos candles curtos');
+  const checklist=[
+    {name:'5m: enfraquecimento antecipado (MA5)',ok:weak5},
+    {name:'5m: perda de fundo ou MA5/10',ok:break5},
+    {name:'15m: MA5 em queda e dois fechamentos abaixo',ok:weak15},
+    {name:'15m: perda de fundo e MA10',ok:break15},
+    {name:'15m: MACD vendedor',ok:m15.macd.bearish},
+    {name:'15m/1h: volume em candles de queda >= 1,2x',ok:volumeSupport},
+    {name:'1h: preço abaixo MA5 e inclinação negativa',ok:h1.price<h1.ma5&&h1.slope5Pct<0},
+    {name:'4h: estrutura ainda de alta',ok:h4.alignedUp,contextOnly:true},
+    {name:'15m: RSI6 pressionado, risco de repique',ok:m15.rsi.rsi6<=30,contextOnly:true}
+  ];
   return {stage,label:titles[stage],trend4h:h4.alignedUp?'ALTA':h4.alignedDown?'BAIXA':'MISTA',
-    price:m5.price,candleClose:m5.candleClose,source:sourceNames[0],time:now,reasons,t};
+    price:m5.price,candleClose:m5.candleClose,source:sourceNames[0],time:now,reasons,checklist,t};
 }
 function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir}) {
   const file=path.join(dataDir,'oil-ma-history.json');
@@ -183,6 +226,7 @@ function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir
           'Fonte: '+current.source+' • 5m fechado: '+new Date(current.candleClose).toLocaleString('pt-BR'),
           'Preço 5m: $ '+current.price.toFixed(3)+' • contexto 4h: '+current.trend4h,
           'MACD 5m hist: '+current.t['5m'].macd.hist+' • MACD 15m hist: '+current.t['15m'].macd.hist,
+          'RSI 15m: 6='+current.t['15m'].rsi.rsi6+' 12='+current.t['15m'].rsi.rsi12+' 24='+current.t['15m'].rsi.rsi24,
           'Volume 15m: '+current.t['15m'].volumeRatio+'x • pressão vendedora aproximada: '+
             (current.t['15m'].sellVolumeConfirmed?'acima de 1,2x':'sem confirmação'),
           ...current.reasons.slice(0,5).map(x=>'• '+x),
@@ -192,7 +236,7 @@ function createOilMaDetector({app,oilCandles,telegram,telegramConfigured,dataDir
         stored.history.unshift({stage:current.stage,label:current.label,price:current.price,
           source:current.source,candleClose:current.candleClose,sentAt:lastAttempt,reasons:current.reasons,
           indicators:Object.fromEntries(PERIODS.map(tf=>[tf,{
-            macd:{...current.t[tf].macd},volumeRatio:current.t[tf].volumeRatio,
+            macd:{...current.t[tf].macd},rsi:{...current.t[tf].rsi},volumeRatio:current.t[tf].volumeRatio,
             sellVolumeRatio:current.t[tf].sellVolumeRatio,volumeReliable:current.t[tf].volumeReliable
           }])),results:{}});
         stored.history=stored.history.slice(0,100);changed=true;
