@@ -162,8 +162,8 @@ function analyzeOilMA(data, sources, now=Date.now()) {
     {name:'15m: MACD vendedor',ok:m15.macd.bearish},
     {name:'15m/1h: volume em candles de queda >= 1,2x',ok:volumeSupport},
     {name:'1h: preço abaixo MA5 e inclinação negativa',ok:h1.price<h1.ma5&&h1.slope5Pct<0},
-    {name:'4h: estrutura ainda de alta',ok:h4.alignedUp,contextOnly:true},
-    {name:'15m: RSI6 pressionado, risco de repique',ok:m15.rsi.rsi6<=30,contextOnly:true}
+    {name:'4h: '+(h4.alignedUp?'médias alinhadas para alta':h4.alignedDown?'médias alinhadas para baixa':'médias sem alinhamento completo'),ok:h4.alignedUp,contextOnly:true},
+    {name:'15m: RSI6 '+m15.rsi.rsi6+(m15.rsi.rsi6<=30?' pressionado (risco de repique)':' sem sobrevenda curta'),ok:m15.rsi.rsi6<=30,contextOnly:true}
   ];
   return {stage,label:titles[stage],trend4h:h4.alignedUp?'ALTA':h4.alignedDown?'BAIXA':'MISTA',
     price:m5.price,candleClose:m5.candleClose,source:sourceNames[0],time:now,reasons,checklist,t};
