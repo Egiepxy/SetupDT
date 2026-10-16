@@ -22,13 +22,15 @@ panel.innerHTML=`
 <div class="ma-info" id="oilMaStatus" role="status">Aguardando leitura do servidor…</div>
 <div id="oilMaCards" class="ma-stats"></div>
 <div id="oilMaReasons" class="ma-info">Não existe confirmação de SHORT apenas porque o RSI ou o preço estão elevados.</div>
+<details style="margin-top:9px" open><summary>🎓 Professor: o que já confirmou e o que falta?</summary>
+<div class="ma-info" id="oilMaChecklist">Aguardando candles fechados.</div></details>
 <div class="ma-actions">
 <button type="button" id="oilMaRefresh" class="secondary">↻ Atualizar médias</button>
 <button type="button" id="oilMaCopy" class="secondary">📋 Copiar RelChat</button>
 <button type="button" id="oilMaTxt" class="secondary">📄 Salvar TXT</button>
 </div>
 <details style="margin-top:10px"><summary>📓 Histórico dos avisos de médias e auditoria 15/30/60 min</summary><div id="oilMaHistory" class="ma-info">Sem registros.</div></details>
-<p class="hint">A fase 4 exige MA em deterioração, MACD vendedor no 15m, 1h enfraquecendo e aumento de volume em candles de queda no 15m ou 1h. Mesmo assim, não garante reversão no 4h. O volume não identifica agressor e pode divergir entre MEXC UKOIL e Brent BZ=F. Avisos via Telegram e histórico no Render dependem de publicação e disco persistente.</p>
+<p class="hint">RSI6 abaixo de 30 indica pressão vendedora e também risco de repique. O histograma MEXC Original pode ser exibido como 2 × (DIF − DEA), enquanto este motor calcula o valor convencional e informa as duas escalas. A fase 4 exige MA em deterioração, MACD vendedor no 15m, 1h enfraquecendo e aumento de volume em candles de queda no 15m ou 1h. Mesmo assim, não garante reversão no 4h. O volume não identifica agressor e pode divergir entre MEXC UKOIL e Brent BZ=F. Avisos via Telegram e histórico no Render dependem de publicação e disco persistente.</p>
 `;
 anchor.insertAdjacentElement('afterend',panel);
 const el=id=>document.getElementById(id);
@@ -55,8 +57,14 @@ function report(){
       ' | MACD linha '+fmt(t.macd?.line,5)+' | sinal '+fmt(t.macd?.signal,5)+
       ' | histograma '+fmt(t.macd?.hist,5)+
       ' | hist. caindo '+(t.macd?.histFalling?'sim':'não')+
-      ' | MACD vendedor '+(t.macd?.bearish?'sim':'não'));
+      ' | MACD vendedor '+(t.macd?.bearish?'sim':'não')+
+      ' | histograma padrão MEXC 2x '+fmt(t.histMexcScale,5)+
+      ' | RSI6 '+fmt(t.rsi?.rsi6,1)+' | RSI12 '+fmt(t.rsi?.rsi12,1)+
+      ' | RSI24 '+fmt(t.rsi?.rsi24,1)+
+      ' | fundo 10 candles anteriores '+fmt(t.support10,3));
   }
+  lines.push('', 'CHECKLIST DE CONFIRMAÇÃO');
+  for(const c of s.checklist||[])lines.push((c.contextOnly?'CONTEXTO ':c.ok?'OK ':'FALTA ')+c.name);
   lines.push('', 'MOTIVOS',...s.reasons.map(x=>'• '+x),'');
   lines.push('ALERTAS HISTÓRICOS: '+(payload.history||[]).length);
   for(const e of (payload.history||[]).slice(0,30)){
@@ -64,7 +72,8 @@ function report(){
     for(const tf of ['5m','15m','1h','4h']){
       const v=e.indicators?.[tf];if(v)lines.push('  '+tf+': MACD hist '+fmt(v.macd?.hist,5)+
         ' | vendedor '+(v.macd?.bearish?'sim':'não')+
-        ' | volume '+fmt(v.volumeRatio,2)+'x | volume em queda '+fmt(v.sellVolumeRatio,2)+'x');
+        ' | volume '+fmt(v.volumeRatio,2)+'x | volume em queda '+fmt(v.sellVolumeRatio,2)+'x'+
+        ' | RSI6 '+fmt(v.rsi?.rsi6,1)+' | RSI12 '+fmt(v.rsi?.rsi12,1)+' | RSI24 '+fmt(v.rsi?.rsi24,1));
     }
     for(const minutes of [15,30,60]){
       const r=e.results?.[minutes];lines.push(' '+minutes+'m: '+(r?(r.state+' '+fmt(r.directionalPct,3)+'% no fechamento'):'PENDENTE'));
@@ -90,7 +99,9 @@ function display(p){
     sub.textContent='MA5 '+fmt(t.ma5,3)+' | MA10 '+fmt(t.ma10,3)+' | MA30 '+fmt(t.ma30,3)+' | MA60 '+fmt(t.ma60,3)+
     '\nΔ MA5 '+fmt(t.distanceMA5Pct,2)+'% | inclinação '+fmt(t.slope5Pct,3)+'%/candle'+
     '\nVol '+fmt(t.volumeRatio,2)+'x | baixa '+fmt(t.sellVolumeRatio,2)+'x'+
+    '\nRSI 6 / 12 / 24: '+fmt(t.rsi?.rsi6,1)+' / '+fmt(t.rsi?.rsi12,1)+' / '+fmt(t.rsi?.rsi24,1)+
     '\nMACD (12/26/9): hist '+fmt(t.macd?.hist,5)+
+    ' (MEXC 2x: '+fmt(t.histMexcScale,5)+')'+
     ' • '+(t.macd?.bearish?'vendedor':'comprador')+
     (t.macd?.bearishCross?' • cruzamento vendedor':'')+
     (t.macd?.histFalling?' • impulso enfraquecendo':'');
@@ -98,6 +109,13 @@ function display(p){
   }
   el('oilMaReasons').textContent=s?('Contexto 4h: '+s.trend4h+' • '+s.reasons.join(' • ')):
     'Sem dados suficientes para diagnosticar médias e tendência.';
+  const checklist=el('oilMaChecklist');checklist.replaceChildren();
+  if(!s?.checklist?.length)checklist.textContent='Aguardando checklist de candle fechado.';
+  else for(const x of s.checklist){
+    const line=document.createElement('div');line.style.margin='6px 0';
+    line.textContent=(x.contextOnly?'ⓘ CONTEXTO':x.ok?'✓ PRESENTE':'○ PENDENTE')+' — '+x.name;
+    checklist.appendChild(line);
+  }
   const h=el('oilMaHistory');h.replaceChildren();
   if(!p.history?.length)h.textContent='Nenhum aviso enviado e registrado pelo detector.';
   for(const e of (p.history||[]).slice(0,10)){
