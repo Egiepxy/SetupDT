@@ -119,3 +119,12 @@ test('OIL sem fechamentos recentes não produz sinal novo por cache antigo',()=>
   const {data,sources}=scenario();
   assert.throws(()=>analyzeOilMA(data,sources,NOW+60*60000),/CANDLES DESATUALIZADOS/);
 });
+
+test('MACD 15m vendedor com MA5 abaixo da MA10 avisa cedo sem forçar fase 3',()=>{
+  const {data,sources}=scenario({'15m':i=>i<76?100+.07*i:105.32-.23*(i-76)});
+  const out=analyzeOilMA(data,sources,NOW);
+  assert.equal(out.t['15m'].macd.bearish,true);
+  assert.equal(out.t['15m'].ma5<out.t['15m'].ma10,true);
+  assert.equal(out.stage,2);
+  assert.equal(out.reasons.some(x=>x.includes('pré-aviso')),true);
+});
