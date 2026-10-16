@@ -117,7 +117,10 @@ function analyzeOilMA(data, sources, now=Date.now()) {
     m15.macd.bearish && volumeSupport;
   const possible=weak5 && break5 && (weak15 || m15.slope5Pct<0) &&
     (m5.macd.bearish || m15.macd.histFalling);
-  const preliminary=weak5 || m5.upperReject || m15.upperReject ||
+  // Um 15m já vendedor merece alerta informativo, mesmo se o 5m ainda divergir.
+  // Sem o 5m concordando, nunca elevar essa condição sozinha para fase 3.
+  const early15=m15.price<m15.ma5 && m15.ma5<m15.ma10 && m15.macd.bearish;
+  const preliminary=weak5 || early15 || m5.upperReject || m15.upperReject ||
     (m5.macd.histFalling && (m5.slope5Pct<=0 || m5.upperReject)) ||
     (h4.stretchAtr!==null && h4.stretchAtr>=1.5 && m5.price<m5.prev);
   const stage=confirmed?4:possible?3:preliminary?2:1;
@@ -131,6 +134,7 @@ function analyzeOilMA(data, sources, now=Date.now()) {
   if(weak5)reasons.push('5m: dois fechamentos abaixo da MA5 e inclinação não positiva');
   if(break5)reasons.push('5m: quebra de fundo recente ou MA5 abaixo da MA10 com preço fraco');
   if(weak15)reasons.push('15m: dois fechamentos abaixo da MA5, com inclinação negativa');
+  if(early15 && !possible)reasons.push('15m: MA5 abaixo MA10 e MACD vendedor — pré-aviso, 5m ainda sem confirmação suficiente');
   if(break15)reasons.push('15m: fechamento abaixo de fundo recente e da MA10');
   if(h1.price<h1.ma5 && h1.slope5Pct<0)reasons.push('1h: preço abaixo da MA5 inclinada para baixo');
   if(m5.macd.histFalling)reasons.push('5m: histograma MACD desacelerando por 2 fechamentos');
