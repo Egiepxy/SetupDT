@@ -6,9 +6,9 @@ const PORT = process.env.PORT || 10000;
 const TIMEOUT_MS = 15000;
 const markets = new Set(['binance', 'mexc_spot', 'mexc_futures', 'mexc_stocks']);
 const timeframes = new Set(['15m', '1h', '4h', '1d']);
-const futuresTf = { '15m': 'Min15', '1h': 'Min60', '4h': 'Hour4', '1d': 'Day1' };
+const futuresTf = { '5m': 'Min5', '15m': 'Min15', '1h': 'Min60', '4h': 'Hour4', '1d': 'Day1' };
 const mexcSpotTf = { '15m': '15m', '1h': '60m', '4h': '4h', '1d': '1d' };
-const tfMs = { '15m': 900000, '1h': 3600000, '4h': 14400000, '1d': 86400000 };
+const tfMs = { '5m': 300000, '15m': 900000, '1h': 3600000, '4h': 14400000, '1d': 86400000 };
 const fs = require('fs');
 const DATA_DIR = process.env.SETUPDT_DATA_DIR || path.join(__dirname, 'data');
 const TRADES_FILE = path.join(DATA_DIR, 'simulated-trades.json');
@@ -120,7 +120,8 @@ function aggregate4h(rows) {
 }
 
 async function yahooOilCandles(tf) {
-  const config = tf === '15m' ? { interval: '15m', range: '60d' }
+  const config = tf === '5m' ? { interval: '5m', range: '30d' }
+    : tf === '15m' ? { interval: '15m', range: '60d' }
     : tf === '1d' ? { interval: '1d', range: '2y' }
       : { interval: '60m', range: '1y' };
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent('BZ=F')}?interval=${config.interval}&range=${config.range}&includePrePost=false&events=history`;
@@ -1078,6 +1079,11 @@ require('./btc-liquidez-server')({
   telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length)
 });
 
+// Detector de perda de força OIL — leitura adicional independente do Day Trade e do Professor.
+require('./oil-ma').createOilMaDetector({
+  app, oilCandles, telegram,
+  telegramConfigured: Boolean(TELEGRAM_TOKEN && TELEGRAM_CHAT_IDS.length), dataDir: DATA_DIR
+});
 app.use(express.static(path.join(__dirname, 'public'), { etag: true, maxAge: 0 }));
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

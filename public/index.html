@@ -1435,17 +1435,25 @@ function recordOilSignal(s){
 }
 function drawOilHistory(){const root=$('oilHistory');if(!root)return;root.replaceChildren();$('oilHistoryCount').textContent=oilHistory.length+' evento'+(oilHistory.length===1?'':'s');if(!oilHistory.length){root.append(element('p','muted','Nenhum sinal OIL gravado ainda.'));return;}for(const x of oilHistory){const article=element('article','oil-record '+(x.direction==='HIGH'?'high':'low'));article.append(element('div','head',(x.direction==='HIGH'?'🔴 Exaustão de alta':'🟢 Exaustão de baixa')+(x.level==='ATTENTION'?' • PRÉ-EXAUSTÃO':' • SINAL FORTE')+' • '+x.score+'/100 • $ '+fmt(x.price)),element('div','meta',new Date(x.detected).toLocaleString('pt-BR')+' • alta '+x.highScore+'/100 • baixa '+x.lowScore+'/100 • concordância '+x.agreement+'/3'),element('div','meta',(x.reasons||[]).slice(0,3).join(' | ')||'Sem detalhes adicionais.'));root.append(article);}}
 function drawOilDaytrade(data){
-  const title=$('oilDaytradeCard'),body=$('oilDaytradeBody');
-  if(!title||!body)return;
+  // Não recriar oilDaytradeCard: o corpo persistente precisa continuar visível.
+  const panel=$('oilDaytradeCard');
+  if(!panel)return;
+  let header=panel.querySelector('strong');
+  if(!header){header=document.createElement('strong');panel.prepend(header);}
+  let body=$('oilDaytradeBody');
+  if(!body){
+    body=document.createElement('div');body.id='oilDaytradeBody';body.className='hint';
+    panel.appendChild(body);
+  }
   if(!data){
-    title.innerHTML='<strong>📊 Índice Day Trade OIL — aguardando leitura do servidor.</strong>';
+    header.textContent='📊 Índice Day Trade OIL — aguardando leitura do servidor.';
     body.textContent='O monitor roda no servidor e usa candles fechados de 15m, volume e ATR; o 4h serve de contexto.';
     return;
   }
   const direction=data.direction==='LONG'?'ALTA':data.direction==='SHORT'?'BAIXA':'LATERAL';
   const icon=data.direction==='LONG'?'🟢':data.direction==='SHORT'?'🔴':'⚪';
   const label=data.level==='STRONG'?'MOVIMENTO FORTE':data.level==='ATTENTION'?'ATENÇÃO':'SEM GATILHO';
-  title.innerHTML='<strong>'+icon+' '+label+' • '+direction+' • '+data.score+'/100</strong>';
+  header.textContent=icon+' '+label+' • '+direction+' • '+data.score+'/100';
   const context=data.context4h==='UP'?'4h em alta':data.context4h==='DOWN'?'4h em baixa':'4h lateral';
   const reasons=Array.isArray(data.reasons)?data.reasons.join(' • '):'';
   body.textContent='15m fechado '+new Date(data.candleClose).toLocaleString('pt-BR')+' • preço $ '+fmt(data.price)+' • volume '+Number(data.volumeRatio||0).toFixed(2)+'x • ATR14 '+Number(data.atrPct||0).toFixed(2)+'% • '+context+(data.telegramConfigured?' • Telegram ativo':' • Telegram indisponível')+(reasons?' • '+reasons:'');
@@ -2984,5 +2992,6 @@ renderBridge();
 </script>
 
 <script src="./oil-professor-client.js" defer></script>
+<script src="./oil-ma-client.js" defer></script>
 <script src="./btc-liquidez.js" defer></script>
 </body></html>
