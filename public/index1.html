@@ -106,7 +106,8 @@ summary{cursor:pointer;font-weight:800}
         <li><b>🔵 Aproximando:</b> o preço está perto da neckline/gatilho. É aviso antecipado, ainda não é confirmação.</li>
         <li><b>🟡 Testando / rompeu sem confirmação:</b> o preço tocou ou ultrapassou a região, mas falta fechamento ou confirmação técnica.</li>
         <li><b>🟢 Gatilho confirmado:</b> o candle de 15m fechou de acordo com as regras configuradas, com volume e contexto exigidos.</li>
-        <li><b>🔴 Invalidado:</b> o preço perdeu o nível de invalidação da figura; a leitura anterior precisa ser reavaliada.</li>
+        <li><b>🟠 Alerta de invalidação:</b> preço ao vivo abaixo do nível, pendente de confirmação 15m.</li>
+        <li><b>🔴 Figura arquivada:</b> o último 15m fechou abaixo da invalidação; a figura antiga permanece bloqueada até nova revisão manual.</li>
       </ul>
       <h3>Como usar</h3>
       <p>1. Toque em <b>INICIAR MONITOR</b>. 2. Confira os níveis de gatilho, confirmação e invalidação. 3. Deixe áudio e ntfy ativados se quiser avisos. 4. Quando houver aproximação, acompanhe. 5. Considere confirmação somente depois do fechamento do 15m.</p>
@@ -120,7 +121,7 @@ summary{cursor:pointer;font-weight:800}
         <li><b>1h e 4h:</b> contexto para evitar tratar um gatilho isolado como tendência completa.</li>
       </ul>
       <h3>Importante</h3>
-      <p>Os níveis são editáveis. O monitor é uma ferramenta de acompanhamento técnico; stop, tamanho da posição e decisão de operar continuam separados do alerta.</p>
+      <p>Os níveis são editáveis, mas uma figura arquivada não pode ser reativada simplesmente editando valores: revise a nova estrutura e pressione Ativar nova figura. O monitor é uma ferramenta de estudo; stop, tamanho da posição e decisão de operar continuam separados do alerta.</p>
     </div>
   </div>
 
@@ -141,6 +142,7 @@ summary{cursor:pointer;font-weight:800}
         <li>Áudio e envio pelo ntfy, com cooldown para não repetir avisos sem necessidade.</li>
         <li>Botão para manter a tela ativa enquanto o navegador estiver em primeiro plano.</li>
         <li>Resumo simples, relatório inteligente para ChatGPT e histórico de mudanças.</li>
+        <li>Arquivamento por candle 15m fechado, bloqueio de figura antiga e ativação manual de uma nova estrutura.</li>
       </ul>
     </div>
   </div>
@@ -513,8 +515,8 @@ function generateReports(d,s){
   const trig=n('trigger'),conf=n('confirmLevel'),inv=n('invalidate'),stop=n('stopRef');
   const dist=(trig-d.live)/d.live*100;
   const summary=[
-    `LINKUSDT — ${s.title}`,
-    `Preço: ${fmt(d.live)} | Gatilho: ${fmt(trig)} | ${dist>0?'alta necessária '+dist.toFixed(2)+'% desde o preço atual':'gatilho sendo/testado'}`,
+    `${d.symbol} — ${s.title}`,
+    `Preço: ${fmt(d.live)} | Gatilho: ${fmt(trig)} | ${runtime.figureInvalidated?'ARQUIVADO — distância histórica '+dist.toFixed(2)+'% desde o preço atual':(dist>0?'alta necessária '+dist.toFixed(2)+'% desde o preço atual':'gatilho sendo/testado')}`,
     `15m: ${trend(d.p15)} | RSI ${fmt(d.p15.rsi,1)} | volume ${d.p15.volRatio.toFixed(2)}x | MACD hist ${fmt(d.p15.macdHist,4)}`,
     `1h: ${trend(d.p1)} | 4h: ${trend(d.p4)}`,
     `${missing(d,s)}`,
@@ -532,6 +534,7 @@ function generateReports(d,s){
     `Estado: ${s.title}`,
     `Preço ao vivo: ${fmt(d.live)} | 24h: ${pct(d.change24)}`,
     `Motivo: ${s.reason}`,
+    `Figura: ${runtime.figureInvalidated?'ARQUIVADA — gatilho anterior desativado; exigir nova estrutura manual':'em acompanhamento — confirmar com 15m fechado'}`,
     `Distância de alta do preço atual até o gatilho configurado: ${dist.toFixed(2)}% (base preço atual; se a figura estiver arquivada, apenas histórico)`,
     '',
     '2) NÍVEIS CONFIGURADOS',
@@ -563,6 +566,7 @@ function generateReports(d,s){
     '7) REGRA',
     'Preço ao vivo serve para aviso antecipado. Confirmação usa apenas candle 15m já fechado.',
     '1h e 4h são contexto/confirmação e não bloqueiam o aviso de aproximação.',
+    'Se a figura foi invalidada por candle 15m fechado, não reutilizar o gatilho antigo nem reativar sinais apenas por recuperação do preço.',
     'Não executar operação automaticamente. Recalcular risco/retorno e níveis com os dados atuais.',
     '',
     '8) PEDIDO AO CHATGPT',
@@ -677,7 +681,43 @@ async function shareText(id,title){
   else copyText(id,'Compartilhamento indisponível; texto copiado.');
 }
 
+
+function activateNewFigure(){
+  if(!runtime.figureInvalidated){
+    $('rearmStatus').textContent='Não existe figura arquivada para reativar.';return;
+  }
+  if(!lastSnapshot){
+    $('rearmStatus').textContent='Atualize os dados antes de ativar uma nova figura.';return;
+  }
+  const d=lastSnapshot.d,next=captureLevels(),old=runtime.invalidatedLevels||{};
+  if(!Object.values(next).every(v=>Number.isFinite(v)&&v>0)){
+    $('rearmStatus').textContent='Não ativado: informe todos os níveis com valores positivos.';return;
+  }
+  if(next.invalidate>=Math.min(d.live,d.p15.close)||next.trigger<=Math.max(d.live,d.p15.close)||
+      next.confirm<next.trigger||next.stop>=next.trigger){
+    $('rearmStatus').textContent='Não ativado: invalidação precisa ficar abaixo do preço e do 15m fechado; gatilho acima de ambos; confirmação ≥ gatilho; stop de referência abaixo do gatilho.';return;
+  }
+  if(next.trigger===old.trigger||next.confirm===old.confirm||next.invalidate===old.invalidate){
+    $('rearmStatus').textContent='Não ativado: revise gatilho, confirmação e invalidação; não reutilize os níveis da figura invalidada.';return;
+  }
+  if(!confirm('Confirma que estes níveis foram obtidos de uma NOVA estrutura técnica revisada por você? O app só monitora; não recomenda entrada.'))return;
+  runtime.figureInvalidated=false;
+  runtime.invalidatedLevels=null;
+  runtime.invalidatedAt=null;
+  runtime.hadConfirmed=false;
+  runtime.lastState='';
+  runtime.lastAlertAt={};
+  const event={title:'⚪ NOVA FIGURA ATIVADA',reason:'Níveis revisados manualmente: gatilho '+fmt(next.trigger)+'; confirmação '+fmt(next.confirm)+'; invalidação '+fmt(next.invalidate)+'. Não é sinal de operação.'};
+  addLog(d,event);
+  $('rearmStatus').textContent='Nova figura ativada apenas para monitoramento. Aguarde candles fechados e confirmação técnica.';
+  localStorage.setItem(STATEKEY,JSON.stringify(runtime));
+  save();
+  renderFigureArchive();
+  refresh();
+}
+
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>{save();if(running && el.id==='interval')start()}));
+$('rearmBtn').onclick=activateNewFigure;
 $('startBtn').onclick=start;$('stopBtn').onclick=stop;$('refreshBtn').onclick=refresh;$('wakeBtn').onclick=toggleWake;
 $('manualBtn').onclick=()=>{$('manualCard').classList.toggle('hidden');$('functionsCard').classList.add('hidden');if(!$('manualCard').classList.contains('hidden'))$('manualCard').scrollIntoView({behavior:'smooth',block:'start'});};
 $('functionsBtn').onclick=()=>{$('functionsCard').classList.toggle('hidden');$('manualCard').classList.add('hidden');if(!$('functionsCard').classList.contains('hidden'))$('functionsCard').scrollIntoView({behavior:'smooth',block:'start'});};
