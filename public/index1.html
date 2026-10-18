@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AgoraCrypto LINK — Não Perder Entrada V3</title>
+<title>AgoraCrypto LINK — Não Perder Entrada V3.1</title>
 <style>
 :root{
   --bg:#08101f;--panel:#111b31;--panel2:#16243f;--text:#eef4ff;--muted:#96a8c6;
@@ -70,7 +70,7 @@ summary{cursor:pointer;font-weight:800}
 <body>
 <div class="wrap">
   <div class="card">
-    <div class="small cyan badge">AGORACRYPTO — MODO NÃO PERDER ENTRADA</div>
+    <div class="small cyan badge">AGORACRYPTO V3.1 — MODO NÃO PERDER ENTRADA</div>
     <h1>LINK/USDT</h1>
     <div class="sub">Preço ao vivo avisa aproximação • candle 15m fechado confirma • 1h/4h dão contexto • ntfy + áudio</div>
     <div class="topline" id="oneLine">LINKUSDT • ⚪ aguardando atualização</div>
@@ -387,7 +387,7 @@ async function marketData(){
 }
 function stateInfo(d){
   const trig=n('trigger'), conf=n('confirmLevel'), ap=n('approachPct'), minVol=n('minVol'), inv=n('invalidate');
-  const dist=(trig-d.live)/trig*100;
+  const dist=(trig-d.live)/d.live*100;
   const near=d.live>=trig*(1-ap/100) && d.live<trig;
   const testing=d.live>=trig && d.p15.close<conf;
   const oneHourNotBear=!trend(d.p1).includes('Baixa');
@@ -416,7 +416,7 @@ function stateInfo(d){
     return {key:'TESTANDO',cls:'yellow',title:'🟡 TESTANDO A NECKLINE',reason:`Preço ao vivo está acima de ${fmt(trig)}, mas ainda falta um candle 15m fechado acima de ${fmt(conf)} com volume.`};
   }
   if(near){
-    return {key:'APROXIMANDO',cls:'blue',title:'🔵 APROXIMANDO DO GATILHO',reason:`Faltam aproximadamente ${Math.max(0,dist).toFixed(2)}% para ${fmt(trig)}. Este é o aviso antecipado para você não perder o movimento.`};
+    return {key:'APROXIMANDO',cls:'blue',title:'🔵 APROXIMANDO DO GATILHO',reason:`Alta necessária de aproximadamente ${Math.max(0,dist).toFixed(2)}% desde o preço atual até ${fmt(trig)}. Este é o aviso antecipado para você não perder o movimento.`};
   }
   const rising=d.live>d.p15.close && d.p15.macdHist>0;
   return {key:'ACOMPANHAR',cls:'gray',title:'⚪ ACOMPANHAR',reason:rising?'Ainda distante do gatilho, mas o impulso de 15m está melhorando.':'Ainda não chegou à zona de aproximação do gatilho.'};
@@ -455,8 +455,8 @@ function render(d,s){
   $('whatMissing').textContent=missing(d,s);
 
   const trig=n('trigger');
-  const dist=(trig-d.live)/trig*100;
-  $('distTrigger').textContent=dist>0?`Faltam ${dist.toFixed(2).replace('.',',')}% para ${fmt(trig)}`:`Preço ${Math.abs(dist).toFixed(2).replace('.',',')}% acima de ${fmt(trig)}`;
+  const dist=(trig-d.live)/d.live*100;
+  $('distTrigger').textContent=dist>0?`Faltam ${dist.toFixed(2).replace('.',',')}% de alta desde o preço atual para ${fmt(trig)}`:`Preço ${Math.abs(dist).toFixed(2).replace('.',',')}% acima de ${fmt(trig)}`;
   const inv=n('invalidate'), span=Math.max(.000001,trig-inv);
   const prog=Math.max(0,Math.min(100,(d.live-inv)/span*100));
   $('progressBar').style.width=prog+'%';
@@ -466,10 +466,10 @@ function render(d,s){
 }
 function generateReports(d,s){
   const trig=n('trigger'),conf=n('confirmLevel'),inv=n('invalidate'),stop=n('stopRef');
-  const dist=(trig-d.live)/trig*100;
+  const dist=(trig-d.live)/d.live*100;
   const summary=[
     `LINKUSDT — ${s.title}`,
-    `Preço: ${fmt(d.live)} | Gatilho: ${fmt(trig)} | ${dist>0?'faltam '+dist.toFixed(2)+'%':'gatilho sendo/testado'}`,
+    `Preço: ${fmt(d.live)} | Gatilho: ${fmt(trig)} | ${dist>0?'alta necessária '+dist.toFixed(2)+'% desde o preço atual':'gatilho sendo/testado'}`,
     `15m: ${trend(d.p15)} | RSI ${fmt(d.p15.rsi,1)} | volume ${d.p15.volRatio.toFixed(2)}x | MACD hist ${fmt(d.p15.macdHist,4)}`,
     `1h: ${trend(d.p1)} | 4h: ${trend(d.p4)}`,
     `${missing(d,s)}`,
@@ -479,7 +479,7 @@ function generateReports(d,s){
   $('userReport').textContent=summary;
 
   const gpt=[
-    'RELATÓRIO INTELIGENTE GPT — AGORACRYPTO LINK / NÃO PERDER ENTRADA V2',
+    'RELATÓRIO INTELIGENTE GPT — AGORACRYPTO LINK / NÃO PERDER ENTRADA V3.1',
     `Gerado: ${now()}`,
     `Ativo: ${d.symbol} | Fonte: ${$('exchange').value.toUpperCase()} Spot`,
     '',
@@ -487,6 +487,7 @@ function generateReports(d,s){
     `Estado: ${s.title}`,
     `Preço ao vivo: ${fmt(d.live)} | 24h: ${pct(d.change24)}`,
     `Motivo: ${s.reason}`,
+    `Distância de alta do preço atual até o gatilho configurado: ${dist.toFixed(2)}% (base preço atual; se a figura estiver arquivada, apenas histórico)`,
     '',
     '2) NÍVEIS CONFIGURADOS',
     `Neckline/gatilho inicial: ${fmt(trig)}`,
