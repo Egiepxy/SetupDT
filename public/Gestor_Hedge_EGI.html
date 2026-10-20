@@ -70,6 +70,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <div><label for="change">Variação em relação à entrada LONG</label><input type="range" id="change" min="-60" max="60" step="1" value="0"><div id="changeLabel" class="blue">0%</div></div>
 <div><label>Movimentos rápidos</label><div class="controls"><button type="button" class="secondary preset" data-v="-30">−30%</button><button type="button" class="secondary preset" data-v="-20">−20%</button><button type="button" class="secondary preset" data-v="-10">−10%</button><button type="button" class="secondary preset" data-v="0">0%</button><button type="button" class="secondary preset" data-v="10">+10%</button></div></div>
 </div>
+<div id="scenarioRisk" class="warning" style="display:none" role="alert"></div>
 <div class="three" aria-live="polite">
 <div class="metric"><label>🟢 Resultado LONG</label><strong id="lPnL">—</strong></div>
 <div class="metric"><label>🔴 Resultado SHORT</label><strong id="sPnL">—</strong></div>
@@ -121,7 +122,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <div class="line"><span>Condição de margem no preço simulado</span><b id="health">—</b></div>
 <div class="line"><span>LONG isolado: limite teórico inferior</span><b id="isoLong">—</b></div>
 <div class="line"><span>SHORT isolado: limite teórico superior</span><b id="isoShort">—</b></div>
-<p class="note">Modelo linear simplificado: Cross utiliza patrimônio total informado e manutenção aproximada proporcional ao notional dos dois lados. Isolada considera a margem de cada posição separadamente. Não são preços operacionais de liquidação; taxas, funding, ordens pendentes, outras posições, faixas de risco, ajustes e preço justo podem modificar materialmente o valor.</p>
+<p class="note">Modelo linear simplificado: Cross utiliza patrimônio total informado e manutenção aproximada proporcional ao notional dos dois lados. Isolada considera a margem de cada posição separadamente. Não são preços operacionais de liquidação; taxas, funding, ordens pendentes, outras posições, faixas de risco, ajustes e preço justo podem modificar materialmente o valor. Em Cross, a MEXC pode fazer compensação automática entre LONG e SHORT após o início da liquidação.</p>
 </details>
 </section>
 
@@ -140,7 +141,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <p><b>Reversão observada:</b> estudar candles fechados, volume, BTC, força relativa da moeda e confluência 15m/1h/4h antes de agir. Nem toda recuperação justifica encerrar o SHORT.</p>
 <p><b>Risco:</b> ganho no SHORT não implica aumento do patrimônio líquido, pois o LONG pode perder mais. Encerrar o SHORT e recomprar alavancado aumenta a sensibilidade a quedas adicionais.</p>
 <p><b>Operação real:</b> confira liquidação, manutenção, funding, taxas, exposição e patrimônio diretamente no painel MEXC. O modo hedge permite dois lados; a proteção efetiva depende do regime de margem.</p>
-<p><b>Integridade:</b> esta página não lê a conta, não executa ordens, não faz previsões, não usa dados em tempo real e não manda alertas.</p>
+<p><b>Integridade:</b> esta página não lê a conta, não executa ordens, não faz previsões, não usa dados em tempo real e não manda alertas. Na margem cruzada, a MEXC pode compensar LONG e SHORT automaticamente durante uma liquidação.</p>
 </details>
 <p class="note">EGI V1.0 • Simulador independente para testes no SetupDT • Dados guardados apenas neste navegador quando solicitado.</p>
 </main>
@@ -204,6 +205,11 @@ var isoS=d.qs>0?((d.qs*d.se+d.sm)/(d.qs*(1+r))):NaN;
 set("isoLong",price(isoL));set("isoShort",price(isoS));
 var crit=mode==="cross"?calculatedLiq(d,r):null;
 set("liqTheory",mode==="cross"?(crit?price(crit.p)+" • "+crit.side:"Não calculável neste cenário"):"Isolada: cada lado tem seu próprio limite");
+var crossed=false,why="";
+if(mode==="cross" && crit && (crit.side.indexOf("inferior")>=0?d.p<=crit.p:d.p>=crit.p)){crossed=true;why="O preço simulado ultrapassou o limite simplificado de margem Cross."}
+if(mode==="isolated" && ((Number.isFinite(isoL)&&d.p<=isoL)||(Number.isFinite(isoS)&&d.p>=isoS))){crossed=true;why="O preço simulado ultrapassou o limite simplificado de pelo menos uma posição isolada."}
+el("scenarioRisk").style.display=crossed?"block":"none";
+el("scenarioRisk").textContent=crossed?"⚠️ CENÁRIO ALÉM DA LIQUIDAÇÃO TEÓRICA. "+why+" Os PNLs abaixo são apenas contas hipotéticas: na prática as posições poderiam ter sido liquidadas antes. Não trate o DCA ou o capital liberado como executáveis nesse cenário.":"";
 if(mode==="cross"){
 var maint=(d.ql+d.qs)*d.p*r;set("health",money(d.eq)+" de patrimônio / "+money(maint)+" de manutenção teórica");
 }else{set("health","LONG: "+money(d.lm+d.lp)+" | SHORT: "+money(d.sm+d.sp)+" (separados)")}
