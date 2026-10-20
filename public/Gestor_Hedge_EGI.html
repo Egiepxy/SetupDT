@@ -93,6 +93,9 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 </section>
 <section class="card">
 <h2>4. Testar DCA após fechar SHORT</h2>
+<p class="note">Fechar o SHORT realiza o PNL, mas não acrescenta patrimônio ao saldo Cross. Os 160 USDT calculados no exemplo são uma referência bruta, não autorização para abrir outra posição.</p>
+<div class="field"><label for="availableAfterClose">Saldo efetivamente DISPONÍVEL para nova margem na MEXC após o fechamento (opcional)</label><input id="availableAfterClose" type="number" min="0" step="any" placeholder="Não informado — simulação teórica"></div>
+<p class="note" id="dcaAvailability">Sem saldo informado: DCA apenas hipotético.</p>
 <div class="field"><label for="dca">Parcela dos recursos liberados destinada ao DCA</label><input id="dca" type="range" min="0" max="100" value="50" step="5"><div id="dcaLabel" class="blue">50%</div></div>
 <div class="line"><span>Margem nova destinada ao LONG</span><b id="dcaMargin">—</b></div>
 <div class="line"><span>Notional novo com alavancagem</span><b id="dcaNotional">—</b></div>
@@ -102,6 +105,15 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <p class="note">DCA é apenas uma simulação; não considera preço de execução, slippage, taxas nem eventuais limites da corretora. Fazer DCA aumenta a exposição se a queda continuar.</p>
 </section>
 </div>
+
+<section class="card">
+<h2>4B. Comparação: nova queda de 10% a partir do preço simulado</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>Decisão hipotética</th><th>Perda adicional</th><th>Patrimônio final</th></tr></thead>
+<tbody><tr><td>Manter LONG + SHORT</td><td id="cmpKeepLoss">—</td><td id="cmpKeepEq">—</td></tr>
+<tr><td>Fechar SHORT, sem DCA</td><td id="cmpCloseLoss">—</td><td id="cmpCloseEq">—</td></tr>
+<tr><td>Fechar SHORT + DCA simulado</td><td id="cmpDcaLoss">—</td><td id="cmpDcaEq">—</td></tr></tbody></table></div>
+<p class="note">Cenários brutos e lineares: só fazem sentido se as posições chegarem até lá sem liquidação, custos ou alterações no tamanho. Fechar SHORT aumenta a exposição à queda; DCA alavancado aumenta ainda mais. O patrimônio calculado não é saldo livre.</p>
+</section>
 
 <section class="card">
 <h2>5. Distância de liquidação e margem</h2>
@@ -148,7 +160,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <script>
 (function(){
 "use strict";
-var ids=["symbol","mode","lentry","lmargin","llev","price","balance","sentry","smargin","slev","change","dca","liqBefore","liqNow","mmr"];
+var ids=["symbol","mode","lentry","lmargin","llev","price","balance","sentry","smargin","slev","change","dca","availableAfterClose","liqBefore","liqNow","mmr"];
 function el(id){return document.getElementById(id)}
 function v(id){return Number(el(id).value)}
 function money(n){return Number.isFinite(n)?n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+" USDT":"—"}
@@ -157,7 +169,7 @@ function fmt(n){return Number.isFinite(n)?n.toLocaleString("pt-BR",{minimumFract
 function signed(n){return (n>0?"+":"")+money(n)}
 function set(id,value){el(id).textContent=value}
 function colored(id,n){el(id).classList.remove("green","red");el(id).classList.add(n>=0?"green":"red");set(id,signed(n))}
-function valid(){return ["lentry","sentry","price","llev","slev"].every(function(i){return v(i)>0&&Number.isFinite(v(i))})&&["lmargin","smargin","balance"].every(function(i){return v(i)>=0&&Number.isFinite(v(i))})&&v("mmr")>=0&&v("mmr")<30}
+function valid(){return ["lentry","sentry","price","llev","slev"].every(function(i){return v(i)>0&&Number.isFinite(v(i))})&&["lmargin","smargin","balance"].every(function(i){return v(i)>=0&&Number.isFinite(v(i))})&&(el("availableAfterClose").value.trim()===""||(Number.isFinite(v("availableAfterClose"))&&v("availableAfterClose")>=0))&&v("mmr")>=0&&v("mmr")<30}
 function get(){
 var lm=v("lmargin"),sm=v("smargin"),le=v("lentry"),se=v("sentry"),p=v("price"),ll=v("llev"),sl=v("slev"),bal=v("balance");
 var ql=lm*ll/le, qs=sm*sl/se,lp=(p-le)*ql,sp=(se-p)*qs,eq=lm+sm+bal+lp+sp;
@@ -192,9 +204,15 @@ colored("lPnL",d.lp);colored("sPnL",d.sp);colored("netPnL",net);
 set("netExp",money((d.ql-d.qs)*d.p));set("own",money(d.lm+d.sm));set("equity",money(d.eq));
 colored("realized",d.sp);set("shortOriginal",money(d.sm));
 var released=Math.max(0,d.sm+d.sp);set("released",money(released));set("longAlone",money(d.ql*d.p));
-var proportion=v("dca")/100,marginAdded=released*proportion,notionalAdded=marginAdded*d.ll,quantityAdded=notionalAdded/d.p,newQty=d.ql+quantityAdded;
+var proportion=v("dca")/100,hasAvailable=el("availableAfterClose").value.trim()!=="",proposed=released*proportion;
+var marginAdded=hasAvailable?Math.min(proposed,v("availableAfterClose")):proposed;
+set("dcaAvailability",hasAvailable?"Saldo informado da MEXC: "+money(v("availableAfterClose"))+". DCA limitado ao menor valor entre a parcela escolhida e o saldo disponível registrado.":"Saldo efetivo da MEXC não informado: "+money(proposed)+" de DCA é somente uma hipótese, não margem confirmada.");
+var notionalAdded=marginAdded*d.ll,quantityAdded=notionalAdded/d.p,newQty=d.ql+quantityAdded;
 var average=newQty>0?(d.ql*d.le+notionalAdded)/newQty:NaN;
 set("dcaLabel",v("dca")+"%");set("dcaMargin",money(marginAdded));set("dcaNotional",money(notionalAdded));set("newEntry",price(average));set("newExposure",money(newQty*d.p));set("anotherDown",signed(-newQty*d.p*.10));
+var keepDrop=-(d.ql-d.qs)*d.p*.10,closeDrop=-d.ql*d.p*.10,dcaDrop=-newQty*d.p*.10;
+set("cmpKeepLoss",signed(keepDrop));set("cmpCloseLoss",signed(closeDrop));set("cmpDcaLoss",signed(dcaDrop));
+set("cmpKeepEq",money(d.eq+keepDrop));set("cmpCloseEq",money(d.eq+closeDrop));set("cmpDcaEq",money(d.eq+dcaDrop));
 set("changeLabel",fmt((d.p/d.le-1)*100));
 var prev=v("liqBefore"),curr=v("liqNow"),hasPrev=el("liqBefore").value.trim()!==""&&prev>0,hasCurr=el("liqNow").value.trim()!==""&&curr>0;
 set("distNow",hasCurr?fmt((d.p-curr)/d.p*100):"Não informado");
@@ -223,7 +241,7 @@ el("shortCaution").textContent=(d.sm+d.sp<=0?"ALERTA: o resultado matemático es
 }
 function report(){
 if(!valid())return "Entradas inválidas";
-var d=get(),delta=(d.p/d.le-1)*100,released=Math.max(0,d.sm+d.sp),marginAdded=released*v("dca")/100,addedQ=marginAdded*d.ll/d.p,newQ=d.ql+addedQ,avg=newQ>0?(d.ql*d.le+marginAdded*d.ll)/newQ:NaN;
+var d=get(),delta=(d.p/d.le-1)*100,released=Math.max(0,d.sm+d.sp),hypotheticalMargin=released*v("dca")/100,hasAvailable=el("availableAfterClose").value.trim()!=="",marginAdded=hasAvailable?Math.min(hypotheticalMargin,v("availableAfterClose")):hypotheticalMargin,addedQ=marginAdded*d.ll/d.p,newQ=d.ql+addedQ,avg=newQ>0?(d.ql*d.le+marginAdded*d.ll)/newQ:NaN;
 return [
 "RELGPT — GESTOR DE HEDGE DINÂMICO EGI V1.0 — ESTUDO, NÃO ORDEM",
 "Data: "+new Date().toLocaleString("pt-BR"),
@@ -234,14 +252,18 @@ return [
 "PNL LONG: "+signed(d.lp)+" | PNL SHORT: "+signed(d.sp)+" | conjunto: "+signed(d.lp+d.sp),
 "Exposição líquida a preço atual: "+money((d.ql-d.qs)*d.p),
 "Patrimônio conjunto simulado: "+money(d.eq)+" (inclui "+money(d.bal)+" de saldo livre)",
-"Se fechar SHORT: resultado realizado "+signed(d.sp)+"; margem liberada potencial "+money(released),
+"Se fechar SHORT: resultado realizado "+signed(d.sp)+"; liberação BRUTA potencial "+money(released)+" (NÃO é patrimônio adicional)",
+"Saldo disponível efetivo após fechar SHORT (manual): "+(hasAvailable?money(v("availableAfterClose")):"NÃO INFORMADO — DCA NÃO CONFIRMADO"),
 "DCA com "+v("dca")+"% da liberação: "+money(marginAdded)+" margem; "+money(marginAdded*d.ll)+" novo notional",
 "LONG após DCA: preço médio "+price(avg)+"; exposição "+money(newQ*d.p),
-"Perda adicional estimada se preço cair mais 10% após DCA: "+signed(-newQ*d.p*.10),
+"Se cair mais 10% a partir do preço simulado:",
+"  Manter hedge: perda adicional "+signed(-(d.ql-d.qs)*d.p*.10)+"; patrimônio "+money(d.eq-(d.ql-d.qs)*d.p*.10),
+"  Fechar SHORT sem DCA: perda adicional "+signed(-d.ql*d.p*.10)+"; patrimônio "+money(d.eq-d.ql*d.p*.10),
+"  Fechar SHORT + DCA: perda adicional "+signed(-newQ*d.p*.10)+"; patrimônio "+money(d.eq-newQ*d.p*.10),
 "Liquid. MEXC antes (manual): "+(el("liqBefore").value||"não informada"),
 "Liquid. MEXC agora (manual): "+(el("liqNow").value||"não informada"),
 "ATENÇÃO: simulação linear bruta; sem ordens, sem garantias. Liquidação, funding, taxa, mark price e outras posições dependem da corretora.",
-"REGRA EGI: não realizar DCA só porque caiu; conferir mercado/moeda, risco, liquidação e candles fechados."
+"REGRA EGI: DCA depende de margem realmente disponível na corretora; não realizar DCA só porque caiu; conferir mercado/moeda, risco, liquidação e candles fechados."
 ].join("\n");
 }
 function updateFromRange(){var b=v("lentry"),pct=v("change");el("price").value=(b*(1+pct/100)).toFixed(8).replace(/0+$/,"").replace(/\.$/,"");render()}
@@ -249,7 +271,7 @@ function updateFromPrice(){var b=v("lentry");if(b>0){var pct=(v("price")/b-1)*10
 ids.forEach(function(id){el(id).addEventListener("input",id==="change"?updateFromRange:id==="price"?updateFromPrice:render);el(id).addEventListener("change",id==="change"?updateFromRange:id==="price"?updateFromPrice:render)});
 document.querySelectorAll(".preset").forEach(function(b){b.addEventListener("click",function(){el("change").value=b.getAttribute("data-v");updateFromRange()})});
 el("save").addEventListener("click",function(){try{var out={};ids.forEach(function(i){out[i]=el(i).value});localStorage.setItem("gestorHedgeEGI_v1",JSON.stringify(out));set("message","Configuração salva neste navegador.")}catch(e){set("message","O navegador não permitiu salvar. Você pode baixar o relatório TXT.")}});
-el("reset").addEventListener("click",function(){if(!confirm("Restaurar o exemplo fictício?"))return;var o={symbol:"EXEMPLOUSDT",mode:"cross",lentry:"15",lmargin:"300",llev:"3",price:"15",balance:"0",sentry:"15",smargin:"100",slev:"3",change:"0",dca:"50",liqBefore:"",liqNow:"",mmr:".5"};ids.forEach(function(i){el(i).value=o[i]});render()});
+el("reset").addEventListener("click",function(){if(!confirm("Restaurar o exemplo fictício?"))return;var o={symbol:"EXEMPLOUSDT",mode:"cross",lentry:"15",lmargin:"300",llev:"3",price:"15",balance:"0",sentry:"15",smargin:"100",slev:"3",change:"0",dca:"50",availableAfterClose:"",liqBefore:"",liqNow:"",mmr:".5"};ids.forEach(function(i){el(i).value=o[i]});render()});
 el("copy").addEventListener("click",function(){var t=report();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){set("message","Relatório copiado.")}).catch(function(){fallbackCopy(t)})}else fallbackCopy(t)});
 function fallbackCopy(t){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");set("message","Relatório copiado.")}catch(e){set("message","Cópia indisponível neste navegador. Use Baixar relatório.")}ta.remove()}
 el("download").addEventListener("click",function(){var a=document.createElement("a"),url=URL.createObjectURL(new Blob([report()],{type:"text/plain;charset=utf-8"}));a.href=url;a.download="RelHedge_EGI_"+new Date().toISOString().slice(0,10)+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},2000);set("message","Relatório TXT preparado para download.")});
