@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081323"><title>Robô EGI V10.1 — SetupDT + ntfy</title><style>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081323"><title>Robô EGI V10.2 — SetupDT + ntfy</title><style>
 :root{color-scheme:dark;--bg:#081323;--card:#14243a;--muted:#acc2dd;--border:#365474;--green:#35dea5;--amber:#f7ce77;--red:#ff8494;--blue:#60d9f6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf5ff;font:14px/1.45 system-ui,Arial;padding-bottom:72px}header{position:sticky;top:0;z-index:4;background:#09182bf5;border-bottom:1px solid var(--border);padding:12px 14px}header>div,main,nav>div{max-width:980px;margin:auto}h1{font-size:22px;margin:0}h2{font-size:17px;margin:0 0 10px}h3{font-size:15px;margin:8px 0}.small,.hint{font-size:12px;color:var(--muted)}main{padding:10px}.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:14px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}button,select,input,textarea{font:inherit;color:#eaf6ff;background:#233d59;border:1px solid #52799d;border-radius:9px;padding:9px;min-height:40px}button{cursor:pointer;font-weight:750}button:disabled{opacity:.5;cursor:wait}.primary{background:#12b9cb;color:#031925;border-color:#56ecf6}.danger{color:#ffd3db}select{max-width:100%}input[type=text]{flex:1;min-width:155px}input[type=checkbox]{min-height:0;accent-color:var(--green)}label{display:block;font-size:12px;color:#d4e5fa;margin-bottom:4px}.stat{border:1px solid var(--border);background:#091b2f;padding:10px;border-radius:11px}.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.muted{color:var(--muted)}.ok{color:var(--green)}.wait{color:var(--amber)}.bad{color:var(--red)}.pill{display:inline-block;border:1px solid currentColor;border-radius:30px;padding:3px 8px;font-size:11px;font-weight:800}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--border);white-space:nowrap}th{color:#b5ccea}td.reason{white-space:normal;min-width:240px}tr[data-state=signal]{background:#104032}tr[data-state=prepare]{background:#40391f}tr[data-state=wait]{background:#283348}tr[data-state=error]{background:#41242d}details{border:1px solid var(--border);padding:11px;border-radius:10px;margin-top:10px}summary{cursor:pointer;font-weight:800}.notice{padding:10px;border:1px solid #49759a;border-radius:10px;margin:10px 0;background:#0d2339}nav{position:fixed;bottom:0;left:0;right:0;background:#0b192cf6;border-top:1px solid var(--border);padding:8px}nav>div{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}nav button{font-size:12px}a{color:#83e8ff}#manual{white-space:pre-wrap;max-height:440px;overflow:auto;font-size:12px;line-height:1.65}.pairchips{display:flex;flex-wrap:wrap;gap:5px;max-height:130px;overflow:auto}.chip{font-size:11px;padding:3px 8px;background:#173b54;border-radius:30px}progress{width:100%;height:12px} @media(max-width:530px){h1{font-size:19px}.card{padding:11px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}th,td{padding:7px 5px}nav button{padding:7px 3px}}
 
 /* V3 preserva V2: tabela adaptada ao celular: todas as colunas e o motivo ficam visíveis sem corte horizontal. */
@@ -15,7 +15,7 @@
 .query-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:9px 0}.query-tools>div{flex:1 1 165px;min-width:0}.query-tools input,.query-tools select{width:100%;max-width:100%}.query-tools label{margin:0 0 4px}.alpha-note{font-size:12px;color:#b7dbec;margin-top:8px}
 .stat.clickable{cursor:pointer;transition:transform .12s ease,border-color .12s ease}.stat.clickable:hover,.stat.clickable:focus{border-color:#60d9f6;transform:translateY(-1px);outline:none}.stat.clickable::after{content:"toque para ver";display:block;font-size:9px;color:#7896b5;margin-top:5px;text-transform:uppercase;letter-spacing:.04em}.stat-detail{margin-top:10px}.stat-list{display:grid;gap:7px;margin-top:8px}.stat-item{width:100%;text-align:left;background:#0b2137}.score{font-weight:850;color:#d7f6ff}.class-final{font-weight:900;letter-spacing:.01em}.class-final.confirmed{color:var(--green)}.class-final.prepare{color:var(--amber)}.class-final.observe{color:#9fd5ff}.class-final.discard{color:var(--red)}.joint-alert{border-color:#365474}.joint-alert.active{border-color:#35dea5;background:#0e3b30;box-shadow:0 0 0 1px #35dea533 inset}.joint-alert.reference{border-color:#f7ce77;background:#3a321e}
 
-/* V10.1: ntfy no celular, independente de áudio */
+/* V10.2: ntfy no celular, independente de áudio */
 .ntfy-config{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .ntfy-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .ntfy-line>label{font-weight:700}
@@ -390,7 +390,7 @@ async function checkSetup(f,tf,signal){
  return {ev,final,agree,dir:fDirection,snaps};
 }
 
-// V10.1 — ntfy separado dos alertas locais e persistido apenas neste navegador.
+// V10.2 — ntfy separado dos alertas locais e persistido apenas neste navegador.
 const NTFY_SETTINGS_KEY='robo_egi_v10_ntfy_config';
 const NTFY_SENT_KEY='robo_egi_v10_ntfy_sent';
 const NTFY_PENDING_KEY='robo_egi_v10_ntfy_pending';
@@ -531,7 +531,7 @@ async function testNtfy(){
  const button=$('ntfyTest');button.disabled=true;
  ntfyStatus('⏳ Enviando mensagem de teste ao ntfy.sh…','warning');
  try{
-  await postNtfy(topic,'ROBO EGI V10.1 | TESTE','✅ Teste ntfy do Robô EGI V10.1 — '+timestamp(Date.now())+'\nEste é apenas um teste de conexão, NÃO é sinal de operação.');
+  await postNtfy(topic,'ROBO EGI V10.2 | TESTE','✅ Teste ntfy do Robô EGI V10.2 — '+timestamp(Date.now())+'\nEste é apenas um teste de conexão, NÃO é sinal de operação.');
   ntfyStatus('✅ Teste aceito pelo servidor ntfy! Verifique no Android se o canal '+topic+' está assinado.','ok');
   if(ntfyConfig.enabled)void flushNtfyQueue();
  }catch(e){ntfyStatus('❌ Falha no teste ntfy: '+(e.message||String(e))+'. Verifique rede, HTTPS, canal e restrições CORS.','error');}
