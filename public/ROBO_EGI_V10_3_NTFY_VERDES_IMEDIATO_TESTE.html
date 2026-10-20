@@ -1,0 +1,809 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081323"><title>Robô EGI V10.3 — SetupDT + ntfy</title><style>
+:root{color-scheme:dark;--bg:#081323;--card:#14243a;--muted:#acc2dd;--border:#365474;--green:#35dea5;--amber:#f7ce77;--red:#ff8494;--blue:#60d9f6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf5ff;font:14px/1.45 system-ui,Arial;padding-bottom:72px}header{position:sticky;top:0;z-index:4;background:#09182bf5;border-bottom:1px solid var(--border);padding:12px 14px}header>div,main,nav>div{max-width:980px;margin:auto}h1{font-size:22px;margin:0}h2{font-size:17px;margin:0 0 10px}h3{font-size:15px;margin:8px 0}.small,.hint{font-size:12px;color:var(--muted)}main{padding:10px}.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:14px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}button,select,input,textarea{font:inherit;color:#eaf6ff;background:#233d59;border:1px solid #52799d;border-radius:9px;padding:9px;min-height:40px}button{cursor:pointer;font-weight:750}button:disabled{opacity:.5;cursor:wait}.primary{background:#12b9cb;color:#031925;border-color:#56ecf6}.danger{color:#ffd3db}select{max-width:100%}input[type=text]{flex:1;min-width:155px}input[type=checkbox]{min-height:0;accent-color:var(--green)}label{display:block;font-size:12px;color:#d4e5fa;margin-bottom:4px}.stat{border:1px solid var(--border);background:#091b2f;padding:10px;border-radius:11px}.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.muted{color:var(--muted)}.ok{color:var(--green)}.wait{color:var(--amber)}.bad{color:var(--red)}.pill{display:inline-block;border:1px solid currentColor;border-radius:30px;padding:3px 8px;font-size:11px;font-weight:800}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--border);white-space:nowrap}th{color:#b5ccea}td.reason{white-space:normal;min-width:240px}tr[data-state=signal]{background:#104032}tr[data-state=prepare]{background:#40391f}tr[data-state=wait]{background:#283348}tr[data-state=error]{background:#41242d}details{border:1px solid var(--border);padding:11px;border-radius:10px;margin-top:10px}summary{cursor:pointer;font-weight:800}.notice{padding:10px;border:1px solid #49759a;border-radius:10px;margin:10px 0;background:#0d2339}nav{position:fixed;bottom:0;left:0;right:0;background:#0b192cf6;border-top:1px solid var(--border);padding:8px}nav>div{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}nav button{font-size:12px}a{color:#83e8ff}#manual{white-space:pre-wrap;max-height:440px;overflow:auto;font-size:12px;line-height:1.65}.pairchips{display:flex;flex-wrap:wrap;gap:5px;max-height:130px;overflow:auto}.chip{font-size:11px;padding:3px 8px;background:#173b54;border-radius:30px}progress{width:100%;height:12px} @media(max-width:530px){h1{font-size:19px}.card{padding:11px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}th,td{padding:7px 5px}nav button{padding:7px 3px}}
+
+/* V3 preserva V2: tabela adaptada ao celular: todas as colunas e o motivo ficam visíveis sem corte horizontal. */
+@media(max-width:650px){
+ .tablewrap{overflow:visible}#rows{display:block}table{display:block;width:100%}thead{display:none}
+ #rows tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0;padding:11px;border:1px solid var(--border);border-radius:12px;background:#10243a}
+ #rows tr[data-state=signal]{border-color:#32cb98;background:#123b32}#rows tr[data-state=prepare]{border-color:#b39951;background:#353021}#rows tr[data-state=error]{border-color:#be606e;background:#39242c}
+ #rows td{display:block;min-width:0;padding:3px 0;border:0;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+ #rows td::before{content:attr(data-label);display:block;font-size:10px;color:#b5ccea;font-weight:700;margin-bottom:2px}
+ #rows td:nth-child(1){font-size:17px;font-weight:850}#rows td:nth-child(2),#rows td:nth-child(3),#rows td:nth-child(4),#rows td:nth-child(5),#rows td:nth-child(8){grid-column:1/-1}
+ #rows td:nth-child(8) button{width:100%;text-align:left}#rows td:nth-child(5){font-weight:800}
+ nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}nav button{font-size:12px}
+}
+.query-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:9px 0}.query-tools>div{flex:1 1 165px;min-width:0}.query-tools input,.query-tools select{width:100%;max-width:100%}.query-tools label{margin:0 0 4px}.alpha-note{font-size:12px;color:#b7dbec;margin-top:8px}
+.stat.clickable{cursor:pointer;transition:transform .12s ease,border-color .12s ease}.stat.clickable:hover,.stat.clickable:focus{border-color:#60d9f6;transform:translateY(-1px);outline:none}.stat.clickable::after{content:"toque para ver";display:block;font-size:9px;color:#7896b5;margin-top:5px;text-transform:uppercase;letter-spacing:.04em}.stat-detail{margin-top:10px}.stat-list{display:grid;gap:7px;margin-top:8px}.stat-item{width:100%;text-align:left;background:#0b2137}.score{font-weight:850;color:#d7f6ff}.class-final{font-weight:900;letter-spacing:.01em}.class-final.confirmed{color:var(--green)}.class-final.prepare{color:var(--amber)}.class-final.observe{color:#9fd5ff}.class-final.discard{color:var(--red)}.joint-alert{border-color:#365474}.joint-alert.active{border-color:#35dea5;background:#0e3b30;box-shadow:0 0 0 1px #35dea533 inset}.joint-alert.reference{border-color:#f7ce77;background:#3a321e}
+
+/* V10.3: ntfy no celular, independente de áudio */
+.ntfy-config{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.ntfy-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ntfy-line>label{font-weight:700}
+.ntfy-channel{width:100%;font-size:16px;letter-spacing:.01em;min-height:43px}
+.ntfy-help{font-size:14px;line-height:1.65;color:#d1e0f2}
+.ntfy-link{color:#80dffd;text-decoration:underline;overflow-wrap:anywhere}
+#ntfyStatus[data-state="ok"]{border-color:#35dea5;color:#d4ffef}
+#ntfyStatus[data-state="error"]{border-color:#ff8494;color:#ffe1e5}
+#ntfyStatus[data-state="warning"]{border-color:#f7ce77;color:#ffe5a5}
+@media (max-width:650px){#ntfyControls button{flex:1 1 110px;min-height:40px}}
+</style></head><body><header><div><h1>🤖 Robô EGI <span class="ok">V10.3</span> <span class="hint">· ntfy</span></h1><div class="small">Robô filtra → SetupDT confirma · parecer final em 4 níveis · nenhuma ordem é enviada</div></div></header><main>
+<section class="card"><h2>⚙️ Configurar varredura</h2><div class="grid"><div><label for="universe">Moedas por ciclo (Binance Spot)</label><select id="universe"><option value="30">30</option><option value="50">50</option><option value="100" selected>100</option><option value="150">150</option><option value="200">200</option><option value="300">300</option><option value="500">500</option></select></div><div><label for="shortlist">Encaminhamento ao SetupDT</label><select id="shortlist"><option value="all" selected>Somente verdes: todas (automático)</option><option value="10">10 por ciclo (fila rotativa)</option><option value="20">20 por ciclo (fila rotativa)</option><option value="30">30 por ciclo (fila rotativa)</option><option value="50">50 por ciclo (fila rotativa)</option></select></div><div><label for="cycle">Repetir análise</label><select id="cycle"><option value="5">5 minutos</option><option value="15" selected>15 minutos</option><option value="30">30 minutos</option><option value="60">60 minutos</option></select></div><div><label for="tf">Foguete: timeframe de triagem</label><select id="tf"><option value="15m">15m</option><option value="1h">1h</option><option value="4h" selected>4h</option><option value="1d">Diário</option></select></div></div><p class="hint"><strong>REGRA V9: o Foguete continua sendo o filtro principal; somente VERDE — INÍCIO ou VERDE — TENDÊNCIA entra no SetupDT integrado.</strong> Ao fim, cada moeda recebe um parecer único: 🔴 DESCARTAR, 🟡 OBSERVAR, 🟠 PREPARAR ENTRADA ou 🟢 ENTRADA CONFIRMADA. OBSERVAR, PREPARAR, QUEDA CANDIDATA e SEM SINAL do Foguete continuam visíveis no relatório. O verde antecipado é uma triagem, NÃO confirmação de operação. Moedas cadastradas anteriormente continuam na lista A–Z, mas não são aprovadas por estarem cadastradas. O SetupDT analisa 15m, 1h, 4h e diário das verdes. O limite opcional aplica-se somente a verdes com sinal novo ou pendência válida. Com 100 ativos, as 94 moedas cadastradas podem entrar no mesmo ciclo; aumente para 150 para incluir mais descobertas do mercado.</p><div class="row"><label><input type="checkbox" id="shorts" checked> Mostrar candidatas de queda no relatório (não são sinal verde; não encaminhar)</label></div></section>
+<section class="card"><h2>🪙 Lista principal do SetupDT</h2>
+<div class="notice">
+  <label for="setupOnly" style="display:flex;gap:8px;align-items:center;font-size:14px;color:#eaf6ff">
+    <input id="setupOnly" type="checkbox" checked>
+    <strong>Usar SOMENTE as moedas da lista do SetupDT na varredura</strong>
+  </label>
+  <div id="listSourceStatus" class="hint" role="status">Modo recomendado: o SetupDT é a lista principal. O Robô não completa a varredura com moedas extras do ranking.</div>
+</div>
+<div class="row">
+  <button id="syncSetupLocal" class="primary">🔄 Ler lista SetupDT deste navegador</button>
+  <button id="importBtn">📥 Importar lista SetupDT (substituir)</button>
+  <button id="mergeBtn">➕ Juntar outra lista (opcional)</button>
+  <input type="file" id="inputfile" accept=".json,.txt,application/json,text/plain" hidden>
+</div>
+<div class="row" style="margin-top:8px">
+  <input id="newcoin" type="text" placeholder="Adicionar manualmente (opcional)" maxlength="22">
+  <button id="add">＋ Adicionar</button>
+</div>
+<div class="notice" style="margin-top:8px">
+  <label for="autoSaveCoins" style="display:flex;gap:8px;align-items:center;font-size:14px;color:#eaf6ff">
+    <input id="autoSaveCoins" type="checkbox">
+    <strong>Permitir adicionar verdes novas à lista local do Robô (opcional)</strong>
+  </label>
+  <div id="autoSaveStatus" class="hint" role="status">Desligado por padrão para manter a lista do Robô igual à lista principal do SetupDT.</div>
+</div>
+<div class="row" style="margin-top:8px">
+  <button id="backup">💾 Backup da lista atual</button>
+  <button id="exportCoinsTxt">📄 Lista atual TXT</button>
+  <button id="clearList" class="danger">🗑 Limpar lista local</button>
+  <span class="hint" id="listCount"></span>
+</div>
+<div class="pairchips" id="chips"></div>
+<p class="alpha-note">✓ V10: o SetupDT passa a ser a fonte principal. “Importar lista SetupDT” SUBSTITUI a lista local do Robô; “Juntar outra lista” é opcional. Duplicatas são eliminadas. As moedas VERDES continuam sendo enviadas ao SetupDT integrado apenas quando passam pelo Foguete.</p>
+<p class="hint">Formato aceito: JSON <b>setupdt-light-watchlist</b> ou TXT. Lista máxima: 500 moedas. Se a lista for maior que “Moedas por ciclo”, o Robô faz revezamento entre ciclos sem buscar moedas extras quando “Usar somente a lista SetupDT” estiver ligado.</p>
+</section>
+<section class="card" id="greenPanel"><div class="notice"><strong>🔎 Descoberta antecipada V10:</strong> o Foguete procura Supertrend de alta, EMA 9 acima da 20, preço acima da EMA 9, RSI 45–70, volume ≥ 1× a média e folga ≥ 0,5% para resistência. Sem resistência identificável, exige volume ≥ 1,2× e preço até 2,5% acima da EMA 9. Verde significa <strong>candidata para estudo</strong>, não compra; o SetupDT mantém seu checklist 6/6. Sem sinal real, o painel permanece vazio.</div><h2>🟢 Aprovadas pelo Foguete — somente verdes</h2><div class="notice" id="greenStatus" role="status">Nenhuma triagem V10 concluída. Cadastro não é sinal.</div><div class="row"><button id="exportGreenJson" class="primary">📤 Verdes → SetupDT JSON</button><button id="exportGreenTxt">📄 Somente verdes TXT</button><span id="greenCount" class="hint">0 verdes no último ciclo concluído</span></div><div class="pairchips" id="greenChips"></div><p class="hint">O SetupDT <strong>integrado neste robô</strong> recebe as verdes automaticamente. Para enviar ao SetupDT em outro HTML/endereço, exporte e importe a seleção verde: não use o backup A–Z histórico. Se nenhum ativo ficar VERDE, ninguém será enviado. O mesmo verde já avaliado só volta à fila após sair do verde e retornar, mudar de fase verde ou alterar o timeframe. A lista de verdes representa a última triagem completa; não é confirmação de compra nem resultado do SetupDT.</p></section>
+<section class="card"><div class="grid"><div class="stat"><span class="hint">Triagem concluída</span><b id="seen">0/0</b></div><div class="stat"><span class="hint">Verdes no Foguete</span><b id="fogGreens">0</b></div><div class="stat"><span class="hint">Sinais verdes novos</span><b id="newSignals">0</b></div><div class="stat"><span class="hint">Verdes já avaliados</span><b id="alreadyDone">0</b></div><div class="stat"><span class="hint">Bloqueadas (sem verde)</span><b id="fogBlocked">0</b></div><div class="stat"><span class="hint">🔴 Descartar</span><b id="classDiscard">0</b></div><div class="stat"><span class="hint">🟡 Observar</span><b id="classObserve">0</b></div><div class="stat"><span class="hint">🟠 Preparar entrada</span><b id="classPrepare">0</b></div><div class="stat"><span class="hint">Novas na lista A–Z</span><b id="autoAdded">0</b></div><div class="stat"><span class="hint">Enviadas ao SetupDT</span><b id="candidates">0</b></div><div class="stat"><span class="hint">SetupDT válido</span><b id="setupProgress">0/0</b></div><div class="stat"><span class="hint">Tentativas SetupDT</span><b id="attempted">0</b></div><div class="stat"><span class="hint">🟢 Entrada confirmada</span><b id="confirmed">0</b></div><div class="stat"><span class="hint">Fila / adiadas</span><b id="pending">0</b></div><div class="stat"><span class="hint">Falhas totais</span><b id="errors">0</b></div><div class="stat"><span class="hint">Falhas Foguete</span><b id="fogErrors">0</b></div><div class="stat"><span class="hint">Falhas SetupDT</span><b id="setupErrors">0</b></div></div><progress id="progress" value="0" max="100"></progress><div class="notice" id="status" role="status" aria-live="polite">Pronto. Toque em Analisar agora para começar.</div><div class="row"><button id="stopRun" class="danger" disabled>⏹ Interromper varredura</button><span class="small" id="activeCoin">Aguardando início.</span></div><div class="small" id="stamp">Nenhuma varredura concluída.</div><div id="statDetail" class="notice stat-detail" hidden><div class="row"><strong id="statDetailTitle">Detalhes do contador</strong><button id="closeStatDetail" type="button">✕ Fechar</button></div><div id="statDetailSummary" class="hint"></div><div id="statDetailList" class="stat-list"></div></div></section>
+<section class="card" id="diagnostics"><h2>🩺 Diagnóstico de falhas e fila</h2><div class="notice" id="diagnosticStatus" role="status">Nenhuma falha registrada neste ciclo. Se o navegador bloquear a conexão, o motivo ficará aqui.</div><div class="row"><button id="diagnosticExport">📄 Exportar diagnóstico TXT</button><button id="retryFailures">↻ Tentar falhas novamente</button><span class="hint" id="queueInfo">Fila recuperável: 0 moedas.</span></div><div id="errorList" class="small" style="white-space:pre-wrap;max-height:260px;overflow:auto">Sem erros.</div><p class="hint">O arquivo aberto por content:// no Android pode sofrer restrições de rede ou armazenamento. Se aparecer "Failed to fetch", CORS ou HTTP 403/451, experimente hospedar este HTML em HTTPS (por exemplo, Render) e confira a disponibilidade da Binance. O robô NÃO inventa análises quando faltam dados. Mantenha a aba aberta e visível durante a varredura.</p></section>
+<section class="card"><h2>📊 Painel único de resultados</h2><div class="row"><label for="filter">Mostrar</label><select id="filter"><option value="all">Tudo</option><option value="confirmed">🟢 Entrada confirmada</option><option value="prepare">🟠 Preparar entrada</option><option value="observe">🟡 Observar</option><option value="discard">🔴 Descartar</option><option value="error">Falhas</option></select><button id="exportCsv">📑 CSV</button><button id="exportReport">📄 TXT</button><button id="speak">🔊 Ouvir</button><button id="stopSpeech">⏹ Parar</button></div><div class="query-tools"><div><label for="orderResults">Ordenar relatório</label><select id="orderResults"><option value="az" selected>🔤 Moeda A → Z</option><option value="priority">🚦 Situação / prioridade</option><option value="za">🔤 Moeda Z → A</option></select></div><div><label for="findCoin">Consultar moeda</label><input id="findCoin" type="search" placeholder="Ex.: BONK, DASH, BTC" autocomplete="off" aria-label="Buscar moeda no relatório"></div></div><div id="reportCount" class="alpha-note" role="status">Aguardando análise para consulta.</div><div class="tablewrap"><table><thead><tr><th>Moeda</th><th>Foguete</th><th>SetupDT</th><th>Placar</th><th>Estado final</th><th>RSI</th><th>Volume</th><th>Detalhes</th></tr></thead><tbody id="rows"><tr><td colspan="8">Aguardando primeiro rastreio.</td></tr></tbody></table></div><p class="hint">Ordenação e pesquisa mudam apenas a apresentação e a exportação do relatório; não alteram a ordem de análise, a triagem, nem os sinais. CSV e TXT seguem o filtro, a busca e a ordem selecionados. Somente verdes NOVOS ou pendentes passam ao SetupDT; verde repetido já avaliado preserva o último parecer final enquanto continuar na mesma fase. A classificação unifica os dois métodos: DESCARTAR = sem força suficiente; OBSERVAR = há elementos, mas faltam confirmações; PREPARAR ENTRADA = configuração próxima; ENTRADA CONFIRMADA = Foguete + SetupDT alinhados com checklist 6/6. É estudo técnico, não ordem de operação.</p></section>
+<section class="card" id="ntfyPanel" aria-label="Notificações ntfy">
+<h2>📲 Alertas ntfy no celular — V10.3 • verdes + confirmadas</h2>
+<div class="ntfy-config">
+  <label class="ntfy-line" for="ntfyEnabled">
+    <input type="checkbox" id="ntfyEnabled" aria-describedby="ntfyHelp">
+    <strong>🔔 Ativar avisos ntfy de candidatas verdes e/ou confirmadas</strong>
+  </label>
+  <div>
+    <label for="ntfyMode">Qual sinal deve avisar?</label>
+    <select id="ntfyMode">
+      <option value="both">🟢 VERDE novo (Foguete) + ✅ CONFIRMADO (SetupDT)</option>
+      <option value="green">🟢 Apenas VERDE novo — candidato, não entrada</option>
+      <option value="confirmed">✅ Apenas sinal conjunto CONFIRMADO 6/6</option>
+    </select>
+  </div>
+  <div>
+    <label for="ntfyTopic">Nome do canal (tópico) ntfy</label>
+    <input class="ntfy-channel" type="text" id="ntfyTopic" maxlength="64" placeholder="Ex.: egi_alertas_mais_codigo_aleatorio" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="ntfyHelp">
+  </div>
+  <div class="row" id="ntfyControls">
+    <button type="button" id="ntfyGenerate">🔐 Gerar canal aleatório</button>
+    <button type="button" id="ntfyCopy">📋 Copiar canal</button>
+    <button type="button" id="ntfyTest" class="primary">🔔 Testar ntfy</button><button type="button" id="ntfyTestGreen">🟢 Testar aviso verde (simulação)</button>
+  </div>
+  <div class="notice" id="ntfyStatus" data-state="warning" role="status" aria-live="polite">ntfy desligado. Gere ou informe um canal, assine-o no aplicativo ntfy e faça o teste.</div>
+  <div class="notice" style="margin:8px 0" role="status"><b>🟢 Avisos verdes preparados no ciclo:</b> <strong id="ntfyGreenCycleCount">0</strong><div id="ntfyGreenCycleInfo" class="ntfy-help">Nenhuma varredura ativa. Avisos verdes são independentes do SetupDT.</div></div>
+  <div class="notice" style="margin:8px 0"><b>Histórico local de envios ntfy</b><div id="ntfyAudit" class="ntfy-help" role="status">Nenhum envio registrado.</div></div>
+  <div id="ntfyHelp" class="ntfy-help">
+    <strong>Como configurar:</strong> instale/abra o aplicativo ntfy no Android, assine exatamente o canal acima, marque a opção de envio e toque em <b>Testar ntfy</b>.
+    <a class="ntfy-link" href="https://ntfy.sh/app" target="_blank" rel="noopener noreferrer">Abrir ntfy na web</a>.
+    O canal é salvo <b>somente neste navegador</b> (não dentro do arquivo HTML publicado).
+    Use um nome longo e aleatório: no serviço público ntfy.sh, quem conhece o canal pode receber os alertas.
+  </div>
+  <div class="ntfy-help">📌 <b>VERDE</b> avisa assim que a moeda é analisada no Foguete, com candle fechado, independentemente da triagem completa. Moedas verdes já registradas antes desta versão recebem um primeiro aviso de REFERÊNCIA, não sinal novo. <b>CONFIRMADO</b> avisa Foguete + SetupDT 6/6. Ambos são estudos. O primeiro ciclo pode avisar novas verdes encontradas; repetições de fase verde são filtradas. O Robô precisa ficar <b>aberto e visível</b> para varrer e enviar: <b>hospedar no Render não o transforma em robô 24h</b>. O Android pode receber o push depois que o servidor ntfy aceitou o envio. O teste VERDE é simulado e nunca é um sinal de mercado.</div>
+</div>
+</section>
+<section class="card"><h2>🔔 Alertas e diário</h2><div id="jointAlert" class="notice joint-alert" role="status">Nenhum sinal conjunto novo. O alerta especial só aparece quando Foguete + SetupDT confirmarem juntos.</div><div class="row"><button id="testAudio">🔊 Testar voz</button><button id="clearDiary">Limpar diário</button><span id="audioStatus" class="hint">Áudio desligado até você habilitar.</span></div><div id="diary" class="small">Nenhum sinal registrado.</div><p class="hint">Alertas de voz somente com esta página aberta e visível. O primeiro ciclo estabelece a referência, sem alerta de sinais antigos. Para enviar alertas novos, o monitoramento deve estar aberto e ativo; após enviados ao ntfy, as notificações chegam pelo aplicativo Android. Confirme spread, taxas, liquidez e risco.</p></section>
+<details class="card"><summary>📘 Manual técnico e limitações — toque para abrir</summary><div id="manual">ROBÔ EGI V10 — MANUAL DE USO E LIMITAÇÕES
+
+OBJETIVO: o Foguete descobre movimentos iniciais; somente moedas VERDES atuais seguem automaticamente ao SetupDT integrado, que realiza a análise de confirmação. Não envia ordens à corretora.
+
+1. V10: a lista do SetupDT é a fonte principal. Use “Ler lista SetupDT deste navegador” quando os dois HTMLs compartilham o mesmo armazenamento, ou “Importar lista SetupDT (substituir)” usando o backup JSON/TXT do SetupDT. A lista é normalizada, ordenada e sem duplicatas.
+2. Com “Usar SOMENTE as moedas da lista do SetupDT” ligado, o Robô não completa o ciclo com moedas extras do ranking. Se a lista tiver mais moedas que o limite por ciclo, ela é percorrida em revezamento. Moedas sem par Binance Spot USDT são ignoradas naquele ciclo.
+3. Foguete V9, verde antecipado: Supertrend positivo; EMA 9 > EMA 20; fechamento > EMA 9; RSI de 45 a 70; volume do último candle fechado ≥ média de 20; resistência identificada a pelo menos 0,5%. Quando não houver resistência superior identificável, exige volume ≥ 1,2× e distância do preço à EMA 9 ≤ 2,5%. Não exige a regra anterior de resistência entre 30 e 40% ou alinhamento integral da EMA 200. São HEURÍSTICAS de triagem, não critérios validados por backtest.
+4. VERDE — INÍCIO: condições verdes válidas sem EMA 9/20/50/200 totalmente alinhadas. VERDE — TENDÊNCIA: condições verdes com todas essas EMAs alinhadas. OBSERVAR, PREPARAR, QUEDA CANDIDATA e SEM SINAL não passam ao SetupDT. Se não houver verdes, nenhuma aprovação será fabricada.
+5. O SetupDT embutido analisa 15m, 1h, 4h e diário, exige checklist 6/6, direção compatível, ausência de divergência e candles recentes. Verde isolado não é entrada. Entrada/stop/alvos são projeções ilustrativas.
+6. Anti-repetição: a primeira fase verde observada é enviada; não é enviada outra vez apenas porque continua verde em ciclos seguintes. Volta à fila quando sair do verde e retornar, mudar entre VERDE — INÍCIO e VERDE — TENDÊNCIA, ou o usuário mudar timeframe. Se houver falha de SetupDT ou limite por ciclo, permanece na fila revalidável. Uma moeda que deixou de ser verde sai da fila; nenhuma aprovação antiga reaparece por estar cadastrada.
+7. Contadores separados e clicáveis: toque em qualquer quadro para ver quais moedas formam aquele número. Verdes atuais, novos sinais, já avaliados, enviados, válidos, pendentes, confirmações e falhas ficam rastreáveis. O painel verde mostra somente a última varredura integral bem-sucedida.
+8. Backup/TXT da lista atual refletem a lista principal carregada no Robô. Os botões Verdes → SetupDT JSON/TXT continuam exportando APENAS as verdes atuais. Importar a lista no Robô não altera o arquivo SetupDT original; para manter igualdade, edite a lista no SetupDT e sincronize/importa novamente.
+9. API pública Binance Spot: requisições espaçadas, timeout/fallback e falhas documentadas. O botão “Tentar falhas novamente” prioriza no próximo ciclo as moedas que falharam. Navegadores content:// podem bloquear API e armazenamento. Hospede em HTTPS se necessário. A varredura automática requer página visível; o ntfy envia push ao aplicativo Android após a confirmação, mas este HTML não monitora com a página fechada.
+10. Placar V9: Foguete soma até 5 critérios e SetupDT até 6, total 11. O placar é explicativo, não probabilidade de ganho. O alerta especial é reservado a sinal conjunto; mostra entrada ilustrativa, stop e alvos 1R/2R. No primeiro ciclo, o sinal aparece como referência visual sem áudio para não tratar sinal antigo como novo.
+
+11. Classificação final V9: 🔴 DESCARTAR quando não há força técnica suficiente; 🟡 OBSERVAR quando há sinais parciais, conflito ou confirmação insuficiente; 🟠 PREPARAR ENTRADA quando a estrutura está próxima, mas ainda falta a confluência completa; 🟢 ENTRADA CONFIRMADA somente quando Foguete e SetupDT concordam e o checklist do SetupDT fecha 6/6. O parecer é informativo e não executa ordem.
+
+Novidades V10: lista principal governada pelo SetupDT, modo restrito à mesma lista, sincronização local quando disponível e importação por substituição; mantidos parecer final em quatro níveis, filtros, contadores e preservação do último parecer do SetupDT enquanto o mesmo verde continuar válido. Mantidos todos os recursos V8: painel clicável, placar 5+6, fila recuperável, diagnóstico, backup, busca, relatório, voz e alertas.</div><div class="row"><button id="manualTxt">📄 Manual TXT</button><button id="manualAudio">🔊 Ouvir manual</button><button id="manualStop">⏹ Parar áudio</button></div></details></main>
+<nav><div><button class="primary" id="run">↻ Analisar agora</button><button id="auto" aria-pressed="false">▶ Auto OFF</button><button id="audio" aria-pressed="false">🔕 Áudio OFF</button></div></nav><script>'use strict';
+function fogEma(a,p){let k=2/(p+1),e=a[0]; for(let i=1;i<a.length;i++)e=a[i]*k+e*(1-k); return e}
+function fogRsi(a,p=14){let g=0,l=0; for(let i=1;i<=p;i++){let d=a[i]-a[i-1]; if(d>=0)g+=d;else l-=d}g/=p;l/=p; for(let i=p+1;i<a.length;i++){let d=a[i]-a[i-1];g=(g*(p-1)+Math.max(d,0))/p;l=(l*(p-1)+Math.max(-d,0))/p} if(l===0)return 100; return 100-100/(1+g/l)}
+function fogSupertrend(c,p=10,m=3){
+ if(!Array.isArray(c)||c.length<p+2)throw Error("Candles insuficientes para Supertrend");
+ let atrValue=0,upper=NaN,lower=NaN,trend=0,previousClose=Number(c[0][4]);
+ for(let i=1;i<c.length;i++){
+  const high=Number(c[i][2]),low=Number(c[i][3]),close=Number(c[i][4]);
+  if(![high,low,close,previousClose].every(Number.isFinite))throw Error("Candle inválido no Supertrend");
+  const tr=Math.max(high-low,Math.abs(high-previousClose),Math.abs(low-previousClose));
+  if(i<=p)atrValue+=tr;
+  if(i===p)atrValue/=p;
+  if(i>p)atrValue=(atrValue*(p-1)+tr)/p;
+  if(i>=p){
+   const basicUpper=(high+low)/2+m*atrValue,basicLower=(high+low)/2-m*atrValue;
+   const oldUpper=upper,oldLower=lower;
+   upper=!Number.isFinite(oldUpper)||basicUpper<oldUpper||previousClose>oldUpper?basicUpper:oldUpper;
+   lower=!Number.isFinite(oldLower)||basicLower>oldLower||previousClose<oldLower?basicLower:oldLower;
+   if(i===p)trend=close>=(high+low)/2?1:-1;
+   else if(trend===1)trend=close<lower?-1:1;
+   else if(trend===-1)trend=close>upper?1:-1;
+   else trend=close>upper?1:close<lower?-1:0;
+  }
+  previousClose=close;
+ }
+ return trend;
+}
+function fogResistance(c,price){
+ let highs=[]; const start=Math.max(2,c.length-120);
+ for(let i=start;i<c.length-2;i++){let h=Number(c[i][2]); if(h>Number(c[i-1][2])&&h>=Number(c[i+1][2])&&h>price)highs.push(h)}
+ if(!highs.length){let max=Math.max(...c.slice(-60).map(x=>Number(x[2]))); if(max>price)return max; return null}
+ highs.sort((a,b)=>a-b); return highs[0];
+}
+function sma(a,n){return a.length<n?null:a.slice(-n).reduce((x,y)=>x+y,0)/n;}
+function rsi(closes,period=14){if(closes.length<=period)return null;let gains=0,losses=0;for(let i=closes.length-period;i<closes.length;i++){let d=closes[i]-closes[i-1];if(d>0)gains+=d;else losses-=d;}if(losses===0)return gains===0?50:100;return 100-100/(1+(gains/period)/(losses/period));}
+function atr(highs,lows,closes,period=14){if(closes.length<=period)return null;let trs=[];for(let i=1;i<closes.length;i++)trs.push(Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i]-closes[i-1])));return sma(trs,period);}
+function technicalSnapshot(rows){const closes=rows.map(x=>x.close),highs=rows.map(x=>x.high),lows=rows.map(x=>x.low),vols=rows.map(x=>x.volume),price=closes.at(-1);const r=rsi(closes),ma20=sma(closes,20),ma50=sma(closes,50),ma200=sma(closes,200),vol20=sma(vols,20),lastVol=vols.at(-1);let trend='Lateral';if(price>ma20&&ma20>ma50&&ma50>ma200)trend='Alta forte';else if(price>ma20&&ma20>ma50)trend='Alta';else if(price<ma20&&ma20<ma50&&ma50<ma200)trend='Baixa forte';else if(price<ma20&&ma20<ma50)trend='Baixa';let s=0;if(price>ma20)s++;else s--;if(ma20>ma50)s++;else s--;if(price>ma200)s++;else s--;if(r<35)s++;if(r>70)s--;if(vol20&&lastVol>vol20*1.2)s+=Math.sign(price-closes.at(-2));let signal='N';if(s>=3)signal='L+';else if(s>=1)signal='L';else if(s<=-3)signal='S+';else if(s<=-1)signal='S';const a=atr(highs,lows,closes);if(!(a>0))throw Error('ATR indisponível.');return {price,r,ma20,ma50,ma200,trend,score:s,signal,dir:signal.startsWith('L')?'LONG':signal.startsWith('S')?'SHORT':'NEUTRO',atr:a,volRatio:vol20?lastVol/vol20:0,candleClose:rows.at(-1).end};}
+function prepareCandles(payload,tf,now=Date.now()){if(!Array.isArray(payload))throw Error('Resposta de candles inválida em '+tf);const rows=payload.filter(x=>Array.isArray(x)&&Number(x[6])<now-1000).map(x=>({start:+x[0],open:+x[1],high:+x[2],low:+x[3],close:+x[4],volume:+x[5],end:+x[6]}));if(rows.length<200)throw Error('Menos de 200 candles fechados em '+tf);if(rows.some(c=>![c.start,c.open,c.high,c.low,c.close,c.volume,c.end].every(Number.isFinite)||c.open<=0||c.close<=0||c.low<=0||c.high<Math.max(c.open,c.close)||c.low>Math.min(c.open,c.close)||c.volume<0))throw Error('Candles inconsistentes em '+tf);return rows;}
+function trackerStrength(snaps){const dirs=snaps.map(x=>x.trend.startsWith('Alta')?1:x.trend.startsWith('Baixa')?-1:0);const weighted=dirs[0]*1+dirs[1]*2+dirs[2]*3+dirs[3]*4, direction=Math.sign(weighted),agreement=Math.abs(weighted)/10,strongCount=snaps.filter(x=>x.trend.includes('forte')).length;const force=Math.min(99,Math.round(45+agreement*45+strongCount*2));let signal='NEUTRO';if(direction>0&&force>=80)signal='LONG FORTE';else if(direction>0&&force>=62)signal='LONG';else if(direction<0&&force>=80)signal='SHORT FORTE';else if(direction<0&&force>=62)signal='SHORT';return {force,signal,direction,weighted};}
+function evaluate(snaps){const [m15,h1,h4,d1]=TF.map(tf=>snaps[tf]);const tracker=trackerStrength([m15,h1,h4,d1]);const volOK=m15.volRatio>=.8,align=h4.dir!=='NEUTRO'&&h4.dir===h1.dir,trigger=align&&m15.dir===h4.dir,entry=m15.price,risk=m15.atr*1.2,sign=h4.dir==='SHORT'?-1:1,stop=entry-sign*risk,target=entry+sign*risk*1.5,rrOK=risk>0&&[entry,stop,target].every(x=>Number.isFinite(x)&&x>0)&&Math.abs(target-entry)/Math.abs(entry-stop)>=1.499999,rsiOK=m15.r>=30&&m15.r<=70;const checks=[h4.dir!=='NEUTRO',align,trigger,volOK,rrOK,rsiOK];const count=checks.filter(Boolean).length;let day='AGUARDAR';if(h4.dir==='LONG'&&h1.dir==='LONG')day=(trigger&&volOK&&rrOK&&rsiOK)?'LONG':'PREPARAR LONG';else if(h4.dir==='SHORT'&&h1.dir==='SHORT')day=(trigger&&volOK&&rrOK&&rsiOK)?'SHORT':'PREPARAR SHORT';const trackerDirection=tracker.signal.startsWith('LONG')?'LONG':tracker.signal.startsWith('SHORT')?'SHORT':'NEUTRO';const dayDirection=day==='LONG'?'LONG':day==='SHORT'?'SHORT':'NEUTRO';const conflict=(dayDirection!=='NEUTRO'&&trackerDirection!==dayDirection)||(dayDirection==='NEUTRO'&&trackerDirection!=='NEUTRO'&&day.startsWith('PREPARAR')&&day.indexOf(trackerDirection)<0);const tradable=count===6&&(day==='LONG'||day==='SHORT')&&!conflict;let final=tradable?'SINAL '+day+' • CONFLUÊNCIA':conflict?'AGUARDAR — DIVERGÊNCIA':day.startsWith('PREPARAR')?'AGUARDAR — '+day:day==='AGUARDAR'?'AGUARDAR — SEM ALINHAMENTO':'AGUARDAR — REVISÃO';let direction=day==='LONG'?1:day==='SHORT'?-1:0;let levels=tradable?{entry,stop:entry-direction*risk,t1:entry+direction*risk*1,t2:entry+direction*risk*2,t3:entry+direction*risk*3}:null;return {tracker,day,checks,count,final,conflict,tradable,levels,m15,h1,h4,d1};}
+
+const $=id=>document.getElementById(id);
+const TF=['15m','1h','4h','1d'];
+const API=['https://data-api.binance.vision/api/v3/','https://api-gcp.binance.com/api/v3/','https://api.binance.com/api/v3/'];
+const KEY='robo_egi_v1_watchlist',DIARY='robo_egi_v1_diary',ALERTS='robo_egi_v1_seen'; // preserva dados anteriores
+const SETUPDT_KEY='setupdt_light_v11_watchlist';
+const PENDING_KEY='robo_egi_v6_green_pending',APPROVED_KEY='robo_egi_v7_last_green',SIGNAL_KEY='robo_egi_v7_signal_states',RETRY_KEY='robo_egi_v8_retry_symbols',CLASS_KEY='robo_egi_v9_class_states'; // V10 reaproveita histórico técnico
+const defaults=['BTC','ETH','SOL','XRP','BNB'];
+function norm(v){const raw=String(v||'').trim().toUpperCase().replace(/^[A-Z0-9]+:/,'').replace(/\s+/g,'');return raw.replace(/(?:[\/_-]?USDT)$/,'');}
+function valid(v){return /^[A-Z0-9]{2,16}$/.test(v);}
+function sortCoins(coins){return [...new Set(coins)].sort((a,b)=>a.localeCompare(b,'en'));}
+function readJson(key,fallback){try{const x=JSON.parse(localStorage.getItem(key));return x??fallback;}catch(e){return fallback;}}
+function save(key,x){try{localStorage.setItem(key,JSON.stringify(x));return true;}catch(e){status('Armazenamento bloqueado: exporte backup, dados só nesta sessão.');return false;}}
+const storedWatch=readJson(KEY,null);
+const setupStored=readJson(SETUPDT_KEY,null);
+let listSource='Robô';
+let watch;
+if(Array.isArray(setupStored)){
+  watch=sortCoins(setupStored.map(norm).filter(valid)).slice(0,500);
+  save(KEY,watch);
+  listSource='SetupDT deste navegador';
+}else{
+  watch=sortCoins((Array.isArray(storedWatch)?storedWatch:defaults).map(norm).filter(valid)).slice(0,500);
+  if(Array.isArray(storedWatch)&&JSON.stringify(storedWatch)!==JSON.stringify(watch))save(KEY,watch);
+}
+let migrated=0;
+let journal=Array.isArray(readJson(DIARY,[]))?readJson(DIARY,[]):[];
+let seenKeys=new Set(Array.isArray(readJson(ALERTS,[]))?readJson(ALERTS,[]):[]);
+let results=[],running=false,auto=false,voice=false,timer=null,lastScan=0,cycleNo=0,rotation=0,candidateRotation=0,aborter=null,runToken=0;
+let pendingSymbols=Array.isArray(readJson(PENDING_KEY,[]))?sortCoins(readJson(PENDING_KEY,[]).map(norm).filter(valid)):[];
+let retrySymbols=Array.isArray(readJson(RETRY_KEY,[]))?sortCoins(readJson(RETRY_KEY,[]).map(norm).filter(valid)):[];
+ let classStates=readJson(CLASS_KEY,{});if(!classStates||typeof classStates!=='object'||Array.isArray(classStates))classStates={};
+ let signalStates=readJson(SIGNAL_KEY,{});if(!signalStates||typeof signalStates!=='object'||Array.isArray(signalStates))signalStates={};
+ const previousGreens=readJson(APPROVED_KEY,{coins:[],at:null});
+ let approved=sortCoins((Array.isArray(previousGreens?.coins)?previousGreens.coins:[]).map(norm).filter(valid)),approvedAt=previousGreens?.at||null;
+ let dashboardState={seen:[],fogGreens:approved.slice(),newSignals:[],alreadyDone:[],fogBlocked:[],classDiscard:[],classObserve:[],classPrepare:[],autoAdded:[],candidates:[],setupProgress:[],attempted:[],confirmed:[]};
+ function renderGreens(){const el=$('greenChips');el.replaceChildren();$('greenCount').textContent=approved.length+' verde(s) na última triagem concluída';for(const coin of approved){const tag=document.createElement('span');tag.className='chip';tag.textContent=coin+'USDT';el.append(tag);}if(!approvedAt){$('greenStatus').textContent='Nenhuma triagem V10 concluída. A antiga lista A–Z e a antiga fila V5 não são tratadas como aprovadas.';}else $('greenStatus').textContent='🟢 Última triagem concluída: '+timestamp(approvedAt)+' · '+approved.length+' moeda(s) com sinal verde antecipado. Apenas estas passaram no filtro Foguete naquele ciclo.';}
+ function saveGreens(eligible){approved=sortCoins(eligible.map(f=>norm(f.coin)).filter(valid));approvedAt=Date.now();const stored=save(APPROVED_KEY,{coins:approved,at:approvedAt});renderGreens();if(!stored)logIssue('Armazenamento','verdes','Seleção verde não persistiu; exporte JSON/TXT antes de sair.');}
+let issueLog=[],nextRequestAt=0;
+function persistQueue(){save(PENDING_KEY,pendingSymbols);$('queueInfo').textContent='Fila recuperável: '+pendingSymbols.length+' moeda(s).';}
+function logIssue(stage,coin,error){const message=String(error?.message||error||'Erro desconhecido');issueLog.push({at:Date.now(),stage,coin:coin||'—',message});issueLog=issueLog.slice(-100);$('diagnosticStatus').textContent='⚠ '+stage+' · '+(coin||'geral')+': '+message;$('errorList').textContent=issueLog.map(e=>timestamp(e.at)+' | '+e.stage+' | '+e.coin+' | '+e.message).join('\n');}
+function networkIssue(e){return !!e?.networkIssue||/Failed to fetch|NetworkError|Load failed|CORS|HTTP (403|451|502|503|504)|tempo excedido|Sem conexão com a Binance/i.test(e?.message||'');}
+function rateIssue(e){return !!e?.rateLimit||/HTTP (429|418)|limite de consultas/i.test(e?.message||'');} 
+function status(s){$('status').textContent=s;}
+function fmt(x){if(!Number.isFinite(x))return '—';return x.toLocaleString('pt-BR',{maximumFractionDigits:x>=1?4:9});}
+function timestamp(t){return new Date(t).toLocaleString('pt-BR');}
+function uniqCoins(arr){return [...new Set((arr||[]).map(norm).filter(c=>valid(c)&&c!=='GERAL'))].sort((a,b)=>a.localeCompare(b,'en'));}
+function statCoins(id){
+ if(id==='pending')return uniqCoins(pendingSymbols);
+ if(id==='errors')return uniqCoins(issueLog.map(e=>e.coin));
+ if(id==='fogErrors')return uniqCoins(issueLog.filter(e=>e.stage==='Foguete').map(e=>e.coin));
+ if(id==='setupErrors')return uniqCoins(issueLog.filter(e=>e.stage==='SetupDT').map(e=>e.coin));
+ return uniqCoins(dashboardState[id]||[]);
+}
+function openStatDetail(id){
+ const meta={seen:'Triagem concluída',fogGreens:'Verdes no Foguete',newSignals:'Sinais verdes novos',alreadyDone:'Verdes já avaliados',fogBlocked:'Bloqueadas (sem verde)',classDiscard:'🔴 Descartar',classObserve:'🟡 Observar',classPrepare:'🟠 Preparar entrada',autoAdded:'Novas na lista A–Z',candidates:'Enviadas ao SetupDT',setupProgress:'SetupDT válido',attempted:'Tentativas SetupDT',confirmed:'🟢 Entrada confirmada',pending:'Fila / adiadas',errors:'Falhas totais',fogErrors:'Falhas Foguete',setupErrors:'Falhas SetupDT'};
+ const coins=statCoins(id),panel=$('statDetail'),list=$('statDetailList');
+ $('statDetailTitle').textContent=(meta[id]||'Detalhes')+' — '+coins.length+' moeda(s)';
+ $('statDetailSummary').textContent=coins.length?'Toque em uma moeda para localizar o resultado e ler o motivo.':'Nenhuma moeda registrada neste contador no ciclo atual.';
+ list.replaceChildren();
+ for(const coin of coins){
+  const x=results.find(r=>r.coin===coin),err=[...issueLog].reverse().find(e=>norm(e.coin)===coin);
+  const b=document.createElement('button');b.type='button';b.className='stat-item';
+  const suffix=x?(x.label||x.setupStage||x.fogStage||'resultado disponível'):(err?err.stage+': '+err.message:'sem detalhe adicional');
+  b.textContent=coin+' — '+suffix;
+  b.onclick=()=>{$('filter').value='all';$('findCoin').value=coin;renderResults();document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});};
+  list.append(b);
+ }
+ panel.hidden=false;panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function bindStatCards(){
+ const ids=['seen','fogGreens','newSignals','alreadyDone','fogBlocked','classDiscard','classObserve','classPrepare','autoAdded','candidates','setupProgress','attempted','confirmed','pending','errors','fogErrors','setupErrors'];
+ for(const id of ids){const box=$(id)?.parentElement;if(!box)continue;box.classList.add('clickable');box.tabIndex=0;box.setAttribute('role','button');box.setAttribute('aria-label','Abrir detalhes de '+box.querySelector('.hint')?.textContent);box.onclick=()=>openStatDetail(id);box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openStatDetail(id);}};}
+}
+function scoreText(fogScore,setupScore){const hasF=Number.isFinite(fogScore),hasS=Number.isFinite(setupScore),fs=hasF?fogScore:0,ss=hasS?setupScore:0;if(!hasF&&!hasS)return 'F —/5 · DT —/6';if(hasF&&!hasS)return 'F '+fs+'/5 · DT —/6';return 'F '+(hasF?fs:'—')+'/5 + DT '+ss+'/6 = '+(fs+ss)+'/11';}
+function classInfo(key){const map={confirmed:{key:'confirmed',label:'🟢 ENTRADA CONFIRMADA',kind:'signal'},prepare:{key:'prepare',label:'🟠 PREPARAR ENTRADA',kind:'prepare'},observe:{key:'observe',label:'🟡 OBSERVAR',kind:'wait'},discard:{key:'discard',label:'🔴 DESCARTAR',kind:'wait'},error:{key:'error',label:'⚠ DADOS INDISPONÍVEIS',kind:'error'}};return map[key]||map.observe;}
+function classifyFog(f){if(!f)return classInfo('discard');if(f.green===true||String(f.stage||'').startsWith('PREPARAR'))return classInfo('prepare');if(String(f.stage||'').startsWith('OBSERVAR')||String(f.stage||'').startsWith('QUEDA'))return classInfo('observe');return classInfo('discard');}
+function classifySetup(f,v,joint){if(joint)return classInfo('confirmed');const ev=v?.ev;if(!ev)return classifyFog(f);if(ev.conflict||ev.tradable&&!v.agree)return classInfo('observe');if(ev.count>=4&&v.agree)return classInfo('prepare');if(ev.count>=3||ev.day?.startsWith('PREPARAR'))return classInfo('observe');return classInfo('discard');}
+function persistClass(coin,key){if(!valid(norm(coin)))return;classStates[norm(coin)]={key,at:Date.now()};save(CLASS_KEY,classStates);}
+function previousClass(coin){const key=classStates?.[norm(coin)]?.key;return key?classInfo(key):null;}
+function updateClassCounters(){const sets={classDiscard:[],classObserve:[],classPrepare:[],confirmed:[]};for(const x of results){if(x.classKey==='discard')sets.classDiscard.push(x.coin);else if(x.classKey==='observe')sets.classObserve.push(x.coin);else if(x.classKey==='prepare')sets.classPrepare.push(x.coin);else if(x.classKey==='confirmed')sets.confirmed.push(x.coin);}for(const id of ['classDiscard','classObserve','classPrepare']){const el=$(id);if(el)el.textContent=String(sets[id].length);dashboardState[id]=uniqCoins(sets[id]);}dashboardState.confirmed=uniqCoins(sets.confirmed);const el=$('confirmed');if(el)el.textContent=String(sets.confirmed.length);}
+function showJointAlert(x,reference=false){
+ const el=$('jointAlert');if(!el||!x?.levels)return;el.classList.remove('active','reference');el.classList.add(reference?'reference':'active');
+ el.textContent=(reference?'🟡 Referência inicial — ':'🟢 ENTRADA CONFIRMADA NOVA — ')+x.coin+' · '+x.direction+' · entrada '+fmt(x.levels.entry)+' · stop '+fmt(x.levels.stop)+' · 1R '+fmt(x.levels.t1)+' · 2R '+fmt(x.levels.t2)+'. Estudo técnico; confirme preço e risco antes de qualquer operação.';
+ if(!reference&&navigator.vibrate)try{navigator.vibrate([180,100,180]);}catch(_){ }
+}
+function persistRetry(){retrySymbols=uniqCoins(retrySymbols);save(RETRY_KEY,retrySymbols);}
+function renderWatch(){const el=$('chips');el.replaceChildren();$('listCount').textContent=watch.length+' moedas únicas • A–Z • fonte: '+listSource;if($('listSourceStatus'))$('listSourceStatus').textContent='Fonte atual: '+listSource+' • '+watch.length+' moeda(s). '+($('setupOnly')?.checked?'Varredura restrita a esta lista.':'Modo ampliado: o Robô pode completar o ciclo com moedas do ranking.');for(const coin of watch.slice(0,150)){const b=document.createElement('button');b.className='chip';b.textContent=coin+' ×';b.title='Remover '+coin;b.onclick=()=>{watch=watch.filter(x=>x!==coin);save(KEY,watch);renderWatch();};el.append(b)}if(watch.length>150){const hint=document.createElement('span');hint.className='small';hint.textContent='Mais '+(watch.length-150)+' moedas na lista, exporte para conferir.';el.append(hint)}}
+function autoSaveDiscovered(classified){
+ if(!$('autoSaveCoins').checked){$('autoAdded').textContent='0';$('autoSaveStatus').textContent='Salvamento A–Z desativado. A análise das verdes e a exportação exclusiva continuam funcionando.';return {added:0,skipped:0,stored:true,coins:[]};}
+ const incoming=[...new Set(classified.map(f=>norm(f.coin)).filter(valid))];
+ const existing=new Set(watch),fresh=incoming.filter(coin=>!existing.has(coin));
+ const space=Math.max(0,500-watch.length),newCoins=fresh.slice(0,space),skipped=fresh.length-newCoins.length;
+ if(newCoins.length){watch=sortCoins([...watch,...newCoins]);}
+ const stored=newCoins.length?save(KEY,watch):true;
+ renderWatch();$('autoAdded').textContent=String(newCoins.length);
+ $('autoSaveStatus').textContent=(newCoins.length?'✅ '+newCoins.length+' verde(s) nova(s) adicionada(s) automaticamente. ':'Nenhuma verde nova na lista A–Z (sem verdes ou já cadastradas). ')+ 'Total histórico: '+watch.length+' em ordem A–Z.'+(skipped?' ⚠ Limite 500: '+skipped+' não couberam.':'')+(!stored?' ⚠ Armazenamento bloqueado: lista só nesta sessão; exporte o backup.':'');
+ return {added:newCoins.length,skipped,stored,coins:newCoins};
+}
+function addCoin(){const val=norm($('newcoin').value);if(!valid(val)){status('Símbolo inválido. Digite BTC ou BTCUSDT.');return;}if(watch.includes(val)){status(val+' já consta da lista.');return;}if(watch.length>=500){status('Limite de 500 moedas cadastradas.');return;}watch=sortCoins([...watch,val]);save(KEY,watch);renderWatch();$('newcoin').value='';status(val+' cadastrada; será considerada na rotação de próximas varreduras.');}
+function parseListFile(text,name){
+ let arr;
+ if(/\.json$/i.test(name)||/^[\s\uFEFF]*[\[{]/.test(text)){
+   const o=JSON.parse(text);
+   arr=Array.isArray(o)?o:o?.coins;
+   if(!Array.isArray(arr)||o?.format&&!['setupdt-light-watchlist','foguete-setupdt-watchlist'].includes(o.format))throw Error('JSON incompatível com lista SetupDT');
+ }else arr=text.replace(/^\uFEFF/,'').split(/[\s,;]+/).filter(Boolean);
+ if(arr.length>500)throw Error('Arquivo acima de 500 itens');
+ const normalized=arr.map(norm);
+ if(normalized.some(x=>!valid(x)))throw Error('Símbolo inválido no arquivo');
+ return sortCoins(normalized);
+}
+function replaceWithSetupList(text,name){
+ const incoming=parseListFile(text,name);
+ watch=incoming.slice(0,500);
+ listSource='Arquivo SetupDT: '+name;
+ const stored=save(KEY,watch);
+ pendingSymbols=pendingSymbols.filter(c=>watch.includes(c));persistQueue();
+ retrySymbols=retrySymbols.filter(c=>watch.includes(c));persistRetry();
+ renderWatch();
+ return `Lista do Robô substituída pela lista SetupDT: ${watch.length} moedas únicas.`+(!stored?' Armazenamento local bloqueado; exporte backup.':'');
+}
+function syncSetupLocal(){
+ const local=readJson(SETUPDT_KEY,null);
+ if(!Array.isArray(local))throw Error('Não encontrei a lista do SetupDT neste mesmo armazenamento. Use “Importar lista SetupDT” e selecione o backup exportado pelo SetupDT.');
+ watch=sortCoins(local.map(norm).filter(valid)).slice(0,500);
+ listSource='SetupDT deste navegador';
+ save(KEY,watch);
+ pendingSymbols=pendingSymbols.filter(c=>watch.includes(c));persistQueue();
+ retrySymbols=retrySymbols.filter(c=>watch.includes(c));persistRetry();
+ renderWatch();
+ return `Sincronizado com o SetupDT deste navegador: ${watch.length} moedas.`;
+}
+function mergeList(text,name){const distinct=parseListFile(text,name),old=new Set(watch),added=distinct.filter(x=>!old.has(x));if(watch.length+added.length>500)throw Error('União ultrapassa 500 moedas');watch=sortCoins([...watch,...added]);listSource='SetupDT + lista juntada';save(KEY,watch);renderWatch();return `${added.length} novas moedas; ${distinct.length-added.length} repetidas ignoradas; total ${watch.length}.`}
+function download(name,text,type='text/plain'){const u=URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+function speak(text){if(!voice||document.hidden||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.93;speechSynthesis.speak(u)}catch(e){$('audioStatus').textContent='Voz indisponível: '+e.message;}}
+function markState(x){return x.classKey==='confirmed'?'ok class-final confirmed':x.classKey==='prepare'?'wait class-final prepare':x.classKey==='observe'?'class-final observe':x.classKey==='discard'?'bad class-final discard':x.kind==='error'?'bad':'muted';}
+function getReportRows(){
+ const filter=$('filter').value,needle=norm($('findCoin').value);
+ const display=results.filter(x=>(filter==='all'||(filter==='error'?x.kind==='error':x.classKey===filter))&&(!needle||x.coin.includes(needle)));
+ const order=$('orderResults').value;
+ if(order==='az')display.sort((a,b)=>a.coin.localeCompare(b.coin,'en'));
+ else if(order==='za')display.sort((a,b)=>b.coin.localeCompare(a.coin,'en'));
+ else display.sort(orderResults);
+ return display;
+}
+function renderResults(){
+ const root=$('rows');root.replaceChildren();const display=getReportRows();
+ $('reportCount').textContent='Consulta: '+display.length+' de '+results.length+' moedas • '+($('orderResults').value==='az'?'A → Z':$('orderResults').value==='za'?'Z → A':'por situação')+'.';
+ if(!display.length){const row=root.insertRow();const cell=row.insertCell();cell.colSpan=8;cell.textContent=results.length?'Nenhuma moeda corresponde à busca ou ao filtro.':'Aguardando primeiro rastreio.';return;}
+ for(const x of display){
+  const tr=root.insertRow();tr.dataset.state=x.kind;
+  const score=x.scoreText||scoreText(x.fogScore,x.setupScore);
+  const cells=[x.coin,x.fogStage||'—',x.setupStage||'Não enviada',score,x.classification||x.label,x.rsi==null?'—':x.rsi.toFixed(1),x.vol==null?'—':x.vol.toFixed(2)+'x'];
+  ['Moeda','Foguete','SetupDT','Placar','Estado final','RSI','Volume'].forEach((label,i)=>{const td=tr.insertCell();td.dataset.label=label;td.textContent=cells[i];if(i===3)td.className='score';if(i===4)td.className=markState(x)});
+  const detail=tr.insertCell();detail.className='reason';detail.dataset.label='Detalhes';const b=document.createElement('button');b.textContent='🔎 Motivo / placar';b.type='button';b.onclick=()=>{const old=detail.querySelector('div');if(old){old.remove();return;}const p=document.createElement('div');p.className='small';p.style.whiteSpace='pre-wrap';p.textContent='Parecer final: '+(x.classification||x.label)+'\nStatus técnico: '+x.label+'\nPlacar: '+score+'\n'+x.reason+(x.levels?'\nEntrada ilustrativa: '+fmt(x.levels.entry)+' · Stop: '+fmt(x.levels.stop)+' · 1R: '+fmt(x.levels.t1)+' · 2R: '+fmt(x.levels.t2)+' · 3R: '+fmt(x.levels.t3):'')+'\nCandle de 15m: '+(x.candle?timestamp(x.candle):'não analisado');detail.append(p)};detail.append(b);
+ }
+}
+function reportText(){const rows=getReportRows();return ['ROBÔ EGI V10 — '+timestamp(Date.now()),'Moedas na consulta: '+rows.length+' de '+results.length,'Ordenação: '+$('orderResults').selectedOptions[0].textContent,'','MOEDA | PARECER FINAL | FOGUETE | SETUPDT | PLACAR | STATUS TÉCNICO | RSI | VOLUME | MOTIVO',...rows.map(x=>[x.coin,x.classification||'—',x.fogStage||'—',x.setupStage||'Não enviado',x.scoreText||scoreText(x.fogScore,x.setupScore),x.label,x.rsi==null?'—':x.rsi.toFixed(1),x.vol==null?'—':x.vol.toFixed(2)+'x',x.reason].join(' | ')),'','Classificação V10 é informativa; ENTRADA CONFIRMADA exige os dois métodos alinhados. Nenhuma ordem é enviada.'].join('\n')}
+function updateJournal(){const e=$('diary');e.replaceChildren();if(!journal.length){e.textContent='Nenhum sinal registrado.';return;}for(const item of journal.slice(0,30)){const p=document.createElement('p');p.textContent=timestamp(item.detected)+' · '+item.coin+' · '+item.direction+' · entrada '+fmt(item.entry)+' · stop '+fmt(item.stop)+(Number.isFinite(item.t1)?' · 1R '+fmt(item.t1):'')+(Number.isFinite(item.t2)?' · 2R '+fmt(item.t2):'')+' · candle '+timestamp(item.candle);e.append(p)}}
+// A mesma API atende vários símbolos: espaça requisições para evitar rajadas, inclusive no scanner.
+async function get(path,signal){
+ let last=null;
+ for(const base of API){
+  if(signal.aborted)throw Error('Cancelado');
+  const slot=Math.max(Date.now(),nextRequestAt);nextRequestAt=slot+380;
+  if(slot>Date.now())await wait(slot-Date.now(),signal);
+  const local=new AbortController();const forward=()=>local.abort();signal.addEventListener('abort',forward,{once:true});
+  let expired=false;const timeout=setTimeout(()=>{expired=true;local.abort();},10000);
+  try{
+   const r=await fetch(base+path,{cache:'no-store',signal:local.signal});
+   if(r.ok)return await r.json();
+   const e=Error('HTTP '+r.status+' em '+new URL(base).host+' ('+path.split('?')[0]+')');
+   e.httpStatus=r.status;e.rateLimit=r.status===418||r.status===429;
+   e.networkIssue=[403,451,502,503,504].includes(r.status);
+   if(e.rateLimit||r.status===400||r.status===404)throw e;
+   last=e;
+  }catch(e){
+   if(signal.aborted)throw Error('Cancelado');
+   if(e.rateLimit||[400,404].includes(e.httpStatus))throw e;
+   if(expired){const t=Error('Tempo excedido (10 s) em '+new URL(base).host+' para '+path.split('?')[0]);t.networkIssue=true;last=t;}
+   else{e.networkIssue=true;last=e;}
+  }finally{clearTimeout(timeout);signal.removeEventListener('abort',forward);}
+ }
+ const e=Error('Sem conexão com a Binance. '+(last?.message||'Falha nos 3 endereços.')+'; verifique HTTPS, rede e restrições do navegador.');
+ e.networkIssue=true;throw e;
+}
+function closed(raw,tf){if(!Array.isArray(raw))throw Error('Resposta de candles inválida '+tf);const c=raw.filter(x=>Array.isArray(x)&&Number(x[6])<Date.now()-1000);if(c.length<220)throw Error('Menos de 220 candles fechados '+tf);if(c.some(x=>![1,2,3,4,5,6].every(i=>Number.isFinite(Number(x[i])))||Number(x[4])<=0||Number(x[3])<=0||Number(x[2])<Math.max(Number(x[1]),Number(x[4]))))throw Error('Candles inconsistentes '+tf);return c;}
+function fogStage(raw,coin){
+ const c=raw,cl=c.map(x=>Number(x[4])),price=cl.at(-1);
+ const e9=fogEma(cl,9),e20=fogEma(cl,20),e50=fogEma(cl,50),e200=fogEma(cl,200);
+ const r=fogRsi(cl,14),st=fogSupertrend(c,10,3),res=fogResistance(c,price);
+ const room=res?(res-price)/price*100:null,trend=e9>e20&&e20>e50&&e50>e200,reverse=e9<e20&&e20<e50&&e50<e200;
+ const vol=Number(c.at(-1)[5]),avg=c.slice(-21,-1).reduce((sum,x)=>sum+Number(x[5]),0)/20,rel=avg>0?vol/avg:null;
+ const near=room!==null&&room<.5, stretched=(price/e9-1)*100>2.5;
+ const roomOK=room!==null?room>=.5:(rel!==null&&rel>=1.2&&!stretched);
+ const fogChecks=[st===1,e9>e20&&price>e9,r>=45&&r<=70,rel!==null&&rel>=1,roomOK],fogScore=fogChecks.filter(Boolean).length;
+ const green=st===1&&e9>e20&&price>e9&&r>=45&&r<=70&&rel!==null&&rel>=1&&!near&&(room!==null||rel>=1.2&&!stretched);
+ const exact=green&&trend;
+ let stage=near&&st===1?'OBSERVAR: RESISTÊNCIA PRÓXIMA':green?(trend?'VERDE — TENDÊNCIA':'VERDE — INÍCIO'):st===1&&e9>e20&&rel!==null&&rel<1?'PREPARAR: VOLUME FRACO':st===1&&room===null&&rel!==null&&rel<1.2?'PREPARAR: RESISTÊNCIA NÃO MAPEADA':st===1&&r>70?'OBSERVAR: RSI ESTICADO':st===1&&stretched?'OBSERVAR: PREÇO ESTICADO':st===1&&e9>e20?'PREPARAR ENTRADA':st===1?'OBSERVAR':'SEM SINAL';
+ let direction=0;if(st===1&&e9>e20&&!near)direction=1;else if($('shorts').checked&&st===-1&&(e9<e20||reverse))direction=-1;
+ if(direction===-1)stage='QUEDA CANDIDATA (ADAPTAÇÃO)';
+ return {coin,raw,price,r,rel,st,room,stage,direction,exact,green,trend,reverse,fogChecks,fogScore,candle:Number(c.at(-1)[6])};
+}
+function chooseUniverse(tickers,max){
+ const top=tickers.filter(x=>x.symbol?.endsWith('USDT')&&!/(UP|DOWN|BULL|BEAR)USDT$/.test(x.symbol)&&!['USDCUSDT','FDUSDUSDT','TUSDUSDT','USDPUSDT'].includes(x.symbol)&&Number(x.quoteVolume)>0).sort((a,b)=>Number(b.quoteVolume)-Number(a.quoteVolume)).map(x=>x.symbol.slice(0,-4)).filter(valid);
+ const tradable=new Set(top),chosen=[],strict=$('setupOnly')?.checked!==false,allowed=new Set(watch);
+ const pick=c=>{if(valid(c)&&tradable.has(c)&&(!strict||allowed.has(c))&&!chosen.includes(c)&&chosen.length<max)chosen.push(c)};
+ // V10: no modo SetupDT somente, retentativas e pendências também precisam continuar na lista principal.
+ for(const coin of retrySymbols)pick(coin);
+ for(const coin of pendingSymbols)pick(coin);
+ const take=Math.min(watch.length,max);for(let i=0;i<take;i++)pick(watch[(rotation+i)%watch.length]);
+ if(watch.length>max)rotation=(rotation+Math.max(1,max-pendingSymbols.length))%watch.length;
+ if(!strict)for(const coin of top)pick(coin);
+ return chosen;
+}
+function compareCandidate(a,b){return Number(b.exact)-Number(a.exact)||Number(b.direction!==0)-Number(a.direction!==0)||(b.rel??-1)-(a.rel??-1);}
+async function checkSetup(f,tf,signal){
+ const rawBy={};rawBy[tf]=f.raw;
+ // Não dispara três consultas simultâneas por moeda: diminui falhas e documenta qual tempo falhou.
+ for(const t of TF.filter(x=>x!==tf)){
+  try{rawBy[t]=closed(await get('klines?symbol='+encodeURIComponent(f.coin+'USDT')+'&interval='+t+'&limit=230',signal),t);}
+  catch(e){e.message=f.coin+' · '+t+': '+(e.message||String(e));throw e;}
+ }
+ const snaps={};for(const t of TF){snaps[t]=technicalSnapshot(prepareCandles(rawBy[t],t));if(Date.now()-snaps[t].candleClose>({'15m':3600000,'1h':7200000,'4h':21600000,'1d':172800000}[t]))throw Error('Candle desatualizado '+t);}
+ const ev=evaluate(snaps),fDirection=f.direction>0?'LONG':f.direction<0?'SHORT':'NEUTRO',agree=fDirection!=='NEUTRO'&&ev.day===fDirection;const final=ev.tradable&&agree;
+ return {ev,final,agree,dir:fDirection,snaps};
+}
+
+// V10.3 — ntfy separado dos alertas locais e persistido apenas neste navegador.
+const NTFY_SETTINGS_KEY='robo_egi_v10_ntfy_config';
+const NTFY_SENT_KEY='robo_egi_v10_ntfy_sent';
+const NTFY_PENDING_KEY='robo_egi_v10_ntfy_pending';
+const NTFY_URL='https://ntfy.sh/';
+const ntfyReadConfig=readJson(NTFY_SETTINGS_KEY,{});
+let ntfyConfig={enabled:ntfyReadConfig?.enabled===true,topic:typeof ntfyReadConfig?.topic==='string'?ntfyReadConfig.topic:'',mode:['both','green','confirmed'].includes(ntfyReadConfig?.mode)?ntfyReadConfig.mode:'both'};
+let ntfySentKeys=new Set(Array.isArray(readJson(NTFY_SENT_KEY,[]))?readJson(NTFY_SENT_KEY,[]).filter(v=>typeof v==='string'):[]);
+let ntfyPending=Array.isArray(readJson(NTFY_PENDING_KEY,[]))?readJson(NTFY_PENDING_KEY,[]).filter(x=>x&&typeof x.topic==='string'&&typeof x.key==='string'&&typeof x.message==='string'&&typeof x.created==='number'):[];
+let ntfyBusy=false,ntfyTimer=null;
+const NTFY_AUDIT_KEY='robo_egi_v10_2_ntfy_audit';
+const NTFY_GREEN_EPISODES_KEY='robo_egi_v10_3_ntfy_green_episodes';
+let ntfyGreenEpisodes=readJson(NTFY_GREEN_EPISODES_KEY,{});
+if(!ntfyGreenEpisodes||typeof ntfyGreenEpisodes!=='object'||Array.isArray(ntfyGreenEpisodes))ntfyGreenEpisodes={};
+let ntfyGreenCycleCount=0;
+function ntfyGreenLiveStatus(msg){
+ if($('ntfyGreenCycleCount'))$('ntfyGreenCycleCount').textContent=String(ntfyGreenCycleCount);
+ if($('ntfyGreenCycleInfo'))$('ntfyGreenCycleInfo').textContent=msg;
+}
+let ntfyAudit=Array.isArray(readJson(NTFY_AUDIT_KEY,[]))?readJson(NTFY_AUDIT_KEY,[]):[];
+function ntfyAuditAdd(state,message){
+ ntfyAudit.unshift({at:Date.now(),state,message:String(message)});
+ ntfyAudit=ntfyAudit.slice(0,35);save(NTFY_AUDIT_KEY,ntfyAudit);renderNtfyAudit();
+}
+function renderNtfyAudit(){
+ const log=$('ntfyAudit');if(!log)return;
+ log.textContent=ntfyAudit.length?ntfyAudit.slice(0,12).map(x=>timestamp(x.at)+' · '+x.state+' · '+x.message).join('\n'):'Nenhum envio registrado.';
+ log.style.whiteSpace='pre-wrap';
+}
+function validNtfyTopic(value){return /^[A-Za-z0-9_-]{8,64}$/.test(String(value||''));}
+function ntfyStatus(msg,state='warning'){$('ntfyStatus').textContent=msg;$('ntfyStatus').dataset.state=state;}
+function persistNtfy(){save(NTFY_SETTINGS_KEY,ntfyConfig);}
+function persistNtfyQueue(){ntfyPending=ntfyPending.slice(-60);save(NTFY_PENDING_KEY,ntfyPending);}
+function ntfyKey(topic,key){return topic+'|'+key;}
+function showNtfyConfig(){
+ $('ntfyTopic').value=ntfyConfig.topic;
+ $('ntfyEnabled').checked=ntfyConfig.enabled;
+ $('ntfyMode').value=ntfyConfig.mode;
+ if(!validNtfyTopic(ntfyConfig.topic)) ntfyStatus('Configure um canal de 8 a 64 letras, números, - ou _; use Gerar canal aleatório.','warning');
+ else ntfyStatus(ntfyConfig.enabled?'🟢 ntfy habilitado. Toque em Testar ntfy e verifique o celular.':'ntfy desligado; canal salvo neste navegador.','warning');
+}
+function randomNtfyTopic(){
+ if(!globalThis.crypto?.getRandomValues){throw Error('Geração segura indisponível. Abra o app em HTTPS.');}
+ const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);
+ return 'egi_v10_'+Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+}
+function clearNtfyPendingWrongTopic(){
+ ntfyPending=ntfyPending.filter(item=>item.topic===ntfyConfig.topic);
+ persistNtfyQueue();
+}
+function ntfyPayload(x){
+ return {
+  title:'ROBO EGI V10.3 | ✅ CONFIRMADO | '+x.coin+'USDT | '+x.direction,
+  message:'🟢 SINAL CONJUNTO CONFIRMADO — ESTUDO\nMoeda: '+x.coin+'USDT\nDireção: '+x.direction+'\nFoguete + SetupDT (6/6)\nEntrada ilustrativa: '+fmt(x.levels.entry)+' USDT\nStop ilustrativo: '+fmt(x.levels.stop)+' USDT\nAlvo 1R: '+fmt(x.levels.t1)+' USDT\nAlvo 2R: '+fmt(x.levels.t2)+' USDT\nCandle 15m: '+timestamp(x.candle)+'\nNão é ordem; confira preço, liquidez e risco.',
+ };
+}
+async function postNtfy(topic,title,message){
+ if(!validNtfyTopic(topic))throw Error('Canal ntfy inválido.');
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),12000);
+ try{
+  const response=await fetch(NTFY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,title,message,priority:4,tags:['chart_with_upwards_trend']}),signal:controller.signal,cache:'no-store'});
+  if(!response.ok)throw Error('HTTP '+response.status+' no ntfy. Confira acesso/rede.');
+  return true;
+ }catch(e){
+  if(e.name==='AbortError')throw Error('ntfy não respondeu em 12 segundos.');
+  throw e;
+ }finally{clearTimeout(timeout);}
+}
+function queueNtfySignal(x,signalKey){
+ if(!ntfyConfig.enabled||ntfyConfig.mode==='green'||!validNtfyTopic(ntfyConfig.topic)||!x?.levels)return;
+ const topic=ntfyConfig.topic,key=ntfyKey(topic,signalKey);
+ if(ntfySentKeys.has(key)||ntfyPending.some(item=>ntfyKey(item.topic,item.key)===key))return;
+ const message=ntfyPayload(x);
+ ntfyPending.push({topic,key:signalKey,...message,created:Date.now(),attempts:0,nextAt:0});
+ ntfyAuditAdd('FILA','✅ Confirmado '+x.coin+'USDT '+x.direction);
+ persistNtfyQueue();
+ ntfyStatus('📨 Sinal '+x.coin+'USDT '+x.direction+' preparado para ntfy. Enviando…','warning');
+ void flushNtfyQueue();
+}
+function queueNtfyGreen(f,tf){
+ const old=ntfyGreenEpisodes[f.coin];
+ if(!shouldSendToSetup(f)){
+  if(old){delete ntfyGreenEpisodes[f.coin];save(NTFY_GREEN_EPISODES_KEY,ntfyGreenEpisodes);}
+  return;
+ }
+ if(!ntfyConfig.enabled){ntfyGreenLiveStatus('Verde '+f.coin+'USDT detectada, mas ntfy DESLIGADO.');return;}
+ if(!validNtfyTopic(ntfyConfig.topic)){ntfyGreenLiveStatus('Verde detectada, porém canal ntfy inválido.');return;}
+ if(ntfyConfig.mode==='confirmed'){ntfyGreenLiveStatus('Modo apenas CONFIRMADO: verde '+f.coin+'USDT não notificada.');return;}
+ if(!Number.isFinite(f.candle)||f.candle<=0)return;
+ // Chave persiste entre varreduras: não notificar em todo candle enquanto continuar na mesma fase.
+ const phaseKey=ntfyConfig.topic+'|'+tf+'|'+f.stage;
+ if(old?.key===phaseKey)return;
+ const label=old?'TRANSIÇÃO VERDE':signalStates[f.coin]?'REFERÊNCIA — VERDE ATUAL':'NOVO VERDE DETECTADO';
+ const signalKey='VERDE|'+f.coin+'|'+tf+'|'+f.stage+'|'+f.candle;
+ const sentKey=ntfyKey(ntfyConfig.topic,signalKey);
+ if(ntfySentKeys.has(sentKey)||ntfyPending.some(x=>ntfyKey(x.topic,x.key)===sentKey)){
+  ntfyGreenEpisodes[f.coin]={key:phaseKey,candle:f.candle,at:Date.now()};save(NTFY_GREEN_EPISODES_KEY,ntfyGreenEpisodes);return;
+ }
+ const msg={
+  title:'ROBO EGI V10.3 | 🟢 '+label+' | '+f.coin+'USDT',
+  message:'🟢 '+label+' — ESTUDO, NÃO ENTRADA\nMoeda: '+f.coin+'USDT\nFase Foguete: '+f.stage+'\nTimeframe: '+tf+'\nPreço de referência: '+fmt(f.price)+' USDT\nRSI: '+fmt(f.r)+' | Volume relativo: '+fmt(f.rel)+'×\nCandle fechado: '+timestamp(f.candle)+'\nSetupDT: AINDA NÃO CONFIRMOU. Robô apenas garimpa.'
+ };
+ ntfyPending.push({topic:ntfyConfig.topic,key:signalKey,...msg,created:Date.now(),attempts:0,nextAt:0});
+ ntfyGreenEpisodes[f.coin]={key:phaseKey,candle:f.candle,at:Date.now()};
+ save(NTFY_GREEN_EPISODES_KEY,ntfyGreenEpisodes);
+ ntfyGreenCycleCount++;
+ ntfyGreenLiveStatus('Fila: '+label+' | '+f.coin+'USDT. Confirme no histórico ntfy.');
+ ntfyAuditAdd('FILA',label+' | '+f.coin+'USDT • '+tf+' • '+f.stage);
+ persistNtfyQueue();
+ ntfyStatus('📨 '+label+' | '+f.coin+'USDT. Aguardando ntfy.sh.','warning');
+ void flushNtfyQueue();
+}
+async function testGreenNtfy(){
+ const topic=$('ntfyTopic').value.trim();
+ if(!validNtfyTopic(topic)){ntfyStatus('⚠ Informe ou gere um canal válido.','error');return;}
+ const b=$('ntfyTestGreen');b.disabled=true;
+ try{
+  await postNtfy(topic,'ROBO EGI V10.3 | TESTE VERDE (SIMULAÇÃO)','🟢 TESTE DE NOTIFICAÇÃO VERDE\nEsta mensagem é SIMULAÇÃO DE CONEXÃO, não veio de candle e NÃO é sinal de operação.');
+  ntfyAuditAdd('TESTE','Mensagem verde SIMULADA aceita pelo servidor ntfy');
+  ntfyStatus('✅ Teste verde aceito pelo ntfy.sh. Confira o aplicativo no Android.','ok');
+ }catch(e){ntfyAuditAdd('FALHA TESTE',e.message||String(e));ntfyStatus('❌ Teste verde falhou: '+(e.message||e),'error')}
+ finally{b.disabled=false;}
+}
+function ntfyScheduleRetry(){
+ clearTimeout(ntfyTimer);ntfyTimer=null;
+ if(!ntfyConfig.enabled||document.hidden||!ntfyPending.length)return;
+ const next=Math.min(...ntfyPending.map(x=>x.nextAt||0));
+ ntfyTimer=setTimeout(()=>{ntfyTimer=null;void flushNtfyQueue();},Math.max(1000,next-Date.now()));
+}
+async function flushNtfyQueue(){
+ if(ntfyBusy||!ntfyConfig.enabled||document.hidden||!validNtfyTopic(ntfyConfig.topic))return;
+ ntfyBusy=true;
+ try{
+  while(ntfyConfig.enabled&&!document.hidden){
+   const now=Date.now();
+   ntfyPending=ntfyPending.filter(item=>item.topic===ntfyConfig.topic&&now-item.created<3600000&&item.attempts<4&&!ntfySentKeys.has(ntfyKey(item.topic,item.key)));
+   persistNtfyQueue();
+   const item=ntfyPending.find(x=>(x.nextAt||0)<=now);
+   if(!item)break;
+   try{
+    await postNtfy(item.topic,item.title,item.message);
+    ntfySentKeys.add(ntfyKey(item.topic,item.key));
+    ntfyAuditAdd('ACEITO','ntfy.sh aceitou: '+item.title);
+    if(ntfySentKeys.size>800)ntfySentKeys=new Set([...ntfySentKeys].slice(-500));
+    save(NTFY_SENT_KEY,[...ntfySentKeys]);
+    ntfyPending=ntfyPending.filter(x=>x!==item);persistNtfyQueue();
+    ntfyStatus('✅ Sinal entregue ao servidor ntfy às '+timestamp(Date.now())+'. Confira o recebimento no Android.','ok');
+   }catch(error){
+    item.attempts=(item.attempts||0)+1;
+    ntfyAuditAdd('ERRO','Tentativa '+item.attempts+' de '+item.title+': '+(error.message||error));
+    item.nextAt=Date.now()+Math.min(300000,15000*Math.pow(2,item.attempts));
+    persistNtfyQueue();
+    ntfyStatus('⚠ Falha ao enviar ntfy ('+item.attempts+'/4): '+(error.message||String(error))+'. Nova tentativa com página aberta.','error');
+    break;
+   }
+  }
+ }finally{ntfyBusy=false;ntfyScheduleRetry();}
+}
+async function testNtfy(){
+ const topic=ntfyConfig.topic;
+ if(!validNtfyTopic(topic)){ntfyStatus('⚠ Primeiro informe ou gere um canal válido (8 a 64 caracteres).','error');return;}
+ const button=$('ntfyTest');button.disabled=true;
+ ntfyStatus('⏳ Enviando mensagem de teste ao ntfy.sh…','warning');
+ try{
+  await postNtfy(topic,'ROBO EGI V10.3 | TESTE','✅ Teste ntfy do Robô EGI V10.3 — '+timestamp(Date.now())+'\nEste é apenas um teste de conexão, NÃO é sinal de operação.');
+  ntfyStatus('✅ Teste aceito pelo servidor ntfy! Verifique no Android se o canal '+topic+' está assinado.','ok');
+  if(ntfyConfig.enabled)void flushNtfyQueue();
+ }catch(e){ntfyStatus('❌ Falha no teste ntfy: '+(e.message||String(e))+'. Verifique rede, HTTPS, canal e restrições CORS.','error');}
+ finally{button.disabled=false;}
+}
+
+function maybeAlert(x){if(x.kind!=='signal'||!x.candle||Date.now()-x.candle>3600000)return;const key=x.coin+'|'+x.direction+'|'+x.candle;if(seenKeys.has(key))return;seenKeys.add(key);if(seenKeys.size>500)seenKeys=new Set([...seenKeys].slice(-350));save(ALERTS,[...seenKeys]);showJointAlert(x,cycleNo===0);if(cycleNo===0){queueNtfySignal(x,key);return;}
+const item={coin:x.coin,direction:x.direction,detected:Date.now(),candle:x.candle,entry:x.levels.entry,stop:x.levels.stop,t1:x.levels.t1,t2:x.levels.t2};journal.unshift(item);journal=journal.slice(0,100);save(DIARY,journal);updateJournal();queueNtfySignal(x,key);speak('Robô Egi. Sinal conjunto em '+x.coin+'. '+x.direction+'. Entrada '+fmt(x.levels.entry)+'. Stop '+fmt(x.levels.stop)+'. Alvo um R '+fmt(x.levels.t1)+'. Alvo dois R '+fmt(x.levels.t2)+'. Confirme preço, liquidez e risco.');}
+// Portão: verde de descoberta real no candle fechado, NUNCA mera presença na lista A–Z.
+function shouldSendToSetup(f){return !!f&&f.green===true&&f.direction===1&&fogReadyForSignal(f);}
+function fogReadyForSignal(f){
+ if(!f.green||!f.stage.startsWith('VERDE')||f.direction!==1)return false;
+ if(f.rel==null||f.rel<1)return false;
+ if(f.room!==null&&f.room<.5)return false;
+ if(f.room===null&&f.rel<1.2)return false;
+ return true;
+}
+function updateSignalQueue(evaluated,tf){
+ const before=new Set(pendingSymbols),newly=[],notifyNew=[];
+ for(const f of evaluated){
+  const prev=signalStates[f.coin],green=shouldSendToSetup(f);
+  if(!green){delete signalStates[f.coin];pendingSymbols=pendingSymbols.filter(x=>x!==f.coin);continue;}
+  const changedPhase=!prev||prev.tf!==tf||prev.stage!==f.stage;
+  const newSignal=changedPhase||!classStates[f.coin];
+  if(changedPhase)notifyNew.push(f.coin);
+  if(newSignal){newly.push(f.coin);pendingSymbols.push(f.coin);}
+  signalStates[f.coin]={tf,stage:f.stage,at:Date.now()};
+ }
+ pendingSymbols=[...new Set(pendingSymbols.map(norm).filter(valid))];
+ save(SIGNAL_KEY,signalStates);persistQueue();
+ return {newly,notifyNew,retained:pendingSymbols.filter(x=>before.has(x)),already:evaluated.filter(f=>shouldSendToSetup(f)&&!pendingSymbols.includes(f.coin)).length};
+}
+function orderResults(a,b){const weight={confirmed:0,prepare:1,observe:2,discard:3,error:4};const ak=a.kind==='error'?'error':(a.classKey||'observe'),bk=b.kind==='error'?'error':(b.classKey||'observe');return weight[ak]-weight[bk]||a.coin.localeCompare(b.coin);}
+function updateResult(map,x){map.set(x.coin,x);results=[...map.values()].sort(orderResults);renderResults();}
+function wait(ms,signal){return new Promise((resolve,reject)=>{if(signal.aborted)return reject(Error('Cancelado'));const id=setTimeout(()=>{signal.removeEventListener('abort',stop);resolve();},ms);function stop(){clearTimeout(id);reject(Error('Cancelado'));}signal.addEventListener('abort',stop,{once:true});});}
+async function runScan(){
+ if(running)return;
+ running=true;const token=++runToken,controller=new AbortController();aborter=controller;
+ $('run').disabled=true;$('stopRun').disabled=false;
+ let failures=0,fogFailures=0,setupFailures=0,done=0,raw=[],chosen=[],candidates=[],attempted=0,validCount=0,confirmed=0,throttled=false,networkHalted=false;
+ let savedNow={added:0,skipped:0,stored:true,coins:[]},eligible=[],deferred=0,phase='INÍCIO',consecutiveNetwork=0,seenCoins=[];
+ dashboardState={seen:[],fogGreens:[],newSignals:[],alreadyDone:[],fogBlocked:[],classDiscard:[],classObserve:[],classPrepare:[],autoAdded:[],candidates:[],setupProgress:[],attempted:[],confirmed:[]};
+ const byCoin=new Map();const draw=()=>{results=[...byCoin.values()].sort(orderResults);renderResults();updateClassCounters();};
+ const updateCounters=()=>{
+  $('setupProgress').textContent=validCount+'/'+candidates.length;$('attempted').textContent=String(attempted);
+  $('pending').textContent=String(pendingSymbols.length);
+  $('errors').textContent=String(failures);$('fogErrors').textContent=String(fogFailures);$('setupErrors').textContent=String(setupFailures);
+  $('progress').value=chosen.length+attempted;
+ };
+ try{
+  phase='MERCADO';issueLog=[];$('errorList').textContent='Sem erros neste ciclo.';
+  $('diagnosticStatus').textContent='Consultando mercado. Erros encontrados serão listados aqui, sem desaparecer.';
+  persistQueue();status('Consultando mercado e priorizando fila recuperável...');
+  const ticker=await get('ticker/24hr',controller.signal);
+  if(!Array.isArray(ticker))throw Error('A resposta de mercado não contém a lista de moedas.');
+  chosen=chooseUniverse(ticker,Number($('universe').value));if(!chosen.length)throw Error('Não há pares disponíveis');
+  $('jointAlert').classList.remove('active','reference');$('jointAlert').textContent='Nenhum sinal conjunto novo neste ciclo até agora.';
+  $('progress').max=chosen.length;$('progress').value=0;$('seen').textContent='0/'+chosen.length;
+  for(const id of ['candidates','fogGreens','fogBlocked','classDiscard','classObserve','classPrepare','newSignals','alreadyDone','autoAdded','attempted','confirmed','pending','errors','fogErrors','setupErrors'])$(id).textContent='0';
+  $('setupProgress').textContent='0/0';$('stamp').textContent='Ciclo em andamento • triagem do Foguete.';
+   ntfyGreenCycleCount=0;ntfyGreenLiveStatus('Aguardando Foguete: o aviso verde será preparado assim que cada moeda ficar validada, sem esperar 500.');
+  const tf=$('tf').value;let cursor=0;
+  phase='FOGUETE';
+  const worker=async()=>{
+   while(cursor<chosen.length&&!controller.signal.aborted&&!networkHalted&&!throttled){
+    const coin=chosen[cursor++];$('activeCoin').textContent='Foguete: '+coin+' ('+(done+1)+'/'+chosen.length+')';
+    try{const c=closed(await get('klines?symbol='+encodeURIComponent(coin+'USDT')+'&interval='+tf+'&limit=230',controller.signal),tf);
+      const candidate=fogStage(c,coin);raw.push(candidate);
+      queueNtfyGreen(candidate,tf);
+      retrySymbols=retrySymbols.filter(x=>x!==coin);persistRetry();consecutiveNetwork=0;}
+    catch(e){
+     if(controller.signal.aborted)break;
+     failures++;fogFailures++;retrySymbols.push(coin);persistRetry();$('fogErrors').textContent=String(fogFailures);logIssue('Foguete',coin,e);
+     byCoin.set(coin,{coin,fogStage:'Falha de dados',setupStage:'Não enviado',kind:'error',classKey:'error',classification:'⚠ DADOS INDISPONÍVEIS',label:'DADOS INDISPONÍVEIS',reason:e.message||String(e)});
+     if(rateIssue(e)){throttled=true;}else if(networkIssue(e)&&++consecutiveNetwork>=2){networkHalted=true;}
+     else if(!networkIssue(e))consecutiveNetwork=0;
+    }
+    done++;seenCoins.push(coin);dashboardState.seen=uniqCoins(seenCoins);$('seen').textContent=done+'/'+chosen.length;$('progress').value=done;$('errors').textContent=failures;
+    $('fogGreens').textContent=String(raw.filter(shouldSendToSetup).length);$('fogBlocked').textContent=String(raw.filter(f=>!shouldSendToSetup(f)).length);
+    if(done%5===0||throttled||networkHalted)draw();
+    status('Foguete '+done+'/'+chosen.length+' · verdes '+raw.filter(shouldSendToSetup).length+' · não verdes '+raw.filter(f=>!shouldSendToSetup(f)).length+' · falhas '+failures+'.');
+   }
+  };
+  await Promise.all(Array.from({length:2},worker));if(controller.signal.aborted)return;
+  if(throttled||networkHalted){
+   draw();$('stamp').textContent='Triagem incompleta: '+timestamp(Date.now())+' · '+done+'/'+chosen.length+' processadas.';
+   status('⚠ Triagem interrompida por '+(throttled?'limite da API':'falhas consecutivas de rede')+'. '+(chosen.length-done)+' moedas ainda sem triagem; nenhuma análise foi inventada. Confira o diagnóstico.');
+   $('diagnosticStatus').textContent+=' | A triagem não prosseguiu para o SetupDT para evitar resultados parciais apresentados como completos.';
+   return;
+  }
+  raw.sort(compareCandidate);
+  eligible=raw.filter(shouldSendToSetup);
+  $('fogGreens').textContent=String(eligible.length);$('fogBlocked').textContent=String(raw.length-eligible.length);dashboardState.fogGreens=eligible.map(f=>f.coin);dashboardState.fogBlocked=raw.filter(f=>!shouldSendToSetup(f)).map(f=>f.coin);
+  // Só triagens concluídas alteram o estado; erros individuais conservam pendências anteriores.
+  const signalDelta=updateSignalQueue(raw,tf);
+  // Verdes notificadas no processamento do candle; esta etapa apenas fecha a fila SetupDT.
+  $('newSignals').textContent=String(signalDelta.newly.length);dashboardState.newSignals=signalDelta.newly.slice();
+  $('alreadyDone').textContent=String(signalDelta.already);dashboardState.alreadyDone=eligible.map(f=>f.coin).filter(c=>!pendingSymbols.includes(c));
+  saveGreens(eligible);savedNow=autoSaveDiscovered(eligible);dashboardState.autoAdded=savedNow.coins||[];
+  const cap=$('shortlist').value==='all'?pendingSymbols.length:Math.max(1,Number($('shortlist').value));
+  // Uma fila única para novas aprovações, adiadas e tentativas com falha. Sem duplicatas ou reenvio de verde inalterado.
+  const byGreen=new Map(eligible.map(f=>[f.coin,f]));
+  const queued= pendingSymbols.map(coin=>byGreen.get(coin)).filter(Boolean);
+  candidates=queued.slice(0,cap);deferred=queued.length-candidates.length;
+  const selected=new Set(candidates.map(x=>x.coin));dashboardState.candidates=candidates.map(x=>x.coin);persistQueue();
+  for(const f of raw){
+   const sending=selected.has(f.coin),green=shouldSendToSetup(f),queued=pendingSymbols.includes(f.coin);
+   const already=green&&!queued;
+   let cls;if(already){cls=previousClass(f.coin)||classifyFog(f);}else cls=classifyFog(f);
+   if(sending||queued)cls=classInfo('prepare');
+   if(!green)persistClass(f.coin,cls.key);
+   byCoin.set(f.coin,{
+    coin:f.coin,fogStage:f.stage,setupStage:sending?'NA FILA — VERDE':queued?'ADIADA — VERDE, PRÓXIMO CICLO':already?'JÁ AVALIADA — SEM NOVO SINAL':'Não enviada: sem verde',
+    kind:cls.kind,classKey:cls.key,classification:cls.label,
+    label:sending?'VERDE NOVO/PENDENTE — AGUARDAR SETUPDT':queued?'VERDE FOGUETE — FILA RECUPERÁVEL':already?'VERDE MONITORADO — PARECER PRESERVADO':'TRIAGEM FOGUETE — '+f.stage,
+    reason:sending?'Foguete VERDE: sinal novo ou pendência revalidada; encaminhada ao SetupDT 15m/1h/4h/diário.':queued?'Foguete VERDE; aguardará sua vez na fila recuperável.':already?'Foguete permanece verde e na mesma fase; o Robô preserva o último parecer do SetupDT para evitar reprocessamento desnecessário.':'Foguete: '+f.stage+'. Parecer provisório gerado pela triagem; sem envio ao SetupDT neste ciclo.',
+    rsi:f.r,vol:f.rel,fogScore:f.fogScore,setupScore:null,scoreText:scoreText(f.fogScore,null)
+   });
+  }
+  draw();$('candidates').textContent=candidates.length;$('progress').max=chosen.length+candidates.length;
+  updateCounters();phase='SETUPDT';
+  status('✅ Triagem '+done+'/'+chosen.length+': '+eligible.length+' VERDES; '+(raw.length-eligible.length)+' sem verde; '+savedNow.added+' novas na lista histórica. '+(candidates.length?'SetupDT analisará '+candidates.length+' verdes novos ou pendentes.':'Nenhuma moeda enviada: sem verde NOVO ou pendente; verdes antigos continuam monitorados.'));
+  for(const f of candidates){
+   if(controller.signal.aborted||throttled||networkHalted)break;
+   $('activeCoin').textContent='SetupDT: '+f.coin+' ('+(attempted+1)+'/'+candidates.length+')';
+   byCoin.set(f.coin,{...byCoin.get(f.coin),setupStage:'ANALISANDO 4 TEMPOS',classKey:'prepare',classification:'🟠 PREPARAR ENTRADA',kind:'prepare',label:'AGUARDAR — EM ANÁLISE'});
+   draw();
+   try{
+    const v=await checkSetup(f,tf,controller.signal);if(controller.signal.aborted)break;
+    const ev=v.ev,fogReady=fogReadyForSignal(f),joint=v.final&&fogReady;
+    const cls=classifySetup(f,v,joint),kind=cls.kind;persistClass(f.coin,cls.key);
+    const label=joint?'SINAL '+v.dir+' — DOIS MÉTODOS':ev.conflict?'AGUARDAR — DIVERGÊNCIA':ev.tradable&&!v.agree?'AGUARDAR — DIREÇÕES OPOSTAS':!fogReady&&ev.tradable?'AGUARDAR — FILTROS FOGUETE':cls.key==='prepare'?'PREPARAR — SETUPDT':cls.key==='observe'?'OBSERVAR — SEM CONFIRMAÇÃO TOTAL':'DESCARTAR — CONFIRMAÇÃO INSUFICIENTE';
+    const x={coin:f.coin,fogStage:f.stage,setupStage:ev.day+' ('+ev.count+'/6)',kind,classKey:cls.key,classification:cls.label,label,
+     reason:'Foguete '+f.stage+'; SetupDT '+ev.final+'. '+(v.agree?'Direções concordam. ':'Direções ainda não concordam. ')+(f.stage.startsWith('OBSERVAR')?'Apenas observação na triagem: não autoriza sinal conjunto. ':'')+(!fogReady?'Filtro Foguete insuficiente para sinal (direção, volume ou resistência). ':'')+(ev.conflict?'Veto de divergência. ':'')+'Checklist '+ev.count+'/6: '+ev.checks.map((ok,i)=>(ok?'✓':'✕')+['4h direção','4h/1h concordam','15m gatilho','volume 15m','projeção 1,5R','RSI 15m'][i]).join(', ')+'. A projeção 1,5R é aritmética; não demonstra rentabilidade.',
+     rsi:f.r,vol:f.rel,levels:joint?ev.levels:null,candle:ev.m15.candleClose,direction:v.dir,fogScore:f.fogScore,setupScore:ev.count,scoreText:scoreText(f.fogScore,ev.count)};
+    byCoin.set(f.coin,x);validCount++;dashboardState.setupProgress.push(f.coin);consecutiveNetwork=0;
+    if(joint){confirmed++;dashboardState.confirmed.push(f.coin);maybeAlert(x);}
+   }catch(e){
+    if(controller.signal.aborted)break;
+    const msg=e.message||String(e);failures++;setupFailures++;logIssue('SetupDT',f.coin,e);
+    if(rateIssue(e)){throttled=true;byCoin.set(f.coin,{...byCoin.get(f.coin),kind:'error',classKey:'error',classification:'⚠ DADOS INDISPONÍVEIS',setupStage:'ADIADA — LIMITE API',label:'AGUARDAR — NOVA TENTATIVA',reason:msg+'. Dados insuficientes; moeda permanece na fila.'});}
+    else if(networkIssue(e)){
+     consecutiveNetwork++;
+     byCoin.set(f.coin,{...byCoin.get(f.coin),kind:'error',classKey:'error',classification:'⚠ DADOS INDISPONÍVEIS',setupStage:'FALHA DE REDE',label:'DADOS INDISPONÍVEIS',reason:msg+'. Aguarda nova tentativa.'});
+     if(consecutiveNetwork>=2)networkHalted=true;
+    }else{
+     consecutiveNetwork=0;
+     byCoin.set(f.coin,{coin:f.coin,fogStage:f.stage,setupStage:'Falha',kind:'error',classKey:'error',classification:'⚠ DADOS INDISPONÍVEIS',label:'DADOS INDISPONÍVEIS',reason:msg,rsi:f.r,vol:f.rel,fogScore:f.fogScore,setupScore:null,scoreText:scoreText(f.fogScore,null)});
+    }
+   }
+   attempted++;dashboardState.attempted.push(f.coin);
+   // Falhas de rede são tentadas novamente em outro ciclo; falhas de dados definitivas não bloqueiam o resto.
+   const state=byCoin.get(f.coin);
+   if(state?.setupStage?.includes('/6)')){
+    pendingSymbols=pendingSymbols.filter(x=>x!==f.coin);
+   }else{
+    // Falhas reais seguem recuperáveis, mas vão ao final da fila para não bloquear outros verdes.
+    pendingSymbols=pendingSymbols.filter(x=>x!==f.coin).concat(f.coin);
+   }
+   persistQueue();
+   updateCounters();draw();
+   status('SetupDT válidas '+validCount+'/'+candidates.length+' · tentadas '+attempted+' · '+confirmed+' entradas confirmadas · '+failures+' falhas · '+(pendingSymbols.length)+' aguardando.');
+   if((throttled||networkHalted)&&issueLog.length){
+    $('diagnosticStatus').textContent+=' | Pausa preventiva: '+(throttled?'limite API':'2 falhas seguidas de conexão')+'. A fila foi guardada.';
+   }
+  }
+  if(controller.signal.aborted)return;
+  for(const f of candidates){
+   const current=byCoin.get(f.coin);
+   if(current?.setupStage==='NA FILA — VERDE'||current?.setupStage==='ANALISANDO 4 TEMPOS'){
+    byCoin.set(f.coin,{...current,kind:'prepare',classKey:'prepare',classification:'🟠 PREPARAR ENTRADA',setupStage:'ADIADA — CONTINUAR',label:'AGUARDAR — NOVA TENTATIVA',reason:'A varredura foi interrompida antes desta moeda; permanece salva na fila.'});
+   }
+  }
+  draw();lastScan=Date.now();cycleNo++;updateCounters();
+  $('stamp').textContent='Ciclo '+cycleNo+' encerrado: '+timestamp(lastScan)+' · triagem '+done+'/'+chosen.length+' · verdes '+eligible.length+' · enviadas '+candidates.length+' · válidas '+validCount+' · tentativas '+attempted+' · falhas Foguete '+fogFailures+' + SetupDT '+setupFailures+' = '+failures+'.';
+  $('activeCoin').textContent='Etapa concluída. '+(pendingSymbols.length)+' pendentes.';
+  status((throttled||networkHalted?'⚠ Ciclo parcial: '+(throttled?'limite de API':'rede indisponível')+'. ':'✅ Ciclo de análise encerrado. ')+validCount+' avaliações válidas, '+attempted+' tentativas, '+confirmed+' entradas confirmadas, '+(pendingSymbols.length)+' pendentes e '+failures+' falhas (Foguete '+fogFailures+' + SetupDT '+setupFailures+'). '+(pendingSymbols.length?'Fila recuperável de verdes validáveis salva para próximo ciclo. ':'')+(!savedNow.stored?'Exporte o backup; armazenamento bloqueado.':'')+' Consulte o diagnóstico e o relatório.');
+  if(!issueLog.length)$('diagnosticStatus').textContent='✅ Nenhuma falha neste ciclo.';
+ }catch(e){
+  if(!controller.signal.aborted){logIssue(phase,'geral',e);status('⚠ Varredura interrompida em '+phase+': '+(e.message||String(e))+'. Verifique o diagnóstico; não há sinal inferido sem dados.');}
+ }finally{
+  if(token===runToken){
+   if(controller.signal.aborted){$('stamp').textContent='Varredura interrompida em '+timestamp(Date.now())+'; '+pendingSymbols.length+' moedas na fila recuperável.';
+    $('activeCoin').textContent='Interrompida. Abra novamente e toque em Analisar agora.';}
+   running=false;aborter=null;$('run').disabled=false;$('stopRun').disabled=true;persistQueue();if(auto&&!document.hidden)scheduleNext();
+  }
+ }
+}
+function scheduleNext(){clearTimeout(timer);if(!auto)return;const delay=Math.max(1000,Number($('cycle').value)*60000);timer=setTimeout(async()=>{if(document.hidden){status('Auto pausado: página oculta. Retome ao voltar.');return;}await runScan();},delay);}
+
+// Interface ntfy: alterações de canal/ativação são locais, sem publicação de segredos no GitHub.
+showNtfyConfig();
+$('ntfyGenerate').onclick=()=>{
+ try{ntfyConfig.topic=randomNtfyTopic();persistNtfy();clearNtfyPendingWrongTopic();showNtfyConfig();ntfyStatus('🔐 Canal aleatório gerado e salvo. Copie-o e assine-o no aplicativo ntfy antes do teste.','ok');}
+ catch(e){ntfyStatus('⚠ '+e.message,'error');}
+};
+$('ntfyTopic').onchange=()=>{
+ const updated=$('ntfyTopic').value.trim();
+ ntfyConfig.topic=updated;persistNtfy();clearNtfyPendingWrongTopic();
+ if(!validNtfyTopic(updated)){ntfyConfig.enabled=false;persistNtfy();showNtfyConfig();return;}
+ showNtfyConfig();
+};
+$('ntfyMode').onchange=()=>{
+ ntfyConfig.mode=$('ntfyMode').value;persistNtfy();
+ ntfyStatus('🔔 Modo ntfy alterado para: '+$('ntfyMode').selectedOptions[0].textContent+'.','ok');
+};
+$('ntfyTestGreen').onclick=()=>void testGreenNtfy();
+$('ntfyEnabled').onchange=()=>{
+ ntfyConfig.topic=$('ntfyTopic').value.trim();
+ if($('ntfyEnabled').checked&&!validNtfyTopic(ntfyConfig.topic)){
+  ntfyConfig.enabled=false;persistNtfy();showNtfyConfig();ntfyStatus('⚠ Gere um canal válido antes de ativar o ntfy.','error');return;
+ }
+ ntfyConfig.enabled=$('ntfyEnabled').checked;persistNtfy();showNtfyConfig();
+ if(ntfyConfig.enabled)void flushNtfyQueue();
+ else {clearTimeout(ntfyTimer);ntfyTimer=null;}
+};
+$('ntfyCopy').onclick=async()=>{
+ const topic=$('ntfyTopic').value.trim();
+ if(!validNtfyTopic(topic)){ntfyStatus('⚠ Informe primeiro um canal válido.','error');return;}
+ try{
+  await navigator.clipboard.writeText(topic);
+  ntfyStatus('✅ Canal copiado. Cole em Assinar tópico no aplicativo ntfy.','ok');
+ }catch(e){
+  $('ntfyTopic').focus();$('ntfyTopic').select();ntfyStatus('Selecionei o canal. Toque e segure para copiá-lo.','warning');
+ }
+};
+$('ntfyTest').onclick=()=>void testNtfy();
+
+ let importMode='replace';
+$('add').onclick=addCoin;$('newcoin').onkeydown=e=>{if(e.key==='Enter')addCoin()};
+$('importBtn').onclick=()=>{importMode='replace';$('inputfile').click();};
+$('mergeBtn').onclick=()=>{importMode='merge';$('inputfile').click();};
+$('syncSetupLocal').onclick=()=>{try{status('✅ '+syncSetupLocal());}catch(err){status('⚠ '+err.message);}};
+$('inputfile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>100000)throw Error('Máximo 100 KB');const text=await file.text();status('✅ '+(importMode==='replace'?replaceWithSetupList(text,file.name):mergeList(text,file.name)));}catch(err){status('Lista anterior preservada: '+err.message);}e.target.value='';};
+$('backup').onclick=()=>download('ROBO_EGI_V10_LISTA_SETUPDT_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'setupdt-light-watchlist',version:1,coins:sortCoins(watch),source:'ROBO EGI V10 - LISTA PRINCIPAL SETUPDT',exportedAt:new Date().toISOString()},null,2),'application/json');$('exportCoinsTxt').onclick=()=>{if(!watch.length){status('Cadastre ou importe moedas para gerar a lista A–Z.');return;}download('ROBO_EGI_V10_LISTA_SETUPDT_'+new Date().toISOString().slice(0,10)+'.txt',sortCoins(watch).map(coin=>coin+'USDT').join('\n')+'\n');status('Lista principal exportada: '+watch.length+' moedas, sem duplicatas e com par USDT.');};
+$('exportGreenJson').onclick=()=>{if(!approved.length){status('Nenhuma moeda verde no último ciclo V9: seleção vazia; não exportei moedas da lista antiga.');return;}download('ROBO_EGI_V9_SOMENTE_VERDES_SETUPDT.json',JSON.stringify({format:'setupdt-light-watchlist',version:1,coins:approved,source:'ROBO EGI V10 - VERDES FOGUETE',exportedAt:new Date().toISOString(),screenedAt:new Date(approvedAt).toISOString()},null,2),'application/json');status('Exportadas '+approved.length+' moedas VERDES para importar no SetupDT externo.');};
+$('exportGreenTxt').onclick=()=>{if(!approved.length){status('Nenhum verde disponível: TXT não gerado.');return;}download('ROBO_EGI_V9_SOMENTE_VERDES_SETUPDT.txt',approved.map(c=>c+'USDT').join('\n')+'\n');status('TXT exclusivo: '+approved.length+' verdes, sem as moedas antigas não aprovadas.');};
+$('clearList').onclick=()=>{if(confirm('Limpar a lista local do Robô? A lista original do SetupDT não será alterada. Exporte backup se necessário.')){watch=[];const stored=save(KEY,watch);renderWatch();$('autoAdded').textContent='0';$('autoSaveStatus').textContent='Lista local limpa. Importe novamente a lista principal do SetupDT para restaurar a sincronização.'+(!stored?' Armazenamento bloqueado: limpeza só nesta sessão.':'');listSource='Lista local vazia';renderWatch();status('Lista local do Robô zerada. A lista do SetupDT não foi modificada.')}};
+$('run').onclick=runScan;$('stopRun').onclick=()=>{if(aborter){aborter.abort();status('⏹ Interrupção solicitada. Fila mantida no armazenamento local; toque em Analisar agora para retomar.');}};$('diagnosticExport').onclick=()=>download('ROBO_EGI_V9_DIAGNOSTICO_'+new Date().toISOString().slice(0,10)+'.txt',['ROBÔ EGI V10 — DIAGNÓSTICO',timestamp(Date.now()),'Fila recuperável de verdes: '+pendingSymbols.join(', '),'Verdes do último ciclo: '+approved.join(', '),'Novos verdes: '+$('newSignals').textContent,'Verdes já avaliados: '+$('alreadyDone').textContent,'Falhas Foguete: '+$('fogErrors').textContent,'Falhas SetupDT: '+$('setupErrors').textContent,'Status: '+$('status').textContent,'',...issueLog.map(e=>timestamp(e.at)+' | '+e.stage+' | '+e.coin+' | '+e.message)].join('\n'));$('auto').onclick=()=>{auto=!auto;$('auto').textContent=auto?'⏸ Auto ON':'▶ Auto OFF';$('auto').setAttribute('aria-pressed',String(auto));if(auto){if(!running)runScan();}else{clearTimeout(timer);status('Auto desligado; dados anteriores mantidos como históricos.')}};
+$('audio').onclick=()=>{voice=!voice;$('audio').textContent=voice?'🔔 Áudio ON':'🔕 Áudio OFF';$('audio').setAttribute('aria-pressed',String(voice));$('audioStatus').textContent=voice?'Áudio ligado; mantenha esta página visível.':'Áudio desligado.';if(voice)speak('Áudio do Robô Egi ativado.');};
+$('manualTxt').onclick=()=>download('ROBO_EGI_V9_MANUAL_FUNCIONALIDADES.txt',$('manual').textContent+'\n');$('manualAudio').onclick=()=>{voice=true;$('audio').textContent='🔔 Áudio ON';$('audioStatus').textContent='Lendo manual técnico.';speak($('manual').textContent);};$('manualStop').onclick=()=>{'speechSynthesis'in window&&speechSynthesis.cancel()};
+$('filter').onchange=renderResults;$('orderResults').onchange=renderResults;$('findCoin').oninput=renderResults;$('exportCsv').onclick=()=>{const rows=getReportRows();if(!rows.length){status('Nenhuma moeda nesta consulta. Ajuste a busca ou faça uma análise.');return;}const escape=v=>'"'+String(v??'').replaceAll('"','""')+'"';download('ROBO_EGI_V9_RELATORIO.csv',[['Moeda','Parecer final','Foguete','SetupDT','Placar','Status técnico','RSI','Volume','Justificativa'],...rows.map(x=>[x.coin,x.classification||'',x.fogStage,x.setupStage,x.scoreText||scoreText(x.fogScore,x.setupScore),x.label,x.rsi,x.vol,x.reason])].map(row=>row.map(escape).join(';')).join('\r\n'),'text/csv')};$('exportReport').onclick=()=>{if(!getReportRows().length){status('Nenhuma moeda nesta consulta para exportar.');return;}download('ROBO_EGI_V9_RELATORIO_ORDENADO.txt',reportText());};$('speak').onclick=()=>{voice=true;$('audio').textContent='🔔 Áudio ON';speak(reportText().slice(0,3500))};$('stopSpeech').onclick=()=>{'speechSynthesis'in window&&speechSynthesis.cancel()};$('testAudio').onclick=()=>{voice=true;$('audio').textContent='🔔 Áudio ON';$('audioStatus').textContent='Solicitando teste de voz.';speak('Teste de áudio. Robô Egi funcionando. Nenhuma operação foi realizada.')};$('clearDiary').onclick=()=>{if(confirm('Limpar o histórico local de sinais?')){journal=[];save(DIARY,[]);updateJournal();}};
+$('closeStatDetail').onclick=()=>{$('statDetail').hidden=true;};
+$('retryFailures').onclick=()=>{const failed=uniqCoins(issueLog.map(e=>e.coin));if(!failed.length){status('Nenhuma falha deste ciclo para tentar novamente.');return;}retrySymbols=uniqCoins([...retrySymbols,...failed]);persistRetry();status('Retentativa preparada para '+failed.length+' moeda(s): '+failed.join(', ')+'. Elas serão priorizadas agora.');if(!running)runScan();};
+bindStatCards();
+$('autoSaveCoins').onchange=()=>{$('autoSaveStatus').textContent=$('autoSaveCoins').checked?'Opcional ligado: verdes novas poderão ser acrescentadas à lista local do Robô. Isso pode fazê-la divergir da lista principal do SetupDT.':'Desligado: a lista local permanece igual à lista importada/sincronizada do SetupDT.';};
+$('setupOnly').onchange=()=>{renderWatch();status($('setupOnly').checked?'Modo SetupDT somente ATIVO: nenhuma moeda extra do ranking será incluída.':'Modo ampliado ATIVO: após a lista principal, o Robô pode completar o ciclo com moedas do ranking Binance.');};
+$('cycle').onchange=()=>{if(auto&&!running)scheduleNext()};document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(timer);if(running){aborter?.abort();status('Varredura suspensa: página não está visível. Retorne e analise novamente.');}}else {if(auto&&!running)runScan();void flushNtfyQueue();}});window.addEventListener('beforeunload',()=>aborter?.abort());
+renderWatch();renderGreens();updateJournal();renderNtfyAudit();persistQueue();void flushNtfyQueue();if(Array.isArray(setupStored))status('✅ Lista principal carregada automaticamente do SetupDT deste navegador: '+watch.length+' moedas.');window.roboEgiTest={norm,sortCoins,getReportRows,parseListFile,replaceWithSetupList,syncSetupLocal,mergeList,autoSaveDiscovered,fogStage,chooseUniverse,checkSetup,runScan,technicalSnapshot,evaluate,shouldSendToSetup,fogReadyForSignal,get,networkIssue,rateIssue,renderGreens,saveGreens,openStatDetail,scoreText,showJointAlert,validNtfyTopic,ntfyPayload,postNtfy,queueNtfySignal,queueNtfyGreen,flushNtfyQueue,testNtfy,testGreenNtfy};
+</script></body></html>
