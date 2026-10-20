@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101a2c">
-<title>Gestor de Hedge Dinâmico EGI V1.0 — Simulador</title>
+<title>Gestor de Hedge Dinâmico EGI V1.1 — Simulador</title>
 <style>
 :root{--bg:#0b1220;--surface:#162237;--surface2:#1d2c44;--border:#344359;--txt:#edf3fa;--muted:#a6b6c9;--green:#46d3a0;--red:#ff7884;--amber:#ffc570;--blue:#8ac5ff}
 *{box-sizing:border-box}html{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--txt);background:var(--bg)}
@@ -36,7 +36,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <header>
 <div class="eyebrow">Estudo e gestão de risco • EGI</div>
 <h1>🛡️ Gestor de Hedge Dinâmico EGI</h1>
-<div class="pill">V1.0 • calculadora manual</div><div class="pill">LONG + SHORT • mesma moeda</div><div class="pill">Não envia ordens</div>
+<div class="pill">V1.1 • calculadora manual</div><div class="pill">LONG + SHORT • mesma moeda</div><div class="pill">Não envia ordens</div>
 <p class="muted">Teste como o SHORT pode compensar parte de uma queda, liberar margem ao ser encerrado e alterar a exposição depois de um possível DCA.</p>
 </header>
 <div class="warning"><b>Importante:</b> estimativas educativas para futuros lineares com margem em USDT. Não substituem a tela de risco da MEXC. Preço de liquidação oficial depende de margem compartilhada, posições adicionais, preço justo (mark/fair price), manutenção por faixa, funding e taxas. Não existe garantia de reação antes da liquidação.</div>
@@ -93,7 +93,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 </section>
 <section class="card">
 <h2>4. Testar DCA após fechar SHORT</h2>
-<p class="note">Fechar o SHORT realiza o PNL, mas não acrescenta patrimônio ao saldo Cross. Os 160 USDT calculados no exemplo são uma referência bruta, não autorização para abrir outra posição.</p>
+<p class="note">Fechar o SHORT realiza o PNL, mas não acrescenta patrimônio ao saldo Cross. O valor bruto associado ao SHORT é apenas referência contábil, não autorização para abrir outra posição.</p>
 <div class="field"><label for="availableAfterClose">Saldo efetivamente DISPONÍVEL para nova margem na MEXC após o fechamento (opcional)</label><input id="availableAfterClose" type="number" min="0" step="any" placeholder="Não informado — simulação teórica"></div>
 <p class="note" id="dcaAvailability">Sem saldo informado: DCA apenas hipotético.</p>
 <div class="field"><label for="dca">Parcela dos recursos liberados destinada ao DCA</label><input id="dca" type="range" min="0" max="100" value="50" step="5"><div id="dcaLabel" class="blue">50%</div></div>
@@ -155,7 +155,7 @@ svg{max-width:100%;height:auto}#message{min-height:18px;color:var(--green);font-
 <p><b>Operação real:</b> confira liquidação, manutenção, funding, taxas, exposição e patrimônio diretamente no painel MEXC. O modo hedge permite dois lados; a proteção efetiva depende do regime de margem.</p>
 <p><b>Integridade:</b> esta página não lê a conta, não executa ordens, não faz previsões, não usa dados em tempo real e não manda alertas. Na margem cruzada, a MEXC pode compensar LONG e SHORT automaticamente durante uma liquidação.</p>
 </details>
-<p class="note">EGI V1.0 • Simulador independente para testes no SetupDT • Dados guardados apenas neste navegador quando solicitado.</p>
+<p class="note">EGI V1.1 • Simulador independente para testes no SetupDT • Dados guardados apenas neste navegador quando solicitado.</p>
 </main>
 <script>
 (function(){
@@ -243,7 +243,7 @@ function report(){
 if(!valid())return "Entradas inválidas";
 var d=get(),delta=(d.p/d.le-1)*100,released=Math.max(0,d.sm+d.sp),hypotheticalMargin=released*v("dca")/100,hasAvailable=el("availableAfterClose").value.trim()!=="",marginAdded=hasAvailable?Math.min(hypotheticalMargin,v("availableAfterClose")):hypotheticalMargin,addedQ=marginAdded*d.ll/d.p,newQ=d.ql+addedQ,avg=newQ>0?(d.ql*d.le+marginAdded*d.ll)/newQ:NaN;
 return [
-"RELGPT — GESTOR DE HEDGE DINÂMICO EGI V1.0 — ESTUDO, NÃO ORDEM",
+"RELGPT — GESTOR DE HEDGE DINÂMICO EGI V1.1 — ESTUDO, NÃO ORDEM",
 "Data: "+new Date().toLocaleString("pt-BR"),
 "Moeda: "+el("symbol").value.toUpperCase()+" | Margem: "+(el("mode").value==="cross"?"CRUZADA":"ISOLADA"),
 "LONG — margem "+money(d.lm)+" | alav. "+d.ll+"x | entrada "+price(d.le)+" | qtd. "+d.ql.toFixed(8),
