@@ -3044,8 +3044,8 @@ function configure(){
  // Desliga apenas a consulta individual redundante nesta cópia, sem apagar configurações salvas.
  const query=d.getElementById('queryAutoSec');if(query){query.value='0';query.dispatchEvent(new Event('change',{bubbles:true}));}
  const sec=d.getElementById('multiMonitorSec'),max=d.getElementById('multiMonitorMax');
- if(sec){sec.value='60';sec.dispatchEvent(new Event('change',{bubbles:true}));}
- if(max){max.value='5';max.dispatchEvent(new Event('change',{bubbles:true}));}
+ if(sec)sec.value='60';
+ if(max)max.value='5'; // Preferências originais do MME1 não são alteradas pelo teste.
  if(!startRequested&&!userPaused){
    startRequested=true;
    const btn=d.getElementById('multiMonitorBtn');
