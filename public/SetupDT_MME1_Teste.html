@@ -487,7 +487,7 @@
   <div><span class="hint">PÁGINA DE TESTE • SetupDT original preservado</span><h2>📡 RadarMME1 Light V9.1.1 — no final do SetupDT</h2></div>
   <span class="tag">Somente estudo • Sem ordens</span>
  </div>
- <p class="egi-mme-test-note">O MME1 é carregado uma única vez neste painel. Recolher a área não descarrega o aplicativo. Para reduzir carga inicial, a varredura de teste usa 5 moedas por ciclo e intervalo de 60 segundos. Relatórios locais continuam acessíveis ao SetupDT.</p>
+ <p class="egi-mme-test-note">O MME1 é carregado do Render mesmo quando este arquivo foi baixado no celular. Recolher a área não o descarrega. O teste usa até 5 moedas por ciclo, com intervalo de 60 segundos, e transmite o andamento para esta tela.</p>
  <div id="egiMmeTestState" class="egi-mme-test-state" role="status" aria-live="polite">🟡 Inicializando MME1...</div>
  <div class="egi-mme-test-metrics">
    <div class="egi-mme-test-metric"><small>Monitor MME1</small><strong id="egiMmeTestRun">Iniciando</strong></div>
@@ -3032,70 +3032,78 @@ renderBridge();
 <script id="egiMmeEmbeddedTestLogic">
 (function(){
 'use strict';
+const P='EGI-MME1-EMBED-TEST-V1',REMOTE='https://setupdt.onrender.com';
 const $=id=>document.getElementById(id);
 const frame=$('egiMmeFrame'),clip=$('egiMmeFrameClip'),status=$('egiMmeTestState');
-let loaded=false, startRequested=false, userPaused=false, loadFailed=false;
-function doc(){try{const inner=frame.contentDocument;return inner&&inner.getElementById('multiMonitorBtn')?inner:null;}catch{return null;}}
-function running(){const d=doc();return !!(d&&d.getElementById('multiMonitorBtn').textContent.includes('Parar monitor'));}
-function statusText(txt){status.textContent=txt;}
-function configure(){
- const d=doc();if(!d){statusText('⚠️ MME1 não carregou corretamente; tente recarregar a página.');loadFailed=true;return;}
- loaded=true;loadFailed=false;
- // Desliga apenas a consulta individual redundante nesta cópia, sem apagar configurações salvas.
- const query=d.getElementById('queryAutoSec');if(query){query.value='0';query.dispatchEvent(new Event('change',{bubbles:true}));}
- const sec=d.getElementById('multiMonitorSec'),max=d.getElementById('multiMonitorMax');
- if(sec)sec.value='60';
- if(max)max.value='5'; // Preferências originais do MME1 não são alteradas pelo teste.
- if(!startRequested&&!userPaused){
-   startRequested=true;
-   const btn=d.getElementById('multiMonitorBtn');
-   if(btn&&!running()){btn.click();statusText('🟡 MME1 carregado: descobrindo universo e iniciando monitoramento...');}
- }
- render();
+let connected=false,isRunning=false,lastHeartbeat=0,lastMsg='',lastMsgAt=0;
+function say(s){status.textContent=s;}
+function send(action){
+ if(!connected)return;
+ frame.contentWindow.postMessage({protocol:P,type:'command',action},REMOTE);
 }
-function render(){
- const d=doc();
- const isRunning=running();
- $('egiMmeTestRun').textContent=loadFailed?'Falha no carregamento':!loaded?'Carregando':isRunning?'🟢 Ligado':'⏸ Parado / iniciando';
+function showMetrics(data){
+ connected=true;lastHeartbeat=Date.now();isRunning=!!data.running;
+ $('egiMmeTestRun').textContent=isRunning?'🟢 Ligado':data.busy?'🟡 Preparando':'⏸ Parado';
+ $('egiMmeTestCoverage').textContent=data.coverage||'—';
+ $('egiMmeTestLast').textContent=Number(data.updatedAt)?new Date(data.updatedAt).toLocaleString('pt-BR'):'Ainda sem publicação';
+ $('egiMmeTestRecords').textContent=Number(data.records||0)+' relatórios';
+ $('egiMmeTestCycle').textContent=data.status||'Aguardando análise...';
  $('egiMmeTestToggle').textContent=isRunning?'⏸ Parar monitor MME1':'▶ Iniciar monitor MME1';
- $('egiMmeTestToggle').disabled=!loaded;
- if(d){
-   $('egiMmeTestCoverage').textContent=d.getElementById('mmCoverage')?.textContent?.trim()||'—';
-   $('egiMmeTestCycle').textContent=d.getElementById('mmStatus')?.textContent?.trim()||'Aguardando primeira varredura.';
- }
- let updatedAt=0;
- try{
-   const r=JSON.parse(localStorage.getItem('egi_mme1_reports_v1')||'null');
-   if(r?.schema==='EGI-MME1-REPORT-V1'){
-     updatedAt=Number(r.updatedAt)||0;
-     $('egiMmeTestLast').textContent=updatedAt?new Date(updatedAt).toLocaleString('pt-BR'):'—';
-     $('egiMmeTestRecords').textContent=Array.isArray(r.entries)?r.entries.length+' relatórios':'—';
-   }
- }catch{}
- if(loadFailed)statusText('⚠️ Erro ao carregar MME1 no teste.');
- else if(!loaded)statusText('🟡 Carregando MME1...');
+ $('egiMmeTestToggle').disabled=false;
+ if(/falha|erro|indisponível/i.test(data.status||''))say('⚠️ MME1 carregado, mas houve falha na varredura. Veja o andamento abaixo.');
  else if(isRunning){
-   if(updatedAt&&Date.now()-updatedAt>10*60*1000)statusText('🟡 MME1 ligado, porém sem relatórios recentes: verificar conexão e ciclos.');
-   else statusText('🟢 MME1 ligado dentro do SetupDT. Recolher o painel não encerra o monitor.');
- }else statusText(startRequested&&!userPaused?'🟡 MME1 carregado; verificando inicialização do monitor...':'⏸ MME1 parado: nenhuma nova varredura automática.');
+  if(Number(data.updatedAt)>0&&Date.now()-data.updatedAt>12*60*1000)
+   say('🟡 MME1 ligado; último relatório antigo. Verifique disponibilidade da Binance.');
+  else say('🟢 MME1 ativo dentro do SetupDT • monitoramento independente do painel recolhido.');
+ }else if(data.busy)say('🟡 MME1 preparando monitoramento...');
+ else say('⏸ MME1 carregado, porém parado • toque em Iniciar monitor MME1.');
 }
-frame.addEventListener('load',configure);
-frame.addEventListener('error',()=>{loadFailed=true;render();});
-// Anexa o iframe mesmo com o painel recolhido: NÃO usar loading=lazy ou remover src ao recolher.
-frame.src='./index6.html';
+function mirrorReport(snapshot){
+ if(snapshot?.schema!=='EGI-MME1-REPORT-V1'||!Array.isArray(snapshot.entries)||snapshot.entries.length>600)return;
+ try{
+  const old=JSON.parse(localStorage.getItem('egi_mme1_reports_v1')||'null');
+  if(!old||Number(snapshot.updatedAt)>Number(old.updatedAt||0))localStorage.setItem('egi_mme1_reports_v1',JSON.stringify(snapshot));
+ }catch(e){
+  $('egiMmeTestCycle').textContent='⚠️ Não foi possível espelhar os relatórios no arquivo baixado: '+(e?.message||e);
+ }
+}
+window.addEventListener('message',e=>{
+ if(e.source!==frame.contentWindow||e.origin!==REMOTE)return;
+ const m=e.data||{};
+ if(m.protocol!==P)return;
+ if(m.type==='metrics')showMetrics(m.payload||{});
+ if(m.type==='reports')mirrorReport(m.payload?.snapshot);
+ if(m.type==='status'){lastMsg=String(m.payload?.message||'');lastMsgAt=Date.now();say(lastMsg);}
+});
+frame.addEventListener('load',()=>{
+ say('🟡 Painel carregado. Aguardando confirmação do monitor MME1...');
+ setTimeout(()=>send('status'),800);
+});
+frame.addEventListener('error',()=>say('🔴 Erro ao carregar MME1 do Render; verifique conexão e publicação do arquivo.'));
+frame.src=REMOTE+'/index6_MME1_Teste.html?egiEmbedTest=1';
 $('egiMmeTestExpand').addEventListener('click',()=>{
  const expanded=clip.classList.toggle('egi-expanded');
  $('egiMmeTestExpand').textContent=expanded?'📁 Recolher painel MME1':'🔎 Abrir painel MME1';
  $('egiMmeTestExpand').setAttribute('aria-expanded',String(expanded));
 });
+$('egiMmeTestToggle').disabled=true;
 $('egiMmeTestToggle').addEventListener('click',()=>{
- const d=doc();const b=d?.getElementById('multiMonitorBtn');if(!b)return;
- userPaused=running(); // ao parar, não religar automaticamente depois
- b.click();if(!userPaused)startRequested=true;render();
+ if(!connected)return;
+ const action=isRunning?'stop':'start';
+ say('🟡 Solicitando '+(action==='start'?'início':'parada')+' do monitor...');
+ send(action);
 });
-$('egiMmeTestOpen').addEventListener('click',()=>window.open('./index6.html','_blank','noopener'));
-$('egiMmeTestOriginal').addEventListener('click',()=>window.open('./index.html','_blank','noopener'));
-document.addEventListener('visibilitychange',()=>{render();if(document.hidden)statusText('🟡 Página em segundo plano: o navegador pode suspender varreduras.');});
-setInterval(render,8000);
+$('egiMmeTestOpen').addEventListener('click',()=>window.open(REMOTE+'/index6.html','_blank','noopener'));
+$('egiMmeTestOriginal').addEventListener('click',()=>window.open(REMOTE+'/','_blank','noopener'));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)say('🟡 Página em segundo plano: o Android pode suspender a execução.');else if(connected)send('status');});
+setInterval(()=>{
+ if(!connected&&Date.now()-startAt>25000){
+  say('🔴 MME1 não respondeu em 25s. Abra o painel para ver se o Render publicou a versão de teste.');
+  $('egiMmeTestCycle').textContent='Se aparecer outro aplicativo ou uma página vazia, o arquivo MME1 de teste não está disponível no Render.';
+ }else if(connected&&Date.now()-lastHeartbeat>30000){
+  say('⚠️ MME1 sem resposta recente; pode ter sido suspenso ou perdido conexão.');
+ }
+},5000);
+const startAt=Date.now();
 })();
 </script></body></html>
