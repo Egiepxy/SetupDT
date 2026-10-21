@@ -124,6 +124,14 @@
 .egi-real-dialog{width:min(720px,100%);max-height:94dvh;overflow:auto;background:#101f35;color:#f0f7ff;border:2px solid #6b95b9;border-radius:17px;padding:17px}
 .egi-real-report{font-size:22px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .egi-real-report h2{font-size:1.35em}.egi-real-report p{margin:12px 0}.egi-real-dialog button{min-height:43px}
+</style><style id="oilProfV2Style">
+#oilProfessorV2{border-color:#547694;background:#102037}
+#oilProfV2Status{padding:12px;border:1px solid #496680;border-radius:11px;font-weight:850;line-height:1.5;background:#0c192c}
+#oilProfV2Details{display:grid;gap:5px;margin-top:9px}
+.oil-prof-row{color:#c5d8ed;font-size:12px;line-height:1.5;overflow-wrap:anywhere;padding:4px 0}
+.oil-prof-event{border:1px solid #385271;background:#0a1a2c;padding:11px;border-radius:12px;margin-top:9px}
+.oil-prof-head{font-weight:850;font-size:13px}
+#oilProfV2History{max-height:500px;overflow:auto}
 </style></head><body>
 <header class="top"><div class="top-inner"><div><div class="logo">⚡ Setup<span>DT</span> Light</div><div class="version">Multi-Exchange V1.9.51 • Leitor MME1 no topo</div></div><span class="tag">SEM ORDENS</span></div></header>
 <main>
@@ -446,6 +454,15 @@
 <div class="oil-buttons"><button id="oilCopyReport" type="button" class="primary">📋 Copiar relatório GPT</button><button id="oilDownloadReport" type="button" class="secondary">📄 Baixar TXT</button><button id="oilShareReport" type="button" class="secondary">📤 Compartilhar</button><button id="oilOpenChat" type="button" class="secondary">💬 Abrir ChatGPT</button><button id="oilClearHistory" type="button" class="secondary">🗑 Limpar OIL</button></div>
 <div id="oilReportStatus" class="hint" role="status" style="margin-top:9px">O relatório inclui a leitura atual e o histórico dos sinais de exaustão forte.</div>
 <div id="oilHistory" class="oil-history"><p class="muted">Nenhum sinal OIL gravado ainda.</p></div>
+</section>
+<section class="panel" id="oilProfessorV2" aria-label="Professor OIL V2 e histórico prospectivo">
+ <div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">🧠 Professor de Transições OIL V2</h2><span class="tag">ESTUDO, NÃO ORDEM</span></div>
+ <p class="hint">Observação precoce → Exaustão provável → Transição estrutural confirmada. Critérios complementares com candles fechados, divergência de impulso, níveis 15m/1h e volume. Não altera sinais, Telegram, risco ou histórico anterior.</p>
+ <div id="oilProfV2Status" role="status" aria-live="polite">⚪ Aguardando atualização OIL</div>
+ <div id="oilProfV2Details">O Professor V2 ainda não recebeu candles fechados.</div>
+ <div class="oil-buttons" style="margin-top:12px"><button type="button" class="secondary smallbtn" id="oilProfV2Export">💾 Exportar histórico V2 JSON</button></div>
+ <div class="hint" id="oilProfV2ExportStatus" role="status">Histórico V2 guardado separadamente neste navegador; exporte cópia regularmente.</div>
+ <details><summary>📓 Histórico prospectivo <span id="oilProfV2Count" class="tag">0 eventos</span></summary><p class="hint">3, 6 e 12 candles fechados de 15m após a observação; variações direcionais e excursões favorável/adversa. Sem P&amp;L, sem backtest e sem ordens. Registros novos não são retroativos.</p><div id="oilProfV2History"></div></details>
 </section>
 <section class="panel" id="relatedApps"><h2>🧰 Abrir aplicativos relacionados</h2><p class="hint">Atalhos para continuar a análise. O primeiro toque pode baixar o HTML; depois, abra o arquivo pelo Chrome.</p><div class="app-links">
 <a class="app-link" href="./Gestor_Hedge_EGI.html" target="_blank" rel="noopener">🛡️ Gestor Hedge EGI • estudo</a>
@@ -1468,7 +1485,7 @@ async function refreshOil(){
     const settled=await Promise.all([fetchOilCandles('15m'),fetchOilCandles('1h'),fetchOilCandles('4h'),fetchOilTicker()]);
     const analyses=[['15m',settled[0]],['1h',settled[1]],['4h',settled[2]]].map(([tf,p])=>oilAnalyzeTf(p.rows,tf));
     const ticker=settled[3],source=[...new Set([settled[0].source,settled[1].source,settled[2].source,ticker.source].filter(Boolean))].join(' + ');
-    oilState.last=oilAggregate(analyses,ticker.price,source);drawOil();recordOilSignal(oilState.last);return true;
+    oilState.last=oilAggregate(analyses,ticker.price,source);drawOil();recordOilSignal(oilState.last);if(typeof window.oilProfessorV2Update==='function')window.oilProfessorV2Update(oilState.last,settled[0].rows,settled[1].rows,settled[2].rows);return true;
   }catch(error){$('oilStatus').textContent='⚠ OIL indisponível: '+(error.message||error)+'. O restante do SetupDT continua funcionando normalmente.';return false;}
   finally{oilState.busy=false;$('oilRefresh').disabled=false;$('oilRefresh').textContent='↻ Atualizar OIL';}
 }
@@ -1478,6 +1495,7 @@ function oilReportText(){
   if(s){txt+='LEITURA ATUAL\nPreço: $ '+fmt(s.price)+'\nStatus: '+oilBadgeText(s)+'\nÍndice dominante: '+s.score+'/100\nExaustão de alta: '+s.highScore+'/100\nExaustão de baixa: '+s.lowScore+'/100\nConcordância forte: '+s.agreement+'/3 timeframes\nFonte: '+s.source+'\n';for(const a of s.analyses){txt+='- '+a.tf+': alta '+a.high.score+'/100 | baixa '+a.low.score+'/100 | RSI '+a.high.rsi.toFixed(1)+' | volume '+(Number.isFinite(a.high.volRatio)?a.high.volRatio.toFixed(2)+'x':'n/d')+' | esticamento '+a.high.stretch.toFixed(2)+' ATR\n';}txt+='\nDIAGNÓSTICO DE VOLUME E CONFLITO\n'+s.divergence+'\n'+((s.volumeWarnings||[]).length?s.volumeWarnings.join('\n'):'Sem alerta de volume extremamente baixo ou ausente.')+'\n';if(s.reasons.length)txt+='Motivos principais:\n'+s.reasons.map(r=>'• '+r).join('\n')+'\n';}
   else txt+='LEITURA ATUAL\nAinda não foi feita uma atualização do OIL nesta sessão.\n';
   txt+='\nHISTÓRICO DE PRÉ-EXAUSTÃO E SINAIS FORTES ('+oilHistory.length+')\n';if(!oilHistory.length)txt+='Nenhum evento de pré-exaustão ou sinal forte gravado.\n';else oilHistory.slice(0,60).forEach((x,i)=>{txt+=(i+1)+'. '+new Date(x.detected).toLocaleString('pt-BR')+' | '+(x.level==='ATTENTION'?'PRÉ-EXAUSTÃO':'SINAL FORTE')+' | '+(x.direction==='HIGH'?'EXAUSTÃO DE ALTA':'EXAUSTÃO DE BAIXA')+' | '+x.score+'/100 | $ '+fmt(x.price)+' | alta '+x.highScore+' | baixa '+x.lowScore+' | '+x.agreement+'/3 TF\n';});
+  txt+=(typeof window.oilProfessorV2Report==='function'?window.oilProfessorV2Report():'\nProfessor OIL V2 indisponível nesta sessão.\n');
   txt+='\nPEDIDO AO CHATGPT\nAnalise a leitura atual e o histórico do OIL/Brent. Diferencie tendência forte de exaustão verdadeira, destaque divergências entre 15m, 1h e 4h e informe quais confirmações técnicas ainda faltam, incluindo validação de volume anormal e confirmação estrutural. Não execute operação.\n';return txt;
 }
 async function copyOilReport(){const txt=oilReportText();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(txt);else{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();}$('oilReportStatus').textContent='✅ Relatório OIL copiado. Agora pode colar no ChatGPT.';return true;}catch(e){$('oilReportStatus').textContent='⚠ Não consegui copiar automaticamente. Use Baixar TXT ou Compartilhar.';return false;}}
@@ -2985,4 +3003,5 @@ renderBridge();
 </script>
 
 <script src="./btc-liquidez.js" defer></script>
+<script src="./oil-professor-egi-v2.js" defer></script>
 </body></html>
