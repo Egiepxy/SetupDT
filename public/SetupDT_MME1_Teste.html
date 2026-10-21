@@ -487,7 +487,7 @@
   <div><span class="hint">PÁGINA DE TESTE • SetupDT original preservado</span><h2>📡 RadarMME1 Light V9.1.1 — no final do SetupDT</h2></div>
   <span class="tag">Somente estudo • Sem ordens</span>
  </div>
- <p class="egi-mme-test-note">O MME1 é carregado do Render mesmo quando este arquivo foi baixado no celular. Recolher a área não o descarrega. O teste usa até 5 moedas por ciclo, com intervalo de 60 segundos, e transmite o andamento para esta tela.</p>
+ <p class="egi-mme-test-note">O MME1 é carregado do Render mesmo com este HTML baixado no celular (internet necessária). O painel começa aberto para exibir o diagnóstico. Recolher não o descarrega. Teste inicial: até 5 moedas por ciclo, 60 segundos entre ciclos.</p>
  <div id="egiMmeTestState" class="egi-mme-test-state" role="status" aria-live="polite">🟡 Inicializando MME1...</div>
  <div class="egi-mme-test-metrics">
    <div class="egi-mme-test-metric"><small>Monitor MME1</small><strong id="egiMmeTestRun">Iniciando</strong></div>
@@ -496,13 +496,13 @@
    <div class="egi-mme-test-metric"><small>Avisos compartilhados</small><strong id="egiMmeTestRecords">—</strong></div>
  </div>
  <div class="egi-mme-test-actions">
-  <button type="button" id="egiMmeTestExpand" class="primary" aria-expanded="false">🔎 Abrir painel MME1</button>
+  <button type="button" id="egiMmeTestExpand" class="primary" aria-expanded="true">📁 Recolher painel MME1</button>
   <button type="button" id="egiMmeTestToggle" class="secondary">⏸ Parar monitor MME1</button>
   <button type="button" id="egiMmeTestOpen" class="secondary">↗ MME1 separado</button>
   <button type="button" id="egiMmeTestOriginal" class="secondary">🎯 SetupDT original</button>
  </div>
  <div id="egiMmeTestCycle" class="egi-mme-test-note" role="status">Aguardando primeiro ciclo.</div>
- <div id="egiMmeFrameClip" aria-label="Área recolhível do RadarMME1">
+ <div id="egiMmeFrameClip" class="egi-expanded" aria-label="Área recolhível do RadarMME1">
   <iframe id="egiMmeFrame" title="RadarMME1 Light original em teste" loading="eager" referrerpolicy="same-origin"></iframe>
  </div>
  <p class="egi-mme-test-note">⚠️ Teste de navegador: fechar a página, bloquear o celular ou usar outra aba pode suspender os ciclos. Recolher o painel não garante que o Android mantenha todos os timers. Não execute este teste junto com outra aba MME1 para evitar leituras duplicadas; ntfy segue as configurações já existentes no MME1.</p>
