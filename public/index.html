@@ -226,7 +226,19 @@
 <p class="hint">Comparação informativa: o SetupDT calcula o próprio sinal. O parecer externo NÃO confirma entrada e não altera o motor de sinais.</p>
 <label for="egiProfessorPaste">Cole o relatório JSON do Professor EGI</label><textarea id="egiProfessorPaste" rows="5" spellcheck="false" style="width:100%;resize:vertical;background:#091b2e;color:#e9f2ff;border:1px solid #50749f;border-radius:12px;padding:12px" placeholder="Cole aqui o JSON EGI-PROFESSOR-V1 (ou texto contendo o JSON)"></textarea><div class="row" style="margin-top:9px"><button id="egiProfessorImport" class="primary" type="button">📥 Importar texto Professor</button><button id="egiProfessorChoose" type="button" class="secondary">📂 Abrir JSON/TXT</button><input id="egiProfessorFile" type="file" accept=".json,.txt,application/json,text/plain" class="hidden"></div><p id="egiProfessorImportStatus" class="hint" role="status">Aceita texto colado, arquivo JSON/TXT ou link enviado pelo Professor. Não altera sinais automaticamente.</p><div id="egiProfessorReceived" class="note">Nenhum parecer recebido nesta sessão.</div>
 <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button id="egiProfessorAnalyze" type="button">🎯 Analisar moeda recebida</button><button id="egiProfessorCompare" type="button">↻ Comparar com resultado SetupDT</button><button id="egiProfessorBack" type="button">↩ Devolver resultado ao Professor EGI</button></div>
-<div id="egiProfessorComparison" class="note" style="white-space:pre-wrap;margin-top:8px">Aguardando análise independente.</div></section>
+<div id="egiProfessorComparison" class="note" style="white-space:pre-wrap;margin-top:8px">Aguardando análise independente.</div>
+<div style="border-top:1px solid #42657a;margin-top:16px;padding-top:14px">
+<h3>🛢️ OIL / Brent — Relatório e parecer</h3>
+<p class="hint">Consulta candles fechados de 15m, 1h e 4h; gera relatório e parecer técnico local. O motor de sinais não é alterado.</p>
+<div class="row" style="gap:8px;flex-wrap:wrap">
+<button id="egiOilOneClick" type="button" class="primary">🛢️ Atualizar OIL + gerar parecer</button>
+<button id="egiOilCopyForChat" type="button" class="secondary">📋 Copiar relatório para ChatGPT</button>
+</div>
+<p class="hint" id="egiOilBridgeStatus" role="status">Aguardando consulta.</p>
+<textarea id="egiOilBridgeText" rows="6" spellcheck="false" style="width:100%;resize:vertical;background:#091b2e;color:#e9f2ff;border:1px solid #50749f;border-radius:12px;padding:12px" placeholder="Relatório OIL preenchido automaticamente; também aceita texto colado."></textarea>
+<div class="row"><button id="egiOilInterpretPasted" type="button" class="secondary">🧠 Interpretar texto colado</button></div>
+<div id="egiOilBridgeOpinion" class="note" style="white-space:pre-wrap;margin-top:10px" aria-live="polite">Parecer OIL aguardando dados.</div>
+</div></section>
 
 <section id="hero" class="panel hero" aria-live="polite"><div class="row" style="justify-content:space-between"><span id="assetLabel" class="coin">BTC/USDT</span><span id="readAge" class="stamp">Não consultado</span></div><h1 id="mainDecision">⚪ AGUARDAR ANÁLISE</h1><div id="decisionWhy" class="reasons">Day Trade usa 4h → 1h → 15m. O 6/6 aprova o contexto; a Virada de Fluxo EGI confirma o timing. Diário e rastreador amplo continuam como contexto.</div><div id="missingCheck" class="note hidden"></div><div id="conflictBox" class="note hidden"></div><div class="mini-grid" style="margin-top:12px"><div class="metric"><small>Cotação consultada</small><strong id="quote">—</strong><div id="quoteAge" class="hint">Não streaming</div></div><div class="metric"><small>15m fechado</small><strong id="closedPrice">—</strong><div id="closedTime" class="hint">Aguardando</div></div><div class="metric"><small>Checklist anterior</small><strong id="checkHeadline">—/6</strong><div class="hint">5 mercado + 1 projeção</div></div></div></section>
 <section class="panel movement-panel" id="movementPanel" aria-live="polite"><h2>📉 Leitura do movimento — contexto, não entrada</h2><div id="movementBadge" class="movement-badge mixed">Aguardando análise</div><p id="movementDetail" class="hint">Após analisar o ativo, este quadro resume a direção em 15m, 1h, 4h e diário, a condição de RSI e o volume. Ele não libera nem bloqueia uma operação.</p></section>
@@ -2986,4 +2998,43 @@ renderBridge();
 
 <script src="./btc-liquidez.js" defer></script>
 <script src="./egi-professor-conflitos.js" defer></script>
+
+<script>
+/* Ponte OIL/Professor EGI: não altera decisões do SetupDT. */
+(function(){
+'use strict';
+const el=id=>document.getElementById(id),btn=el('egiOilOneClick'),field=el('egiOilBridgeText'),status=el('egiOilBridgeStatus'),out=el('egiOilBridgeOpinion');
+if(!btn||!field||!status||!out)return;
+function parecer(d){
+ if(!d)return '⚪ Dados não disponíveis; nenhuma avaliação atual.';
+ const tfs=(d.analyses||[]).map(a=>a.tf+': alta '+a.high.score+'/100 | baixa '+a.low.score+'/100 | RSI '+Number(a.high.rsi).toFixed(1)+' | volume '+(Number.isFinite(a.high.volRatio)?Number(a.high.volRatio).toFixed(2)+'x':'n/d')).join('\n');
+ const title=d.level==='STRONG'?'⚠ EXAUSTÃO FORTE':d.level==='ATTENTION'?'🟡 PRÉ-EXAUSTÃO / ATENÇÃO':'⚪ SEM EXAUSTÃO FORTE';
+ const why=d.level==='STRONG'?'Existe confluência de exaustão, porém isso não prova reversão nem autoriza operar contra tendência.':d.level==='ATTENTION'?'Existem indícios parciais: aguardar confirmação da estrutura e do volume.':'Não há evidência suficiente de exaustão forte nos critérios do radar.';
+ return title+'\nAtualização: '+new Date(d.time).toLocaleString('pt-BR')+'\nPreço: $ '+d.price+' | Fonte: '+d.source+'\nAlta '+d.highScore+'/100 | baixa '+d.lowScore+'/100 | concordância '+d.agreement+'/3\n'+tfs+'\n\nPARECER: '+why+'\nPRÓXIMO PASSO: avaliar candle fechado, força do volume e reação em suporte/resistência. Distinguir repique, lateralidade e reversão verdadeira.\nEsta é uma interpretação automática LOCAL, não uma resposta do ChatGPT. Estudo, não ordem.';
+}
+btn.addEventListener('click',async()=>{
+ btn.disabled=true;status.textContent='⏳ Atualizando candles fechados OIL 15m/1h/4h...';
+ try{
+  if(typeof refreshOil!=='function'||typeof oilReportText!=='function')throw Error('Módulo OIL não localizado.');
+  const ok=await refreshOil();
+  if(!ok||!oilState.last){status.textContent='⚠ Atualização indisponível. Não foi emitido parecer com dados antigos.';return;}
+  field.value=oilReportText();out.textContent=parecer(oilState.last);
+  status.textContent='✅ Relatório preenchido e parecer local produzido.';
+ }catch(e){status.textContent='⚠ '+String(e.message||e);}finally{btn.disabled=false;}
+});
+el('egiOilInterpretPasted').addEventListener('click',()=>{
+ const t=field.value;
+ const matches=[...t.matchAll(/-\s*(15m|1h|4h):\s*alta\s*(\d+)\/100\s*\|\s*baixa\s*(\d+)\/100\s*\|\s*RSI\s*([\d.,]+)/gi)];
+ if(!matches.length){out.textContent='⚠ Relatório inválido: não encontrei leituras de 15m/1h/4h.';return;}
+ const st=(t.match(/Status:\s*([^\n]+)/i)||[])[1]||'Status não informado';
+ out.textContent='🛢️ RELATÓRIO COLADO\n'+st+'\n'+matches.map(m=>m[1]+': alta '+m[2]+'/100, baixa '+m[3]+'/100, RSI '+m[4]).join('\n')+'\n\nPARECER: '+(/SEM EXAUSTÃO FORTE/i.test(st)?'Sem exaustão forte confirmada.':/EXAUSTÃO DE ALTA FORTE/i.test(st)?'Possível esgotamento de alta, não é sinal de SHORT.':/EXAUSTÃO DE BAIXA FORTE/i.test(st)?'Possível esgotamento de baixa, não é sinal de LONG.':'Aguardar confirmação independente.')+'\nEstudo baseado apenas no texto colado. Não é análise do ChatGPT.';
+ status.textContent='✅ Texto interpretado sem consulta ao mercado.';
+});
+el('egiOilCopyForChat').addEventListener('click',async()=>{
+ if(!field.value.trim()){status.textContent='⚠ Gere ou cole um relatório primeiro.';return;}
+ const t=field.value+'\n\nPARECER LOCAL:\n'+out.textContent+'\n\nChatGPT: dê seu parecer independente sobre OIL/Brent, distingua repique, arame farpado e reversão, confira as limitações da leitura e não trate como ordem.';
+ try{await navigator.clipboard.writeText(t);status.textContent='✅ Copiado! Cole na conversa com ChatGPT.';}catch(e){field.focus();field.select();status.textContent='Use Ctrl+C para copiar o relatório selecionado.';}
+});
+})();
+</script>
 </body></html>
