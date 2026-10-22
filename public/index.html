@@ -3037,4 +3037,106 @@ el('egiOilCopyForChat').addEventListener('click',async()=>{
 });
 })();
 </script>
+
+<!-- PROFESSOR FIBONACCI EGI V1.0 - modulo experimental independente -->
+<section class="panel" id="egiFiboModule" style="margin-top:18px;border-color:#5483a3">
+<details>
+<summary style="cursor:pointer;font-size:17px;font-weight:800;color:#7bd9f6">📐 Professor Fibonacci EGI V1.0 — abrir estudo</summary>
+<p class="hint">Experimental • Binance Spot pública • somente candles fechados • NÃO envia ordens • não altera filtros de entrada ou sinais HOLD do SetupDT.</p>
+<div class="row" style="margin:12px 0">
+<label>Ativo <input id="egiFibPair" value="BTCUSDT" list="egiFibPairs" style="width:125px" aria-label="Ativo Fibonacci"></label>
+<datalist id="egiFibPairs"><option value="BTCUSDT"><option value="ETHUSDT"><option value="SOLUSDT"><option value="LINKUSDT"><option value="ZECUSDT"><option value="SUIUSDT"></datalist>
+<label>Tempo gráfico <select id="egiFibTf"><option value="15m">15m</option><option value="1h" selected>1h</option><option value="4h">4h</option></select></label>
+<button type="button" id="egiFibAnalyze">Analisar Fibonacci</button>
+<button type="button" id="egiFibCopy">Copiar RelGPT</button>
+</div>
+<div id="egiFibStatus" class="hint" role="status">Pronto para análise manual. Nenhum sinal de operação gerado.</div>
+<pre id="egiFibReport" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#0b182b;color:#e9f2ff;border:1px solid #304664;padding:12px;border-radius:12px;font:12px/1.55 ui-monospace,Consolas,monospace;max-height:450px;overflow:auto">Clique em “Analisar Fibonacci” para consultar candles fechados.</pre>
+<details><summary>📖 Regras e limitações do estudo</summary>
+<p class="hint">Calcula retrações 23,6%, 38,2%, 50%, 61,8% a partir de dois pivôs locais já confirmados (2 candles de cada lado). Requer impulso recente e distância mínima de 1,5 ATR. Avalia proximidade, rejeição e confluência de EMA21; identifica reações anteriores sem transformá-las em prova estatística. Fatores como suporte rompido, padrões complexos e mudanças de regime exigem verificação adicional. A fonte inicial é Binance Spot, mesmo que o SetupDT esteja configurado em MEXC. Não operar futuros com base apenas neste estudo.</p>
+</details>
+</details>
+</section>
+<script>
+(function(){
+'use strict';
+const root=document.getElementById('egiFiboModule');if(!root||root.dataset.booted)return;root.dataset.booted='1';
+const $=id=>document.getElementById(id),status=$('egiFibStatus'),out=$('egiFibReport');
+const btn=$('egiFibAnalyze'),copy=$('egiFibCopy');
+const fmt=(n,d=4)=>Number.isFinite(n)?n.toLocaleString('pt-BR',{maximumFractionDigits:d}):'n/d';
+const num=x=>Number(x);
+function ema(a,n){let v=a[0];const k=2/(n+1);for(let i=1;i<a.length;i++)v=a[i]*k+v*(1-k);return v;}
+function atr(a,n=14){const x=[];for(let i=1;i<a.length;i++)x.push(Math.max(a[i].h-a[i].l,Math.abs(a[i].h-a[i-1].c),Math.abs(a[i].l-a[i-1].c)));return x.slice(-n).reduce((s,v)=>s+v,0)/Math.min(n,x.length);}
+async function getCandles(pair,tf){
+ const hosts=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines'];
+ let last;for(const host of hosts){try{
+ const res=await fetch(host+'?symbol='+encodeURIComponent(pair)+'&interval='+encodeURIComponent(tf)+'&limit=180',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+ if(!res.ok)throw Error('HTTP '+res.status);
+ const raw=await res.json();if(!Array.isArray(raw))throw Error('Resposta inesperada');
+ const closed=raw.filter(v=>Number(v[6])<Date.now()).map(v=>({t:+v[6],o:num(v[1]),h:num(v[2]),l:num(v[3]),c:num(v[4]),v:num(v[5])}));
+ if(closed.length<70)throw Error('Histórico insuficiente');
+ return closed;
+ }catch(e){last=e;}}throw last||Error('Sem acesso aos candles');
+}
+function evaluate(a,pair,tf){
+ const last=a.length-1, now=a[last], A=atr(a), piv=[];
+ for(let i=Math.max(3,a.length-112);i<last-2;i++){
+ if(a.slice(i-2,i+3).every((v,j)=>j===2||a[i].h>v.h))piv.push({i,p:a[i].h,t:'H'});
+ if(a.slice(i-2,i+3).every((v,j)=>j===2||a[i].l<v.l))piv.push({i,p:a[i].l,t:'L'});
+ }
+ let candidates=[];
+ for(let j=1;j<piv.length;j++){
+ const e=piv[j];if(last-e.i>35)continue;
+ for(let k=j-1;k>=0;k--){const s=piv[k],len=e.i-s.i;if(len>52)break;if(len<4||s.t===e.t)continue;
+ const amp=Math.abs(e.p-s.p),eff=amp/a.slice(s.i+1,e.i+1).reduce((v,c,z)=>v+Math.abs(c.c-a[s.i+z].c),0);
+ if(amp>=1.5*A&&eff>=0.20)candidates.push({s,e,amp,eff});
+ break;}
+ }
+ candidates.sort((x,y)=>y.e.i-x.e.i||y.amp-x.amp);
+ const stamp=new Date(now.t).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
+ const header='REL-GPT — PROFESSOR FIBONACCI EGI V1.0\nESTUDO, NÃO É ORDEM\nFonte: Binance Spot pública | '+pair+' | '+tf+'\nÚltimo candle fechado: '+stamp+' BRT\nPreço do fechamento: '+fmt(now.c,8)+' | ATR14: '+fmt(A,8);
+ if(!candidates.length)return header+'\n\nESTADO: SEM IMPULSO ESTRUTURAL VALIDADO\nNão desenhar Fibonacci à força dentro de possível congestão. Aguarde pivôs e movimento direcional claro.\nSem sinal de LONG/SHORT.';
+ const {s,e,amp,eff}=candidates[0],dir=s.t==='L'&&e.t==='H'?'ALTA':'BAIXA';
+ const ratios=[.236,.382,.5,.618];
+ const level=r=>dir==='ALTA'?e.p-r*amp:e.p+r*amp;
+ const tolerance=Math.max(A*.22,now.c*.0005),closes=a.map(v=>v.c),em=ema(closes.slice(-60),21);
+ const lvl=ratios.map(r=>{
+ const p=level(r),hist=[];
+ for(let i=e.i+1;i<last;i++){
+ const c=a[i],next=a[i+1],touched=c.l<=p+tolerance&&c.h>=p-tolerance;
+ if(!touched||!next)continue;
+ const favor=dir==='ALTA'?next.c>c.c:next.c<c.c;
+ if(favor&&(!hist.length||i-hist[hist.length-1]>2))hist.push(i);
+ }
+ return {r,p,hist:hist.length,dist:Math.abs(now.c-p)/A,touch:now.l<=p+tolerance&&now.h>=p-tolerance};
+ });
+ const nearest=[...lvl].sort((x,y)=>x.dist-y.dist)[0];
+ const confluence=Math.abs(nearest.p-em)<=A*.35;
+ const body=Math.abs(now.c-now.o),range=Math.max(1e-12,now.h-now.l);
+ const rejection=nearest.touch&&(dir==='ALTA'?now.c>now.o&&(Math.min(now.o,now.c)-now.l)/range>.35:now.c<now.o&&(now.h-Math.max(now.o,now.c))/range>.35);
+ const two=lvl.filter(x=>x.hist>0).length>=2;
+ const state=rejection?'REAÇÃO EM CANDLE FECHADO (ESTUDO)':nearest.dist<=.45?'PROXIMIDADE / OBSERVAR':'FORA DA ZONA / AGUARDAR';
+ let txt=header+'\n\nIMPULSO: '+dir+' | pivô inicial '+fmt(s.p,8)+' → final '+fmt(e.p,8)+' | amplitude '+fmt(amp,8)+' ('+fmt(amp/A,2)+' ATR)\nÍndice direcional do impulso: '+fmt(eff*100,1)+'% (heurística)\nNÍVEIS DE RETRAÇÃO:\n'+lvl.map(x=>fmt(x.r*100,1)+'%: '+fmt(x.p,8)+' | '+fmt(x.dist,2)+' ATR do último fechamento | reações anteriores: '+x.hist).join('\n');
+ txt+='\n\nESTADO: '+state+'\nNível mais próximo: '+fmt(nearest.r*100,1)+'% ('+fmt(nearest.p,8)+')\nEMA21: '+fmt(em,8)+' | confluência EMA21: '+(confluence?'SIM':'NÃO')+'\nHistórico com reação em 2 níveis distintos: '+(two?'SIM':'NÃO')+'\nRejeição no último candle: '+(rejection?'SIM, padrão simples':'NÃO')+'\nViés do impulso: '+(dir==='ALTA'?'LONG (somente contexto)':'SHORT (somente contexto)');
+ txt+='\n\nPARECER: '+(rejection?'Reação observada no fechamento. Aguardar confirmação independente do SetupDT e avaliação de risco.':nearest.dist<=.45?'Preço perto de retração; ainda não há reação confirmada no último candle. Não antecipar entrada.':'Sem reação próxima; esperar aproximação e próximo candle fechado.');
+ txt+='\n\nAUDITORIA: consulta pontual; taxa de acerto NÃO calculada. Pivôs confirmados com atraso, níveis recalculados em cada consulta. Não houve ordem, stop ou alvo automático.';
+ return txt;
+}
+btn.addEventListener('click',async()=>{
+ const pair=$('egiFibPair').value.toUpperCase().replace(/[^A-Z0-9]/g,'').trim(),tf=$('egiFibTf').value;
+ if(!/^[A-Z0-9]{5,20}$/.test(pair)){status.textContent='⚠ Informe um símbolo Spot válido (ex.: BTCUSDT).';return;}
+ btn.disabled=true;status.textContent='Consultando candles fechados para '+pair+'...';
+ try{const a=await getCandles(pair,tf);out.textContent=evaluate(a,pair,tf);status.textContent='✅ Estudo atualizado; nenhum sinal ou ordem foi enviado.';}
+ catch(e){out.textContent='Sem estudo confiável: '+e.message+'\nVerifique acesso à Binance Spot, símbolo, rede e bloqueios de CORS. Nenhum sinal gerado.';status.textContent='⚠ Erro de consulta; não usar dados antigos.';}
+ finally{btn.disabled=false;}
+});
+copy.addEventListener('click',async()=>{
+ if(!out.textContent.startsWith('REL-GPT')){status.textContent='⚠ Faça uma análise válida antes de copiar.';return;}
+ const report=out.textContent+'\n\nChatGPT: avalie confluência, tendência e limitações; não interprete como ordem nem invente confirmações.';
+ try{await navigator.clipboard.writeText(report);status.textContent='✅ Relatório copiado para colar no ChatGPT.';}
+ catch(e){const sel=window.getSelection(),range=document.createRange();range.selectNodeContents(out);sel.removeAllRanges();sel.addRange(range);status.textContent='Selecione e copie o relatório com Ctrl+C.';}
+});
+})();
+</script>
+
 </body></html>
