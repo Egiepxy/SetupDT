@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#081527">
-<title>Gráfico Inteligente Binance EGI V1.1 — Médias, RSI, Estocástico e Volume</title>
+<title>Gráfico Inteligente Binance EGI V1.2 — Médias, RSI, Estocástico e Volume</title>
 <style>
 :root{color-scheme:dark;--bg:#07111f;--panel:#101f32;--border:#31485f;--text:#eef5ff;--muted:#b6c7dd;--cyan:#40d5f4;--green:#40d9a3;--red:#ff7c8d;--amber:#f5c476;--blue:#76aaff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{font:14px/1.5 system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at top,#14263d,#07111f 65%);margin:0;padding-bottom:35px}a{color:#8fe4ff}button,input,select{font:inherit;color:var(--text);border-radius:10px;border:1px solid #52718f;background:#182d46;min-height:42px;padding:9px 11px}button{cursor:pointer;font-weight:760}button:disabled{opacity:.6;cursor:wait}button.primary{color:#071722;background:#36cee4;border-color:#36cee4}.page{max-width:1240px;margin:0 auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 14px}.brand{font-size:clamp(21px,3vw,30px);font-weight:900;line-height:1.2}.brand span{color:var(--cyan)}.sub{font-size:12px;color:var(--muted);margin-top:5px}.panel{background:#122139;border:1px solid #304c69;border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 8px 24px #00000018}.panel h2{font-size:17px;margin:0 0 10px}.panel h3{font-size:14px;margin:6px 0}.grid-controls{display:grid;grid-template-columns:1.2fr 1.2fr .7fr auto;gap:10px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field select,.field input{width:100%}.buttons{display:flex;gap:8px;flex-wrap:wrap}.status{color:var(--muted);margin-top:9px;font-size:12px;min-height:20px;overflow-wrap:anywhere}.status.error{color:#ffb1bd}.status.ok{color:#baffdf}.quick-coins{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-height:136px;overflow:auto}.quick-coins button{min-height:34px;padding:5px 10px;border-radius:999px;font-size:12px}.quick-coins button.active{border-color:var(--cyan);color:var(--cyan);background:#17394b}.muted{color:var(--muted)}.note{background:#172c43;border-left:3px solid #e7ae59;border-radius:8px;padding:9px;font-size:12px}.tiny{font-size:11px;color:var(--muted)}.ma-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ma-pills{display:flex;flex-wrap:wrap;gap:6px}.ma-pills button{font-size:12px;padding:6px 9px;min-height:34px;border-radius:9px}.ma-pills button.sel{background:#124b48;border-color:#49dfaa;color:#c3ffeb}.custom{display:flex;gap:7px;align-items:end;flex-wrap:wrap;margin-top:9px}.custom input{width:95px}.custom select{width:90px}.custom button{min-height:40px}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.metric{background:#0b1a2d;border:1px solid #344e69;border-radius:11px;padding:11px;min-width:0}.metric small{color:var(--muted);display:block;font-size:11px}.metric strong{display:block;font-size:clamp(15px,2vw,21px);margin:3px 0;word-break:break-word;font-variant-numeric:tabular-nums}.metric em{color:#aabbd1;font-size:11px;font-style:normal}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin:9px 0}.legend span{white-space:nowrap}.square{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-canvas{height:650px;width:100%;border:1px solid #2f4963;border-radius:12px;background:#081728;display:block;touch-action:pan-y}.indicators{display:flex;gap:13px;flex-wrap:wrap;font-size:12px}.indicators label{display:flex;gap:5px;align-items:center;cursor:pointer}.indicators input{min-height:auto}.table-scroller{overflow-x:auto}.matable{width:100%;border-collapse:collapse;font-size:12px;min-width:600px;font-variant-numeric:tabular-nums}.matable th,.matable td{padding:9px 7px;border-bottom:1px solid #30485f;text-align:right;white-space:nowrap}.matable th:first-child,.matable td:first-child{text-align:left}.up{color:#67e2b4}.down{color:#ff9ea9}.warning{color:#fbd397}.insight{border:1px solid #445d76;background:#0e2034;border-radius:11px;padding:13px;margin-top:8px;line-height:1.65}details summary{cursor:pointer;font-size:16px;font-weight:800;min-height:34px}details p,details li{color:#c6d7e9;font-size:13px}details h3{font-size:14px;color:#f2f8ff;margin:16px 0 5px}details ul{padding-left:21px}footer{font-size:11px;color:#aebdd3;text-align:center;padding:10px}.manual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hoverbar{color:#d9ecff;font-size:12px;min-height:22px;margin:7px 0;font-variant-numeric:tabular-nums}
@@ -28,12 +28,28 @@
 .setup-key i{display:inline-block;height:8px;width:8px;border-radius:2px}
 @media(max-width:750px){.setup-form{grid-template-columns:1fr 1fr}.setup-form .field:first-child{grid-column:span 2}.setup-form>button{align-self:end}}
 @media(max-width:460px){.setup-history{grid-template-columns:1fr}}
+
+/* EGI V1.2: perfis guiados de leitura no grafico */
+.preset-chooser{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.preset-btn{display:flex;flex-direction:column;align-items:flex-start;min-height:82px;padding:12px;background:#0b2034;border:1px solid #46617d;text-align:left}
+.preset-btn strong{font-size:16px}.preset-btn small{color:#b6cbe0;margin-top:5px}
+.preset-btn.active{border:2px solid #3cdaed;background:#124255;color:#d3fcff}
+.preset-tip{font-size:12px;color:#b7cde2;margin-top:10px}
+.study-status{margin:11px 0 0;padding:12px;border-radius:10px;background:#0c1e32;border:1px solid #41607e;font-size:13px}
+.study-status .study-title{font-weight:850;font-size:15px;margin-bottom:6px}
+.study-status .study-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px}
+.study-step{border:1px solid #3a5774;border-radius:8px;padding:8px;background:#0a1a2b;min-height:64px}
+.study-step.ok{border-color:#38b998;background:#113c36}
+.study-step.pending{border-color:#71603f}
+.study-step strong,.study-step span{display:block}.study-step strong{font-size:12px}.study-step span{font-size:11px;color:#bed0e4;margin-top:3px}
+@media(max-width:600px){.study-status .study-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:390px){.preset-chooser{gap:4px}.preset-btn{padding:7px;min-height:78px}.preset-btn strong{font-size:12px}.preset-btn small{font-size:10px}}
 </style>
 </head>
 <body>
 <div class="page">
 <header class="top">
-<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.1</div></div>
+<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.2</div></div>
 <div class="buttons"><a href="./index.html" id="goSetupDT">← Voltar ao SetupDT</a><button id="goManual">📖 Manual EGI</button></div>
 </header>
 <section class="panel">
@@ -46,6 +62,27 @@
 <div class="quick-coins" id="quickCoins"></div>
 <div id="registryStatus" class="status">O cadastro é compartilhado com o SetupDT somente quando ambos são acessados pelo mesmo domínio e perfil de navegador.</div>
 <div id="fetchStatus" role="status" class="status">Pronto para consultar a Binance Spot. Não envia ordens.</div>
+</section>
+
+
+<section class="panel" id="profileGuide">
+<h2>🎓 Escolha o que quer estudar no gráfico</h2>
+<div class="preset-chooser">
+<button type="button" class="preset-btn" data-egi-profile="scalp"><strong>⚡ Scalping</strong><small>5m · EMA 9/21/50</small></button>
+<button type="button" class="preset-btn" data-egi-profile="day"><strong>☀️ Day Trade</strong><small>15m · EMA 9/21/50/200</small></button>
+<button type="button" class="preset-btn" data-egi-profile="swing"><strong>🌙 Swing</strong><small>4h · EMA 21/50/200</small></button>
+</div>
+<div id="guideCurrent" class="study-status" role="status">
+<div id="guideTitle" class="study-title">Selecione Scalping, Day Trade ou Swing</div>
+<div id="guideDescription">O app indicará o que observar nos candles da Binance, sem prever o próximo candle.</div>
+<div class="study-steps">
+<div class="study-step" data-step="0"><strong>① Tendência</strong><span>EMAs alinhadas</span></div>
+<div class="study-step" data-step="1"><strong>② Recuo</strong><span>Preço retorna às médias</span></div>
+<div class="study-step" data-step="2"><strong>③ Reação</strong><span>Candle retoma a direção</span></div>
+<div class="study-step" data-step="3"><strong>④ Confirmação</strong><span>RSI + volume</span></div>
+</div>
+</div>
+<div class="preset-tip">No gráfico, a faixa azul mostra onde observar o recuo. 🟢 Critério observado no último candle fechado; 🟡 ainda falta. Sinais de exemplo não são ordens.</div>
 </section>
 
 <section class="panel">
@@ -150,7 +187,11 @@
 <p>Escolha pullback de EMA 9/21/50, cruzamento da 9/21, rompimento da faixa dos 20 candles ou pré-alerta RSI/Estocástico. Escolha LONG/SHORT, volume mínimo relativo e toque em Conferir. Os exemplos aparecem como cartões clicáveis; toque em um cartão para destacar aquele candle no gráfico. O laboratório estuda no máximo os 220 candles fechados mais recentes para facilitar a inspeção.</p>
 <p><strong>Pullback:</strong> tendência alinhada pelas EMAs 9/21/50, toque próximo à EMA 9 no candle anterior e recuperação/perda da EMA 9 no candle fechado, com RSI coerente. <strong>Cruzamento:</strong> EMA 9 cruza a EMA 21 com EMA 50 como contexto. <strong>Rompimento:</strong> candle rompe máxima/mínima dos 20 candles anteriores, com EMA 21 e RSI coerentes. <strong>Possível reversão:</strong> RSI em região extrema e cruzamento do Estocástico geram só um pré-alerta, nunca reversão confirmada.</p>
 <p>O volume é comparado à média dos 20 candles anteriores (o candle do evento não entra na média). Todos os cálculos usam apenas dados disponíveis até o próprio candle, sem olhar o futuro. Não houve calibração estatística desses critérios; não há taxa de acerto demonstrada. O gráfico apresenta exemplos, não recomendação de compra/venda.</p>
-<h3>13. Boas práticas EGI</h3>
+<h3>13. Guia de perfis: Scalping, Day Trade e Swing</h3>
+<p>Clique em um dos três botões no topo. Scalping seleciona 5m e EMA 9/21/50; Day Trade seleciona 15m e EMA 9/21/50/200; Swing seleciona 4h e EMA 21/50/200. Cada perfil seleciona o laboratório Pullback, coleta novos candles fechados e destaca a região entre as médias do recuo.</p>
+<p>As quatro etapas mostram se as condições foram observadas até o último candle fechado: tendência, toque na média pelo candle anterior, candle de reação e RSI/volume. A confirmação do laboratório também exige os critérios combinados. No Swing, o exemplo de pullback usa EMA 21 e a EMA 200 como contexto. Os perfis são hipóteses didáticas e não um sistema de operações validado estatisticamente.</p>
+<p>A faixa colorida no gráfico mostra a distância histórica entre duas EMAs; não é um preço previsto nem zona obrigatória de compra ou venda. A leitura vale apenas para o timeframe selecionado; não é confirmação automática entre timeframes.</p>
+<h3>14. Boas práticas EGI</h3>
 <p>“O indicador sugere; o candle fechado confirma. A ideia merece registro, não obediência.” Prefira continuidade até haver evidência consistente de transição; observe divergências, suportes, resistências, ATR, volume efetivo, horários e condições do mercado. Não opere só por afastamento das médias e não force entrada.</p>
 <h3>Limitações e funcionamento</h3>
 <p>A Binance pode bloquear requisições por rede, região, CORS ou limite de uso. O gráfico depende de conexão e da disponibilidade da API pública. Sem candles válidos, não gera cálculo inventado. A lista do SetupDT não atravessa domínios, navegadores, aparelhos ou perfis automaticamente. Não há integração de execução de ordens nem acompanhamento em segundo plano.</p>
@@ -168,6 +209,8 @@ const presetPeriods=[9,14,20,21,34,50,100,200];
 const colors=['#36d7d3','#f7ba52','#f77999','#86b2ff','#9c8bff','#40da91','#dc9aee','#ff954b','#67cbff','#c7e77f','#eee1b3','#e1a2aa'];
 let chosen=[{type:'EMA',period:9},{type:'EMA',period:14},{type:'EMA',period:21},{type:'EMA',period:50},{type:'EMA',period:200}], bars=[],maSeries={},rsiSeries=[],stochK=[],stochD=[],live=null,symbol='BTCUSDT',quoteAt=0,hoverIndex=null,requestSequence=0;
 let registryFingerprint='';
+let activeProfile='scalp';
+const profileSets={scalp:{name:'Scalping',tf:'5m',emas:[9,21,50],pullback:9,context:21,minVolume:1.2},day:{name:'Day Trade',tf:'15m',emas:[9,21,50,200],pullback:9,context:21,minVolume:1.2},swing:{name:'Swing',tf:'4h',emas:[21,50,200],pullback:21,context:50,minVolume:1.0}};
 let setupEvents=[], setupSelected=null;
 const setupHelp={
  pullback:{title:'Pullback EMA 9/21/50',explain:'Procura alinhamento 9 > 21 > 50 (ou inverso), toque do candle anterior na EMA 9 e fechamento que retoma a direção, com RSI favorável. O 1m pode antecipar; confirme no 5m.',medias:[9,21,50]},
@@ -332,10 +375,62 @@ function calculate(){
  draw();
 }
 
+
+// EGI V1.2 - condições exclusivamente do último candle fechado
+function profileConditions(data,profile,side,minimum){
+ if(!Array.isArray(data)||data.length<205)return {available:false,steps:[false,false,false,false],message:'Dados insuficientes para calcular este perfil.'};
+ const cfg=profileSets[profile]||profileSets.scalp,last=data.length-1,closes=data.map(x=>x.close),ema9=expMA(closes,9),ema21=expMA(closes,21),ema50=expMA(closes,50),ema200=expMA(closes,200),r=getRSI(closes,14);
+ const prev=data[last-1],now=data[last],pb=cfg.pullback===21?ema21:ema9;
+ const values=[ema9[last],ema21[last],ema50[last],ema200[last],pb[last-1],r[last]];
+ if(!values.every(Number.isFinite))return {available:false,steps:[false,false,false,false],message:'Médias ou RSI ainda indisponíveis.'};
+ const slope=profile==='swing'?ema50:ema21;
+ const longTrend=profile==='swing'?(ema21[last]>ema50[last]&&ema50[last]>ema200[last]&&slope[last]>=slope[last-3]):(ema9[last]>ema21[last]&&ema21[last]>ema50[last]&&slope[last]>=slope[last-3]);
+ const shortTrend=profile==='swing'?(ema21[last]<ema50[last]&&ema50[last]<ema200[last]&&slope[last]<=slope[last-3]):(ema9[last]<ema21[last]&&ema21[last]<ema50[last]&&slope[last]<=slope[last-3]);
+ let dir=side==='SHORT'?'SHORT':side==='LONG'?'LONG':(longTrend?'LONG':shortTrend?'SHORT':'MISTO');
+ const trend=dir==='LONG'?longTrend:dir==='SHORT'?shortTrend:false;
+ const touch=dir==='LONG'?(prev.low<=pb[last-1]*1.0025&&prev.high>=pb[last-1]*.9975):dir==='SHORT'?(prev.high>=pb[last-1]*.9975&&prev.low<=pb[last-1]*1.0025):false;
+ const recovery=dir==='LONG'?(now.close>pb[last]&&now.close>now.open&&now.close>prev.close):dir==='SHORT'?(now.close<pb[last]&&now.close<now.open&&now.close<prev.close):false;
+ const avg=data.slice(last-20,last).reduce((s,x)=>s+x.volume,0)/20,vr=avg>0?now.volume/avg:null;
+ const volumeOk=Number.isFinite(vr)&&vr>=minimum;
+ const momentum=dir==='LONG'?r[last]>=50:dir==='SHORT'?r[last]<=50:false;
+ const steps=[trend,touch,recovery,volumeOk&&momentum];
+ return {available:true,dir,steps,price:now.close,volumeRatio:vr,rsi:r[last],touched:cfg.pullback,all:steps.every(Boolean)};
+}
+function paintProfileGuide(){
+ const cfg=profileSets[activeProfile],buttons=document.querySelectorAll('[data-egi-profile]');
+ buttons.forEach(b=>{b.classList.toggle('active',b.dataset.egiProfile===activeProfile);b.setAttribute('aria-pressed',String(b.dataset.egiProfile===activeProfile))});
+ const title=$('guideTitle'),desc=$('guideDescription');
+ if(!title||!desc)return;
+ if(!bars.length){title.textContent='📊 '+cfg.name+' · '+cfg.tf+' · aguardando Binance';desc.textContent='Toque no perfil para carregar candles; confira depois a tendência, recuo, reação e força.';for(const node of document.querySelectorAll('#guideCurrent .study-step')){node.classList.remove('ok','pending');node.querySelector('span').textContent='Aguardando leitura';}return;}
+ const min=Number($('setupVolume').value)||cfg.minVolume;
+ const got=profileConditions(bars,activeProfile,$('setupSide').value,min);
+ if(!got.available){title.textContent=cfg.name+' · leitura insuficiente';desc.textContent=got.message;return;}
+ const direction=got.dir==='LONG'?'🟢 Alta':got.dir==='SHORT'?'🔴 Baixa':'⚪ Sem tendência alinhada';
+ title.textContent=cfg.name+' · '+direction+' · último  '+dt(bars.at(-1).end);
+ desc.textContent=got.all?'✅ Os quatro critérios didáticos coincidiram no último candle fechado. Não é ordem.':'🟡 Ainda faltam critérios: observe no gráfico sem antecipar entrada.';
+ const labels=[
+  'Médias '+(got.steps[0]?'alinhadas':'sem alinhamento'),
+  got.steps[1]?'Tocou EMA '+got.touched:'Aguardar toque na EMA '+got.touched,
+  got.steps[2]?'Reação no candle fechado':'Reação ainda não confirmou',
+  'RSI '+got.rsi.toFixed(1)+' · Vol '+(Number.isFinite(got.volumeRatio)?got.volumeRatio.toFixed(2)+'×':'n/d')
+ ];
+ document.querySelectorAll('#guideCurrent .study-step').forEach((node,i)=>{node.classList.toggle('ok',got.steps[i]);node.classList.toggle('pending',!got.steps[i]);node.querySelector('span').textContent=labels[i];});
+}
+function chooseProfile(key){
+ const cfg=profileSets[key];if(!cfg)return;
+ activeProfile=key;
+ chosen=cfg.emas.map(period=>({type:'EMA',period}));persistMA();renderMAControls();
+ $('tf').value=cfg.tf;$('setupChoice').value='pullback';$('setupSide').value='BOTH';$('setupVolume').value=String(cfg.minVolume);
+ $('windowSize').value=key==='swing'?'130':'80';
+ bars=[];live=null;setupEvents=[];setupSelected=null;hoverIndex=null;calculate();
+ status('Selecionado: '+cfg.name+' · '+cfg.tf+'. Buscando candles da Binance...',false);
+ analyze();
+}
+
 // ===== Laboratorio EGI: exemplos retrospectivos, sem olhar candles futuros =====
-function scanSetupHistory(data,setup,minVolume,sideFilter){
+function scanSetupHistory(data,setup,minVolume,sideFilter,mode='scalp'){
  if(!Array.isArray(data)||data.length<65)return [];
- const closes=data.map(x=>x.close),e9=expMA(closes,9),e21=expMA(closes,21),e50=expMA(closes,50),rr=getRSI(closes,14),[k,d]=stochastic(data);
+ const closes=data.map(x=>x.close),e9=expMA(closes,9),e21=expMA(closes,21),e50=expMA(closes,50),e200=expMA(closes,200),rr=getRSI(closes,14),[k,d]=stochastic(data);
  const selected=[],start=Math.max(55,data.length-220);
  const isValid=(...xs)=>xs.every(Number.isFinite);
  for(let i=start;i<data.length;i++){
@@ -346,12 +441,13 @@ function scanSetupHistory(data,setup,minVolume,sideFilter){
   const highest=Math.max(...prior20.map(x=>x.high)),lowest=Math.min(...prior20.map(x=>x.low));
   let direction=null,reason='',confirmed=setup!=='exhaustion';
   if(setup==='pullback'){
-   const longTrend=e9[i]>e21[i]&&e21[i]>e50[i]&&e21[i]>=e21[i-3];
-   const shortTrend=e9[i]<e21[i]&&e21[i]<e50[i]&&e21[i]<=e21[i-3];
-   const touchedLong=prev.low<=e9[i-1]*1.0025&&prev.high>=e9[i-1]*.9975;
-   const touchedShort=prev.high>=e9[i-1]*.9975&&prev.low<=e9[i-1]*1.0025;
-   if(longTrend&&touchedLong&&now.close>e9[i]&&now.close>now.open&&now.close>prev.close&&rr[i]>=50){direction='LONG';reason='Tocou EMA 9; alta alinhada 9/21/50; RSI '+rr[i].toFixed(1);}
-   else if(shortTrend&&touchedShort&&now.close<e9[i]&&now.close<now.open&&now.close<prev.close&&rr[i]<=50){direction='SHORT';reason='Tocou EMA 9; baixa alinhada 9/21/50; RSI '+rr[i].toFixed(1);}
+   const swing=mode==='swing',touchEMA=swing?e21:e9;
+   const longTrend=swing?(isValid(e200[i],e200[i-1],e50[i-3])&&e21[i]>e50[i]&&e50[i]>e200[i]&&e50[i]>=e50[i-3]):(e9[i]>e21[i]&&e21[i]>e50[i]&&e21[i]>=e21[i-3]);
+   const shortTrend=swing?(isValid(e200[i],e200[i-1],e50[i-3])&&e21[i]<e50[i]&&e50[i]<e200[i]&&e50[i]<=e50[i-3]):(e9[i]<e21[i]&&e21[i]<e50[i]&&e21[i]<=e21[i-3]);
+   const touchedLong=prev.low<=touchEMA[i-1]*1.0025&&prev.high>=touchEMA[i-1]*.9975;
+   const touchedShort=prev.high>=touchEMA[i-1]*.9975&&prev.low<=touchEMA[i-1]*1.0025;
+   if(longTrend&&touchedLong&&now.close>touchEMA[i]&&now.close>now.open&&now.close>prev.close&&rr[i]>=50){direction='LONG';reason='Tocou EMA '+(swing?'21':'9')+'; médias alinhadas; RSI '+rr[i].toFixed(1);}
+   else if(shortTrend&&touchedShort&&now.close<touchEMA[i]&&now.close<now.open&&now.close<prev.close&&rr[i]<=50){direction='SHORT';reason='Tocou EMA '+(swing?'21':'9')+'; médias alinhadas; RSI '+rr[i].toFixed(1);}
   }else if(setup==='cross'){
    if(e9[i-1]<=e21[i-1]&&e9[i]>e21[i]&&now.close>e50[i]&&rr[i]>50){direction='LONG';reason='EMA 9 cruzou EMA 21 para cima, preço > EMA 50';}
    else if(e9[i-1]>=e21[i-1]&&e9[i]<e21[i]&&now.close<e50[i]&&rr[i]<50){direction='SHORT';reason='EMA 9 cruzou EMA 21 para baixo, preço < EMA 50';}
@@ -374,7 +470,7 @@ function scanSetupHistory(data,setup,minVolume,sideFilter){
 function setupUpdate(redraw=true){
  const name=$('setupChoice').value,def=setupHelp[name],minVolume=Number($('setupVolume').value),side=$('setupSide').value;
  $('setupExplanation').textContent=def.title+' — '+def.explain+' A busca usa candles já fechados; mínimo de volume escolhido: '+(Number.isFinite(minVolume)?minVolume:1).toFixed(1)+'×.';
- setupEvents=bars.length?scanSetupHistory(bars,name,Number.isFinite(minVolume)?Math.max(0,Math.min(5,minVolume)):1,side):[];
+ setupEvents=bars.length?scanSetupHistory(bars,name,Number.isFinite(minVolume)?Math.max(0,Math.min(5,minVolume)):1,side,activeProfile):[];
  setupSelected=null;
  const root=$('setupResults');root.replaceChildren();
  if(!bars.length){$('setupStatus').textContent='Selecione uma moeda e clique em Consultar Binance.';root.textContent='Aguardando candles fechados.';}
@@ -391,6 +487,7 @@ function setupUpdate(redraw=true){
    b.append(title,date,reason);b.addEventListener('click',()=>selectSetupEvent(event));root.append(b);
   }
  }
+ paintProfileGuide();
  if(redraw)draw();
 }
 function selectSetupEvent(event){
@@ -428,6 +525,21 @@ function draw(){
  const padding=Math.max((hi-lo)*.06,hi*.0002);lo-=padding;hi+=padding;
  const yp=v=>pricePanel.bottom-(v-lo)/(hi-lo)*pricePanel.height;
  grid(pricePanel,lo,hi);
+
+ // Regiao EMA do pullback: faixa visual, nao projecao de preco.
+ if($('setupChoice')?.value==='pullback'){
+  const cfg=profileSets[activeProfile],a=maSeries['EMA'+cfg.pullback],b=maSeries['EMA'+cfg.context];
+  if(a&&b){
+   ctx.beginPath();let first=-1,last=-1;
+   for(let i=0;i<data.length;i++){const va=a[offset+i],vb=b[offset+i];if(Number.isFinite(va)&&Number.isFinite(vb)){if(first<0)first=i;last=i;}}
+   if(first>=0&&last>first){
+    for(let i=first;i<=last;i++)ctx.lineTo(x(i),yp(a[offset+i]));
+    for(let i=last;i>=first;i--)ctx.lineTo(x(i),yp(b[offset+i]));
+    ctx.closePath();ctx.fillStyle='rgba(55,203,221,0.14)';ctx.fill();
+    ctx.font='11px system-ui';ctx.fillStyle='#9eefff';ctx.fillText('FAIXA RECUO EMA '+cfg.pullback+'/'+cfg.context,left+5,pricePanel.bottom-10);
+   }
+  }
+ }
  const candleWidth=Math.max(1.2,Math.min(13,(right-left)/data.length*.68));
  data.forEach((d,i)=>{const xx=x(i),rise=d.close>=d.open;ctx.strokeStyle=rise?'#43dba6':'#fd7f8b';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,yp(d.low));ctx.lineTo(xx,yp(d.high));ctx.stroke();const upper=yp(Math.max(d.open,d.close)),lower=yp(Math.min(d.open,d.close));ctx.fillRect(xx-candleWidth/2,upper,candleWidth,Math.max(1,lower-upper))});
  chosen.forEach((m,j)=>{const seq=maSeries[maKey(m)]||[];ctx.strokeStyle=chartColor(j);ctx.lineWidth=1.7;ctx.beginPath();let begun=false;for(let i=0;i<data.length;i++){const value=seq[offset+i];if(!Number.isFinite(value)){begun=false;continue}if(!begun){ctx.moveTo(x(i),yp(value));begun=true}else ctx.lineTo(x(i),yp(value))}ctx.stroke()});
@@ -469,9 +581,10 @@ function moveHover(ev){
 }
 function report(){
  if(!bars.length)return 'Gráfico EGI: nenhum dado coletado.';
- let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.1 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
+ let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.2 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
  for(const row of $('maTable').rows)parts.push([...row.cells].map(x=>x.textContent).join(' | '));
 
+ parts.push('PERFIL DE ESTUDO: '+profileSets[activeProfile].name+' (timeframe atual '+$('tf').value+')');
  parts.push('LABORATÓRIO DE SETUPS: '+setupHelp[$('setupChoice').value].title+' | direção '+$('setupSide').value+' | volume mínimo '+$('setupVolume').value+'x');
  parts.push('Ocorrências: '+setupEvents.length+' nos últimos 220 candles fechados; não representam desempenho de operações.');
  setupEvents.slice(-15).forEach(e=>parts.push(dt(e.time)+' | '+e.side+' | '+(e.confirmed?'critérios locais':'PRÉ-ALERTA')+' | fechamento '+format(e.price)+' | volume '+e.volumeRatio.toFixed(2)+'x | '+e.reason));
@@ -487,10 +600,12 @@ async function copyText(text){
 }
 function ready(){
  loadMA();renderMAControls();syncCoins();
+ for(const el of document.querySelectorAll('[data-egi-profile]'))el.addEventListener('click',()=>chooseProfile(el.dataset.egiProfile));
+ paintProfileGuide();
  $('savedAssets').addEventListener('change',e=>{if(e.target.value)selectCoin(e.target.value)});
  $('symbol').addEventListener('input',updateCoinHighlight);
  $('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')analyze()});
- $('tf').addEventListener('change',()=>{bars=[];calculate();status('Timeframe alterado. Toque em Consultar Binance para atualizar candles.',false)});
+ $('tf').addEventListener('change',()=>{bars=[];calculate();status('Timeframe alterado manualmente; perfil é apenas referência. Clique em Consultar Binance.',false)});
  $('analyze').addEventListener('click',analyze);
  $('setupChoice').addEventListener('change',()=>{setupUpdate();});
  $('setupSide').addEventListener('change',()=>setupUpdate());
