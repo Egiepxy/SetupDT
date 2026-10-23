@@ -4,18 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#081527">
-<title>Gráfico Inteligente Binance EGI V1.0 — Médias, RSI, Estocástico e Volume</title>
+<title>Gráfico Inteligente Binance EGI V1.1 — Médias, RSI, Estocástico e Volume</title>
 <style>
 :root{color-scheme:dark;--bg:#07111f;--panel:#101f32;--border:#31485f;--text:#eef5ff;--muted:#b6c7dd;--cyan:#40d5f4;--green:#40d9a3;--red:#ff7c8d;--amber:#f5c476;--blue:#76aaff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{font:14px/1.5 system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at top,#14263d,#07111f 65%);margin:0;padding-bottom:35px}a{color:#8fe4ff}button,input,select{font:inherit;color:var(--text);border-radius:10px;border:1px solid #52718f;background:#182d46;min-height:42px;padding:9px 11px}button{cursor:pointer;font-weight:760}button:disabled{opacity:.6;cursor:wait}button.primary{color:#071722;background:#36cee4;border-color:#36cee4}.page{max-width:1240px;margin:0 auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 14px}.brand{font-size:clamp(21px,3vw,30px);font-weight:900;line-height:1.2}.brand span{color:var(--cyan)}.sub{font-size:12px;color:var(--muted);margin-top:5px}.panel{background:#122139;border:1px solid #304c69;border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 8px 24px #00000018}.panel h2{font-size:17px;margin:0 0 10px}.panel h3{font-size:14px;margin:6px 0}.grid-controls{display:grid;grid-template-columns:1.2fr 1.2fr .7fr auto;gap:10px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field select,.field input{width:100%}.buttons{display:flex;gap:8px;flex-wrap:wrap}.status{color:var(--muted);margin-top:9px;font-size:12px;min-height:20px;overflow-wrap:anywhere}.status.error{color:#ffb1bd}.status.ok{color:#baffdf}.quick-coins{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-height:136px;overflow:auto}.quick-coins button{min-height:34px;padding:5px 10px;border-radius:999px;font-size:12px}.quick-coins button.active{border-color:var(--cyan);color:var(--cyan);background:#17394b}.muted{color:var(--muted)}.note{background:#172c43;border-left:3px solid #e7ae59;border-radius:8px;padding:9px;font-size:12px}.tiny{font-size:11px;color:var(--muted)}.ma-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ma-pills{display:flex;flex-wrap:wrap;gap:6px}.ma-pills button{font-size:12px;padding:6px 9px;min-height:34px;border-radius:9px}.ma-pills button.sel{background:#124b48;border-color:#49dfaa;color:#c3ffeb}.custom{display:flex;gap:7px;align-items:end;flex-wrap:wrap;margin-top:9px}.custom input{width:95px}.custom select{width:90px}.custom button{min-height:40px}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.metric{background:#0b1a2d;border:1px solid #344e69;border-radius:11px;padding:11px;min-width:0}.metric small{color:var(--muted);display:block;font-size:11px}.metric strong{display:block;font-size:clamp(15px,2vw,21px);margin:3px 0;word-break:break-word;font-variant-numeric:tabular-nums}.metric em{color:#aabbd1;font-size:11px;font-style:normal}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin:9px 0}.legend span{white-space:nowrap}.square{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-canvas{height:650px;width:100%;border:1px solid #2f4963;border-radius:12px;background:#081728;display:block;touch-action:pan-y}.indicators{display:flex;gap:13px;flex-wrap:wrap;font-size:12px}.indicators label{display:flex;gap:5px;align-items:center;cursor:pointer}.indicators input{min-height:auto}.table-scroller{overflow-x:auto}.matable{width:100%;border-collapse:collapse;font-size:12px;min-width:600px;font-variant-numeric:tabular-nums}.matable th,.matable td{padding:9px 7px;border-bottom:1px solid #30485f;text-align:right;white-space:nowrap}.matable th:first-child,.matable td:first-child{text-align:left}.up{color:#67e2b4}.down{color:#ff9ea9}.warning{color:#fbd397}.insight{border:1px solid #445d76;background:#0e2034;border-radius:11px;padding:13px;margin-top:8px;line-height:1.65}details summary{cursor:pointer;font-size:16px;font-weight:800;min-height:34px}details p,details li{color:#c6d7e9;font-size:13px}details h3{font-size:14px;color:#f2f8ff;margin:16px 0 5px}details ul{padding-left:21px}footer{font-size:11px;color:#aebdd3;text-align:center;padding:10px}.manual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hoverbar{color:#d9ecff;font-size:12px;min-height:22px;margin:7px 0;font-variant-numeric:tabular-nums}
 @media(max-width:800px){.grid-controls{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(3,1fr)}.chart-canvas{height:600px}}
 @media(max-width:550px){.page{padding:9px}.panel{padding:12px}.grid-controls{grid-template-columns:1fr 1fr}.grid-controls .field:first-child,.grid-controls .field:nth-child(2){grid-column:span 2}.ma-select{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-canvas{height:560px}.brand{font-size:22px}.buttons button{flex:1}.legend{max-height:60px;overflow:auto}}
+
+/* EGI V1.1: Laboratorio de setups sobre candles fechados */
+.setup-head{display:flex;justify-content:space-between;gap:9px;align-items:center;flex-wrap:wrap}
+.setup-form{display:grid;grid-template-columns:1.6fr .75fr .6fr auto;gap:9px;align-items:end;margin:12px 0}
+.setup-form .field select,.setup-form .field input{width:100%}
+.setup-explain{border-left:3px solid #4ec5db;border-radius:8px;background:#0d2338;padding:11px 12px;font-size:12px;line-height:1.55;color:#d7e7f7}
+.setup-stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;margin:11px 0}
+.setup-stat{padding:5px 9px;border:1px solid #405b76;background:#0c1d31;border-radius:9px}
+.setup-history{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:325px;overflow:auto}
+.setup-event{font:inherit;display:block;text-align:left;background:#0b1c2f;border:1px solid #405874;padding:10px;border-radius:10px;min-height:72px}
+.setup-event strong{display:block;font-size:13px}.setup-event .date{font-size:11px;color:#aec5dc;display:block;margin-top:4px}
+.setup-event.long strong{color:#65dfb1}.setup-event.short strong{color:#ff9eaa}
+.setup-event.preview{border-style:dashed}.setup-event.active{border-color:#f3cd72;box-shadow:inset 0 0 0 1px #f3cd72}
+.setup-key{display:flex;gap:10px;flex-wrap:wrap;font-size:12px}
+.setup-key span{display:inline-flex;align-items:center;gap:5px}
+.setup-key i{display:inline-block;height:8px;width:8px;border-radius:2px}
+@media(max-width:750px){.setup-form{grid-template-columns:1fr 1fr}.setup-form .field:first-child{grid-column:span 2}.setup-form>button{align-self:end}}
+@media(max-width:460px){.setup-history{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="page">
 <header class="top">
-<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.0</div></div>
+<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.1</div></div>
 <div class="buttons"><a href="./index.html" id="goSetupDT">← Voltar ao SetupDT</a><button id="goManual">📖 Manual EGI</button></div>
 </header>
 <section class="panel">
@@ -53,6 +71,31 @@
 <div class="metric"><small>Estocástico 14/3/3</small><strong id="stochValue">—</strong><em>%K / %D</em></div>
 <div class="metric"><small>Volume relativo</small><strong id="volumeRatio">—</strong><em>vs. 20 candles anteriores</em></div>
 </div>
+</section>
+
+
+<section class="panel" id="setupLab">
+<div class="setup-head">
+<h2>🔬 Laboratório de Setups — escolha e confira no gráfico</h2>
+<span class="tiny">Apenas candles fechados · Binance Spot · Sem ordens</span>
+</div>
+<div class="setup-form">
+<div class="field"><label for="setupChoice">Setup para estudar</label><select id="setupChoice">
+<option value="pullback">1. Pullback nas EMAs 9/21/50</option>
+<option value="cross">2. Cruzamento EMA 9 × EMA 21</option>
+<option value="breakout">3. Rompimento dos últimos 20 candles</option>
+<option value="exhaustion">4. Possível reversão: RSI + Estocástico (pré-alerta)</option>
+</select></div>
+<div class="field"><label for="setupSide">Direção</label><select id="setupSide"><option value="BOTH">LONG e SHORT</option><option value="LONG">Só LONG</option><option value="SHORT">Só SHORT</option></select></div>
+<div class="field"><label for="setupVolume">Volume mínimo ×</label><input id="setupVolume" type="number" inputmode="decimal" value="1.0" min="0" max="5" step=".1"></div>
+<button type="button" class="primary" id="scanSetups">🔎 Conferir</button>
+</div>
+<div class="setup-explain" id="setupExplanation">Selecione um setup. O laboratório busca exemplos nos últimos 220 candles fechados, sem usar informações de candles futuros.</div>
+<div class="buttons" style="margin-top:10px"><button id="setupShowMA" type="button">📉 Mostrar médias usadas</button><button id="setupClearPick" type="button">✕ Limpar destaque</button></div>
+<div id="setupStatus" class="setup-stats" role="status">Aguardando consulta de dados.</div>
+<div class="setup-key"><span><i style="background:#40d9a3"></i>LONG confirmado pelos critérios</span><span><i style="background:#ff7c8d"></i>SHORT confirmado pelos critérios</span><span><i style="border:1px dashed #f8c77a"></i>Pré-alerta (não confirmado)</span></div>
+<div id="setupResults" class="setup-history" style="margin-top:11px"><span class="muted">Consulte a Binance para ver ocorrências.</span></div>
+<p class="tiny">A marcação mostra o candle em que o conjunto de regras foi observado. Não é comprovação de lucro, não é backtest de desempenho e não equivale a entrada executável. Uma oportunidade é registrada uma vez por ciclo curto; dados passados não garantem resultados.</p>
 </section>
 
 <section class="panel">
@@ -103,7 +146,11 @@
 <p>Observe se as médias curtas estão acima ou abaixo das longas, e quantas o preço superou. Alinhamento e inclinação ajudam a interpretar continuação, enfraquecimento e transição; nenhuma combinação garante direção futura.</p>
 <h3>11. Resumo automático e relatório</h3>
 <p>O painel resume médias mais próximas e distantes, RSI, estocástico, volume, posição do preço e inclinações. Use Copiar leitura para enviar o resultado ao ChatGPT, Baixar relatório para guardar o texto ou Salvar gráfico para exportar uma imagem do canvas.</p>
-<h3>12. Boas práticas EGI</h3>
+<h3>12. Laboratório de setups: exemplos históricos</h3>
+<p>Escolha pullback de EMA 9/21/50, cruzamento da 9/21, rompimento da faixa dos 20 candles ou pré-alerta RSI/Estocástico. Escolha LONG/SHORT, volume mínimo relativo e toque em Conferir. Os exemplos aparecem como cartões clicáveis; toque em um cartão para destacar aquele candle no gráfico. O laboratório estuda no máximo os 220 candles fechados mais recentes para facilitar a inspeção.</p>
+<p><strong>Pullback:</strong> tendência alinhada pelas EMAs 9/21/50, toque próximo à EMA 9 no candle anterior e recuperação/perda da EMA 9 no candle fechado, com RSI coerente. <strong>Cruzamento:</strong> EMA 9 cruza a EMA 21 com EMA 50 como contexto. <strong>Rompimento:</strong> candle rompe máxima/mínima dos 20 candles anteriores, com EMA 21 e RSI coerentes. <strong>Possível reversão:</strong> RSI em região extrema e cruzamento do Estocástico geram só um pré-alerta, nunca reversão confirmada.</p>
+<p>O volume é comparado à média dos 20 candles anteriores (o candle do evento não entra na média). Todos os cálculos usam apenas dados disponíveis até o próprio candle, sem olhar o futuro. Não houve calibração estatística desses critérios; não há taxa de acerto demonstrada. O gráfico apresenta exemplos, não recomendação de compra/venda.</p>
+<h3>13. Boas práticas EGI</h3>
 <p>“O indicador sugere; o candle fechado confirma. A ideia merece registro, não obediência.” Prefira continuidade até haver evidência consistente de transição; observe divergências, suportes, resistências, ATR, volume efetivo, horários e condições do mercado. Não opere só por afastamento das médias e não force entrada.</p>
 <h3>Limitações e funcionamento</h3>
 <p>A Binance pode bloquear requisições por rede, região, CORS ou limite de uso. O gráfico depende de conexão e da disponibilidade da API pública. Sem candles válidos, não gera cálculo inventado. A lista do SetupDT não atravessa domínios, navegadores, aparelhos ou perfis automaticamente. Não há integração de execução de ordens nem acompanhamento em segundo plano.</p>
@@ -121,6 +168,13 @@ const presetPeriods=[9,14,20,21,34,50,100,200];
 const colors=['#36d7d3','#f7ba52','#f77999','#86b2ff','#9c8bff','#40da91','#dc9aee','#ff954b','#67cbff','#c7e77f','#eee1b3','#e1a2aa'];
 let chosen=[{type:'EMA',period:9},{type:'EMA',period:14},{type:'EMA',period:21},{type:'EMA',period:50},{type:'EMA',period:200}], bars=[],maSeries={},rsiSeries=[],stochK=[],stochD=[],live=null,symbol='BTCUSDT',quoteAt=0,hoverIndex=null,requestSequence=0;
 let registryFingerprint='';
+let setupEvents=[], setupSelected=null;
+const setupHelp={
+ pullback:{title:'Pullback EMA 9/21/50',explain:'Procura alinhamento 9 > 21 > 50 (ou inverso), toque do candle anterior na EMA 9 e fechamento que retoma a direção, com RSI favorável. O 1m pode antecipar; confirme no 5m.',medias:[9,21,50]},
+ cross:{title:'Cruzamento EMA 9/21',explain:'Sinal no candle fechado da troca de posição entre EMA 9 e EMA 21, a favor da EMA 50 e RSI acima/abaixo de 50. Cruzamentos laterais podem ser falsos.',medias:[9,21,50]},
+ breakout:{title:'Rompimento 20 candles',explain:'Fechamento além da máxima/mínima dos 20 candles anteriores, com RSI na direção e EMA 21 como contexto. Volume relativo sugerido: a partir de 1,2×.',medias:[21]},
+ exhaustion:{title:'Pré-alerta RSI + Estocástico',explain:'RSI abaixo de 35 ou acima de 65 com cruzamento %K/%D no sentido oposto. Indica possível transição, não reversão ou entrada confirmada.',medias:[9,21]}
+};
 function safeGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function safeSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
 function norm(raw){return String(raw||'').toUpperCase().trim().replace(/USDT$/,'').replace(/[^A-Z0-9]/g,'')}
@@ -246,7 +300,7 @@ async function analyze(){
  }finally{if(request===requestSequence)$('analyze').disabled=false}
 }
 function calculate(){
- if(!bars.length){for(const id of ['livePrice','closedPrice','rsiValue','stochValue','volumeRatio'])$(id).textContent='—';$('closedTime').textContent='—';$('maTable').innerHTML='<tr><td colspan="6">Sem candles válidos. Consulte a Binance.</td></tr>';$('summary').textContent='Aguardando dados válidos. Não serão inventados indicadores.';maSeries={};rsiSeries=[];stochK=[];stochD=[];draw();return}
+ if(!bars.length){for(const id of ['livePrice','closedPrice','rsiValue','stochValue','volumeRatio'])$(id).textContent='—';$('closedTime').textContent='—';$('maTable').innerHTML='<tr><td colspan="6">Sem candles válidos. Consulte a Binance.</td></tr>';$('summary').textContent='Aguardando dados válidos. Não serão inventados indicadores.';maSeries={};rsiSeries=[];stochK=[];stochD=[];setupUpdate(false);draw();return}
  const closes=bars.map(x=>x.close),last=bars.length-1,ref=live||bars[last].close;
  maSeries={};chosen.forEach(x=>{maSeries[maKey(x)]=x.type==='EMA'?expMA(closes,x.period):simple(closes,x.period)});
  rsiSeries=getRSI(closes);[stochK,stochD]=stochastic(bars);
@@ -274,8 +328,86 @@ function calculate(){
  if(Number.isFinite(ratio))comments.push('Volume '+ratio.toFixed(2)+'× a média dos 20 candles anteriores.');
  comments.push('Esta leitura não é entrada. Confirmar contexto, candle fechado, volume e risco.');
  $('summary').textContent=comments.join(' ');
+ setupUpdate(false);
  draw();
 }
+
+// ===== Laboratorio EGI: exemplos retrospectivos, sem olhar candles futuros =====
+function scanSetupHistory(data,setup,minVolume,sideFilter){
+ if(!Array.isArray(data)||data.length<65)return [];
+ const closes=data.map(x=>x.close),e9=expMA(closes,9),e21=expMA(closes,21),e50=expMA(closes,50),rr=getRSI(closes,14),[k,d]=stochastic(data);
+ const selected=[],start=Math.max(55,data.length-220);
+ const isValid=(...xs)=>xs.every(Number.isFinite);
+ for(let i=start;i<data.length;i++){
+  if(!isValid(e9[i],e21[i],e50[i],e9[i-1],e21[i-1],e50[i-1],rr[i]))continue;
+  const now=data[i],prev=data[i-1],vAvg=data.slice(i-20,i).reduce((acc,x)=>acc+x.volume,0)/20,vRatio=vAvg>0?now.volume/vAvg:0;
+  if(vRatio<minVolume)continue;
+  const prior20=data.slice(i-20,i);
+  const highest=Math.max(...prior20.map(x=>x.high)),lowest=Math.min(...prior20.map(x=>x.low));
+  let direction=null,reason='',confirmed=setup!=='exhaustion';
+  if(setup==='pullback'){
+   const longTrend=e9[i]>e21[i]&&e21[i]>e50[i]&&e21[i]>=e21[i-3];
+   const shortTrend=e9[i]<e21[i]&&e21[i]<e50[i]&&e21[i]<=e21[i-3];
+   const touchedLong=prev.low<=e9[i-1]*1.0025&&prev.high>=e9[i-1]*.9975;
+   const touchedShort=prev.high>=e9[i-1]*.9975&&prev.low<=e9[i-1]*1.0025;
+   if(longTrend&&touchedLong&&now.close>e9[i]&&now.close>now.open&&now.close>prev.close&&rr[i]>=50){direction='LONG';reason='Tocou EMA 9; alta alinhada 9/21/50; RSI '+rr[i].toFixed(1);}
+   else if(shortTrend&&touchedShort&&now.close<e9[i]&&now.close<now.open&&now.close<prev.close&&rr[i]<=50){direction='SHORT';reason='Tocou EMA 9; baixa alinhada 9/21/50; RSI '+rr[i].toFixed(1);}
+  }else if(setup==='cross'){
+   if(e9[i-1]<=e21[i-1]&&e9[i]>e21[i]&&now.close>e50[i]&&rr[i]>50){direction='LONG';reason='EMA 9 cruzou EMA 21 para cima, preço > EMA 50';}
+   else if(e9[i-1]>=e21[i-1]&&e9[i]<e21[i]&&now.close<e50[i]&&rr[i]<50){direction='SHORT';reason='EMA 9 cruzou EMA 21 para baixo, preço < EMA 50';}
+  }else if(setup==='breakout'){
+   if(now.close>highest&&now.close>e21[i]&&rr[i]>=52){direction='LONG';reason='Fechou acima da máxima dos 20 candles anteriores';}
+   else if(now.close<lowest&&now.close<e21[i]&&rr[i]<=48){direction='SHORT';reason='Fechou abaixo da mínima dos 20 candles anteriores';}
+  }else if(setup==='exhaustion'){
+   if(isValid(k[i],d[i],k[i-1],d[i-1])){
+    if(rr[i]<=35&&k[i-1]<=d[i-1]&&k[i]>d[i]&&k[i]<40&&now.close>now.open){direction='LONG';reason='RSI extremo + estocástico cruzou para cima; só pré-alerta';}
+    else if(rr[i]>=65&&k[i-1]>=d[i-1]&&k[i]<d[i]&&k[i]>60&&now.close<now.open){direction='SHORT';reason='RSI extremo + estocástico cruzou para baixo; só pré-alerta';}
+   }
+  }
+  if(!direction||(sideFilter!=='BOTH'&&direction!==sideFilter))continue;
+  const previous=selected[selected.length-1];
+  if(previous&&previous.side===direction&&i-previous.index<4)continue;
+  selected.push({index:i,side:direction,confirmed,price:now.close,time:now.end,volumeRatio:vRatio,reason});
+ }
+ return selected;
+}
+function setupUpdate(redraw=true){
+ const name=$('setupChoice').value,def=setupHelp[name],minVolume=Number($('setupVolume').value),side=$('setupSide').value;
+ $('setupExplanation').textContent=def.title+' — '+def.explain+' A busca usa candles já fechados; mínimo de volume escolhido: '+(Number.isFinite(minVolume)?minVolume:1).toFixed(1)+'×.';
+ setupEvents=bars.length?scanSetupHistory(bars,name,Number.isFinite(minVolume)?Math.max(0,Math.min(5,minVolume)):1,side):[];
+ setupSelected=null;
+ const root=$('setupResults');root.replaceChildren();
+ if(!bars.length){$('setupStatus').textContent='Selecione uma moeda e clique em Consultar Binance.';root.textContent='Aguardando candles fechados.';}
+ else {
+  const longs=setupEvents.filter(e=>e.side==='LONG').length,shorts=setupEvents.filter(e=>e.side==='SHORT').length;
+  $('setupStatus').textContent=setupEvents.length+' ocorrência(s) em até 220 candles fechados · '+longs+' LONG · '+shorts+' SHORT · '+(name==='exhaustion'?'pré-alertas':'critérios locais confirmados')+'.';
+  if(!setupEvents.length)root.textContent='Nenhum exemplo cumpriu todos os critérios nessa janela. Tente outro setup, timeframe ou filtro de volume; não foi criado sinal artificial.';
+  for(const event of setupEvents.slice().reverse().slice(0,20)){
+   const b=document.createElement('button');b.type='button';b.className='setup-event '+event.side.toLowerCase()+(event.confirmed?'':' preview');b.setAttribute('data-egi-setup-index',String(event.index));
+   const title=document.createElement('strong'),date=document.createElement('span'),reason=document.createElement('span');
+   title.textContent=(event.side==='LONG'?'▲ LONG':'▼ SHORT')+' · '+(event.confirmed?'critérios locais':'pré-alerta')+' · '+format(event.price);
+   date.className='date';date.textContent=dt(event.time)+' · volume '+event.volumeRatio.toFixed(2)+'×';
+   reason.className='tiny';reason.textContent=event.reason;
+   b.append(title,date,reason);b.addEventListener('click',()=>selectSetupEvent(event));root.append(b);
+  }
+ }
+ if(redraw)draw();
+}
+function selectSetupEvent(event){
+ setupSelected=event;hoverIndex=event.index;
+ if(event.index<bars.length-Number($('windowSize').value))$('windowSize').value='220';
+ document.querySelectorAll('[data-egi-setup-index]').forEach(el=>el.classList.toggle('active',el.getAttribute('data-egi-setup-index')===String(event.index)));
+ const d=bars[event.index];
+ if(d)$('hoverbar').textContent=dt(d.end)+' · '+event.side+' · '+(event.confirmed?'critérios locais':'pré-alerta')+' · F '+format(d.close)+' · '+event.reason;
+ draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function addSetupMAs(){
+ const nums=setupHelp[$('setupChoice').value].medias;
+ for(const period of nums)if(!chosen.some(x=>x.type==='EMA'&&x.period===period))chosen.push({type:'EMA',period});
+ chosen.sort((a,b)=>a.period-b.period||a.type.localeCompare(b.type));persistMA();renderMAControls();calculate();
+ status('✅ Médias do setup adicionadas; sua seleção anterior foi preservada.',false);
+}
+
 function chartColor(index){return colors[index%colors.length]}
 function draw(){
  const cv=$('chart'),ctx=cv.getContext('2d');if(!ctx)return;
@@ -312,6 +444,17 @@ function draw(){
    series.forEach(pair=>{ctx.strokeStyle=pair[1];ctx.lineWidth=1.6;ctx.beginPath();let begun=false;for(let i=0;i<data.length;i++){const v=pair[0][offset+i];if(!Number.isFinite(v)){begun=false;continue}if(!begun){ctx.moveTo(x(i),lineY(v));begun=true}else ctx.lineTo(x(i),lineY(v))}ctx.stroke()});
   }
  }
+
+ // Triângulos marcados EXCLUSIVAMENTE sobre candles históricos detectados.
+ const visibleEvents=setupEvents.filter(e=>e.index>=offset&&e.index<bars.length);
+ for(const event of visibleEvents){
+  const i=event.index-offset,xx=x(i),candle=data[i],long=event.side==='LONG';
+  const y=Math.max(pricePanel.top+9,Math.min(pricePanel.bottom-9,yp(long?candle.low:candle.high)+(long?11:-11)));
+  const radius=event===setupSelected?7.5:5.2,sgn=long?-1:1;
+  ctx.beginPath();ctx.moveTo(xx,y+sgn*radius);ctx.lineTo(xx-radius*.8,y-sgn*radius*.65);ctx.lineTo(xx+radius*.8,y-sgn*radius*.65);ctx.closePath();
+  ctx.fillStyle=event.confirmed?(long?'#45e5ab':'#ff8b9d'):'#f6c578';ctx.strokeStyle=event===setupSelected?'#ffffff':ctx.fillStyle;ctx.lineWidth=event===setupSelected?2:1;
+  if(event.confirmed)ctx.fill();else ctx.stroke();
+ }
  if(Number.isInteger(hoverIndex)&&hoverIndex>=offset&&hoverIndex<bars.length){const xi=x(hoverIndex-offset);ctx.strokeStyle='#eee5ad';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xi,pricePanel.top);ctx.lineTo(xi,panels[panels.length-1].bottom);ctx.stroke();ctx.setLineDash([])}
  ctx.fillStyle='#96b6cb';ctx.font='10px system-ui';for(let i=0;i<data.length;i+=Math.max(1,Math.round(data.length/5))){ctx.fillText(new Date(data[i].end).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),x(i),h-5)}
  cv._egiOffset=offset;cv._egiCount=data.length;cv._egiLeft=left;cv._egiRight=right;
@@ -326,8 +469,12 @@ function moveHover(ev){
 }
 function report(){
  if(!bars.length)return 'Gráfico EGI: nenhum dado coletado.';
- let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.0 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
+ let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.1 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
  for(const row of $('maTable').rows)parts.push([...row.cells].map(x=>x.textContent).join(' | '));
+
+ parts.push('LABORATÓRIO DE SETUPS: '+setupHelp[$('setupChoice').value].title+' | direção '+$('setupSide').value+' | volume mínimo '+$('setupVolume').value+'x');
+ parts.push('Ocorrências: '+setupEvents.length+' nos últimos 220 candles fechados; não representam desempenho de operações.');
+ setupEvents.slice(-15).forEach(e=>parts.push(dt(e.time)+' | '+e.side+' | '+(e.confirmed?'critérios locais':'PRÉ-ALERTA')+' | fechamento '+format(e.price)+' | volume '+e.volumeRatio.toFixed(2)+'x | '+e.reason));
  parts.push('LEITURA: '+$('summary').textContent,'AVISO: médias, osciladores e volume derivados de candles fechados; preço atual separado quando disponível. Sem ordens ou promessas de resultado.');
  return parts.join('\n');
 }
@@ -345,6 +492,13 @@ function ready(){
  $('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')analyze()});
  $('tf').addEventListener('change',()=>{bars=[];calculate();status('Timeframe alterado. Toque em Consultar Binance para atualizar candles.',false)});
  $('analyze').addEventListener('click',analyze);
+ $('setupChoice').addEventListener('change',()=>{setupUpdate();});
+ $('setupSide').addEventListener('change',()=>setupUpdate());
+ $('setupVolume').addEventListener('change',()=>setupUpdate());
+ $('scanSetups').addEventListener('click',()=>setupUpdate());
+ $('setupShowMA').addEventListener('click',addSetupMAs);
+ $('setupClearPick').addEventListener('click',()=>{setupSelected=null;hoverIndex=null;draw();});
+
  $('addMA').addEventListener('click',()=>{const n=Number($('maPeriod').value);if(!Number.isInteger(n)||n<2||n>500){status('Informe período inteiro entre 2 e 500.',true);return}toggleMA($('maType').value,n)});
  $('clearMA').addEventListener('click',()=>{chosen=[];persistMA();renderMAControls();calculate()});
  $('windowSize').addEventListener('change',draw);
