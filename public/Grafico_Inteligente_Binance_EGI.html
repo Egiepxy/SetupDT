@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#081527">
-<title>Gráfico Inteligente Binance EGI V1.2 — Médias, RSI, Estocástico e Volume</title>
+<title>Gráfico Inteligente Binance EGI V1.3 — Médias, RSI, Estocástico e Volume</title>
 <style>
 :root{color-scheme:dark;--bg:#07111f;--panel:#101f32;--border:#31485f;--text:#eef5ff;--muted:#b6c7dd;--cyan:#40d5f4;--green:#40d9a3;--red:#ff7c8d;--amber:#f5c476;--blue:#76aaff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{font:14px/1.5 system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at top,#14263d,#07111f 65%);margin:0;padding-bottom:35px}a{color:#8fe4ff}button,input,select{font:inherit;color:var(--text);border-radius:10px;border:1px solid #52718f;background:#182d46;min-height:42px;padding:9px 11px}button{cursor:pointer;font-weight:760}button:disabled{opacity:.6;cursor:wait}button.primary{color:#071722;background:#36cee4;border-color:#36cee4}.page{max-width:1240px;margin:0 auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 14px}.brand{font-size:clamp(21px,3vw,30px);font-weight:900;line-height:1.2}.brand span{color:var(--cyan)}.sub{font-size:12px;color:var(--muted);margin-top:5px}.panel{background:#122139;border:1px solid #304c69;border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 8px 24px #00000018}.panel h2{font-size:17px;margin:0 0 10px}.panel h3{font-size:14px;margin:6px 0}.grid-controls{display:grid;grid-template-columns:1.2fr 1.2fr .7fr auto;gap:10px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field select,.field input{width:100%}.buttons{display:flex;gap:8px;flex-wrap:wrap}.status{color:var(--muted);margin-top:9px;font-size:12px;min-height:20px;overflow-wrap:anywhere}.status.error{color:#ffb1bd}.status.ok{color:#baffdf}.quick-coins{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-height:136px;overflow:auto}.quick-coins button{min-height:34px;padding:5px 10px;border-radius:999px;font-size:12px}.quick-coins button.active{border-color:var(--cyan);color:var(--cyan);background:#17394b}.muted{color:var(--muted)}.note{background:#172c43;border-left:3px solid #e7ae59;border-radius:8px;padding:9px;font-size:12px}.tiny{font-size:11px;color:var(--muted)}.ma-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ma-pills{display:flex;flex-wrap:wrap;gap:6px}.ma-pills button{font-size:12px;padding:6px 9px;min-height:34px;border-radius:9px}.ma-pills button.sel{background:#124b48;border-color:#49dfaa;color:#c3ffeb}.custom{display:flex;gap:7px;align-items:end;flex-wrap:wrap;margin-top:9px}.custom input{width:95px}.custom select{width:90px}.custom button{min-height:40px}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.metric{background:#0b1a2d;border:1px solid #344e69;border-radius:11px;padding:11px;min-width:0}.metric small{color:var(--muted);display:block;font-size:11px}.metric strong{display:block;font-size:clamp(15px,2vw,21px);margin:3px 0;word-break:break-word;font-variant-numeric:tabular-nums}.metric em{color:#aabbd1;font-size:11px;font-style:normal}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin:9px 0}.legend span{white-space:nowrap}.square{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-canvas{height:650px;width:100%;border:1px solid #2f4963;border-radius:12px;background:#081728;display:block;touch-action:pan-y}.indicators{display:flex;gap:13px;flex-wrap:wrap;font-size:12px}.indicators label{display:flex;gap:5px;align-items:center;cursor:pointer}.indicators input{min-height:auto}.table-scroller{overflow-x:auto}.matable{width:100%;border-collapse:collapse;font-size:12px;min-width:600px;font-variant-numeric:tabular-nums}.matable th,.matable td{padding:9px 7px;border-bottom:1px solid #30485f;text-align:right;white-space:nowrap}.matable th:first-child,.matable td:first-child{text-align:left}.up{color:#67e2b4}.down{color:#ff9ea9}.warning{color:#fbd397}.insight{border:1px solid #445d76;background:#0e2034;border-radius:11px;padding:13px;margin-top:8px;line-height:1.65}details summary{cursor:pointer;font-size:16px;font-weight:800;min-height:34px}details p,details li{color:#c6d7e9;font-size:13px}details h3{font-size:14px;color:#f2f8ff;margin:16px 0 5px}details ul{padding-left:21px}footer{font-size:11px;color:#aebdd3;text-align:center;padding:10px}.manual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hoverbar{color:#d9ecff;font-size:12px;min-height:22px;margin:7px 0;font-variant-numeric:tabular-nums}
@@ -44,12 +44,30 @@
 .study-step strong,.study-step span{display:block}.study-step strong{font-size:12px}.study-step span{font-size:11px;color:#bed0e4;margin-top:3px}
 @media(max-width:600px){.study-status .study-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:390px){.preset-chooser{gap:4px}.preset-btn{padding:7px;min-height:78px}.preset-btn strong{font-size:12px}.preset-btn small{font-size:10px}}
+
+/* EGI V1.3 SOL scalping live observation */
+.sol-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sol-result{border:1px solid #475f7c;border-radius:12px;background:#0c2034;padding:14px;margin:12px 0}
+.sol-result strong{display:block;font-size:clamp(17px,2.5vw,22px)}
+.sol-result p{font-size:13px;margin:7px 0 4px}
+.sol-result small{color:#b7cee5}
+.sol-checks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.sol-check{border:1px solid #3b5771;background:#0b1b2e;border-radius:10px;padding:9px;min-height:76px}
+.sol-check strong{display:block;font-size:12px}
+.sol-check span{display:block;font-size:11px;color:#c1d2e7;margin-top:3px}
+.sol-check.yes{border-color:#30b98a;background:#14372e}
+.sol-check.no{border-color:#766246;background:#2a2430}
+.sol-check.unknown{border-color:#405873}
+.sol-log{max-height:330px;overflow:auto;margin:10px 0}
+.sol-log table{border-collapse:collapse;width:100%;min-width:670px;font-size:12px}
+.sol-log th,.sol-log td{padding:8px 6px;border-bottom:1px solid #324d69;text-align:left;white-space:nowrap}
+@media(max-width:750px){.sol-checks{grid-template-columns:repeat(2,minmax(0,1fr))}.sol-check:last-child{grid-column:span 2}}
 </style>
 </head>
 <body>
 <div class="page">
 <header class="top">
-<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.2</div></div>
+<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.3</div></div>
 <div class="buttons"><a href="./index.html" id="goSetupDT">← Voltar ao SetupDT</a><button id="goManual">📖 Manual EGI</button></div>
 </header>
 <section class="panel">
@@ -191,19 +209,52 @@
 <p>Clique em um dos três botões no topo. Scalping seleciona 5m e EMA 9/21/50; Day Trade seleciona 15m e EMA 9/21/50/200; Swing seleciona 4h e EMA 21/50/200. Cada perfil seleciona o laboratório Pullback, coleta novos candles fechados e destaca a região entre as médias do recuo.</p>
 <p>As quatro etapas mostram se as condições foram observadas até o último candle fechado: tendência, toque na média pelo candle anterior, candle de reação e RSI/volume. A confirmação do laboratório também exige os critérios combinados. No Swing, o exemplo de pullback usa EMA 21 e a EMA 200 como contexto. Os perfis são hipóteses didáticas e não um sistema de operações validado estatisticamente.</p>
 <p>A faixa colorida no gráfico mostra a distância histórica entre duas EMAs; não é um preço previsto nem zona obrigatória de compra ou venda. A leitura vale apenas para o timeframe selecionado; não é confirmação automática entre timeframes.</p>
-<h3>14. Boas práticas EGI</h3>
+<h3>14. Monitor SOLUSDT de Scalping — acompanhar sinais</h3>
+<p>No final do aplicativo, clique em Iniciar. O monitor busca candles reais 5m e 15m de SOLUSDT na Binance Spot e checa EMA 9/21/50, toque na EMA 9, reação de candle fechado, RSI 14, volume relativo ≥1,2× e contexto 15m. Só grava LONG ou SHORT quando todos os cinco critérios estiverem presentes no novo candle 5m observado com a página ativa. Não contabiliza sinais anteriores à ativação nem candles perdidos durante pausas.</p>
+<p>AGUARDAR significa que faltam condições; dados indisponíveis aparecem como erro de coleta e não como sinal. A aba precisa ficar aberta e visível para acompanhar. O monitor consulta aproximadamente uma vez por minuto, não é um serviço de background. O registro no final da página usa localStorage: data, preço, sentido e critérios. Exportar histórico gera TXT. Reabrir em outro aparelho não sincroniza automaticamente.</p>
+<h3>15. Boas práticas EGI</h3>
 <p>“O indicador sugere; o candle fechado confirma. A ideia merece registro, não obediência.” Prefira continuidade até haver evidência consistente de transição; observe divergências, suportes, resistências, ATR, volume efetivo, horários e condições do mercado. Não opere só por afastamento das médias e não force entrada.</p>
 <h3>Limitações e funcionamento</h3>
 <p>A Binance pode bloquear requisições por rede, região, CORS ou limite de uso. O gráfico depende de conexão e da disponibilidade da API pública. Sem candles válidos, não gera cálculo inventado. A lista do SetupDT não atravessa domínios, navegadores, aparelhos ou perfis automaticamente. Não há integração de execução de ordens nem acompanhamento em segundo plano.</p>
 </div>
 <div class="manual-actions"><button id="downloadManual">📄 Baixar manual TXT</button><button id="copyManual">📋 Copiar manual</button><a href="./index.html">Editar cadastro de moedas no SetupDT</a></div>
 </details>
+
+<section class="panel" id="solMonitor">
+<div class="sol-head">
+<div><h2>🛰️ SOLUSDT — Monitor Scalping EGI</h2><p class="sub">Exemplo real · Binance Spot · 5m confirmado + contexto 15m · EMA 9/21/50</p></div>
+<div class="buttons"><button id="solStart" type="button" class="primary">▶ Iniciar</button><button id="solStop" type="button">⏸ Parar</button><button id="solCheck" type="button">↻ Consultar SOL</button></div>
+</div>
+<div class="sol-result" aria-live="polite">
+<strong id="solState">⚪ AGUARDAR — iniciar monitor</strong>
+<p id="solReason">Inicie para acompanhar os próximos candles fechados de SOLUSDT. Nenhuma ordem é enviada.</p>
+<small id="solTime">Último candle: —</small>
+</div>
+<div class="sol-checks">
+<div class="sol-check unknown" data-sol-check="trend"><strong>1 · Tendência 5m</strong><span>EMAs 9/21/50 alinhadas</span></div>
+<div class="sol-check unknown" data-sol-check="touch"><strong>2 · Pullback</strong><span>Toque na EMA 9</span></div>
+<div class="sol-check unknown" data-sol-check="reaction"><strong>3 · Reação</strong><span>Fechamento 5m</span></div>
+<div class="sol-check unknown" data-sol-check="momentum"><strong>4 · Força</strong><span>RSI + volume ≥1,2×</span></div>
+<div class="sol-check unknown" data-sol-check="context"><strong>5 · Contexto 15m</strong><span>Mesma direção</span></div>
+</div>
+<div class="buttons" style="margin:13px 0 8px">
+<button id="solOnChart" type="button">📈 Ver SOL no gráfico</button>
+<button id="solCopy" type="button">📋 Copiar RelGPT SOL</button>
+<button id="solExport" type="button">💾 Exportar histórico</button>
+<button id="solClear" type="button">🗑 Limpar histórico</button>
+</div>
+<h3>📚 Registro de sinais — SOLUSDT</h3>
+<div class="sol-log"><table><thead><tr><th>Data do candle 5m</th><th>Moeda</th><th>Sinal</th><th>Fechamento</th><th>Volume</th><th>Motivo</th></tr></thead><tbody id="solHistory"><tr><td colspan="6">Nenhum sinal registrado.</td></tr></tbody></table></div>
+<p class="tiny" id="solHistoryCount">0 sinais registrados neste navegador.</p>
+<p class="note"><b>Importante:</b> monitoramento apenas enquanto esta página estiver aberta e visível. O Android ou notebook pode suspender a aba em segundo plano. Ao retornar, o app recomeça a partir do candle atual, sem inventar sinais do período ausente. Histórico guardado apenas neste navegador; exporte para fazer backup. Estudo observacional, sem ordens.</p>
+</section>
+
 <footer>EGI — Professor de Médias | Fonte: Binance Spot pública | Estudo observacional, não aconselhamento ou ordem.</footer>
 </div>
 <script>
 'use strict';
 (function(){
-const WATCH_KEY='setupdt_light_v11_watchlist',MA_KEY='egi_grafico_binance_medias_v1';
+const WATCH_KEY='setupdt_light_v11_watchlist',MA_KEY='egi_grafico_binance_medias_v1',SOL_LOG_KEY='egi_sol_scalping_v13_signals';
 const $=id=>document.getElementById(id);
 const presetPeriods=[9,14,20,21,34,50,100,200];
 const colors=['#36d7d3','#f7ba52','#f77999','#86b2ff','#9c8bff','#40da91','#dc9aee','#ff954b','#67cbff','#c7e77f','#eee1b3','#e1a2aa'];
@@ -308,8 +359,8 @@ async function fetchJSON(url){
  const ctrl=new AbortController(),id=setTimeout(()=>ctrl.abort(),12500);
  try{const response=await fetch(url,{cache:'no-store',signal:ctrl.signal});const data=await response.json();if(!response.ok)throw Error(data?.msg||('HTTP '+response.status));return data;}finally{clearTimeout(id)}
 }
-async function getCandles(sym,tf){
- const p='?symbol='+encodeURIComponent(sym)+'&interval='+encodeURIComponent(tf)+'&limit=1000';
+async function getCandles(sym,tf,limit=1000){
+ const p='?symbol='+encodeURIComponent(sym)+'&interval='+encodeURIComponent(tf)+'&limit='+Math.max(60,Math.min(1000,Number(limit)||1000));
  const bases=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines','https://api1.binance.com/api/v3/klines'];
  let errors=[];
  for(const u of bases){try{return {rows:inputBars(await fetchJSON(u+p)),source:u.split('/')[2]}}catch(e){errors.push(e.message)}}
@@ -582,7 +633,7 @@ function moveHover(ev){
 }
 function report(){
  if(!bars.length)return 'Gráfico EGI: nenhum dado coletado.';
- let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.2 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
+ let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.3 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
  for(const row of $('maTable').rows)parts.push([...row.cells].map(x=>x.textContent).join(' | '));
 
  parts.push('PERFIL DE ESTUDO: '+profileSets[activeProfile].name+' (timeframe atual '+$('tf').value+')');
@@ -599,7 +650,151 @@ async function copyText(text){
  try{await navigator.clipboard.writeText(text);status('✅ Copiado para a área de transferência.',false)}
  catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.append(ta);ta.select();const ok=document.execCommand('copy');ta.remove();status(ok?'✅ Copiado.':'⚠ Não foi possível copiar automaticamente.',!ok)}
 }
+
+// ===== EGI V1.3 — monitor SOLUSDT independente do ativo principal =====
+let solActive=false,solBusy=false,solTimer=null,solSeenEnd=null,solLastResult=null,solLog=[],solLogWarning='';
+function solReadLog(){
+ try{const parsed=JSON.parse(safeGet(SOL_LOG_KEY)||'[]');solLog=Array.isArray(parsed)?parsed.filter(x=>x&&x.key&&x.end&&x.direction&&x.symbol==='SOLUSDT').slice(0,300):[]}
+ catch(e){solLog=[]}
+}
+function solSaveLog(){
+ if(!safeSet(SOL_LOG_KEY,JSON.stringify(solLog.slice(0,300)))){solLogWarning='⚠ Histórico não pôde ser salvo neste navegador. Faça backup por exportação.';return false}
+ solLogWarning='';return true;
+}
+function solEvaluate(five,fifteen,minVolume=1.2){
+ if(!Array.isArray(five)||five.length<65||!Array.isArray(fifteen)||fifteen.length<60)return {ok:false,reason:'Histórico insuficiente na Binance.',steps:[false,false,false,false,false]};
+ const at=five[five.length-1],context=fifteen.filter(x=>x.end<=at.end);if(context.length<60)return {ok:false,reason:'Aguardando contexto 15m fechado.',steps:[false,false,false,false,false]};
+ const ctxIndex=context.length-1,idx=five.length-1,arr=five.map(x=>x.close),ema9=expMA(arr,9),ema21=expMA(arr,21),ema50=expMA(arr,50),rr=getRSI(arr,14);
+ const arr15=context.map(x=>x.close),ema915=expMA(arr15,9),ema2115=expMA(arr15,21),ema5015=expMA(arr15,50);
+ const prev=five[idx-1],now=five[idx],vAvg=five.slice(idx-20,idx).reduce((s,x)=>s+x.volume,0)/20,vRatio=vAvg>0?now.volume/vAvg:0;
+ const longTrend=ema9[idx]>ema21[idx]&&ema21[idx]>ema50[idx]&&ema21[idx]>=ema21[idx-3];
+ const shortTrend=ema9[idx]<ema21[idx]&&ema21[idx]<ema50[idx]&&ema21[idx]<=ema21[idx-3];
+ const longContext=ema915[ctxIndex]>ema2115[ctxIndex]&&ema2115[ctxIndex]>ema5015[ctxIndex]&&ema2115[ctxIndex]>=ema2115[ctxIndex-3];
+ const shortContext=ema915[ctxIndex]<ema2115[ctxIndex]&&ema2115[ctxIndex]<ema5015[ctxIndex]&&ema2115[ctxIndex]<=ema2115[ctxIndex-3];
+ const longTouch=prev.low<=ema9[idx-1]*1.0025&&prev.high>=ema9[idx-1]*.9975;
+ const shortTouch=prev.high>=ema9[idx-1]*.9975&&prev.low<=ema9[idx-1]*1.0025;
+ const longReact=now.close>ema9[idx]&&now.close>now.open&&now.close>prev.close;
+ const shortReact=now.close<ema9[idx]&&now.close<now.open&&now.close<prev.close;
+ const longPower=rr[idx]>=50&&vRatio>=minVolume,shortPower=rr[idx]<=50&&vRatio>=minVolume;
+ const longSteps=[longTrend,longTouch,longReact,longPower,longContext],shortSteps=[shortTrend,shortTouch,shortReact,shortPower,shortContext];
+ const direction=longSteps.every(Boolean)?'LONG':shortSteps.every(Boolean)?'SHORT':null;
+ // Mostrar a direção da tendência local para que os passos pendentes façam sentido.
+ const watch=direction||((longTrend&&(!shortTrend||longContext))?'LONG':shortTrend?'SHORT':'MISTO');
+ const steps=direction==='LONG'?longSteps:direction==='SHORT'?shortSteps:watch==='LONG'?longSteps:watch==='SHORT'?shortSteps:[false,false,false,false,false];
+ const notes=[];
+ const labels=['EMAs 5m alinhadas','Toque anterior na EMA 9','Candle 5m retomou a direção','RSI e volume confirmaram','Contexto 15m concorda'];
+ steps.forEach((v,i)=>{if(!v)notes.push(labels[i])});
+ return {ok:true,barEnd:now.end,price:now.close,direction,watch,steps,rsi:rr[idx],volumeRatio:vRatio,contextEnd:context[ctxIndex].end,reason:direction?('Pullback confirmado pelos cinco critérios EGI; 5m e 15m em '+direction):('Ainda falta: '+notes.join('; ')+'.'),minVolume};
+}
+function solHistoryPaint(){
+ const root=$('solHistory');root.replaceChildren();
+ const rows=[...solLog].sort((a,b)=>b.end-a.end);
+ if(!rows.length){const tr=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=6;cell.textContent='Nenhum sinal novo registrado. Aguardando confirmação durante o monitoramento.';tr.append(cell);root.append(tr)}
+ for(const e of rows){
+  const tr=document.createElement('tr');
+  [dt(e.end),e.symbol,e.direction,format(e.price),Number(e.volumeRatio).toFixed(2)+'×',e.reason].forEach((x,i)=>{const td=document.createElement('td');td.textContent=x;if(i===2)td.className=e.direction==='LONG'?'up':'down';tr.append(td)});
+  root.append(tr);
+ }
+ $('solHistoryCount').textContent=rows.length+' sinal(is) registrado(s) neste navegador.'+(solLogWarning?' '+solLogWarning:'');
+}
+function solPaint(res,forcedText=null){
+ solLastResult=res||solLastResult;
+ if(!res){
+  $('solState').textContent=forcedText||'⚪ AGUARDAR — iniciar monitor';$('solReason').textContent='Clique em Iniciar para acompanhar os próximos candles fechados.';return;
+ }
+ if(!res.ok){
+  $('solState').textContent=forcedText||'⚠ DADOS INSUFICIENTES';
+  $('solReason').textContent=res.reason;
+  return;
+ }
+ let label=res.direction==='LONG'?'🟢 LONG — cinco critérios confirmados':res.direction==='SHORT'?'🔴 SHORT — cinco critérios confirmados':'⚪ AGUARDAR — sem confirmação';
+ $('solState').textContent=forcedText||label;
+ $('solReason').textContent=res.reason;
+ $('solTime').textContent='SOLUSDT · candle 5m '+dt(res.barEnd)+' · fechamento '+format(res.price)+' USDT · RSI '+format(res.rsi)+' · volume '+res.volumeRatio.toFixed(2)+'× · 15m '+dt(res.contextEnd)+(solActive?' · MONITOR ATIVO':' · monitor parado');
+ document.querySelectorAll('[data-sol-check]').forEach((node,i)=>{
+  node.classList.toggle('yes',Boolean(res.steps[i]));
+  node.classList.toggle('no',!res.steps[i]);
+  node.classList.remove('unknown');
+  const txt=node.querySelector('span');
+  const a=['Direção '+(res.watch==='MISTO'?'mista':res.watch),'EMA 9 '+(res.steps[1]?'tocada':'sem toque anterior'),res.steps[2]?'Reação confirmada':'Aguardar candle fechado','RSI '+format(res.rsi)+' · volume '+res.volumeRatio.toFixed(2)+'×',res.steps[4]?'15m alinhado':'15m não alinhado'];
+  txt.textContent=(res.steps[i]?'✓ ':'• ')+a[i];
+ });
+}
+async function solQuery(){
+ if(solBusy)return;
+ if(solActive&&document.hidden){solPaint(solLastResult,'⏸ PAUSADO — aba em segundo plano');return}
+ solBusy=true;$('solCheck').disabled=true;
+ $('solReason').textContent='Consultando SOLUSDT 5m e 15m na Binance Spot...';
+ try{
+  const [five,fifteen]=await Promise.all([getCandles('SOLUSDT','5m',260),getCandles('SOLUSDT','15m',160)]);
+  const res=solEvaluate(five.rows,fifteen.rows,1.2);
+  if(!res.ok){solPaint(res);return}
+  // Primeiro candle observado constitui a linha de base. Não registrar retrospectivamente.
+  if(solActive){
+   if(solSeenEnd===null){solSeenEnd=res.barEnd}
+   else if(res.barEnd>solSeenEnd){
+    const diff=res.barEnd-solSeenEnd;
+    // Se a aba dormiu e pulou mais de um candle, não inventar observações passadas.
+    const isAdjacent=diff<=300000+2000;
+    if(isAdjacent&&res.direction){
+     const key='SOLUSDT|PULLBACK_5M|'+res.barEnd+'|'+res.direction;
+     if(!solLog.some(x=>x.key===key)){
+      solLog.push({key,symbol:'SOLUSDT',end:res.barEnd,direction:res.direction,price:res.price,volumeRatio:res.volumeRatio,reason:res.reason,contextEnd:res.contextEnd,observedAt:Date.now()});
+      solLog=solLog.slice(-300);solSaveLog();solHistoryPaint();
+     }
+    }
+    solSeenEnd=res.barEnd;
+    if(!isAdjacent){res.reason+=' Monitor retomado após intervalo; candle anterior não foi registrado.'}
+   }
+  }
+  solPaint(res);
+  $('solHistoryCount').textContent=solLog.length+' sinal(is) registrado(s) neste navegador.'+(solLogWarning?' '+solLogWarning:'');
+ }catch(e){
+  $('solState').textContent='⚠ SEM DADOS — consulta falhou';
+  $('solReason').textContent='Binance indisponível nesta consulta: '+(e.message||e)+'. Nenhum sinal foi registrado.';
+ }finally{solBusy=false;$('solCheck').disabled=false}
+}
+function solStart(){
+ if(solActive)return;
+ solActive=true;solSeenEnd=null;
+ $('solStart').disabled=true;$('solStop').disabled=false;
+ if(solTimer)clearInterval(solTimer);
+ solTimer=setInterval(()=>{if(solActive&&!document.hidden)solQuery()},60000);
+ solQuery();
+}
+function solStop(){
+ solActive=false;solSeenEnd=null;
+ if(solTimer){clearInterval(solTimer);solTimer=null}
+ $('solStart').disabled=false;$('solStop').disabled=true;
+ $('solState').textContent='⏸ MONITOR PARADO — histórico preservado';
+ $('solReason').textContent='Clique em Iniciar para acompanhar novos candles. Não há monitoramento com a página fechada.';
+}
+function solReport(){
+ let lines=['RELGPT EGI — SOLUSDT SCALPING · ESTUDO, NÃO ORDEM',
+ 'Consulta: '+new Date().toLocaleString('pt-BR'),
+ 'Estado: '+$('solState').textContent,
+ 'Leitura: '+$('solReason').textContent,
+ $('solTime').textContent,
+ 'Histórico de sinais (somente observados enquanto o monitor estava ativo): '+solLog.length];
+ for(const x of solLog.slice(-25)){lines.push(dt(x.end)+' | '+x.symbol+' | '+x.direction+' | preço '+format(x.price)+' | vol '+Number(x.volumeRatio).toFixed(2)+'× | '+x.reason)}
+ lines.push('Não executa ordens. Histórico salvo apenas no navegador; sinais anteriores ao início não são registrados.');
+ return lines.join('\n');
+}
+function solInit(){
+ solReadLog();solHistoryPaint();$('solStop').disabled=true;
+ $('solStart').addEventListener('click',solStart);$('solStop').addEventListener('click',solStop);$('solCheck').addEventListener('click',solQuery);
+ $('solOnChart').addEventListener('click',()=>{
+  $('symbol').value='SOL';chooseProfile('scalp');$('chart').scrollIntoView({behavior:'smooth',block:'start'});
+ });
+ $('solCopy').addEventListener('click',()=>copyText(solReport()));
+ $('solExport').addEventListener('click',()=>downloadText('RelGPT_SOL_Scalping_EGI_Historico.txt',solReport()));
+ $('solClear').addEventListener('click',()=>{if(!solLog.length)return;if(!confirm('Excluir o histórico local de sinais SOLUSDT? Exporte o TXT antes, se quiser manter.'))return;solLog=[];solSaveLog();solHistoryPaint()});
+ document.addEventListener('visibilitychange',()=>{if(!solActive)return;if(document.hidden){solSeenEnd=null;solPaint(solLastResult,'⏸ PAUSADO — aba em segundo plano')}else{solSeenEnd=null;solQuery()}});
+ window.addEventListener('beforeunload',()=>{if(solTimer)clearInterval(solTimer)});
+}
+
 function ready(){
+ solInit();
  loadMA();renderMAControls();syncCoins();
  for(const el of document.querySelectorAll('[data-egi-profile]'))el.addEventListener('click',()=>chooseProfile(el.dataset.egiProfile));
  paintProfileGuide();
