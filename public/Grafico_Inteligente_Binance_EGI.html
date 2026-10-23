@@ -420,7 +420,7 @@ function chooseProfile(key){
  const cfg=profileSets[key];if(!cfg)return;
  activeProfile=key;
  chosen=cfg.emas.map(period=>({type:'EMA',period}));persistMA();renderMAControls();
- $('tf').value=cfg.tf;$('setupChoice').value='pullback';$('setupSide').value='BOTH';$('setupVolume').value=String(cfg.minVolume);
+ $('tf').value=cfg.tf;$('setupChoice').value='pullback';$('setupChoice').querySelector('option[value="pullback"]').textContent=key==='swing'?'1. Pullback EMA 21/50/200 — Swing':'1. Pullback EMA 9/21/50';$('setupSide').value='BOTH';$('setupVolume').value=String(cfg.minVolume);
  $('windowSize').value=key==='swing'?'130':'80';
  bars=[];live=null;setupEvents=[];setupSelected=null;hoverIndex=null;calculate();
  status('Selecionado: '+cfg.name+' · '+cfg.tf+'. Buscando candles da Binance...',false);
@@ -469,7 +469,7 @@ function scanSetupHistory(data,setup,minVolume,sideFilter,mode='scalp'){
 }
 function setupUpdate(redraw=true){
  const name=$('setupChoice').value,def=setupHelp[name],minVolume=Number($('setupVolume').value),side=$('setupSide').value;
- $('setupExplanation').textContent=def.title+' — '+def.explain+' A busca usa candles já fechados; mínimo de volume escolhido: '+(Number.isFinite(minVolume)?minVolume:1).toFixed(1)+'×.';
+ $('setupExplanation').textContent=(name==='pullback'&&activeProfile==='swing'?'Pullback EMA 21/50/200 — toca a EMA 21, retoma a direção, RSI favorável e volume; apenas candles fechados.':def.title+' — '+def.explain)+' A busca usa candles já fechados; mínimo de volume escolhido: '+(Number.isFinite(minVolume)?minVolume:1).toFixed(1)+'×.';
  setupEvents=bars.length?scanSetupHistory(bars,name,Number.isFinite(minVolume)?Math.max(0,Math.min(5,minVolume)):1,side,activeProfile):[];
  setupSelected=null;
  const root=$('setupResults');root.replaceChildren();
@@ -533,7 +533,8 @@ function draw(){
    ctx.beginPath();let first=-1,last=-1;
    for(let i=0;i<data.length;i++){const va=a[offset+i],vb=b[offset+i];if(Number.isFinite(va)&&Number.isFinite(vb)){if(first<0)first=i;last=i;}}
    if(first>=0&&last>first){
-    for(let i=first;i<=last;i++)ctx.lineTo(x(i),yp(a[offset+i]));
+    ctx.moveTo(x(first),yp(a[offset+first]));
+    for(let i=first+1;i<=last;i++)ctx.lineTo(x(i),yp(a[offset+i]));
     for(let i=last;i>=first;i--)ctx.lineTo(x(i),yp(b[offset+i]));
     ctx.closePath();ctx.fillStyle='rgba(55,203,221,0.14)';ctx.fill();
     ctx.font='11px system-ui';ctx.fillStyle='#9eefff';ctx.fillText('FAIXA RECUO EMA '+cfg.pullback+'/'+cfg.context,left+5,pricePanel.bottom-10);
