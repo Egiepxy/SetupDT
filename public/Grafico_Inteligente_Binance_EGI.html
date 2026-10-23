@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081527">
+<title>Gráfico Inteligente Binance EGI V1.0 — Médias, RSI, Estocástico e Volume</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--panel:#101f32;--border:#31485f;--text:#eef5ff;--muted:#b6c7dd;--cyan:#40d5f4;--green:#40d9a3;--red:#ff7c8d;--amber:#f5c476;--blue:#76aaff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{font:14px/1.5 system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at top,#14263d,#07111f 65%);margin:0;padding-bottom:35px}a{color:#8fe4ff}button,input,select{font:inherit;color:var(--text);border-radius:10px;border:1px solid #52718f;background:#182d46;min-height:42px;padding:9px 11px}button{cursor:pointer;font-weight:760}button:disabled{opacity:.6;cursor:wait}button.primary{color:#071722;background:#36cee4;border-color:#36cee4}.page{max-width:1240px;margin:0 auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 14px}.brand{font-size:clamp(21px,3vw,30px);font-weight:900;line-height:1.2}.brand span{color:var(--cyan)}.sub{font-size:12px;color:var(--muted);margin-top:5px}.panel{background:#122139;border:1px solid #304c69;border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 8px 24px #00000018}.panel h2{font-size:17px;margin:0 0 10px}.panel h3{font-size:14px;margin:6px 0}.grid-controls{display:grid;grid-template-columns:1.2fr 1.2fr .7fr auto;gap:10px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field select,.field input{width:100%}.buttons{display:flex;gap:8px;flex-wrap:wrap}.status{color:var(--muted);margin-top:9px;font-size:12px;min-height:20px;overflow-wrap:anywhere}.status.error{color:#ffb1bd}.status.ok{color:#baffdf}.quick-coins{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-height:136px;overflow:auto}.quick-coins button{min-height:34px;padding:5px 10px;border-radius:999px;font-size:12px}.quick-coins button.active{border-color:var(--cyan);color:var(--cyan);background:#17394b}.muted{color:var(--muted)}.note{background:#172c43;border-left:3px solid #e7ae59;border-radius:8px;padding:9px;font-size:12px}.tiny{font-size:11px;color:var(--muted)}.ma-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ma-pills{display:flex;flex-wrap:wrap;gap:6px}.ma-pills button{font-size:12px;padding:6px 9px;min-height:34px;border-radius:9px}.ma-pills button.sel{background:#124b48;border-color:#49dfaa;color:#c3ffeb}.custom{display:flex;gap:7px;align-items:end;flex-wrap:wrap;margin-top:9px}.custom input{width:95px}.custom select{width:90px}.custom button{min-height:40px}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.metric{background:#0b1a2d;border:1px solid #344e69;border-radius:11px;padding:11px;min-width:0}.metric small{color:var(--muted);display:block;font-size:11px}.metric strong{display:block;font-size:clamp(15px,2vw,21px);margin:3px 0;word-break:break-word;font-variant-numeric:tabular-nums}.metric em{color:#aabbd1;font-size:11px;font-style:normal}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin:9px 0}.legend span{white-space:nowrap}.square{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-canvas{height:650px;width:100%;border:1px solid #2f4963;border-radius:12px;background:#081728;display:block;touch-action:pan-y}.indicators{display:flex;gap:13px;flex-wrap:wrap;font-size:12px}.indicators label{display:flex;gap:5px;align-items:center;cursor:pointer}.indicators input{min-height:auto}.table-scroller{overflow-x:auto}.matable{width:100%;border-collapse:collapse;font-size:12px;min-width:600px;font-variant-numeric:tabular-nums}.matable th,.matable td{padding:9px 7px;border-bottom:1px solid #30485f;text-align:right;white-space:nowrap}.matable th:first-child,.matable td:first-child{text-align:left}.up{color:#67e2b4}.down{color:#ff9ea9}.warning{color:#fbd397}.insight{border:1px solid #445d76;background:#0e2034;border-radius:11px;padding:13px;margin-top:8px;line-height:1.65}details summary{cursor:pointer;font-size:16px;font-weight:800;min-height:34px}details p,details li{color:#c6d7e9;font-size:13px}details h3{font-size:14px;color:#f2f8ff;margin:16px 0 5px}details ul{padding-left:21px}footer{font-size:11px;color:#aebdd3;text-align:center;padding:10px}.manual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hoverbar{color:#d9ecff;font-size:12px;min-height:22px;margin:7px 0;font-variant-numeric:tabular-nums}
+@media(max-width:800px){.grid-controls{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(3,1fr)}.chart-canvas{height:600px}}
+@media(max-width:550px){.page{padding:9px}.panel{padding:12px}.grid-controls{grid-template-columns:1fr 1fr}.grid-controls .field:first-child,.grid-controls .field:nth-child(2){grid-column:span 2}.ma-select{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-canvas{height:560px}.brand{font-size:22px}.buttons button{flex:1}.legend{max-height:60px;overflow:auto}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+<div><div class="brand">📈 Gráfico <span>Inteligente EGI</span></div><div class="sub">Binance Spot · Médias escolhidas uma a uma · Estudo, não ordem · V1.0</div></div>
+<div class="buttons"><a href="./index.html" id="goSetupDT">← Voltar ao SetupDT</a><button id="goManual">📖 Manual EGI</button></div>
+</header>
+<section class="panel">
+<div class="grid-controls">
+<div class="field"><label for="savedAssets">Moedas cadastradas no SetupDT</label><select id="savedAssets"><option value="">Carregando...</option></select></div>
+<div class="field"><label for="symbol">Consulta livre (ex.: BTC, SOL, PEPE ou BTCUSDT)</label><input id="symbol" inputmode="text" autocomplete="off" spellcheck="false" maxlength="25" value="BTC" placeholder="Digite uma moeda"></div>
+<div class="field"><label for="tf">Timeframe</label><select id="tf"><option value="1m">1m</option><option value="5m">5m</option><option value="15m" selected>15m</option><option value="1h">1h</option><option value="4h">4h</option><option value="1d">1D</option></select></div>
+<button class="primary" id="analyze">↻ Consultar Binance</button>
+</div>
+<div class="quick-coins" id="quickCoins"></div>
+<div id="registryStatus" class="status">O cadastro é compartilhado com o SetupDT somente quando ambos são acessados pelo mesmo domínio e perfil de navegador.</div>
+<div id="fetchStatus" role="status" class="status">Pronto para consultar a Binance Spot. Não envia ordens.</div>
+</section>
+
+<section class="panel">
+<h2>🎛️ Selecione as médias individualmente</h2>
+<div class="ma-select">
+<div><h3>Exponenciais (EMA)</h3><div id="emaPresets" class="ma-pills"></div></div>
+<div><h3>Simples (SMA)</h3><div id="smaPresets" class="ma-pills"></div></div>
+</div>
+<div class="custom">
+<div class="field"><label for="maType">Tipo</label><select id="maType"><option>EMA</option><option>SMA</option></select></div>
+<div class="field"><label for="maPeriod">Período (2–500)</label><input type="number" id="maPeriod" min="2" max="500" value="34"></div>
+<button id="addMA">＋ Incluir média</button>
+<button id="clearMA">Limpar médias</button>
+</div>
+<p class="tiny">As médias selecionadas são salvas neste navegador. Os valores de médias e indicadores usam apenas candles fechados. A distância usa o preço consultado agora, quando disponível.</p>
+</section>
+
+<section class="panel">
+<div class="metrics">
+<div class="metric"><small>Preço consultado agora</small><strong id="livePrice">—</strong><em id="priceSource">—</em></div>
+<div class="metric"><small>Último candle fechado</small><strong id="closedPrice">—</strong><em id="closedTime">—</em></div>
+<div class="metric"><small>RSI 14</small><strong id="rsiValue">—</strong><em>Wilder / fechado</em></div>
+<div class="metric"><small>Estocástico 14/3/3</small><strong id="stochValue">—</strong><em>%K / %D</em></div>
+<div class="metric"><small>Volume relativo</small><strong id="volumeRatio">—</strong><em>vs. 20 candles anteriores</em></div>
+</div>
+</section>
+
+<section class="panel">
+<div class="chart-head"><h2>🕯️ Candles + médias + volume + osciladores</h2>
+<div class="field"><label for="windowSize">Candles visíveis</label><select id="windowSize"><option value="45">45</option><option value="80" selected>80</option><option value="130">130</option><option value="220">220</option></select></div>
+</div>
+<div class="indicators">
+<label><input type="checkbox" id="showVolume" checked> Volume</label>
+<label><input type="checkbox" id="showRSI" checked> RSI</label>
+<label><input type="checkbox" id="showStoch" checked> Estocástico</label>
+</div>
+<div id="chartLegend" class="legend"></div>
+<canvas id="chart" class="chart-canvas" role="img" aria-label="Gráfico de candles com médias, volume, RSI e estocástico; leitura descritiva na tabela abaixo."></canvas>
+<div class="hoverbar" id="hoverbar">Toque ou passe o dedo no gráfico para conferir OHLC, volume e hora do candle.</div>
+<p class="tiny">Visualização própria EGI. Somente candles fechados aparecem no gráfico. A cotação atual é exibida separadamente; pode estar alguns segundos diferente do último fechamento.</p>
+</section>
+
+<section class="panel">
+<h2>📐 Distância até cada média selecionada</h2>
+<div class="table-scroller"><table class="matable"><thead><tr><th>Média</th><th>Valor</th><th>Diferença em USDT</th><th>Distância %</th><th>Posição do preço</th><th>Inclinação (5 candles)</th></tr></thead><tbody id="maTable"><tr><td colspan="6">Consulte um ativo para calcular.</td></tr></tbody></table></div>
+<div id="summary" class="insight">O resumo automático aparecerá após a coleta. Médias, RSI e estocástico são indicadores; não confirmam operações isoladamente.</div>
+<div class="buttons" style="margin-top:11px"><button id="copyReport">📋 Copiar leitura para ChatGPT</button><button id="downloadReport">📄 Baixar relatório</button><button id="saveChart">🖼️ Salvar gráfico PNG</button></div>
+</section>
+
+<details class="panel" id="manual">
+<summary>📖 Manual EGI — como usar o Gráfico Inteligente Binance</summary>
+<div id="manualText">
+<p><strong>Objetivo:</strong> estudar a posição do preço em relação às médias móveis, a direção do movimento, a força dos compradores e vendedores e o contexto multi-indicador. Aplicativo de estudo e observação; nunca executa ordens.</p>
+<h3>1. Cadastro de moedas</h3>
+<p>O cadastro central é o do SetupDT Light, salvo na chave <code>setupdt_light_v11_watchlist</code>. Cadastre ou exclua moedas no SetupDT. O gráfico lê a mesma lista automaticamente quando ambos abrem no mesmo domínio e perfil de navegador. Para estudar um par não cadastrado, digite seu símbolo no campo de consulta livre. A consulta não altera a lista central.</p>
+<h3>2. Escolher mercado e tempo</h3>
+<p>Fonte: Binance Spot, pares cotados em USDT. Escolha ativo e timeframe: 1m, 5m, 15m, 1h, 4h ou 1D. Alguns ativos cadastrados no SetupDT (MEXC, futuros ou instrumentos externos) podem não existir na Binance Spot; nesse caso, o aplicativo informa indisponibilidade e não inventa preços.</p>
+<h3>3. Médias móveis — uma por uma</h3>
+<p>Ative ou desative as EMAs e SMAs de 9, 14, 20, 21, 34, 50, 100 e 200 períodos, ou informe qualquer período personalizado de 2 a 500. Cada média pode ser incluída ou retirada sem apagar as outras. EMA reage mais depressa a mudanças recentes; SMA atribui peso igual aos fechamentos de sua janela.</p>
+<h3>4. Distância entre preço e média</h3>
+<p>Para cada média exibimos valor, diferença absoluta em USDT, diferença percentual, acima/abaixo e inclinação aproximada nos últimos cinco candles fechados. Fórmula: distância (%) = (preço de referência − média) / média × 100. Um valor positivo indica preço acima da média; negativo, abaixo. Distância grande não prova reversão.</p>
+<h3>5. Preço agora versus candle fechado</h3>
+<p>O preço agora vem do ticker público, sujeito à disponibilidade da Binance. Médias, RSI, estocástico e volume são calculados somente com candles fechados. Se o ticker falhar, a tela sinaliza o uso do último fechamento; não apresenta preço antigo como se fosse atualização em tempo real.</p>
+<h3>6. Candles e zoom</h3>
+<p>Candles verdes representam fechamento acima da abertura; vermelhos, abaixo. As linhas coloridas sobrepostas são apenas as médias selecionadas. Escolha o número de candles visíveis; toque no gráfico para examinar máxima, mínima, abertura, fechamento e volume de cada candle.</p>
+<h3>7. RSI 14</h3>
+<p>O RSI mede a relação entre ganhos e perdas recentes numa escala de 0 a 100. Acima de 70 sugere forte pressão compradora/sobrecompra; abaixo de 30, pressão vendedora/sobrevenda. Leituras extremas podem persistir durante tendências fortes. Não são ordens de venda ou compra.</p>
+<h3>8. Estocástico 14/3/3</h3>
+<p>O estocástico relaciona o fechamento à faixa de máxima/mínima recente. %K e %D oscilam entre 0 e 100; 80 e 20 são zonas de atenção, não gatilhos automáticos. Cruzamentos devem ser interpretados com tendência, volume e candle fechado.</p>
+<h3>9. Volume</h3>
+<p>O histograma exibe o volume-base negociado em cada candle. O volume relativo compara o último candle fechado à média dos 20 anteriores. Por exemplo, 1,2× significa 20% acima dessa média. Volume baixo pode exigir cautela com rompimentos; a comparação depende de horário e liquidez.</p>
+<h3>10. Ordem das médias</h3>
+<p>Observe se as médias curtas estão acima ou abaixo das longas, e quantas o preço superou. Alinhamento e inclinação ajudam a interpretar continuação, enfraquecimento e transição; nenhuma combinação garante direção futura.</p>
+<h3>11. Resumo automático e relatório</h3>
+<p>O painel resume médias mais próximas e distantes, RSI, estocástico, volume, posição do preço e inclinações. Use Copiar leitura para enviar o resultado ao ChatGPT, Baixar relatório para guardar o texto ou Salvar gráfico para exportar uma imagem do canvas.</p>
+<h3>12. Boas práticas EGI</h3>
+<p>“O indicador sugere; o candle fechado confirma. A ideia merece registro, não obediência.” Prefira continuidade até haver evidência consistente de transição; observe divergências, suportes, resistências, ATR, volume efetivo, horários e condições do mercado. Não opere só por afastamento das médias e não force entrada.</p>
+<h3>Limitações e funcionamento</h3>
+<p>A Binance pode bloquear requisições por rede, região, CORS ou limite de uso. O gráfico depende de conexão e da disponibilidade da API pública. Sem candles válidos, não gera cálculo inventado. A lista do SetupDT não atravessa domínios, navegadores, aparelhos ou perfis automaticamente. Não há integração de execução de ordens nem acompanhamento em segundo plano.</p>
+</div>
+<div class="manual-actions"><button id="downloadManual">📄 Baixar manual TXT</button><button id="copyManual">📋 Copiar manual</button><a href="./index.html">Editar cadastro de moedas no SetupDT</a></div>
+</details>
+<footer>EGI — Professor de Médias | Fonte: Binance Spot pública | Estudo observacional, não aconselhamento ou ordem.</footer>
+</div>
+<script>
+'use strict';
+(function(){
+const WATCH_KEY='setupdt_light_v11_watchlist',MA_KEY='egi_grafico_binance_medias_v1';
+const $=id=>document.getElementById(id);
+const presetPeriods=[9,14,20,21,34,50,100,200];
+const colors=['#36d7d3','#f7ba52','#f77999','#86b2ff','#9c8bff','#40da91','#dc9aee','#ff954b','#67cbff','#c7e77f','#eee1b3','#e1a2aa'];
+let chosen=[{type:'EMA',period:9},{type:'EMA',period:14},{type:'EMA',period:21},{type:'EMA',period:50},{type:'EMA',period:200}], bars=[],maSeries={},rsiSeries=[],stochK=[],stochD=[],live=null,symbol='BTCUSDT',quoteAt=0,hoverIndex=null,requestSequence=0;
+let registryFingerprint='';
+function safeGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function safeSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function norm(raw){return String(raw||'').toUpperCase().trim().replace(/USDT$/,'').replace(/[^A-Z0-9]/g,'')}
+function format(v){if(!Number.isFinite(v))return '—';return Number(v).toLocaleString('pt-BR',{maximumFractionDigits: v>=1000?2:v>=1?5:8,minimumFractionDigits:v>=100?2:0})}
+function signed(v){return Number.isFinite(v)?(v>0?'+':'')+format(v):'—'}
+function dt(ms){return new Date(ms).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function status(s,error){$('fetchStatus').className='status '+(error?'error':'ok');$('fetchStatus').textContent=s}
+function syncCoins(){
+ const raw=safeGet(WATCH_KEY);
+ const fingerprint=raw||'';
+ if(fingerprint===registryFingerprint&&$('savedAssets').options.length>0)return;
+ registryFingerprint=fingerprint;
+ let list=[];
+ try{const parsed=JSON.parse(raw);if(Array.isArray(parsed))list=[...new Set(parsed.map(norm).filter(x=>/^[A-Z0-9]{2,16}$/.test(x)))].sort()}catch(e){}
+ $('savedAssets').replaceChildren(new Option('Selecionar da lista SetupDT',''));
+ const qc=$('quickCoins');qc.replaceChildren();
+ if(!raw){$('registryStatus').textContent='Sem cadastro local do SetupDT neste endereço/navegador. Abra o SetupDT hospedado, cadastre moedas e retorne. A consulta livre funciona mesmo assim.';}
+ else{$('registryStatus').textContent='✅ Cadastro central SetupDT: '+list.length+' moeda(s) lidas neste navegador. Esta tela não altera a lista; cadastro/exclusão ficam no SetupDT.';}
+ list.forEach(coin=>{
+  $('savedAssets').add(new Option(coin+' / USDT',coin));
+  const b=document.createElement('button');b.type='button';b.textContent=coin;b.addEventListener('click',()=>selectCoin(coin));qc.append(b);
+ });
+ updateCoinHighlight();
+}
+function selectCoin(coin){$('symbol').value=coin;$('savedAssets').value=coin;updateCoinHighlight();analyze();}
+function updateCoinHighlight(){
+ const coin=norm($('symbol').value);
+ [...$('quickCoins').children].forEach(el=>el.classList.toggle('active',el.textContent===coin));
+}
+function maKey(s){return s.type+s.period}
+function persistMA(){safeSet(MA_KEY,JSON.stringify(chosen))}
+function loadMA(){
+ try{const v=JSON.parse(safeGet(MA_KEY));if(Array.isArray(v)&&v.length<=40&&v.every(x=>['EMA','SMA'].includes(x.type)&&Number.isInteger(x.period)&&x.period>=2&&x.period<=500))chosen=v;}catch(e){}
+}
+function toggleMA(type,period){
+ const key=type+period,i=chosen.findIndex(x=>maKey(x)===key);
+ if(i>=0)chosen.splice(i,1);else{if(chosen.length>=30){status('Limite de 30 médias simultâneas para manter o gráfico legível.',true);return}chosen.push({type,period});}
+ chosen.sort((a,b)=>a.period-b.period||a.type.localeCompare(b.type));persistMA();renderMAControls();calculate();
+}
+function renderMAControls(){
+ for(const type of ['EMA','SMA']){
+ const root=$(type==='EMA'?'emaPresets':'smaPresets');root.replaceChildren();
+ presetPeriods.forEach(period=>{
+  const el=document.createElement('button'),sel=chosen.some(x=>x.type===type&&x.period===period);
+  el.type='button';el.textContent=type+' '+period+(sel?' ✓':'');el.className=sel?'sel':'';el.setAttribute('aria-pressed',String(sel));el.addEventListener('click',()=>toggleMA(type,period));root.append(el);
+ });
+ }
+}
+function simple(arr,period){
+ const out=Array(arr.length).fill(null);let sum=0;
+ for(let i=0;i<arr.length;i++){sum+=arr[i];if(i>=period)sum-=arr[i-period];if(i>=period-1)out[i]=sum/period;}
+ return out;
+}
+function expMA(arr,period){
+ const out=Array(arr.length).fill(null);if(arr.length<period)return out;
+ let base=0;for(let i=0;i<period;i++)base+=arr[i];out[period-1]=base/period;const k=2/(period+1);
+ for(let i=period;i<arr.length;i++)out[i]=arr[i]*k+out[i-1]*(1-k);
+ return out;
+}
+function getRSI(arr,p=14){
+ const out=Array(arr.length).fill(null);if(arr.length<=p)return out;
+ let gain=0,loss=0;for(let i=1;i<=p;i++){const diff=arr[i]-arr[i-1];gain+=Math.max(0,diff);loss+=Math.max(0,-diff)}
+ gain/=p;loss/=p;out[p]=loss?100-100/(1+gain/loss):(gain?100:50);
+ for(let i=p+1;i<arr.length;i++){let diff=arr[i]-arr[i-1];gain=(gain*(p-1)+Math.max(0,diff))/p;loss=(loss*(p-1)+Math.max(0,-diff))/p;out[i]=loss?100-100/(1+gain/loss):(gain?100:50)}
+ return out;
+}
+function stochastic(data){
+ const raw=Array(data.length).fill(null);
+ for(let i=13;i<data.length;i++){
+  let hi=-Infinity,lo=Infinity;for(let j=i-13;j<=i;j++){hi=Math.max(hi,data[j].high);lo=Math.min(lo,data[j].low)}
+  raw[i]=hi===lo?50:100*(data[i].close-lo)/(hi-lo);
+ }
+ function smooth(arr){let o=Array(arr.length).fill(null);for(let i=0;i<arr.length;i++)if(i>=2&&[arr[i],arr[i-1],arr[i-2]].every(Number.isFinite))o[i]=(arr[i]+arr[i-1]+arr[i-2])/3;return o}
+ const k=smooth(raw);return [k,smooth(k)];
+}
+function inputBars(json){
+ if(!Array.isArray(json))throw Error('A Binance não retornou candles em formato válido.');
+ const now=Date.now();
+ let rows=json.filter(x=>Array.isArray(x)&&x.length>=7&&Number(x[6])<=now-350).map(x=>({
+  start:Number(x[0]),open:Number(x[1]),high:Number(x[2]),low:Number(x[3]),close:Number(x[4]),volume:Number(x[5]),end:Number(x[6])
+ }));
+ rows=rows.filter(x=>[x.start,x.open,x.high,x.low,x.close,x.volume,x.end].every(Number.isFinite)&&x.close>0&&x.high>=Math.max(x.open,x.close)&&x.low<=Math.min(x.open,x.close)&&x.high>=x.low);
+ rows.sort((a,b)=>a.start-b.start);rows=rows.filter((x,i)=>!i||x.start>rows[i-1].start);
+ if(rows.length<35)throw Error('Histórico de candles fechados insuficiente ('+rows.length+').');
+ return rows;
+}
+async function fetchJSON(url){
+ const ctrl=new AbortController(),id=setTimeout(()=>ctrl.abort(),12500);
+ try{const response=await fetch(url,{cache:'no-store',signal:ctrl.signal});const data=await response.json();if(!response.ok)throw Error(data?.msg||('HTTP '+response.status));return data;}finally{clearTimeout(id)}
+}
+async function getCandles(sym,tf){
+ const p='?symbol='+encodeURIComponent(sym)+'&interval='+encodeURIComponent(tf)+'&limit=1000';
+ const bases=['https://data-api.binance.vision/api/v3/klines','https://api.binance.com/api/v3/klines','https://api1.binance.com/api/v3/klines'];
+ let errors=[];
+ for(const u of bases){try{return {rows:inputBars(await fetchJSON(u+p)),source:u.split('/')[2]}}catch(e){errors.push(e.message)}}
+ throw Error('Não foi possível coletar candles da Binance Spot ('+errors.join(' / ').slice(0,220)+').');
+}
+async function getTicker(sym){
+ const p='?symbol='+encodeURIComponent(sym);
+ for(const base of ['https://data-api.binance.vision/api/v3/ticker/price','https://api.binance.com/api/v3/ticker/price']){
+  try{const d=await fetchJSON(base+p),v=Number(d.price);if(v>0)return {price:v,source:base.split('/')[2]}}catch(e){}
+ }
+ return null;
+}
+async function analyze(){
+ const base=norm($('symbol').value),tf=$('tf').value;
+ if(!/^[A-Z0-9]{2,16}$/.test(base)){status('Informe uma moeda válida, como BTC, ETH, SOL ou BTCUSDT.',true);return}
+ const sym=base+'USDT';$('symbol').value=base;$('savedAssets').value=[...$('savedAssets').options].some(x=>x.value===base)?base:'';updateCoinHighlight();
+ const request=++requestSequence;
+ $('analyze').disabled=true;status('Consultando '+sym+' na Binance Spot, timeframe '+tf+'...',false);
+ try{
+  const got=await getCandles(sym,tf);
+  if(request!==requestSequence)return;
+  bars=got.rows;symbol=sym;quoteAt=0;live=null;
+  const t=await getTicker(sym);
+  if(request!==requestSequence)return;
+  if(t){live=t.price;quoteAt=Date.now();$('priceSource').textContent=t.source+' · ticker';}
+  else{$('priceSource').textContent='Ticker indisponível; último fechamento';}
+  calculate();
+  status('✅ '+sym+' · '+tf+' · '+bars.length+' candles fechados · fonte '+got.source+(t?' · ticker consultado':' · cotação atual indisponível')+'.',false);
+ }catch(e){
+  if(request===requestSequence){bars=[];live=null;symbol=sym;calculate();status('⚠ '+(e.message||e),true);}
+ }finally{if(request===requestSequence)$('analyze').disabled=false}
+}
+function calculate(){
+ if(!bars.length){for(const id of ['livePrice','closedPrice','rsiValue','stochValue','volumeRatio'])$(id).textContent='—';$('closedTime').textContent='—';$('maTable').innerHTML='<tr><td colspan="6">Sem candles válidos. Consulte a Binance.</td></tr>';$('summary').textContent='Aguardando dados válidos. Não serão inventados indicadores.';maSeries={};rsiSeries=[];stochK=[];stochD=[];draw();return}
+ const closes=bars.map(x=>x.close),last=bars.length-1,ref=live||bars[last].close;
+ maSeries={};chosen.forEach(x=>{maSeries[maKey(x)]=x.type==='EMA'?expMA(closes,x.period):simple(closes,x.period)});
+ rsiSeries=getRSI(closes);[stochK,stochD]=stochastic(bars);
+ const volavg=bars.length>20?bars.slice(-21,-1).reduce((a,b)=>a+b.volume,0)/20:null,ratio=volavg>0?bars[last].volume/volavg:null;
+ $('livePrice').textContent=format(ref);$('closedPrice').textContent=format(bars[last].close);$('closedTime').textContent=dt(bars[last].end);
+ $('rsiValue').textContent=format(rsiSeries[last]);$('stochValue').textContent=format(stochK[last])+' / '+format(stochD[last]);$('volumeRatio').textContent=Number.isFinite(ratio)?ratio.toFixed(2).replace('.',',')+'×':'—';
+ const table=$('maTable');table.replaceChildren();let rows=[];
+ for(let j=0;j<chosen.length;j++){
+  const m=chosen[j],key=maKey(m),seq=maSeries[key],value=seq[last],old=seq[Math.max(0,last-5)];
+  const diff=Number.isFinite(value)?ref-value:null,pct=Number.isFinite(value)&&value>0?diff/value*100:null,slope=Number.isFinite(value)&&Number.isFinite(old)?(value>old?'↗ Subindo':value<old?'↘ Caindo':'→ Estável'):'—';
+  rows.push({m,key,value,diff,pct,slope,j});
+  const tr=document.createElement('tr');
+  const cells=[key,format(value),signed(diff),Number.isFinite(pct)?(pct>0?'+':'')+pct.toFixed(3).replace('.',',')+'%':'—',Number.isFinite(diff)?diff>0?'Acima':diff<0?'Abaixo':'Sobre a média':'—',slope];
+  cells.forEach((value,i)=>{const td=document.createElement('td');td.textContent=value;if(i===0){td.style.color=colors[j%colors.length];td.style.fontWeight='800'}if(i===3||i===4)td.className=Number.isFinite(diff)?diff>0?'up':diff<0?'down':'' :'';tr.append(td)});
+  table.append(tr);
+ }
+ if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.textContent='Nenhuma média selecionada.';tr.append(td);table.append(tr)}
+ const available=rows.filter(x=>Number.isFinite(x.value)),above=available.filter(x=>x.diff>0).length,nearest=[...available].sort((a,b)=>Math.abs(a.pct)-Math.abs(b.pct))[0],furthest=[...available].sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct))[0];
+ let comments=[symbol+' · '+$('tf').value+' · preço de referência '+format(ref)+' USDT ('+(live?'ticker consultado':'último fechamento')+').'];
+ comments.push(available.length?('Preço acima de '+above+'/'+available.length+' médias selecionadas.'):'Selecione ao menos uma média para comparar.');
+ if(nearest)comments.push('Mais próxima: '+nearest.key+' ('+nearest.pct.toFixed(3)+'%).');
+ if(furthest)comments.push('Mais distante: '+furthest.key+' ('+furthest.pct.toFixed(3)+'%).');
+ const rsi=rsiSeries[last],k=stochK[last];if(Number.isFinite(rsi))comments.push('RSI14 '+rsi.toFixed(1)+(rsi>=70?' (zona alta; pode permanecer esticado).':rsi<=30?' (zona baixa; não garante fundo).':'.'));
+ if(Number.isFinite(k))comments.push('Estocástico %K '+k.toFixed(1)+(k>=80?' (zona superior).':k<=20?' (zona inferior).':'.'));
+ if(Number.isFinite(ratio))comments.push('Volume '+ratio.toFixed(2)+'× a média dos 20 candles anteriores.');
+ comments.push('Esta leitura não é entrada. Confirmar contexto, candle fechado, volume e risco.');
+ $('summary').textContent=comments.join(' ');
+ draw();
+}
+function chartColor(index){return colors[index%colors.length]}
+function draw(){
+ const cv=$('chart'),ctx=cv.getContext('2d');if(!ctx)return;
+ const box=cv.getBoundingClientRect(),w=Math.max(270,box.width),h=Math.max(350,box.height),dpr=Math.min(2,window.devicePixelRatio||1);
+ cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.clearRect(0,0,w,h);ctx.fillStyle='#081728';ctx.fillRect(0,0,w,h);
+ const legend=$('chartLegend');legend.replaceChildren();
+ chosen.forEach((m,j)=>{const a=document.createElement('span'),square=document.createElement('i');square.className='square';square.style.background=chartColor(j);a.append(square,document.createTextNode(maKey(m)));legend.append(a)});
+ if(!bars.length){ctx.fillStyle='#aac1d8';ctx.font='14px system-ui';ctx.fillText('Escolha uma moeda e clique em Consultar Binance.',18,65);return}
+ const maxBars=Number($('windowSize').value)||80,data=bars.slice(-maxBars),offset=bars.length-data.length,plotW=w-65,left=14,right=plotW;
+ const panels=[{name:'Preço',weight:4}];if($('showVolume').checked)panels.push({name:'Volume',weight:1});if($('showRSI').checked)panels.push({name:'RSI 14',weight:1.5});if($('showStoch').checked)panels.push({name:'Estocástico 14/3/3',weight:1.5});
+ const free=h-20-panels.length*17,totalWeight=panels.reduce((s,x)=>s+x.weight,0);let currentY=8;
+ panels.forEach(p=>{p.top=currentY+14;p.height=free*p.weight/totalWeight;p.bottom=p.top+p.height;currentY=p.bottom+3});
+ const grid=(p,lo,hi)=>{ctx.strokeStyle='#233b52';ctx.lineWidth=.7;ctx.font='10px system-ui';ctx.fillStyle='#9db5ca';for(let t=0;t<=3;t++){const v=lo+(hi-lo)*t,y=p.bottom-t*p.height/3;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.fillText(format(v),right+6,y+3)}};
+ const x=i=>left+(i+.5)*(right-left)/data.length;
+ const pricePanel=panels[0];let lo=Math.min(...data.map(d=>d.low)),hi=Math.max(...data.map(d=>d.high));
+ chosen.forEach(m=>{const a=maSeries[maKey(m)]||[];for(let i=offset;i<bars.length;i++)if(Number.isFinite(a[i])){lo=Math.min(lo,a[i]);hi=Math.max(hi,a[i])}});
+ const padding=Math.max((hi-lo)*.06,hi*.0002);lo-=padding;hi+=padding;
+ const yp=v=>pricePanel.bottom-(v-lo)/(hi-lo)*pricePanel.height;
+ grid(pricePanel,lo,hi);
+ const candleWidth=Math.max(1.2,Math.min(13,(right-left)/data.length*.68));
+ data.forEach((d,i)=>{const xx=x(i),rise=d.close>=d.open;ctx.strokeStyle=rise?'#43dba6':'#fd7f8b';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,yp(d.low));ctx.lineTo(xx,yp(d.high));ctx.stroke();const upper=yp(Math.max(d.open,d.close)),lower=yp(Math.min(d.open,d.close));ctx.fillRect(xx-candleWidth/2,upper,candleWidth,Math.max(1,lower-upper))});
+ chosen.forEach((m,j)=>{const seq=maSeries[maKey(m)]||[];ctx.strokeStyle=chartColor(j);ctx.lineWidth=1.7;ctx.beginPath();let begun=false;for(let i=0;i<data.length;i++){const value=seq[offset+i];if(!Number.isFinite(value)){begun=false;continue}if(!begun){ctx.moveTo(x(i),yp(value));begun=true}else ctx.lineTo(x(i),yp(value))}ctx.stroke()});
+ ctx.textAlign='left';ctx.fillStyle='#d9e8f8';ctx.font='bold 11px system-ui';ctx.fillText('PREÇO · '+symbol,19,pricePanel.top-4);
+ for(const p of panels.slice(1)){
+  ctx.fillStyle='#cbdced';ctx.font='bold 10px system-ui';ctx.fillText(p.name,left+4,p.top-5);
+  if(p.name==='Volume'){
+   const vmax=Math.max(1,...data.map(d=>d.volume));grid(p,0,vmax);
+   data.forEach((d,i)=>{ctx.fillStyle=d.close>=d.open?'#316f62':'#784953';const top=p.bottom-d.volume/vmax*p.height;ctx.fillRect(x(i)-candleWidth/2,top,candleWidth,Math.max(1,p.bottom-top))});
+  }else{
+   grid(p,0,100);const lineY=v=>p.bottom-v/100*p.height;
+   for(const v of [20,30,70,80]){ctx.strokeStyle='#5a5062';ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(left,lineY(v));ctx.lineTo(right,lineY(v));ctx.stroke();ctx.setLineDash([])}
+   const series=p.name==='RSI 14'?[[rsiSeries,'#e7c86d']]:[[stochK,'#52b8ff'],[stochD,'#d58ce3']];
+   series.forEach(pair=>{ctx.strokeStyle=pair[1];ctx.lineWidth=1.6;ctx.beginPath();let begun=false;for(let i=0;i<data.length;i++){const v=pair[0][offset+i];if(!Number.isFinite(v)){begun=false;continue}if(!begun){ctx.moveTo(x(i),lineY(v));begun=true}else ctx.lineTo(x(i),lineY(v))}ctx.stroke()});
+  }
+ }
+ if(Number.isInteger(hoverIndex)&&hoverIndex>=offset&&hoverIndex<bars.length){const xi=x(hoverIndex-offset);ctx.strokeStyle='#eee5ad';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xi,pricePanel.top);ctx.lineTo(xi,panels[panels.length-1].bottom);ctx.stroke();ctx.setLineDash([])}
+ ctx.fillStyle='#96b6cb';ctx.font='10px system-ui';for(let i=0;i<data.length;i+=Math.max(1,Math.round(data.length/5))){ctx.fillText(new Date(data[i].end).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),x(i),h-5)}
+ cv._egiOffset=offset;cv._egiCount=data.length;cv._egiLeft=left;cv._egiRight=right;
+}
+function moveHover(ev){
+ if(!bars.length)return;
+ const r=$('chart').getBoundingClientRect(),x=ev.clientX-r.left,w=$('chart')._egiRight||r.width-65,l=$('chart')._egiLeft||14,sz=$('chart')._egiCount||80;
+ const i=Math.max(0,Math.min(sz-1,Math.floor((x-l)/(w-l)*sz)));hoverIndex=($('chart')._egiOffset||0)+i;
+ const d=bars[hoverIndex];
+ if(d)$('hoverbar').textContent=dt(d.end)+' · A '+format(d.open)+' · M '+format(d.high)+' · m '+format(d.low)+' · F '+format(d.close)+' · Volume '+format(d.volume);
+ draw();
+}
+function report(){
+ if(!bars.length)return 'Gráfico EGI: nenhum dado coletado.';
+ let parts=['GRÁFICO INTELIGENTE BINANCE EGI V1.0 — ESTUDO, NÃO ORDEM','Ativo: '+symbol+' | Tempo: '+$('tf').value+' | Gerado: '+new Date().toLocaleString('pt-BR'),'Último candle fechado: '+dt(bars[bars.length-1].end),'Preço consultado: '+(live?format(live)+' (ticker)':'ticker indisponível; '+format(bars[bars.length-1].close)+' último fechamento'),'RSI 14: '+$('rsiValue').textContent,'Estocástico 14/3/3: '+$('stochValue').textContent,'Volume relativo: '+$('volumeRatio').textContent,'MÉDIAS E DISTÂNCIAS:'];
+ for(const row of $('maTable').rows)parts.push([...row.cells].map(x=>x.textContent).join(' | '));
+ parts.push('LEITURA: '+$('summary').textContent,'AVISO: médias, osciladores e volume derivados de candles fechados; preço atual separado quando disponível. Sem ordens ou promessas de resultado.');
+ return parts.join('\n');
+}
+function downloadText(name,content){
+ const blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function copyText(text){
+ try{await navigator.clipboard.writeText(text);status('✅ Copiado para a área de transferência.',false)}
+ catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.append(ta);ta.select();const ok=document.execCommand('copy');ta.remove();status(ok?'✅ Copiado.':'⚠ Não foi possível copiar automaticamente.',!ok)}
+}
+function ready(){
+ loadMA();renderMAControls();syncCoins();
+ $('savedAssets').addEventListener('change',e=>{if(e.target.value)selectCoin(e.target.value)});
+ $('symbol').addEventListener('input',updateCoinHighlight);
+ $('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')analyze()});
+ $('tf').addEventListener('change',()=>{bars=[];calculate();status('Timeframe alterado. Toque em Consultar Binance para atualizar candles.',false)});
+ $('analyze').addEventListener('click',analyze);
+ $('addMA').addEventListener('click',()=>{const n=Number($('maPeriod').value);if(!Number.isInteger(n)||n<2||n>500){status('Informe período inteiro entre 2 e 500.',true);return}toggleMA($('maType').value,n)});
+ $('clearMA').addEventListener('click',()=>{chosen=[];persistMA();renderMAControls();calculate()});
+ $('windowSize').addEventListener('change',draw);
+ for(const id of ['showVolume','showRSI','showStoch'])$(id).addEventListener('change',draw);
+ $('chart').addEventListener('pointermove',moveHover);$('chart').addEventListener('pointerdown',moveHover);
+ $('chart').addEventListener('pointerleave',()=>{hoverIndex=null;draw()});
+ window.addEventListener('resize',draw);window.addEventListener('focus',syncCoins);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncCoins()});
+ window.addEventListener('storage',e=>{if(e.key===WATCH_KEY)syncCoins()});
+ $('goManual').addEventListener('click',()=>{$('manual').open=true;$('manual').scrollIntoView({behavior:'smooth'})});
+ $('copyReport').addEventListener('click',()=>copyText(report()));
+ $('downloadReport').addEventListener('click',()=>downloadText('RelGPT_Grafico_EGI_'+symbol+'_'+$('tf').value+'.txt',report()));
+ $('saveChart').addEventListener('click',()=>{if(!bars.length){status('Consulte candles antes de salvar o gráfico.',true);return}const a=document.createElement('a');a.download='Grafico_EGI_'+symbol+'_'+$('tf').value+'.png';a.href=$('chart').toDataURL('image/png');a.click()});
+ $('downloadManual').addEventListener('click',()=>downloadText('Manual_Grafico_Inteligente_Binance_EGI_V1.txt',$('manualText').innerText));
+ $('copyManual').addEventListener('click',()=>copyText($('manualText').innerText));
+ calculate();
+}
+document.addEventListener('DOMContentLoaded',ready);
+})();
+</script>
+</body>
+</html>
