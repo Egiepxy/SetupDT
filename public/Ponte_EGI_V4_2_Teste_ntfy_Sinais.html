@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ponte EGI V4.2 TESTE ntfy • RadarMME1 → SetupDT → Professor</title>
+<meta name="theme-color" content="#0a1727">
+<style>
+:root{color-scheme:dark;--bg:#091321;--card:#14243a;--line:#34506f;--text:#f2f7ff;--soft:#bad0e9;--cyan:#72e7fb;--green:#6be8ae;--amber:#ffd584;--red:#ff98a8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,Arial,sans-serif}header{padding:18px 14px 12px;background:#102239;border-bottom:1px solid #335273;position:sticky;top:0;z-index:3}main{max-width:850px;margin:auto;padding:12px 12px 60px}.head{max-width:850px;margin:auto;display:flex;justify-content:space-between;gap:8px;align-items:center}.version{font-size:12px;color:var(--soft)}h1{font-size:19px;margin:2px 0}.pill{display:inline-block;border:1px solid #657996;border-radius:10px;padding:5px 9px;font-size:11px;font-weight:750}.panel{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px;margin:12px 0}h2{font-size:17px;margin:0 0 9px}h3{font-size:15px;margin:12px 0 7px}p{margin:7px 0}small,.soft{color:var(--soft);font-size:12px}strong{font-weight:830}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.triple{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{border:1px solid #355575;border-radius:10px;background:#0d1d31;padding:10px;min-width:0}.stat b{font-size:20px;display:block;font-variant-numeric:tabular-nums}.stat small{display:block}.alert{background:#392d21;border:1px solid #8b6b3e;border-radius:10px;padding:10px;color:#ffdfb2}.ok{background:#16382f;border:1px solid #3e9379;color:#c8ffea}.bad{background:#47262f;border-color:#925363;color:#ffd3dc}.info{border:1px solid #3e5878;background:#0b1a2e;border-radius:10px;padding:10px;overflow-wrap:anywhere}.btn,button,input,select,textarea{font:inherit;color:var(--text);border:1px solid #59799f;border-radius:10px;background:#203650;min-height:42px;padding:9px 11px}button{cursor:pointer;font-weight:740;touch-action:manipulation}button.primary{background:#02b8cf;color:#041520;border-color:#79ebfa}button.secondary{background:#24445b}button:disabled{opacity:.5;cursor:wait}input[type=text],input[type=url],select{width:100%}input[type=checkbox]{min-height:18px;width:19px;height:19px;vertical-align:middle;accent-color:#00bacc}label{display:block;margin:4px 0;color:#dfedff;font-weight:700;font-size:12px}.checklabel{display:flex;align-items:flex-start;gap:8px;font-weight:700;font-size:13px}.checklabel input{flex-shrink:0;margin-top:2px}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.buttons button{flex:1 1 150px}.candidate{padding:11px;border-bottom:1px solid #38536f;display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center}.candidate:last-child{border-bottom:0}.candidate label{font-size:14px;margin:0;display:flex;align-items:center;gap:9px;cursor:pointer}.candidate input{flex-shrink:0}.green{color:var(--green)}.red{color:var(--red)}.warn{color:var(--amber)}.cand-meta{font-size:11px;color:var(--soft);line-height:1.55;padding-left:28px}.scroll{max-height:460px;overflow:auto;border:1px solid #314864;border-radius:11px;background:#0c1c30}.log{font-size:12px;color:#cde0f5;white-space:pre-wrap;max-height:160px;overflow:auto}.hidden{display:none!important}a{color:var(--cyan)}textarea{display:block;width:100%;min-height:190px;font-size:12px;white-space:pre-wrap}footer{font-size:11px;color:var(--soft);padding:12px}.auto{background:#112b3c;border-radius:10px;padding:10px;border:1px solid #35617a}@media(max-width:530px){.grid,.triple{grid-template-columns:1fr}.candidate{grid-template-columns:1fr}.head{align-items:flex-start}button{flex-grow:1}}
+
+#mobileGuide{border-color:#268997;background:linear-gradient(125deg,#113247,#14243a)}
+#quickStatus{border:1px solid #4b7397;background:#10283d;border-radius:10px;padding:11px;font-weight:700;font-size:13px;margin:9px 0;overflow-wrap:anywhere}
+#inlineRadarWrap{background:#0b1c2e;border:1px solid #4b7397;border-radius:12px;padding:10px;margin-top:12px}
+#inlineRadar{display:block;width:100%;height:65dvh;min-height:430px;border:1px solid #385a7f;background:#0b1020;border-radius:10px}
+#radarLive{padding:7px;font-size:12px;color:#bad0e9}
+button.flash{outline:3px solid #77e3ef;outline-offset:2px}
+@media(max-width:530px){#inlineRadar{height:70dvh;min-height:470px}#mobileGuide .buttons button{flex:1 1 100%}}
+</style>
+</head>
+<body>
+<header><div class="head"><div><div class="version">EGI · CONEXÃO SEM ALTERAR OS MOTORES ORIGINAIS</div><h1>📡 Ponte MME1 → SetupDT → Professor <span class="pill">V4.2 TESTE NTFY</span></h1></div><span class="pill">ESTUDO · SEM ORDENS</span></div></header>
+<main>
+<section class="panel" id="mobileGuide">
+<h2>📱 Começar aqui — teste no celular</h2>
+<p>Esta ponte <b>não varre moedas sozinha</b>. É o RadarMME1 que produz a lista. Durante os testes, ela pode avisar candidatos com conteúdo completo pelo ntfy (opcional). Siga estes passos no <b>mesmo navegador</b>:</p>
+<div class="buttons"><button type="button" id="startRadarHere" class="primary">1. Abrir RadarMME1 AQUI</button><button type="button" id="quickRead">2. Conferir lista recebida</button><button type="button" id="quickDiagnostic">3. Testar conexão Render</button></div>
+<div id="quickStatus" role="status" aria-live="polite">Iniciando diagnóstico da ponte...</div>
+<p class="soft">No Radar aberto abaixo, toque em consultar uma moeda ou iniciar uma varredura. A ponte lê o pacote gerado automaticamente. Se nenhum sinal atender o filtro, mostrará o motivo — isso não é falha.</p>
+<div id="inlineRadarWrap" hidden><div class="row"><strong>📡 RadarMME1 original — integrado nesta página</strong><button type="button" id="hideRadarHere">Recolher Radar</button></div><div id="radarLive">O Radar ainda não foi carregado.</div><iframe id="inlineRadar" title="RadarMME1 original hospedado no mesmo endereço" referrerpolicy="same-origin"></iframe></div>
+</section>
+<section class="panel"><h2>Como funciona</h2><div class="alert">Este arquivo <strong>não substitui</strong> <code>index6.html</code>, <code>index.html</code> nem <code>server.js</code>. A ponte só envia <strong>moedas para acompanhamento</strong>, não sinais de compra ou venda. O ntfy original continua no RadarMME1; a Ponte pode <strong>enviar seus próprios alertas ntfy somente no modo de teste ativado por você</strong>. O Telegram continua no servidor SetupDT.</div>
+<div class="triple" style="margin-top:9px"><div class="stat"><small>1 • RadarMME1</small><b>🔔 ntfy</b><small>Encontra candidatos e publica pacote</small></div><div class="stat"><small>2 • Ponte V4</small><b>📤 Lista</b><small>Lê pacotes e adiciona ao servidor</small></div><div class="stat"><small>3 • SetupDT</small><b>📨 Telegram</b><small>Confirma independentemente e audita</small></div></div>
+<div class="buttons"><button id="openRadar" type="button">Abrir RadarMME1 aqui</button><button id="openSetup" type="button">Abrir SetupDT</button></div>
+<p id="originHint" class="soft">Verificando origem da página...</p></section>
+<section class="panel"><h2>1. Receber lista do MME1</h2><div class="row"><button class="primary" id="readRadar">↻ Ler lista agora</button><button id="fileImport">📂 Importar JSON</button><button id="liveSource">↩ Usar leitura local</button><input id="jsonFile" type="file" accept=".json,application/json" hidden></div>
+<div id="radarState" class="info" style="margin-top:10px">Verificando se o Radar já publicou dados neste navegador...</div>
+<div class="grid" style="margin-top:10px"><div><label for="minRel">Parecer RelOk mínimo (triagem, não probabilidade)</label><select id="minRel"><option value="0">Todos os níveis</option><option value="80" selected>80/100</option><option value="90">90/100</option><option value="97">97/100</option></select></div><div><label for="sideFilter">Direção a acompanhar</label><select id="sideFilter"><option value="ALL">LONG e SHORT</option><option value="LONG">Somente LONG</option><option value="SHORT">Somente SHORT</option></select></div></div>
+<div class="buttons"><button id="selectAll">Selecionar candidatos da tela</button><button id="clearSel">Desmarcar tudo</button></div>
+<p class="soft">Somente relatórios com candle fechado vigente e publicados nos últimos 30 minutos. A seleção serve para a transferência manual; a automação usa todos os candidatos que passarem pelos filtros acima.</p>
+<div class="scroll" id="candidateList"><div class="info">Sem candidatos ainda.</div></div>
+</section>
+<section class="panel" id="ntfyTestPanel">
+<h2>🔔 Alertas ntfy da Ponte — somente teste</h2>
+<p class="soft">Notifique <strong>somente moedas que o MME1 efetivamente classificou como LONG, SHORT ou preparação</strong>. Um pacote sem candidato não gera notificação vazia. Este recurso inicia desligado, expira após 2 horas de teste e não ativa ordens.</p>
+<div class="grid">
+<div><label for="ntfyTopic">Tópico ntfy já inscrito no celular (salvo apenas neste navegador)</label><input type="text" id="ntfyTopic" placeholder="Cole o nome do seu tópico ntfy" autocomplete="off" spellcheck="false"></div>
+<div><label for="ntfyMode">O que avisar</label><select id="ntfyMode"><option value="ALL" selected>Confirmados e pré-sinais (identificados)</option><option value="CONFIRMED">Somente confirmados</option><option value="EARLY">Somente preparações/pullbacks</option></select></div>
+<div><label for="ntfyMinRel">RelOk mínimo para ntfy (independente da tela)</label><select id="ntfyMinRel"><option value="0" selected>Todos os níveis — teste amplo</option><option value="70">70/100</option><option value="80">80/100</option><option value="90">90/100</option><option value="97">97/100</option></select></div>
+<div><label for="ntfyCap">Limite de alertas</label><select id="ntfyCap"><option value="3">Até 3 por 5 minutos</option><option value="5" selected>Até 5 por 5 minutos</option><option value="10">Até 10 por 5 minutos</option></select></div>
+</div>
+<div class="row" style="margin-top:10px"><label class="checklabel"><input type="checkbox" id="ntfyTestOn"><span>🔔 Ativar alertas de candidatos no ntfy <strong>somente durante este teste</strong></span></label></div>
+<div class="buttons"><button type="button" id="ntfySendTest" class="secondary">🧪 Enviar exemplo com texto (manual)</button><button type="button" id="ntfyResetSent">🔄 Permitir repetir candidatos neste teste</button></div>
+<div id="ntfyStatus" class="info" style="margin-top:10px" role="status" aria-live="polite">🔕 Modo de teste desligado. Configure seu tópico e ative quando desejar. Sem mensagens vazias.</div>
+<p class="soft">Avisos incluem direção, situação (confirmado/pré-sinal), timeframe, RelOk, volume, referência de entrada/stop/alvos quando presentes e horário do candle. Não representam ordens nem rentabilidade garantida. O envio depende do navegador permanecer aberto/ativo, da rede e das permissões do serviço ntfy.</p>
+</section>
+<section class="panel"><h2>2. Conectar a lista ao Render</h2><label for="serverBase">Servidor SetupDT (endereço HTTPS do Render)</label><input id="serverBase" type="url" spellcheck="false" value="https://setupdt.onrender.com">
+<div class="buttons"><button id="checkServer">🔍 Conferir servidor</button><button id="getWatch">📥 Ler lista monitorada</button><button class="primary" id="sendSelected">📤 Enviar selecionados ao SetupDT</button></div>
+<div class="info" id="serverStatus" style="margin-top:10px">Nenhum envio realizado. A consulta do servidor será feita automaticamente.</div>
+<div class="auto" style="margin-top:10px"><div class="grid"><div><label for="interval">Reler dados do MME1</label><select id="interval"><option value="0" selected>Parado</option><option value="30">A cada 30 segundos</option><option value="60">A cada 1 minuto</option></select></div><div><label>Envio ao servidor</label><label class="checklabel"><input type="checkbox" id="autoSend"><span>Autorizar sincronização automática de novos candidatos elegíveis</span></label></div></div><p class="soft">O envio automático só funciona enquanto esta página estiver aberta e ativa. A sincronização com o SetupDT é independente dos alertas ntfy opcionais de teste, e o SetupDT decide de forma independente se haverá Telegram.</p></div>
+<div id="watchView" class="soft" style="margin-top:8px">Lista atual do servidor ainda não consultada.</div>
+<p class="alert" style="margin-top:12px">Proteção: o servidor atualmente usa uma lista <strong>única por mercado</strong>. Se já estiver monitorando ativos MEXC, esta ponte bloqueará a substituição. Para Binance Spot, adiciona candidatos sem apagar os ativos existentes, respeitando o limite de 100.</p></section>
+<section class="panel"><h2>3. Professor — resultados do próprio SetupDT</h2><p class="soft">Resultados vêm de <code>/api/trades/session</code> no Render. Não significam automaticamente que o sinal se originou no MME1, nem representam lucro líquido.</p><div class="buttons"><button id="readSession">↻ Atualizar sessão</button><button id="copyReport">📋 Copiar RelGPT completo</button><button id="saveTxt">💾 Salvar TXT</button><button id="saveJson">💾 Histórico JSON</button></div>
+<div id="sessionState" class="info" style="margin-top:9px">Consultando placar do SetupDT no Render...</div><div id="sessionStats" class="triple" style="margin-top:9px"></div><div id="recentEvents" class="scroll" style="margin-top:9px;max-height:250px"><div class="info">Nenhum evento carregado.</div></div>
+<h3>RelGPT para o ChatGPT</h3><textarea id="reportText" readonly placeholder="Clique em Copiar RelGPT para gerar o resumo aqui."></textarea><p class="soft" id="copyStatus">Caso o navegador bloqueie a cópia, selecione o texto acima e copie manualmente.</p></section>
+<section class="panel"><h2>4. Registro da ponte (local)</h2><div class="log info" id="logView">Aguardando eventos.</div><p class="soft">Mantém até 100 registros no navegador. Não altera o histórico do SetupDT ou do RadarMME1.</p></section>
+<footer>EGI V4.2 • Alertas ntfy somente no modo TESTE opt-in. Teste operacional, não recomendação de entrada. Dados de terceiros podem ficar indisponíveis. Sem chaves de API e sem execução de ordens.</footer>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),SOURCE_KEY='egi_mme1_reports_v1', LOG_KEY='egi_ponte_mme1_v4_log', NTFY_CFG='egi_ponte_ntfy_test_v42', NTFY_SENT='egi_ponte_ntfy_sent_v42', NTFY_RATE='egi_ponte_ntfy_rate_v42', TF={"5m":300000,"15m":900000,"30m":1800000,"1h":3600000,"4h":14400000,"1d":86400000};
+let imported=null,sourcePacket=null,lastWatch=null,lastSession=null,logs=[],candidates=[],selected=new Set(),timer=null,busy=false,lastRenderedSignature='';
+let ntfyBusy=false, ntfyBackoff=0, ntfyActiveUntil=0, ntfySent={}, ntfyTimes=[];
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function tm(n){return Number.isFinite(Number(n))&&Number(n)>0?new Date(Number(n)).toLocaleString('pt-BR'):'—'}
+function setInfo(id,msg,type=''){let el=$(id);el.className='info '+(type==='error'?'bad':type==='ok'?'ok':'');el.textContent=msg;}
+function log(t){let e={at:Date.now(),event:String(t).slice(0,500)};logs.unshift(e);logs=logs.slice(0,100);try{localStorage.setItem(LOG_KEY,JSON.stringify(logs))}catch{}renderLog()}
+function renderLog(){$('logView').textContent=logs.length?logs.slice(0,20).map(x=>new Date(x.at).toLocaleString('pt-BR')+' • '+x.event).join('\n'):'Nenhum evento registrado.'}
+try{let a=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');if(Array.isArray(a))logs=a.slice(0,100)}catch{}renderLog();
+function setLocationInfo(){let origin=location.origin,host=location.hostname;
+ const sameRender=location.protocol==='https:'&&host.endsWith('.onrender.com');
+ $('originHint').textContent=sameRender?'✅ Aberto no Render. Use “Abrir RadarMME1 AQUI” para manter a leitura no mesmo navegador.':'⚠️ Aberto fora do Render (ou como arquivo local). Para ler automaticamente o MME1, hospede este arquivo ao lado do index6.html no MESMO Render. Como arquivo local, importe o JSON exportado pelo MME1.';
+ if(sameRender)$('serverBase').value=origin;
+ }
+setLocationInfo();
+function setQuickStatus(message,type=''){
+ let el=$('quickStatus');el.textContent=message;
+ el.style.borderColor=type==='ok'?'#3e9379':type==='error'?'#925363':'#4b7397';
+}
+function explainStatus(){
+ const packet=sourcePacket,rows=Array.isArray(packet?.entries)?packet.entries:[];
+ const rawEligible=rows.filter(x=>freshEntry(x,Date.now()));
+ const base=location.protocol==='file:'?'Arquivo local sem compartilhamento com o Render. Abra a versão hospedada, ou use Importar JSON. ':' ';
+ if(!packet){setQuickStatus(base+'⏳ Nenhum pacote MME1 recebido neste navegador. Toque em “1. Abrir RadarMME1 AQUI” e faça uma consulta ou varredura. Depois use “2. Conferir lista recebida”.');return}
+ if(!rawEligible.length){setQuickStatus('📄 Pacote MME1 encontrado ('+rows.length+' registros), mas nenhum candidato recente LONG/SHORT/Preparar/Pullback com candle fechado vigente. Isso não é travamento. Consulte novamente no Radar ou aguarde sinal válido.');return}
+ if(!candidates.length){setQuickStatus('🔎 MME1 enviou '+rawEligible.length+' leitura(s), porém o filtro RelOk '+$('minRel').value+'/100 ou a direção ocultou todos. Para visualizar, selecione “Todos os níveis” e LONG e SHORT na seção 1.');return}
+ setQuickStatus('✅ Ponte funcionando: '+candidates.length+' moeda(s) pronta(s) para conferir. Marque os candidatos na seção 1 e toque em “Enviar selecionados” somente se desejar adicionar ao monitoramento.', 'ok');
+}
+function openRadarInline(){
+ const w=$('inlineRadarWrap'),frame=$('inlineRadar');w.hidden=false;
+ if(!frame.getAttribute('src')){
+   $('radarLive').textContent='Carregando o RadarMME1 original dentro da ponte. Aguarde a interface aparecer; nenhum sinal será criado automaticamente.';
+   frame.addEventListener('load',()=>{
+    try{const title=frame.contentDocument?.title||'';
+      $('radarLive').textContent=/RadarMME1/i.test(title)?'✅ Radar carregado. Agora toque em Consultar ou Varredura no painel abaixo; a ponte detectará a publicação do pacote.':'⚠️ A página carregada não parece ser o RadarMME1. Confira se index6.html está publicado no mesmo Render.';
+    }catch(e){$('radarLive').textContent='⚠️ Não foi possível conferir o endereço do Radar. Verifique se ambos usam o mesmo domínio.'}
+   });
+   frame.src='./index6.html';
+ }
+ w.scrollIntoView({behavior:'smooth',block:'start'});
+ log('RadarMME1 aberto dentro da Ponte V4.1 no mesmo contexto do navegador.');
+}
+async function quickDiagnostic(){
+ setQuickStatus('🔍 Testando leitura do Radar e conexão do Render...');
+ readRadar(true);
+ const h=await Promise.allSettled([checkServer(),readWatch(),readSession()]);
+ explainStatus();
+ if(h.some(x=>x.status==='rejected'))$('quickStatus').textContent+=' Atenção: pelo menos uma consulta ao servidor falhou. Veja o erro na seção 2.';
+}
+function freshEntry(x,now){if(!x||typeof x!=='object')return false;let name=String(x.asset||''),tf=String(x.tf||''),reportAt=Number(x.reportAt),close=Number(x.candleClose);
+ if(!/^[A-Z0-9]{2,20}USDT$/.test(name)||!TF[tf]||!Number.isFinite(reportAt)||!Number.isFinite(close))return false;
+ if(reportAt>now+2000||close>now+2000||now-reportAt>30*60000)return false;
+ if(close<Math.floor(now/TF[tf])*TF[tf]-1-15000)return false;
+ return ['LONG','SHORT','PREPARAR','PULLBACK'].includes(String(x.state||''))&&['LONG','SHORT'].includes(String(x.direction||''));}
+function selectCandidates(minOverride=null,sideOverride=null,limitOverride=40){const now=Date.now(),min=minOverride===null?Number($('minRel').value||0):Number(minOverride),side=sideOverride===null?$('sideFilter').value:sideOverride,one=new Map();
+ const records=Array.isArray(sourcePacket?.entries)?sourcePacket.entries:[];
+ for(const x of records){if(!freshEntry(x,now))continue;
+ if(side!=='ALL'&&x.direction!==side)continue;
+ let score=Number(x.relOk);if(min>0&&(!Number.isFinite(score)||score<min))continue;
+ let name=x.asset.slice(0,-4),prev=one.get(name),qual=Number(x.quality)||0;
+ let priority=(x.confirmed?1000:0)+(x.tf==='15m'?150:x.tf==='1h'?100:0)+(Number.isFinite(score)?score:0)+qual/100;
+ if(!prev||priority>prev._priority)one.set(name,{...x,base:name,_priority:priority});
+ }
+ return [...one.values()].sort((a,b)=>b._priority-a._priority).slice(0,limitOverride);}
+function renderCandidates(){candidates=selectCandidates();selected=new Set([...selected].filter(x=>candidates.some(c=>c.base===x)));
+ let records=sourcePacket?.entries?.length||0,latest=Number(sourcePacket?.updatedAt||0),validRows=(sourcePacket?.entries||[]).filter(x=>freshEntry(x,Date.now())).length;
+ const source=imported?'JSON importado':(location.protocol==='file:'?'arquivo local':'mesma origem do navegador');
+ setInfo('radarState',!sourcePacket?'⚪ Sem relatório MME1 disponível. Rode o RadarMME1 ou importe um JSON recente.':`📡 ${source} • ${records} registros totais • ${validRows} leituras recentes elegíveis • ${candidates.length} moedas após filtros • pacote ${tm(latest)}`,sourcePacket&&candidates.length?'ok':'');
+ $('candidateList').innerHTML=candidates.length?candidates.map(c=>{
+  let direction=c.direction==='LONG'?'green':'red',r=Number(c.relOk),score=Number.isFinite(r)?r.toFixed(0):'—';
+  return `<div class="candidate"><div><label><input type="checkbox" data-base="${esc(c.base)}" ${selected.has(c.base)?'checked':''}><strong>${esc(c.base)}/USDT</strong> <span class="${direction}">${esc(c.direction)}</span></label><div class="cand-meta">${esc(c.state)} • ${esc(c.tf)} • RelOk ${score}/100 • IQE ${esc(c.iqe??'—')} • volume ${esc(Number.isFinite(Number(c.volumeRatio))?Number(c.volumeRatio).toFixed(2)+'×':'n/d')} • fechado ${esc(tm(c.candleClose))}</div></div><div class="pill">${c.confirmed?'MME confirmado':'Preparação'}</div></div>`}).join(''):'<div class="info">Nenhum candidato válido agora. Consulte o Radar e aguarde candle fechado, ou reduza o filtro RelOk.</div>';
+ explainStatus();
+}
+function readRadar(silent=false){try{sourcePacket=imported||JSON.parse(localStorage.getItem(SOURCE_KEY)||'null');if(sourcePacket&&!Array.isArray(sourcePacket.entries))throw Error('Pacote sem registros');if(sourcePacket&&sourcePacket.schema!=='EGI-MME1-REPORT-V1')throw Error('Versão do relatório não reconhecida');renderCandidates();void maybeNotifyNtfy();if(!silent)log('Relatório MME1 consultado: '+candidates.length+' candidatos válidos.')}
+catch(err){sourcePacket=null;candidates=[];renderCandidates();setInfo('radarState','⚠️ Erro de leitura: '+err.message,'error');setQuickStatus('⚠️ Não foi possível ler os dados MME1: '+err.message,'error')}}
+
+// ntfy é independente da seleção da tela e do Telegram; testa somente candidatos reais.
+function ntfyTopic(){
+ let raw=$('ntfyTopic').value.trim().replace(/^https:\/\/ntfy\.sh\//i,'').replace(/\/$/,'');
+ if(!/^[a-zA-Z0-9_-]{2,64}$/.test(raw))throw Error('Informe apenas o nome do tópico ntfy (2 a 64 caracteres, letras/números/_/-).');
+ return raw;
+}
+function ntfyState(msg,type=''){setInfo('ntfyStatus',msg,type)}
+function ntfySaveConfig(){try{localStorage.setItem(NTFY_CFG,JSON.stringify({topic:$('ntfyTopic').value.trim(),mode:$('ntfyMode').value,min:$('ntfyMinRel').value,cap:$('ntfyCap').value}))}catch{}}
+function ntfyLoadConfig(){
+ try{const d=JSON.parse(localStorage.getItem(NTFY_CFG)||'{}');if(typeof d.topic==='string')$('ntfyTopic').value=d.topic;
+ if(['ALL','CONFIRMED','EARLY'].includes(d.mode))$('ntfyMode').value=d.mode;
+ if(['0','70','80','90','97'].includes(String(d.min)))$('ntfyMinRel').value=String(d.min);
+ if(['3','5','10'].includes(String(d.cap)))$('ntfyCap').value=String(d.cap);}catch{}
+ try{let d=JSON.parse(localStorage.getItem(NTFY_SENT)||'{}');if(d&&typeof d==='object'&&!Array.isArray(d))ntfySent=d}catch{}
+ try{let a=JSON.parse(localStorage.getItem(NTFY_RATE)||'[]');if(Array.isArray(a))ntfyTimes=a.filter(x=>Number.isFinite(Number(x))&&Date.now()-Number(x)<300000).map(Number)}catch{}
+ // Autorização de teste é intencionalmente volátil: sempre desligada ao abrir o HTML.
+ $('ntfyTestOn').checked=false;
+}
+function ntfyPersistRuntime(){
+ const keys=Object.entries(ntfySent).filter(([,at])=>Number(at)>Date.now()-172800000).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,400);
+ ntfySent=Object.fromEntries(keys);
+ try{localStorage.setItem(NTFY_SENT,JSON.stringify(ntfySent));localStorage.setItem(NTFY_RATE,JSON.stringify(ntfyTimes))}catch{}
+}
+function ntfyIsConfirmed(x){return x.confirmed===true}
+function ntfyStatusLabel(c){return ntfyIsConfirmed(c)?'CONFIRMADO':(['PREPARAR','PULLBACK'].includes(c.state)?'PREPARAÇÃO / NÃO CONFIRMADO':'CANDIDATO / NÃO CONFIRMADO')}
+function ntfyKey(c){return [c.asset,c.tf,c.direction,c.state,c.candleClose,ntfyIsConfirmed(c)?'1':'0'].join('|')}
+function ntfyCandidates(){
+ const rows=selectCandidates(Number($('ntfyMinRel').value),'ALL',80),mode=$('ntfyMode').value;
+ return rows.filter(c=>mode==='ALL'||(mode==='CONFIRMED'?ntfyIsConfirmed(c):!ntfyIsConfirmed(c)));
+}
+function ntfyMessage(c){
+ const direction=c.direction==='LONG'?'🟢 LONG':'🔴 SHORT',status=ntfyStatusLabel(c),num=x=>Number.isFinite(Number(x))?String(x):'n/d';
+ const s=[`${direction} | EGI TESTE | ${status}`,`Moeda: ${c.asset} | ${c.tf}`,
+ `Radar: ${c.state} | RelOk ${num(c.relOk)}/100 | IQE ${num(c.iqe)}`];
+ if(Number.isFinite(Number(c.volumeRatio)))s.push(`Volume relativo: ${Number(c.volumeRatio).toFixed(2)}x`);
+ if(c.entry!==undefined&&c.entry!==null&&c.entry!=='')s.push(`Entrada/gatilho de referência: ${c.entry}`);
+ if(c.stop!==undefined&&c.stop!==null&&c.stop!=='')s.push(`STOP hipotético: ${c.stop}`);
+ if(c.r1!==undefined&&c.r1!==null&&c.r1!=='')s.push(`Alvo 1R hipotético: ${c.r1}`);
+ if(c.r2!==undefined&&c.r2!==null&&c.r2!=='')s.push(`Alvo 2R hipotético: ${c.r2}`);
+ s.push(`Candle fechado: ${tm(c.candleClose)}`,'Ponte EGI V4.2 · Estudo, NÃO é ordem.');
+ return s.join('\n');
+}
+async function ntfyPublish(message){
+ const topic=ntfyTopic();if(!String(message).trim())throw Error('Mensagem vazia bloqueada.');
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+ try{
+  // Requisição simples, sem headers customizados, reduz falhas de preflight CORS.
+  const r=await fetch('https://ntfy.sh/'+encodeURIComponent(topic),{method:'POST',mode:'cors',body:String(message),signal:ctrl.signal});
+  if(!r.ok)throw Error('ntfy respondeu HTTP '+r.status);return true;
+ }finally{clearTimeout(timer)}
+}
+async function maybeNotifyNtfy(){
+ if(!$('ntfyTestOn').checked||ntfyBusy||document.hidden||Date.now()<ntfyBackoff)return;
+ if(Date.now()>=ntfyActiveUntil){$('ntfyTestOn').checked=false;ntfyState('🔕 Teste expirou após 2 horas. Ative novamente somente se desejar.');log('ntfy teste desligado automaticamente após 2h.');return;}
+ const eligible=ntfyCandidates();
+ if(!eligible.length){ntfyState(`🔎 MME1: ${sourcePacket?.entries?.length||0} registros; nenhum candidato recente corresponde ao filtro ntfy. Nenhum alerta vazio enviado.`);return;}
+ ntfyTimes=ntfyTimes.filter(t=>Date.now()-t<300000);
+ const limit=Number($('ntfyCap').value),room=Math.max(0,limit-ntfyTimes.length);
+ const unsent=eligible.filter(c=>!ntfySent[ntfyKey(c)]);
+ if(!unsent.length){ntfyState(`✅ ${eligible.length} candidato(s) elegíveis, sem novidades a notificar (duplicatas bloqueadas).`,'ok');return;}
+ if(!room){ntfyState(`⏳ ${unsent.length} candidato(s) pendentes; limite de ${limit} alertas/5min atingido. Nenhum vazio.`);return;}
+ ntfyBusy=true;let delivered=0;
+ try{
+  for(const c of unsent.slice(0,room)){
+   if(!$('ntfyTestOn').checked||document.hidden)break;
+   const key=ntfyKey(c);
+   await ntfyPublish(ntfyMessage(c));
+   ntfySent[key]=Date.now();ntfyTimes.push(Date.now());ntfyPersistRuntime();delivered++;
+   log(`ntfy TESTE: ${c.asset} ${c.direction} ${ntfyStatusLabel(c)} ${c.tf} enviado.`);
+  }
+  const pending=Math.max(0,unsent.length-delivered);
+  ntfyState(`✅ ntfy: ${delivered} alerta(s) reais enviados. ${pending} aguardando limite/futuros ciclos. Sem mensagens vazias.`,'ok');
+ }catch(e){ntfyBackoff=Date.now()+60000;ntfyState('❌ Não foi possível confirmar publicação no ntfy: '+e.message+'; nova tentativa após 1 minuto enquanto ativo. Verifique tópico/rede/permissões.','error');log('ntfy não confirmado: '+e.message)}
+ finally{ntfyBusy=false}
+}
+
+function originServer(){const raw=$('serverBase').value.trim();let url;try{url=new URL(raw)}catch{throw Error('Digite um endereço HTTPS válido do Render.')}
+ if(url.protocol!=='https:'||!url.hostname.endsWith('.onrender.com')||url.username||url.password)throw Error('Por segurança, use apenas HTTPS em domínio .onrender.com, sem credenciais.');return url.origin}
+async function api(path,opt){const url=originServer()+path;const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),15000);try{const resp=await fetch(url,{...opt,signal:ctrl.signal,headers:{...(opt?.body?{'Content-Type':'application/json'}:{})},cache:'no-store'});const data=await resp.json().catch(()=>({}));if(!resp.ok||data.ok===false)throw Error(data.error||data.detail||`HTTP ${resp.status}`);return data}finally{clearTimeout(t)}}
+async function checkServer(){try{let h=await api('/api/health');let telegram=h.telegramConfigured?'configurado':'NÃO configurado';setInfo('serverStatus',`✅ Servidor respondeu • Telegram ${telegram} • mercado ${h.monitoredMarket||'—'} • ${h.monitoredAssets??0} ativos • varredura ${h.signalScanSeconds??'—'} s.`,'ok');log('Servidor conferido; Telegram '+telegram+'.')}catch(e){setInfo('serverStatus','❌ Servidor: '+e.message,'error')}}
+async function readWatch(){try{let w=await api('/api/watchlist');lastWatch=w;const all=Array.isArray(w.assets)?w.assets:[];$('watchView').textContent=`Servidor: mercado ${w.market||'—'} • ${all.length} ativos: ${all.join(', ')||'nenhum'} • sincronizado ${tm(w.updatedAt)} • intervalo ${w.scanSeconds??'—'}s.`;return w}catch(e){setInfo('serverStatus','❌ Lista: '+e.message,'error');throw e}}
+function intendedAssets(all){return [...new Set(all)].filter(a=>/^[A-Z0-9]{2,16}$/.test(a))}
+async function syncToServer(auto=false){if(busy)return;let names=auto?candidates.map(c=>c.base):[...selected];names=intendedAssets(names);
+ if(!names.length){if(!auto)setInfo('serverStatus','Nenhum candidato selecionado. Marque uma ou mais moedas primeiro.');return}
+ if(imported&&Date.now()-Number(sourcePacket?.updatedAt||0)>30*60000){setInfo('serverStatus','Pacote importado antigo. Rode novamente o Radar, exporte um JSON recente e importe.', 'error');return}
+ busy=true;$('sendSelected').disabled=true;try{
+ let w=await readWatch(),prev=intendedAssets(Array.isArray(w.assets)?w.assets:[]),market=String(w.market||'');
+ if(market!=='binance'&&prev.length){throw Error(`Proteção ativada: o servidor está em ${market}, com ${prev.length} ativos. Envio cancelado para não substituir a lista de outro mercado.`)}
+ let next=[...new Set([...prev,...names])];if(next.length>100)throw Error(`Seriam ${next.length} ativos, acima do máximo 100. Revise a lista no SetupDT.`);
+ let added=next.filter(x=>!prev.includes(x));if(!added.length&&market==='binance'){setInfo('serverStatus','✅ Nenhuma alteração: todos os candidatos já estão na lista do servidor.','ok');return}
+ let post=await api('/api/watchlist',{method:'POST',body:JSON.stringify({market:'binance',assets:next})});
+ let got=intendedAssets(Array.isArray(post.assets)?post.assets:[]);if(post.market!=='binance'||next.some(x=>!got.includes(x)))throw Error('Servidor não confirmou integralmente a lista; confira manualmente.');
+ lastWatch=post;setInfo('serverStatus',`✅ Lista sincronizada: +${added.length} candidatos (${added.join(', ')||'nenhum novo'}), total ${got.length}. Telegram segue os critérios do SetupDT; não foi solicitado alerta de teste.`,'ok');
+ $('watchView').textContent=`Servidor: Binance Spot • ${got.length} ativos: ${got.join(', ')} • atualizado ${tm(post.updatedAt)}.`;
+ log((auto?'AUTO':'MANUAL')+': adicionou '+added.length+' moeda(s) ao servidor: '+(added.join(', ')||'sem novos')+'.');
+ }catch(e){setInfo('serverStatus','❌ Envio NÃO confirmado: '+e.message,'error');log('Falha na sincronização: '+e.message)}finally{busy=false;$('sendSelected').disabled=false}}
+function sessionGrid(s){let defs=[['Entradas',s.entries],['Aguardando',s.waiting],['A1',s.a1],['A2',s.a2],['STOP antes A2',s.stops],['Taxa A2/STOP',Number.isFinite(Number(s.rate))?Number(s.rate).toFixed(1)+'%':'—'],['Reentradas',s.reentries],['Entradas perdidas',s.missed],['R técnico',Number.isFinite(Number(s.scoreR))?s.scoreR+'R':'—']];$('sessionStats').innerHTML=defs.map(([a,b])=>`<div class="stat"><small>${esc(a)}</small><b>${esc(b??'—')}</b></div>`).join('')}
+async function readSession(){try{lastSession=await api('/api/trades/session');let d=lastSession.summary||{},a=lastSession.recent||[];sessionGrid(d);setInfo('sessionState',`✅ Placar do SetupDT • desde ${tm(lastSession.since)} • atualizado ${tm(lastSession.generatedAt)} • ${a.length} eventos recentes. Não é P&L líquido.`, 'ok');$('recentEvents').innerHTML=a.length?a.slice(0,16).map(x=>`<div class="candidate"><div><strong>${esc(x.asset||'—')} • ${esc(x.kind||'—')}</strong><div class="soft">${esc(x.label||'')} • ${esc(x.direction||'')} • ${esc(tm(x.at))}</div></div></div>`).join(''):'<div class="info">Nenhum evento no período.</div>';log('Professor: placar da sessão do SetupDT consultado.')}
+catch(e){setInfo('sessionState','⚠️ Não foi possível consultar sessão: '+e.message,'error')}}
+function makeReport(){let current=candidates,chosen=[...selected];let body=[
+'RELGPT EGI V4.2 — RADARMME1 → SETUPDT → PROFESSOR + TESTE NTFY — ESTUDO, NÃO ORDEM',
+'Gerado: '+new Date().toLocaleString('pt-BR'),
+'Origem MME1: '+(imported?'JSON importado':'localStorage (mesmo navegador/origem)'),
+'Pacote MME1 publicado: '+tm(Number(sourcePacket?.updatedAt)),
+'Candidatos recentes conforme filtros: '+current.length,
+'Selecionados manualmente: '+(chosen.join(', ')||'nenhum'),
+'Regra de triagem: RelOk mínimo '+$('minRel').value+'/100; direção '+$('sideFilter').value+'. RelOk NÃO é probabilidade de lucro.',
+ 'ntfy teste: '+($('ntfyTestOn').checked?'ATIVO':'DESLIGADO')+' | mínimo '+$('ntfyMinRel').value+'/100 | modo '+$('ntfyMode').value+' | limite '+$('ntfyCap').value+'/5min | eventos enviados neste histórico '+Object.keys(ntfySent).length+'.',
+'',
+'=== CANDIDATOS MME1 (não são ordens) ===',
+...(current.length?current.map(c=>`${c.base}/USDT | ${c.direction} | ${c.state} | ${c.tf} | RelOk ${c.relOk??'n/d'}/100 | IQE ${c.iqe??'n/d'} | volume ${c.volumeRatio??'n/d'}x | candle ${tm(c.candleClose)} | entrada hipotética ${c.entry??'n/d'} | STOP hipotético ${c.stop??'n/d'} | alvo 1R ${c.r1??'n/d'} | alvo 2R ${c.r2??'n/d'} | riscoValid ${c.riskValid??'n/d'}`):['Nenhum candidato fresco/eligível.']),
+'',
+'=== LISTA REAL DO SERVIDOR (última consulta, pode mudar) ===',
+lastWatch?`Mercado: ${lastWatch.market} | Moedas (${lastWatch.assets?.length||0}): ${(lastWatch.assets||[]).join(', ')} | atualizado ${tm(lastWatch.updatedAt)}`:'Ainda não consultada.',
+'',
+'=== PROFESSOR: SESSÃO DO SERVIDOR (não representa P&L real) ===',
+lastSession?`Desde ${tm(lastSession.since)} | entradas ${lastSession.summary?.entries??0} | aguardando ${lastSession.summary?.waiting??0} | A1 ${lastSession.summary?.a1??0} | A2 ${lastSession.summary?.a2??0} | stops antes A2 ${lastSession.summary?.stops??0} | taxa A2/STOP ${lastSession.summary?.rate??'n/d'}% | R técnico ${lastSession.summary?.scoreR??'n/d'}R`:'Ainda não consultada.',
+...(lastSession?.recent||[]).slice(0,12).map(x=>`${tm(x.at)} | ${x.asset} | ${x.kind} | ${x.direction} | ${x.label}`),
+'',
+'=== LIMITAÇÕES E REGRAS ===',
+'- RadarMME1 gera hipóteses técnicas e avisos ntfy no app original; esta ponte pode publicar alertas próprios somente no modo de teste explicitamente ativado.',
+'- A ponte acrescenta moedas à watchlist Binance Spot do SetupDT; opcionalmente notifica candidatos reais pelo ntfy, sem criar sinais ou enviar ordens.',
+'- Telegram é condicionado ao motor do SetupDT e à configuração do Render.',
+'- O placar agregado do SetupDT NÃO prova que um resultado pertence a um candidato específico do MME1.',
+'- Resultados são técnicos, sem taxas, slippage, execução real ou lucro líquido; candles com ambiguidade devem ser investigados.',
+'- Leitura local, notificações ntfy de teste e sincronização automática param se a página/navegador parar de executar.',
+'=== FIM RELGPT ==='].join('\n');$('reportText').value=body;return body}
+async function copyReport(){let val=makeReport();try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(val);$('copyStatus').textContent='✅ RelGPT copiado. Cole no ChatGPT.';return}}catch{}try{$('reportText').focus();$('reportText').select();if(document.execCommand('copy')){$('copyStatus').textContent='✅ RelGPT copiado pelo modo compatível.';return}}catch{}$('copyStatus').textContent='⚠️ Cópia automática bloqueada. O texto está selecionável: mantenha pressionado e copie.'}
+function saveFile(name,text,mime='text/plain'){let blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
+function startLoop(){if(timer)clearInterval(timer);timer=null;let sec=Number($('interval').value);if(!sec){log('Atualização automática: parada.');return}
+ timer=setInterval(async()=>{if(document.hidden)return;try{readRadar(true);if($('autoSend').checked)await syncToServer(true)}catch(e){setInfo('serverStatus','Falha no ciclo automático: '+e.message,'error')}},sec*1000);
+ log('Atualização automática ativada: '+sec+' segundos'+($('autoSend').checked?' + envio':' sem envio')+'.');}
+
+ntfyLoadConfig();
+for(const id of ['ntfyTopic','ntfyMode','ntfyMinRel','ntfyCap'])$(id).addEventListener('change',()=>{ntfySaveConfig();if($('ntfyTestOn').checked)void maybeNotifyNtfy()});
+$('ntfyTestOn').onchange=e=>{
+ if(e.target.checked){try{ntfyTopic()}catch(err){e.target.checked=false;ntfyState('⚠️ '+err.message,'error');return}
+  ntfyActiveUntil=Date.now()+7200000;ntfyBackoff=0;ntfySaveConfig();
+  ntfyState('🔔 Teste ativo por até 2 horas. Somente candidatos reais, sem mensagens vazias. Aguardando pacote MME1...','ok');
+  log('ntfy TESTE ativado temporariamente.');void maybeNotifyNtfy();
+ }else{ntfyState('🔕 Alertas ntfy de teste desativados.');log('ntfy TESTE desativado.');}
+};
+$('ntfySendTest').onclick=async()=>{
+ if(ntfyBusy)return;ntfyBusy=true;$('ntfySendTest').disabled=true;
+ try{await ntfyPublish('🧪 TESTE DE CONEXÃO · PONTE EGI V4.2\nEsta é uma mensagem manual de teste com conteúdo, NÃO é sinal LONG/SHORT.\nSe recebeu, o canal ntfy está acessível neste navegador.');
+ ntfyState('✅ Exemplo COM TEXTO enviado e aceito pelo ntfy. Nenhum sinal inventado.','ok');log('ntfy teste manual de conectividade enviado.');}
+ catch(e){ntfyState('❌ Teste ntfy falhou: '+e.message+'. Confira tópico, acesso e rede.','error');log('Falha ntfy teste manual: '+e.message)}
+ finally{ntfyBusy=false;$('ntfySendTest').disabled=false}
+};
+$('ntfyResetSent').onclick=()=>{
+ if(!window.confirm('Permitir repetir alertas de candidatos já enviados neste teste? Poderá gerar notificações duplicadas.'))return;
+ ntfySent={};ntfyTimes=[];ntfyPersistRuntime();ntfyState('🔄 Histórico local de deduplicação reiniciado. Ative/consulte para testar novamente.');
+};
+
+$('readRadar').onclick=()=>readRadar();$('fileImport').onclick=()=>$('jsonFile').click();$('liveSource').onclick=()=>{imported=null;readRadar();log('Origem alterada para leitura local.')};
+$('jsonFile').onchange=async e=>{let f=e.target.files?.[0];e.target.value='';if(!f)return;try{if(f.size>1500000)throw Error('JSON deve ter até 1,5 MB');let o=JSON.parse(await f.text());if(o?.schema!=='EGI-MME1-REPORT-V1'||!Array.isArray(o.entries)||o.entries.length>1000)throw Error('Pacote MME1 incompatível.');imported=o;readRadar();log('JSON MME1 importado: '+o.entries.length+' registros (não substitui histórico original).')}catch(err){setInfo('radarState','❌ Importação: '+err.message,'error')}};
+$('minRel').onchange=()=>renderCandidates();$('sideFilter').onchange=()=>renderCandidates();
+$('candidateList').onchange=e=>{const node=e.target;if(node&&node.matches('input[data-base]')){let k=node.dataset.base;if(node.checked)selected.add(k);else selected.delete(k)}};
+$('selectAll').onclick=()=>{selected=new Set(candidates.map(x=>x.base));renderCandidates()};$('clearSel').onclick=()=>{selected.clear();renderCandidates()};
+$('checkServer').onclick=checkServer;$('getWatch').onclick=()=>readWatch().catch(()=>{});$('sendSelected').onclick=()=>syncToServer(false);
+$('interval').onchange=startLoop;
+$('autoSend').onchange=e=>{if(e.target.checked){if(!window.confirm('Autorizar envio automático de novos candidatos MME1 para a lista Binance Spot do SetupDT enquanto esta página estiver aberta? Isso pode ativar a varredura do servidor e futuros Telegrams somente quando o SetupDT confirmar sinais.')){e.target.checked=false;return}log('Usuário autorizou envio automático para o SetupDT.')}else log('Envio automático desativado.');};
+$('readSession').onclick=readSession;$('copyReport').onclick=copyReport;$('saveTxt').onclick=()=>saveFile('RelGPT_Ponte_EGI_V4_'+new Date().toISOString().slice(0,10)+'.txt',makeReport());
+$('saveJson').onclick=()=>saveFile('Ponte_EGI_V4_Log_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({schema:'EGI-PONTE-V4-LOG',generatedAt:Date.now(),events:logs},null,2),'application/json');
+$('openRadar').onclick=openRadarInline;
+$('startRadarHere').onclick=openRadarInline;
+$('hideRadarHere').onclick=()=>{$('inlineRadarWrap').hidden=true;$('mobileGuide').scrollIntoView({behavior:'smooth'});};
+$('quickRead').onclick=()=>{readRadar();document.getElementById('radarState').scrollIntoView({behavior:'smooth',block:'center'});};
+$('quickDiagnostic').onclick=quickDiagnostic;$('openSetup').onclick=()=>window.open('./index.html','_blank','noopener');
+window.addEventListener('storage',e=>{if(!imported&&e.key===SOURCE_KEY)readRadar(true)});
+readRadar(true);
+// Leitura a cada 5s: apenas no teste ntfy habilitado envia candidatos reais sem duplicar; funciona com Radar embutido.
+setInterval(()=>{if(!document.hidden && !imported)readRadar(true)},5000);
+// Diagnóstico inicial automático: apenas GET, sem Telegram, ntfy ou atualização da lista.
+Promise.allSettled([checkServer(),readSession()]).then(()=>explainStatus());
+})();
+</script>
+</body>
+</html>
