@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a2c">
+<title>Live para Texto EGI • Mobile V1.2</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark;--bg:#09111f;--panel:#132036;--stroke:#334860;--ink:#f4f8ff;--muted:#b7c9df;--good:#4fd5b0;--warn:#f8ca81;--bad:#fa91a1;--blue:#367ce7}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#162742,#09111f 380px);color:var(--ink)}main{max-width:760px;margin:auto;padding:16px 12px 65px}h1{font-size:1.55rem;line-height:1.15;margin:8px 0}h2{font-size:1.06rem;margin:0 0 9px}h3{font-size:.96rem;margin:0 0 7px}p{line-height:1.42;margin:8px 0}.topline{font-size:.75rem;letter-spacing:.09em;font-weight:800;color:var(--good)}.subtitle{font-size:.87rem;color:var(--muted)}.card{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:14px;margin:12px 0}.stack{display:grid;gap:9px}.row{display:flex;flex-wrap:wrap;gap:8px}.row>*{min-width:0}.flex{flex:1}.small{font-size:.82rem;color:var(--muted)}.hint{font-size:.85rem;color:var(--muted);line-height:1.45}.note{border-left:4px solid var(--warn);background:#57402033;padding:10px 12px;border-radius:7px;font-size:.87rem;line-height:1.45}.oknote{border-color:var(--good);background:#1b5a4933}input,textarea{font:inherit;width:100%;background:#0b1526;color:var(--ink);border:1px solid #566c88;border-radius:10px;padding:12px;outline:none}input:focus,textarea:focus{border-color:#8bbafb}textarea{min-height:255px;line-height:1.5;resize:vertical;font-size:.96rem}button,.btn{font:700 .9rem system-ui;min-height:45px;border-radius:10px;color:var(--ink);background:#2a4160;border:1px solid #5d7797;padding:10px 12px;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;text-align:center;gap:5px;cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}button.primary,.btn.primary{background:var(--blue);border-color:#86baff}button.good{background:#166e57;border-color:#42bf9c}button.bad{background:#672e3d;border-color:#ce7287}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.player{width:100%;aspect-ratio:16/9;border-radius:11px;background:#060b12;overflow:hidden;display:grid;place-items:center;border:1px solid #3a5677}.player iframe{width:100%;height:100%}.empty{padding:20px;font-size:.9rem;text-align:center;color:var(--muted)}.rates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.rates button{font-size:.78rem;padding:9px 2px;min-height:40px}.rates button.active{background:#225aab;border-color:#9dcaff}.status{border:1px solid #416387;background:#142b45;color:#cfe8ff;padding:10px 11px;border-radius:9px;font-size:.84rem;line-height:1.4}.status.ok{background:#123c31;color:#a9efd4;border-color:#35785d}.status.bad{background:#492832;color:#ffd3db;border-color:#a1576b}.status.warn{background:#48351e;color:#ffe1a6;border-color:#976f35}details{border:1px solid var(--stroke);border-radius:11px;padding:10px 12px}summary{cursor:pointer;font-weight:700;font-size:.93rem}ol{margin:9px 0;padding-left:23px}li{margin:7px 0;line-height:1.48}.hiddenfile{display:none}.line{height:1px;background:var(--stroke);margin:8px 0}.caption{display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}.pill{border:1px solid var(--stroke);border-radius:50px;padding:5px 9px;font-size:.77rem;color:#d3e4ff}.chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.chips label{font-size:.84rem;color:var(--muted)}.check{width:auto;vertical-align:middle;margin:0 6px 0 0;accent-color:#65d9b7}.foot{font-size:.74rem;text-align:center;color:#93aac5;padding:12px}.shortcut{position:sticky;bottom:9px;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;padding:8px;border-radius:13px;background:#0b1629e9;border:1px solid #46618b;backdrop-filter:blur(6px)}.shortcut button{min-height:44px}code{font-size:.8rem}a{color:#a9d2ff}button:focus-visible,.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}.mic-meter{height:18px;border-radius:99px;background:#071321;overflow:hidden;border:1px solid #496786}.mic-meter>div{width:0%;height:100%;background:linear-gradient(90deg,#51cda5,#f2cb6b,#ee7486);transition:width .12s ease}.mic-diag{font-size:.82rem;color:#dae8f8;line-height:1.5} @media(min-width:650px){main{padding:23px 20px 60px}h1{font-size:1.9rem}.card{padding:20px}.rates button{font-size:.92rem}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="topline">RADAR CRIPTO EGI • MOBILE LAB</div><h1>🎧 Live → Texto EGI</h1><div class="subtitle">V1.2.1 • tratamento do erro YouTube 153 • microfone • texto • GPT</div></header>
+
+<section class="card stack" id="videoSec">
+<h2>1. Link e vídeo</h2>
+<input id="url" type="url" inputmode="url" autocomplete="url" placeholder="Cole o link da live do YouTube" aria-label="Link da live">
+<input id="title" type="text" placeholder="Título da live (opcional)" aria-label="Título da live">
+<div class="row"><button id="load" class="primary flex">▶ Carregar vídeo</button><a id="openYt" class="btn flex" href="https://www.youtube.com/" target="_blank" rel="noopener">Abrir no YouTube ↗</a></div>
+<div id="playerBox" class="player"><div class="empty">O player aparecerá aqui.</div></div>
+<div class="caption"><span id="playerState">Nenhum vídeo carregado</span><span id="rateState">Velocidade: —</span></div>
+<div class="rates"><button data-rate="1" class="active">1×</button><button data-rate="1.25">1,25×</button><button data-rate="1.5">1,5×</button><button data-rate="1.75">1,75×</button><button data-rate="2">2×</button></div>
+<p class="hint">A velocidade depende do YouTube. Uma live realmente ao vivo pode não aceitar 1,5× ou 2×. Se o player falhar, abra o vídeo no YouTube.</p>
+</section>
+
+<section class="card stack" id="textSec">
+<h2>2. Como transformar em texto no celular</h2>
+<div class="note"><strong>Limitação do Android:</strong> o som do player não é enviado ao reconhecimento de voz do Chrome Android. Para o mesmo celular, a forma mais confiável de obter texto é aproveitar a transcrição/legendas do YouTube, quando disponíveis. O microfone só reconhece som que ele consegue ouvir.</div>
+<details open id="captionHelp"><summary>✅ Opção A — usar transcrição ou legenda do YouTube</summary>
+<ol><li>Toque em <strong>Abrir vídeo no YouTube</strong> abaixo.</li><li>No vídeo, procure <strong>Mostrar transcrição</strong> (pode aparecer em descrição ou detalhes). Para algumas lives, essa opção só surge depois que a transmissão termina.</li><li>Copie o texto disponível. Se não conseguir selecionar, no Chrome abra o YouTube em <strong>Site para computador</strong> e tente novamente.</li><li>Volte aqui e use <strong>Colar texto copiado</strong> ou cole diretamente na caixa de texto.</li></ol>
+<div class="grid2"><a id="goCaptions" class="btn primary" target="_blank" rel="noopener" href="https://www.youtube.com/">Abrir vídeo no YouTube ↗</a><button id="paste">📋 Colar texto copiado</button></div>
+<p class="small">Nem toda live possui transcrição disponível. Este HTML não extrai as legendas automaticamente do servidor do YouTube.</p>
+</details>
+<details open id="micHelp"><summary>🎙️ Opção B — corrigir e testar o microfone Android</summary>
+<p class="hint">Primeiro verificamos se o Chrome recebe sua voz. Só depois verificamos se a transcrição funciona. São duas funções diferentes.</p>
+<div id="environment" class="status">Verificando compatibilidade do navegador…</div>
+<button id="probeMic" class="primary">1. 🎚️ Testar entrada do microfone</button>
+<div class="mic-meter" aria-label="Nível do microfone"><div id="micLevel"></div></div>
+<div id="probeStatus" class="status">Fale perto do celular depois de tocar no botão. O medidor deve se movimentar durante 8 segundos.</div>
+<div class="grid2"><button id="testMic" class="primary">2. 🧪 Testar reconhecimento</button><button id="startMic" class="good">3. 🎙️ Transcrever voz</button><button id="stopMic" class="bad" disabled>■ Parar</button><button id="resetMic">↻ Reiniciar</button></div>
+<div class="chips"><label><input class="check" type="checkbox" id="autoRestart" checked>Retomar quando possível</label><span id="micWordCount" class="pill">0 frases reconhecidas</span></div>
+<div id="micStatus" class="status">Reconhecimento desligado. Depois do teste de entrada, diga “teste EGI um dois três”.</div>
+<details><summary>⚙️ Como liberar microfone no Android</summary><ol><li>Abra o HTML diretamente no <strong>Chrome</strong>, não no visualizador de arquivos de outro aplicativo.</li><li>Android: <strong>Configurações → Apps → Chrome → Permissões → Microfone</strong> e permita o acesso.</li><li>No Chrome: <strong>⋮ → Configurações → Configurações do site → Microfone</strong>. Revise se o site está bloqueado.</li><li>Ative o acesso global ao microfone no painel de privacidade do Android, se houver essa opção.</li><li>Volte ao aplicativo, recarregue e repita <strong>1. Testar entrada</strong>.</li></ol><p class="small">Quando aberto em Downloads (endereço file://), certos recursos podem funcionar de forma diferente. Uma página HTTPS, como GitHub Pages, é preferível para testes estáveis.</p></details>
+<p class="small">Importante: mesmo com o microfone aprovado, ele não recebe necessariamente o áudio interno da live neste mesmo celular. Para falar ou captar uma live, use outro aparelho reproduzindo o som.</p>
+</details>
+<details><summary>⌨️ Opção C — ditado pelo teclado, sem reconhecimento do HTML</summary><p class="hint">Se o reconhecimento do Chrome falhar, toque na caixa de transcrição, abra o teclado do Android (Gboard) e toque no ícone do microfone do teclado para ditar suas próprias palavras. O texto pode ser salvo e copiado normalmente. Isso não captura o áudio interno do YouTube.</p><button id="focusKeyboard">Abrir campo de texto</button></details>
+<div class="grid2"><label class="btn" for="fileInput">📄 Importar TXT/SRT/VTT/JSON</label><input class="hiddenfile" type="file" id="fileInput" accept=".txt,.srt,.vtt,.json,text/plain,application/json"><button id="paste2">📋 Colar na transcrição</button></div>
+<label for="transcript" class="small">Transcrição — editável</label>
+<textarea id="transcript" placeholder="O texto reconhecido pelo microfone aparece aqui, ou cole a transcrição da live. Também pode importar TXT, SRT ou VTT."></textarea>
+<div class="caption"><span id="stats">0 palavras · 0 caracteres</span><span id="saveState">Sem rascunho salvo</span></div>
+<div class="status" id="status" role="status">Pronto. Seu texto será preservado localmente quando o navegador permitir.</div>
+</section>
+
+<section class="card stack" id="copySec">
+<h2>3. Copiar e guardar para o GPT</h2>
+<div class="grid2"><button class="primary" id="copyGpt">📋 Copiar para GPT</button><button id="copyText">Copiar só texto</button><button class="good" id="downloadTxt">⬇ Salvar TXT</button><a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">Abrir ChatGPT ↗</a><button id="downloadJson">⬇ Backup JSON</button><button class="bad" id="clear">🗑 Limpar texto</button></div>
+<div class="line"></div>
+<div class="chips"><span id="chunkState" class="pill">Bloco 0 de 0</span><button id="copyChunk">Copiar bloco</button><button id="nextChunk">Próximo bloco →</button></div>
+<p class="hint">Para lives longas, envie um bloco por vez. O primeiro contém o pedido de análise do Radar EGI e o último libera o relatório.</p>
+<details><summary>Modelo de análise enviado ao GPT</summary><p id="promptPreview" class="small" style="white-space:pre-wrap"></p></details>
+</section>
+
+<section class="card"><h2>O que esta versão consegue fazer</h2>
+<div class="note oknote"><strong>Funciona sem servidor de transcrição:</strong> reproduzir vídeo (quando permitido), tentar mudar a velocidade, transcrever pelo microfone, colar/importar legendas, salvar TXT/JSON e copiar para o GPT.</div>
+<p class="hint"><strong>Não funciona automaticamente:</strong> ouvir o áudio interno do YouTube no mesmo Android e gerar texto apenas colando o link. Para isso será necessário um serviço de transcrição separado, com acesso autorizado ao áudio/legendas, ou um aplicativo Android nativo. Não coloque chaves de API secretas em um HTML público.</p>
+</section>
+<div class="shortcut"><button class="primary" id="jumpText">✍️ Ir ao texto</button><button class="good" id="stickyCopy">📋 Copiar GPT</button></div>
+<div class="foot">EGI LAB • V1.2 • Sem ordens financeiras • Rascunho salvo no próprio dispositivo quando disponível</div>
+</main>
+<script>
+(()=>{'use strict';
+const $=s=>document.getElementById(s);const url=$('url'),title=$('title'),ta=$('transcript'),stat=$('status');
+const STORAGE='egi_live_texto_mobile_v11';const LEGACY='egi_live_texto_mobile_v1';const MAX_CHUNK=11500;
+let player=null,videoId='',apiReady=false,desiredRate=1,rec=null,recWanted=false,recLive=false,recMode='normal',recCycle=0,restarts=0,lastError='',confirmed='',interim='',finalCount=0,micTestTimer=0,noSpeechTimer=0,writeTimer=0,part=0,db=null,restored=false;
+const PROMPT='RELATÓRIO INTELIGENTE EGI — ANÁLISE DE LIVE\nUse o texto a seguir como material de estudo, não como recomendação de investimento. Diferencie fatos relatados, hipóteses, opinião e dados que exigem confirmação. Destaque BTC, altcoins citadas, contexto macro, RSI, médias, volume, suportes, resistências e timeframes apenas quando mencionados. Separe sinais em observação e confirmação por candle fechado. Não invente preços nem resultados. Se houver múltiplos blocos, aguarde o último antes de analisar.';
+$('promptPreview').textContent=PROMPT;
+function show(s,level=''){stat.className='status'+(level?' '+level:'');stat.textContent=s}
+function showMic(s,level=''){const e=$('micStatus');e.className='status'+(level?' '+level:'');e.textContent=s}
+function videoIdFrom(v){try{const u=new URL(v.trim()),host=u.hostname.toLowerCase().replace(/^www\./,'').replace(/^m\./,'');let x='';if(host==='youtu.be')x=u.pathname.split('/').filter(Boolean)[0]||'';else if(['youtube.com','youtube-nocookie.com','music.youtube.com'].includes(host)){if(u.pathname==='/watch')x=u.searchParams.get('v')||'';else if(/^\/(live|shorts|embed)\//.test(u.pathname))x=u.pathname.split('/')[2]||''}return /^[\w-]{11}$/.test(x)?x:null}catch{return null}}
+function videoLink(){const id=videoIdFrom(url.value);return id?'https://www.youtube.com/watch?v='+id:'https://www.youtube.com/'}
+function refreshLinks(){$('openYt').href=videoLink();$('goCaptions').href=videoLink()}
+function updateRate(){if(!player||!player.getPlaybackRate)return;try{const r=player.getPlaybackRate();$('rateState').textContent='Velocidade: '+r.toLocaleString('pt-BR')+'×';document.querySelectorAll('[data-rate]').forEach(b=>b.classList.toggle('active',Number(b.dataset.rate)===r))}catch{}}
+function makePlayer(){if(!apiReady||!videoId)return;if(player&&player.cueVideoById){try{player.cueVideoById(videoId);$('playerState').textContent='Vídeo carregado, dê Play';return}catch{player=null}}$('playerBox').innerHTML='<div id="ytFrame"></div>';player=new YT.Player('ytFrame',{videoId:videoId,width:'100%',height:'100%',playerVars:{playsinline:1,rel:0,origin:location.protocol==='https:'?location.origin:undefined},events:{onReady:()=>{$('playerState').textContent='Player pronto';updateRate()},onPlaybackRateChange:updateRate,onStateChange:e=>{const s=YT.PlayerState;$('playerState').textContent=e.data===s.PLAYING?'▶ Vídeo reproduzindo':e.data===s.PAUSED?'Vídeo pausado':e.data===s.ENDED?'Vídeo terminou':'Player carregado'},onError:e=>{$('playerState').textContent='YouTube não incorporou este vídeo ('+e.data+')';show(Number(e.data)===153?'Erro 153: o YouTube não recebeu a identificação da página. Use Abrir no YouTube ↗. Em uma página HTTPS, confira bloqueadores e políticas de referência do navegador.':'Abra este vídeo no YouTube. Certos vídeos não permitem player incorporado.','warn')}}})}
+window.onYouTubeIframeAPIReady=()=>{apiReady=true;makePlayer()};
+function loadVideo(){const id=videoIdFrom(url.value);if(!id){show('Cole um link válido do YouTube.','bad');return}videoId=id;refreshLinks();if(!/^https?:$/.test(location.protocol)){ $('playerState').textContent='Arquivo local: use Abrir no YouTube';show('Neste arquivo local, o player pode apresentar erro 153 porque falta identificação da página. Toque em Abrir no YouTube ↗. Para tentar o player dentro do app, abra uma versão hospedada por HTTPS. Colar/importar texto continua disponível.','warn');scheduleSave();return}if(apiReady)makePlayer();else{if(!document.getElementById('ytIframeApi')){const sc=document.createElement('script');sc.id='ytIframeApi';sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>show('Não foi possível carregar o player do YouTube. Verifique a conexão.','bad');document.head.appendChild(sc)}$('playerState').textContent='Carregando player…'}show('Vídeo carregado. Atenção: reproduzir não ativa a transcrição do áudio interno.','warn');scheduleSave()}
+$('load').onclick=loadVideo;url.addEventListener('input',()=>{refreshLinks();scheduleSave()});url.addEventListener('keydown',e=>{if(e.key==='Enter')loadVideo()});
+document.querySelectorAll('[data-rate]').forEach(b=>b.onclick=()=>{desiredRate=Number(b.dataset.rate);if(!player||!player.setPlaybackRate){show('Carregue o vídeo e dê Play antes de mudar a velocidade.','warn');return}try{const rates=player.getAvailablePlaybackRates();if(rates.length&&!rates.includes(desiredRate)){show('Esta live não oferece '+desiredRate+'×. Velocidades: '+rates.join('×, ')+'×.','warn');return}player.setPlaybackRate(desiredRate);setTimeout(()=>{updateRate();const r=player.getPlaybackRate();show(Math.abs(r-desiredRate)<.01?'Velocidade aplicada: '+r+'×.':'O YouTube não aceitou a velocidade pedida.',Math.abs(r-desiredRate)<.01?'ok':'warn')},400)}catch{show('Não foi possível ajustar a velocidade.','bad')}});
+function updateStats(){const t=ta.value,w=t.trim()?t.trim().split(/\s+/).length:0; $('stats').textContent=w.toLocaleString('pt-BR')+' palavras · '+t.length.toLocaleString('pt-BR')+' caracteres';const count=Math.ceil(t.length/MAX_CHUNK);part=Math.min(Math.max(0,part),Math.max(0,count-1));$('chunkState').textContent='Bloco '+(count?part+1:0)+' de '+count;$('copyChunk').disabled=count===0;$('nextChunk').disabled=count<2}
+function renderSpeech(){ta.value=(confirmed.trimEnd()+(confirmed&&interim?'\n':'')+interim).trim();updateStats()}
+function stopTimers(){clearTimeout(micTestTimer);clearTimeout(noSpeechTimer)}
+function resetButtons(){$('startMic').disabled=false;$('testMic').disabled=false;$('stopMic').disabled=true}
+function stopSpeech(msg){recWanted=false;stopTimers();if(rec)try{rec.stop()}catch{}resetButtons();if(msg)showMic(msg);scheduleSave()}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let probeActive=false;
+function diagEnvironment(){const data=[];data.push('Página: '+(location.protocol==='file:'?'arquivo local (Downloads)':location.protocol==='https:'?'HTTPS':'outro endereço'));
+ data.push('Microfone web: '+(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia?'disponível':'indisponível'));
+ data.push('Reconhecimento de voz: '+(SR?'disponível para tentativa':'não disponível'));
+ data.push('Contexto protegido: '+(window.isSecureContext?'sim':'não'));
+ $('environment').textContent=data.join(' · ');
+ if(!SR)showMic('O reconhecimento de voz não foi disponibilizado neste navegador/contexto. O teste de entrada ainda pode funcionar; use a opção de legendas ou Gboard.','warn');
+}
+function probeMessage(e){const nm=e&&e.name||'';
+ const errors={NotAllowedError:'Acesso negado. Nas Configurações do Android, permita o microfone para o Chrome; depois confira as permissões do site. Se estiver bloqueado, reabra a página.',NotFoundError:'Nenhuma entrada de áudio encontrada pelo Chrome.',NotReadableError:'Microfone indisponível ou ocupado por outro aplicativo. Feche chamadas e gravadores e tente novamente.',SecurityError:'O navegador bloqueou o acesso por segurança. Abra o HTML no Chrome ou hospede por HTTPS.',AbortError:'A tentativa de acesso foi interrompida pelo aparelho.',OverconstrainedError:'O navegador não conseguiu abrir o dispositivo de áudio.'};
+ return errors[nm]||('Erro ao acessar o microfone: '+nm+' '+(e.message||''));
+}
+$('focusKeyboard').onclick=()=>{ta.focus();$('textSec').scrollIntoView({behavior:'smooth',block:'start'})};
+$('probeMic').onclick=async()=>{if(probeActive)return;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$('probeStatus').className='status bad';$('probeStatus').textContent='Esta página não tem acesso à função de microfone. Tente abrir com o Chrome ou por HTTPS.';return}
+ if(recWanted)stopSpeech('Reconhecimento pausado para medir o microfone.');
+ probeActive=true;$('probeMic').disabled=true;$('micLevel').style.width='0%';$('probeStatus').className='status warn';$('probeStatus').textContent='Pedindo permissão ao Chrome… aceite e fale perto do microfone.';
+ let stream=null,ctx=null,interval=null;try{
+  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
+  const Context=window.AudioContext||window.webkitAudioContext;if(!Context)throw new Error('Web Audio indisponível');
+  ctx=new Context();if(ctx.state==='suspended')await ctx.resume();
+  const source=ctx.createMediaStreamSource(stream),analyser=ctx.createAnalyser();analyser.fftSize=1024;source.connect(analyser);
+  const samples=new Uint8Array(analyser.fftSize);let peak=0,steps=0;
+  $('probeStatus').className='status';$('probeStatus').textContent='Microfone autorizado! Fale “teste EGI um dois três” durante 8 segundos. Observe a barra.';
+  await new Promise(resolve=>{let done=false;const timeout=setTimeout(()=>{if(!done){done=true;resolve()}},8000);
+    interval=setInterval(()=>{analyser.getByteTimeDomainData(samples);let sum=0;for(let i=0;i<samples.length;i++){const v=(samples[i]-128)/128;sum+=v*v}const rms=Math.sqrt(sum/samples.length);peak=Math.max(peak,rms);steps++;$('micLevel').style.width=Math.min(100,Math.round(rms*700))+'%'},100);
+  });
+  if(steps&&peak>.012){$('probeStatus').className='status ok';$('probeStatus').textContent='✅ Entrada de áudio aprovada: o Chrome recebeu som pelo microfone. Agora toque em “2. Testar reconhecimento”. Se ele falhar, o problema é o serviço de voz, não necessariamente o microfone.'}
+  else{$('probeStatus').className='status warn';$('probeStatus').textContent='⚠️ Microfone autorizado, mas quase não houve sinal de som. Fale mais perto, desligue fones Bluetooth e teste o gravador do celular.'}
+ }catch(e){$('probeStatus').className='status bad';$('probeStatus').textContent='❌ '+probeMessage(e)}finally{
+  if(interval)clearInterval(interval);if(stream)stream.getTracks().forEach(track=>track.stop());if(ctx)try{await ctx.close()}catch{}probeActive=false;$('probeMic').disabled=false;$('micLevel').style.width='0%';
+ }};
+// diagnóstico inicial não exige permissão
+ diagEnvironment();
+function startSpeech(test=false){if(probeActive){showMic('Conclua primeiro o teste de entrada do microfone.','warn');return}if(recWanted){showMic('Já existe um reconhecimento ativo.');return}if(!SR){showMic('O Chrome não liberou o reconhecimento de voz neste contexto. Use texto do YouTube ou importe um arquivo.','bad');$('micHelp').open=true;return}
+ if(!window.isSecureContext){showMic('O navegador pode bloquear reconhecimento em arquivo local. Abra esta página por HTTPS (por exemplo, GitHub Pages) se o teste falhar.','warn')}
+ recWanted=true;recMode=test?'test':'normal';recCycle++;restarts=0;lastError='';confirmed=ta.value.trim();interim='';finalCount=0;$('micWordCount').textContent='0 frases reconhecidas';$('startMic').disabled=true;$('testMic').disabled=true;$('stopMic').disabled=false;
+ if(test){showMic('Teste iniciado: diga "teste EGI um dois três" próximo ao microfone.','warn');micTestTimer=setTimeout(()=>{if(!recWanted)return;const passed=finalCount>0;stopSpeech(passed?'✅ Teste aprovado: o microfone reconheceu sua voz.': '❌ Nenhuma voz reconhecida. Confirme permissão do microfone e conexão; o áudio interno do YouTube não é uma fonte de microfone.');showMic(passed?'✅ Microfone aprovado. Você pode iniciar a transcrição com áudio de OUTRO aparelho.':'Não reconheceu sua voz no teste. Esse botão não capta automaticamente o som do player.',passed?'ok':'bad')},12000)}else{showMic('Solicitando microfone…','warn');}
+ launchRecognition(recCycle)}
+function launchRecognition(cycle){if(!recWanted||cycle!==recCycle)return;try{rec=new SR();rec.lang='pt-BR';rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+ rec.onstart=()=>{recLive=true;if(recMode==='normal')showMic('🎙️ Microfone ativado. Aguardando fala do ambiente; o áudio interno do YouTube não é capturado.','ok');clearTimeout(noSpeechTimer);noSpeechTimer=setTimeout(()=>{if(recWanted&&finalCount===0&&recMode==='normal')showMic('Microfone ligado, mas ainda sem palavras reconhecidas. Experimente falar perto dele.','warn')},10000)};
+ rec.onresult=e=>{let additions='',partial='';for(let i=e.resultIndex;i<e.results.length;i++){const s=e.results[i][0].transcript.trim();if(e.results[i].isFinal){if(s){additions+=s+'\n';finalCount++}}else partial+=s+' '}
+ if(additions){confirmed=(confirmed?confirmed+'\n':'')+additions.trim();restarts=0;$('micWordCount').textContent=finalCount+' frase(s) reconhecida(s)';scheduleSave();showMic('✅ Texto reconhecido e registrado abaixo.','ok')}
+ interim=partial.trim();renderSpeech()};
+ rec.onerror=e=>{lastError=e.error;const msg={'not-allowed':'Permissão de microfone negada. Ajuste as permissões do site no Chrome.','service-not-allowed':'Serviço de reconhecimento não permitido pelo navegador.','audio-capture':'Nenhum microfone disponível para o Chrome.','network':'Problema de rede no reconhecimento de voz.','no-speech':'Nenhuma fala detectada pelo microfone.','aborted':'Reconhecimento interrompido.','language-not-supported':'Idioma pt-BR não disponível.'}[e.error]||('Erro do reconhecimento: '+e.error);showMic(msg,'bad');if(['not-allowed','service-not-allowed','audio-capture','network','language-not-supported'].includes(e.error))recWanted=false};
+ rec.onend=()=>{recLive=false;interim='';renderSpeech();if(!recWanted){resetButtons();return}if(!lastError||['no-speech','aborted'].includes(lastError)){if($('autoRestart').checked&&restarts<3){restarts++;lastError='';setTimeout(()=>{if(recWanted&&cycle===recCycle)launchRecognition(cycle)},700);return}}stopSpeech();if(recMode==='normal')showMic('Reconhecimento parou. Seu texto ficou salvo. Toque em Transcrever microfone para recomeçar.','warn')};rec.start()
+ }catch(e){stopSpeech();showMic('Não foi possível iniciar o reconhecimento: '+(e.message||e),'bad')}}
+$('testMic').onclick=()=>startSpeech(true);$('startMic').onclick=()=>startSpeech(false);$('stopMic').onclick=()=>{stopSpeech('Microfone parado; conteúdo preservado.')};$('resetMic').onclick=()=>{stopSpeech('Teste reiniciado; toque em Testar microfone.');$('micWordCount').textContent='0 frases reconhecidas'};
+ta.addEventListener('input',()=>{if(recWanted)stopSpeech('Reconhecimento pausado para permitir edição do texto.');confirmed=ta.value;interim='';updateStats();scheduleSave()});
+async function pasteText(){try{if(!navigator.clipboard||!navigator.clipboard.readText)throw Error('sem acesso');const t=(await navigator.clipboard.readText()).trim();if(!t){show('A área de transferência está vazia. Toque na caixa de texto e use Colar.','warn');return}if(recWanted)stopSpeech('Microfone parado para inserir a transcrição.');ta.value=(ta.value.trim()?ta.value.trim()+'\n\n':'')+t;confirmed=ta.value;part=0;updateStats();scheduleSave();show('✅ Texto colado ('+t.length+' caracteres).','ok');$('textSec').scrollIntoView({behavior:'smooth',block:'start'})}catch{ta.focus();show('O Android bloqueou a leitura automática da área de transferência. Pressione o campo de texto por 1 segundo e escolha Colar.','warn')}}
+$('paste').onclick=pasteText;$('paste2').onclick=pasteText;
+function decodeEntities(s){return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")}
+function normalizeSubtitles(s){s=s.replace(/^\uFEFF/,'');if(!/^WEBVTT\b/m.test(s)&&!/\d\d:\d\d:\d\d[,.]\d{3}\s*-->/m.test(s))return s.trim();let out=[],prev='';for(const raw of s.split(/\r?\n/)){const x=raw.trim();if(!x||/^WEBVTT(?:\s|$)/.test(x)||/^NOTE(?:\s|$)/.test(x)||/^\d+$/.test(x)||/-->/.test(x)||/^STYLE$|^REGION$/i.test(x))continue;const l=decodeEntities(x.replace(/<[^>]*>/g,''));if(l&&l!==prev){out.push(l);prev=l}}return out.join('\n').trim()}
+$('fileInput').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>15*1024*1024){show('Arquivo muito grande. Limite de 15 MB para texto.','bad');e.target.value='';return}try{let raw=await f.text(),t='';if(f.name.toLowerCase().endsWith('.json')){const j=JSON.parse(raw);t=typeof j.text==='string'?j.text:typeof j.transcript==='string'?j.transcript:'';if(!t)throw Error('Backup não contém campo text/transcript');if(j.url&&!url.value)url.value=j.url;if(j.title&&!title.value)title.value=j.title;refreshLinks()}else t=normalizeSubtitles(raw);if(!t.trim())throw Error('Arquivo vazio');if(recWanted)stopSpeech('Microfone parado durante a importação.');ta.value=(ta.value.trim()?ta.value.trim()+'\n\n':'')+t;confirmed=ta.value;part=0;updateStats();scheduleSave();show('Arquivo importado: '+f.name,'ok')}catch(err){show('Não consegui importar: '+err.message,'bad')}e.target.value=''};
+function header(){return 'LIVE → TEXTO EGI MOBILE V1.2\nTítulo: '+(title.value.trim()||'Não informado')+'\nLink: '+(url.value.trim()||'Não informado')+'\nExportado em: '+new Date().toLocaleString('pt-BR')+'\n'}
+function promptPart(t){return PROMPT+'\n\n'+header()+'\n--- TRANSCRIÇÃO ---\n'+t+'\n--- FIM ---'}
+async function copy(s){if(!s.trim()){show('Não há texto para copiar.','warn');return}try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(s)}else{const el=document.createElement('textarea');el.value=s;el.style.position='fixed';el.style.opacity='0';document.body.append(el);el.focus();el.select();const ok=document.execCommand('copy');el.remove();if(!ok)throw Error('cópia bloqueada')}show('✅ Copiado. Abra o ChatGPT e cole o texto.','ok')}catch{show('O navegador não permitiu a cópia automática. Selecione o texto no campo e use Copiar.','bad')}}
+function copyGpt(){if(!ta.value.trim())return show('A transcrição está vazia; cole/importa o texto primeiro.','warn');copy(promptPart(ta.value))}
+$('copyGpt').onclick=copyGpt;$('stickyCopy').onclick=copyGpt;$('copyText').onclick=()=>copy(ta.value);
+$('copyChunk').onclick=()=>{if(!ta.value.trim())return show('Texto vazio.','warn');const count=Math.ceil(ta.value.length/MAX_CHUNK);const begin=part===0?PROMPT+'\n\n'+header()+'\n--- TRANSCRIÇÃO EM BLOCOS ---\n':'';const end=part===count-1?'\n--- ÚLTIMO BLOCO ---\nAgora pode fazer a análise.':'\nAguarde o próximo bloco para analisar.';copy(begin+'BLOCO '+(part+1)+' de '+count+'\n'+ta.value.slice(part*MAX_CHUNK,(part+1)*MAX_CHUNK)+end)};
+$('nextChunk').onclick=()=>{const count=Math.ceil(ta.value.length/MAX_CHUNK);part=(part+1)%Math.max(1,count);updateStats();show('Bloco '+(part+1)+' de '+count+' selecionado.','ok')};
+function download(content,name,type='text/plain;charset=utf-8'){const blob=new Blob([content],{type});const ob=URL.createObjectURL(blob),a=document.createElement('a');a.href=ob;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(ob),10000)}
+function stamp(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+'-'+String(d.getMinutes()).padStart(2,'0')}
+$('downloadTxt').onclick=()=>{if(!ta.value.trim())return show('Não há transcrição para salvar.','warn');download(header()+'\n'+ta.value,'Live_Texto_EGI_'+stamp()+'.txt');show('TXT gerado. Verifique a pasta Downloads do Android.','ok')};
+$('downloadJson').onclick=()=>{download(JSON.stringify({app:'Live para Texto EGI Mobile V1.2',url:url.value,title:title.value,text:ta.value,savedAt:new Date().toISOString()},null,2),'Backup_Live_Texto_EGI_'+stamp()+'.json','application/json;charset=utf-8');show('Backup JSON gerado. Verifique Downloads.','ok')};
+$('clear').onclick=()=>{if(!ta.value.trim())return;if(!confirm('Limpar o texto atual? Salve TXT ou JSON antes se precisar guardar.'))return;stopSpeech();ta.value='';confirmed='';interim='';part=0;updateStats();scheduleSave();show('Texto limpo.','ok')};
+$('jumpText').onclick=()=>{ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus()};
+function snapshot(){return {url:url.value,title:title.value,text:ta.value,savedAt:Date.now()}}
+function applySnapshot(s){if(restored||!s)return;restored=true;url.value=s.url||s.link||'';title.value=s.title||'';ta.value=s.text||'';confirmed=ta.value;refreshLinks();updateStats();$('saveState').textContent='Rascunho restaurado';show('Rascunho anterior recuperado.','ok')}
+function loadLocal(){if(restored)return;try{const s=localStorage.getItem(STORAGE)||localStorage.getItem(LEGACY);if(s)applySnapshot(JSON.parse(s))}catch{}restored=true;updateStats()}
+function initDb(){if(!('indexedDB' in window))return loadLocal();try{const req=indexedDB.open('EGI_Live_Texto_Mobile_DB',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('draft'))req.result.createObjectStore('draft')};req.onsuccess=()=>{db=req.result;const r=db.transaction('draft','readonly').objectStore('draft').get('current');r.onsuccess=()=>{if(r.result)applySnapshot(r.result);else loadLocal()};r.onerror=loadLocal};req.onerror=loadLocal}catch{loadLocal()}}
+function persist(){const s=snapshot(),done=()=>{$('saveState').textContent='Salvo às '+new Date().toLocaleTimeString('pt-BR')};if(db)try{const req=db.transaction('draft','readwrite').objectStore('draft').put(s,'current');req.onsuccess=done;req.onerror=()=>show('Erro no armazenamento. Exporte TXT/JSON.','bad');return}catch{}try{localStorage.setItem(STORAGE,JSON.stringify(s));done()}catch{show('Armazenamento indisponível. Salve TXT/JSON.','bad')}}
+function scheduleSave(){clearTimeout(writeTimer);writeTimer=setTimeout(persist,600)}
+title.addEventListener('input',scheduleSave);window.addEventListener('pagehide',()=>{if(writeTimer){clearTimeout(writeTimer);persist()}if(recWanted)stopSpeech()});
+$('copyChunk').disabled=true;$('nextChunk').disabled=true;initDb();setTimeout(loadLocal,2000);
+})();
+</script>
+</body>
+</html>
