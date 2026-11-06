@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101a2c">
-<title>Live para Texto EGI • Mobile V1.2</title>
+<title>Live para Texto EGI V1.4 • Áudio da aba</title>
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark;--bg:#09111f;--panel:#132036;--stroke:#334860;--ink:#f4f8ff;--muted:#b7c9df;--good:#4fd5b0;--warn:#f8ca81;--bad:#fa91a1;--blue:#367ce7}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#162742,#09111f 380px);color:var(--ink)}main{max-width:760px;margin:auto;padding:16px 12px 65px}h1{font-size:1.55rem;line-height:1.15;margin:8px 0}h2{font-size:1.06rem;margin:0 0 9px}h3{font-size:.96rem;margin:0 0 7px}p{line-height:1.42;margin:8px 0}.topline{font-size:.75rem;letter-spacing:.09em;font-weight:800;color:var(--good)}.subtitle{font-size:.87rem;color:var(--muted)}.card{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:14px;margin:12px 0}.stack{display:grid;gap:9px}.row{display:flex;flex-wrap:wrap;gap:8px}.row>*{min-width:0}.flex{flex:1}.small{font-size:.82rem;color:var(--muted)}.hint{font-size:.85rem;color:var(--muted);line-height:1.45}.note{border-left:4px solid var(--warn);background:#57402033;padding:10px 12px;border-radius:7px;font-size:.87rem;line-height:1.45}.oknote{border-color:var(--good);background:#1b5a4933}input,textarea{font:inherit;width:100%;background:#0b1526;color:var(--ink);border:1px solid #566c88;border-radius:10px;padding:12px;outline:none}input:focus,textarea:focus{border-color:#8bbafb}textarea{min-height:255px;line-height:1.5;resize:vertical;font-size:.96rem}button,.btn{font:700 .9rem system-ui;min-height:45px;border-radius:10px;color:var(--ink);background:#2a4160;border:1px solid #5d7797;padding:10px 12px;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;text-align:center;gap:5px;cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}button.primary,.btn.primary{background:var(--blue);border-color:#86baff}button.good{background:#166e57;border-color:#42bf9c}button.bad{background:#672e3d;border-color:#ce7287}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.player{width:100%;aspect-ratio:16/9;border-radius:11px;background:#060b12;overflow:hidden;display:grid;place-items:center;border:1px solid #3a5677}.player iframe{width:100%;height:100%}.empty{padding:20px;font-size:.9rem;text-align:center;color:var(--muted)}.rates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.rates button{font-size:.78rem;padding:9px 2px;min-height:40px}.rates button.active{background:#225aab;border-color:#9dcaff}.status{border:1px solid #416387;background:#142b45;color:#cfe8ff;padding:10px 11px;border-radius:9px;font-size:.84rem;line-height:1.4}.status.ok{background:#123c31;color:#a9efd4;border-color:#35785d}.status.bad{background:#492832;color:#ffd3db;border-color:#a1576b}.status.warn{background:#48351e;color:#ffe1a6;border-color:#976f35}details{border:1px solid var(--stroke);border-radius:11px;padding:10px 12px}summary{cursor:pointer;font-weight:700;font-size:.93rem}ol{margin:9px 0;padding-left:23px}li{margin:7px 0;line-height:1.48}.hiddenfile{display:none}.line{height:1px;background:var(--stroke);margin:8px 0}.caption{display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}.pill{border:1px solid var(--stroke);border-radius:50px;padding:5px 9px;font-size:.77rem;color:#d3e4ff}.chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.chips label{font-size:.84rem;color:var(--muted)}.check{width:auto;vertical-align:middle;margin:0 6px 0 0;accent-color:#65d9b7}.foot{font-size:.74rem;text-align:center;color:#93aac5;padding:12px}.shortcut{position:sticky;bottom:9px;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;padding:8px;border-radius:13px;background:#0b1629e9;border:1px solid #46618b;backdrop-filter:blur(6px)}.shortcut button{min-height:44px}code{font-size:.8rem}a{color:#a9d2ff}button:focus-visible,.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}.mic-meter{height:18px;border-radius:99px;background:#071321;overflow:hidden;border:1px solid #496786}.mic-meter>div{width:0%;height:100%;background:linear-gradient(90deg,#51cda5,#f2cb6b,#ee7486);transition:width .12s ease}.mic-diag{font-size:.82rem;color:#dae8f8;line-height:1.5} @media(min-width:650px){main{padding:23px 20px 60px}h1{font-size:1.9rem}.card{padding:20px}.rates button{font-size:.92rem}}
@@ -13,7 +13,7 @@
 </head>
 <body>
 <main>
-<header><div class="topline">RADAR CRIPTO EGI • MOBILE LAB</div><h1>🎧 Live → Texto EGI</h1><div class="subtitle">V1.2.1 • tratamento do erro YouTube 153 • microfone • texto • GPT</div></header>
+<header><div class="topline">RADAR CRIPTO EGI • MOBILE LAB</div><h1>🎧 Live → Texto EGI</h1><div class="subtitle">V1.4 LAB • áudio da aba → texto → TXT • Windows / Chrome</div></header>
 
 <section class="card stack" id="videoSec">
 <h2>1. Link e vídeo</h2>
@@ -26,8 +26,20 @@
 <p class="hint">A velocidade depende do YouTube. Uma live realmente ao vivo pode não aceitar 1,5× ou 2×. Se o player falhar, abra o vídeo no YouTube.</p>
 </section>
 
+<section class="card stack" id="tabCaptureSec">
+<h2>2. Ouvir o YouTube e gerar TXT — computador</h2>
+<p>Sem microfone físico: o aplicativo recebe o áudio da aba que você escolher e transforma a fala em português em texto.</p>
+<ol><li>Toque em <strong>Preparar transcritor</strong> e aguarde ficar pronto.</li><li>Abra o vídeo em <strong>outra aba do YouTube</strong>, deixe pausado e em velocidade <strong>1×</strong>.</li><li>Toque em <strong>Capturar áudio da aba</strong>. Escolha <strong>Guia do Chrome → YouTube</strong>, marque <strong>Compartilhar áudio da aba</strong> e confirme.</li><li>Dê Play. O texto aparece abaixo em blocos de cerca de 25 segundos, mais o tempo de processamento.</li><li>Ao terminar, toque em <strong>Parar captura</strong>, aguarde os blocos pendentes e use <strong>Salvar TXT</strong>. Depois anexe o TXT no ChatGPT.</li></ol>
+<div class="grid2"><button id="tabPrepare" class="primary">1. Preparar transcritor</button><button id="tabStart" class="good" disabled>2. Capturar áudio da aba</button><button id="tabStop" class="bad" disabled>■ Parar captura</button><button id="tabSave">⬇ Salvar TXT pronto</button></div>
+<div class="mic-meter" aria-label="Nível do áudio compartilhado"><div id="tabLevel"></div></div>
+<div id="tabStatus" class="status" role="status" aria-live="polite">Comece por Preparar transcritor. A primeira preparação baixa os arquivos do modelo e pode demorar alguns minutos.</div>
+<div id="tabQueue" class="small">Áudio capturado: 0 s · blocos pendentes: 0</div>
+<p class="hint">Mantenha esta página aberta. O áudio é processado neste computador; a internet é usada para baixar o transcritor. Não precisa de chave de API. Se o processamento ficar atrasado, pause o vídeo e aguarde. Blocos de áudio pendentes não são recuperados após fechar/recarregar a página.</p>
+<p class="hint">Versão experimental: revise nomes de moedas, números e preços. Frases podem ser cortadas na divisão dos blocos. Música, silêncio e fala sobreposta reduzem a precisão. No Android, use as opções de texto abaixo.</p>
+</section>
+
 <section class="card stack" id="textSec">
-<h2>2. Como transformar em texto no celular</h2>
+<h2>3. Texto e alternativas no celular</h2>
 <div class="note"><strong>Limitação do Android:</strong> o som do player não é enviado ao reconhecimento de voz do Chrome Android. Para o mesmo celular, a forma mais confiável de obter texto é aproveitar a transcrição/legendas do YouTube, quando disponíveis. O microfone só reconhece som que ele consegue ouvir.</div>
 <details open id="captionHelp"><summary>✅ Opção A — usar transcrição ou legenda do YouTube</summary>
 <ol><li>Toque em <strong>Abrir vídeo no YouTube</strong> abaixo.</li><li>No vídeo, procure <strong>Mostrar transcrição</strong> (pode aparecer em descrição ou detalhes). Para algumas lives, essa opção só surge depois que a transmissão termina.</li><li>Copie o texto disponível. Se não conseguir selecionar, no Chrome abra o YouTube em <strong>Site para computador</strong> e tente novamente.</li><li>Volte aqui e use <strong>Colar texto copiado</strong> ou cole diretamente na caixa de texto.</li></ol>
@@ -55,7 +67,7 @@
 </section>
 
 <section class="card stack" id="copySec">
-<h2>3. Copiar e guardar para o GPT</h2>
+<h2>4. Copiar e guardar para o GPT</h2>
 <div class="grid2"><button class="primary" id="copyGpt">📋 Copiar para GPT</button><button id="copyText">Copiar só texto</button><button class="good" id="downloadTxt">⬇ Salvar TXT</button><a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">Abrir ChatGPT ↗</a><button id="downloadJson">⬇ Backup JSON</button><button class="bad" id="clear">🗑 Limpar texto</button></div>
 <div class="line"></div>
 <div class="chips"><span id="chunkState" class="pill">Bloco 0 de 0</span><button id="copyChunk">Copiar bloco</button><button id="nextChunk">Próximo bloco →</button></div>
@@ -64,12 +76,48 @@
 </section>
 
 <section class="card"><h2>O que esta versão consegue fazer</h2>
-<div class="note oknote"><strong>Funciona sem servidor de transcrição:</strong> reproduzir vídeo (quando permitido), tentar mudar a velocidade, transcrever pelo microfone, colar/importar legendas, salvar TXT/JSON e copiar para o GPT.</div>
-<p class="hint"><strong>Não funciona automaticamente:</strong> ouvir o áudio interno do YouTube no mesmo Android e gerar texto apenas colando o link. Para isso será necessário um serviço de transcrição separado, com acesso autorizado ao áudio/legendas, ou um aplicativo Android nativo. Não coloque chaves de API secretas em um HTML público.</p>
+<div class="note oknote"><strong>Transcrição no computador:</strong> capturar áudio de uma aba autorizada, transcrever localmente em português, editar o resultado e salvar TXT/JSON para enviar ao ChatGPT.</div>
+<p class="hint">Colar o link sozinho não inicia a transcrição. Prepare o transcritor e escolha a aba com áudio. A captura depende do compartilhamento oferecido pelo Chrome do computador.</p>
 </section>
 <div class="shortcut"><button class="primary" id="jumpText">✍️ Ir ao texto</button><button class="good" id="stickyCopy">📋 Copiar GPT</button></div>
-<div class="foot">EGI LAB • V1.2 • Sem ordens financeiras • Rascunho salvo no próprio dispositivo quando disponível</div>
+<div class="foot">EGI LAB • V1.4 LAB • Sem ordens financeiras • Rascunho salvo no próprio dispositivo quando disponível</div>
 </main>
+<script type="text/plain" id="egiWhisperWorker">
+// Modelo multilíngue: execução local; o áudio não é enviado ao servidor.
+let transcriber=null;
+self.onmessage=async({data:d})=>{
+ try{
+ if(d.type==='load'){
+ const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js');
+ env.allowLocalModels=false;
+ env.backends.onnx.wasm.numThreads=1;
+ env.backends.onnx.wasm.proxy=false;
+ transcriber=await pipeline('automatic-speech-recognition','onnx-community/whisper-tiny',{device:'wasm',dtype:'q8',progress_callback:p=>{if(p.status==='progress')self.postMessage({type:'progress',file:p.file||'modelo',progress:p.progress});}});
+ self.postMessage({type:'ready'});return;
+ }
+ if(d.type==='transcribe'){
+ if(!transcriber)throw Error('Transcritor ainda não está pronto');
+ const audio=downsample(d.audio,d.rate,16000);
+ let power=0;for(const v of audio)power+=v*v;
+ if(!audio.length||Math.sqrt(power/audio.length)<0.001){self.postMessage({type:'result',text:'',silent:true});return;}
+ const result=await transcriber(audio,{language:'portuguese',task:'transcribe',return_timestamps:false,max_new_tokens:256});
+ self.postMessage({type:'result',text:result.text||''});
+ }
+ }catch(e){self.postMessage({type:'error',message:String(e.message||e)});}
+};
+function downsample(input,rate,target){
+ if(rate===target)return input;
+ const ratio=rate/target,out=new Float32Array(Math.floor(input.length/ratio));
+ // Média ponderada por amostra; mantém a duração inclusive em 44,1 kHz.
+ for(let i=0;i<out.length;i++){
+ const a=i*ratio,b=(i+1)*ratio;let sum=0;
+ for(let j=Math.floor(a);j<Math.ceil(b);j++)sum+=(input[j]||0)*Math.max(0,Math.min(b,j+1)-Math.max(a,j));
+ out[i]=sum/ratio;
+ }
+ return out;
+}
+
+</script>
 <script>
 (()=>{'use strict';
 const $=s=>document.getElementById(s);const url=$('url'),title=$('title'),ta=$('transcript'),stat=$('status');
@@ -128,7 +176,7 @@ $('probeMic').onclick=async()=>{if(probeActive)return;
  }};
 // diagnóstico inicial não exige permissão
  diagEnvironment();
-function startSpeech(test=false){if(probeActive){showMic('Conclua primeiro o teste de entrada do microfone.','warn');return}if(recWanted){showMic('Já existe um reconhecimento ativo.');return}if(!SR){showMic('O Chrome não liberou o reconhecimento de voz neste contexto. Use texto do YouTube ou importe um arquivo.','bad');$('micHelp').open=true;return}
+function startSpeech(test=false){if(tabActive||tabBusy||tabQueue.length){showMic("Finalize a captura da aba e os blocos pendentes antes de usar o microfone.","warn");return;}if(probeActive){showMic('Conclua primeiro o teste de entrada do microfone.','warn');return}if(recWanted){showMic('Já existe um reconhecimento ativo.');return}if(!SR){showMic('O Chrome não liberou o reconhecimento de voz neste contexto. Use texto do YouTube ou importe um arquivo.','bad');$('micHelp').open=true;return}
  if(!window.isSecureContext){showMic('O navegador pode bloquear reconhecimento em arquivo local. Abra esta página por HTTPS (por exemplo, GitHub Pages) se o teste falhar.','warn')}
  recWanted=true;recMode=test?'test':'normal';recCycle++;restarts=0;lastError='';confirmed=ta.value.trim();interim='';finalCount=0;$('micWordCount').textContent='0 frases reconhecidas';$('startMic').disabled=true;$('testMic').disabled=true;$('stopMic').disabled=false;
  if(test){showMic('Teste iniciado: diga "teste EGI um dois três" próximo ao microfone.','warn');micTestTimer=setTimeout(()=>{if(!recWanted)return;const passed=finalCount>0;stopSpeech(passed?'✅ Teste aprovado: o microfone reconheceu sua voz.': '❌ Nenhuma voz reconhecida. Confirme permissão do microfone e conexão; o áudio interno do YouTube não é uma fonte de microfone.');showMic(passed?'✅ Microfone aprovado. Você pode iniciar a transcrição com áudio de OUTRO aparelho.':'Não reconheceu sua voz no teste. Esse botão não capta automaticamente o som do player.',passed?'ok':'bad')},12000)}else{showMic('Solicitando microfone…','warn');}
@@ -148,7 +196,7 @@ $('paste').onclick=pasteText;$('paste2').onclick=pasteText;
 function decodeEntities(s){return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")}
 function normalizeSubtitles(s){s=s.replace(/^\uFEFF/,'');if(!/^WEBVTT\b/m.test(s)&&!/\d\d:\d\d:\d\d[,.]\d{3}\s*-->/m.test(s))return s.trim();let out=[],prev='';for(const raw of s.split(/\r?\n/)){const x=raw.trim();if(!x||/^WEBVTT(?:\s|$)/.test(x)||/^NOTE(?:\s|$)/.test(x)||/^\d+$/.test(x)||/-->/.test(x)||/^STYLE$|^REGION$/i.test(x))continue;const l=decodeEntities(x.replace(/<[^>]*>/g,''));if(l&&l!==prev){out.push(l);prev=l}}return out.join('\n').trim()}
 $('fileInput').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>15*1024*1024){show('Arquivo muito grande. Limite de 15 MB para texto.','bad');e.target.value='';return}try{let raw=await f.text(),t='';if(f.name.toLowerCase().endsWith('.json')){const j=JSON.parse(raw);t=typeof j.text==='string'?j.text:typeof j.transcript==='string'?j.transcript:'';if(!t)throw Error('Backup não contém campo text/transcript');if(j.url&&!url.value)url.value=j.url;if(j.title&&!title.value)title.value=j.title;refreshLinks()}else t=normalizeSubtitles(raw);if(!t.trim())throw Error('Arquivo vazio');if(recWanted)stopSpeech('Microfone parado durante a importação.');ta.value=(ta.value.trim()?ta.value.trim()+'\n\n':'')+t;confirmed=ta.value;part=0;updateStats();scheduleSave();show('Arquivo importado: '+f.name,'ok')}catch(err){show('Não consegui importar: '+err.message,'bad')}e.target.value=''};
-function header(){return 'LIVE → TEXTO EGI MOBILE V1.2\nTítulo: '+(title.value.trim()||'Não informado')+'\nLink: '+(url.value.trim()||'Não informado')+'\nExportado em: '+new Date().toLocaleString('pt-BR')+'\n'}
+function header(){return 'LIVE → TEXTO EGI V1.4 LAB\nTítulo: '+(title.value.trim()||'Não informado')+'\nLink: '+(url.value.trim()||'Não informado')+'\nExportado em: '+new Date().toLocaleString('pt-BR')+'\n'}
 function promptPart(t){return PROMPT+'\n\n'+header()+'\n--- TRANSCRIÇÃO ---\n'+t+'\n--- FIM ---'}
 async function copy(s){if(!s.trim()){show('Não há texto para copiar.','warn');return}try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(s)}else{const el=document.createElement('textarea');el.value=s;el.style.position='fixed';el.style.opacity='0';document.body.append(el);el.focus();el.select();const ok=document.execCommand('copy');el.remove();if(!ok)throw Error('cópia bloqueada')}show('✅ Copiado. Abra o ChatGPT e cole o texto.','ok')}catch{show('O navegador não permitiu a cópia automática. Selecione o texto no campo e use Copiar.','bad')}}
 function copyGpt(){if(!ta.value.trim())return show('A transcrição está vazia; cole/importa o texto primeiro.','warn');copy(promptPart(ta.value))}
@@ -157,8 +205,8 @@ $('copyChunk').onclick=()=>{if(!ta.value.trim())return show('Texto vazio.','warn
 $('nextChunk').onclick=()=>{const count=Math.ceil(ta.value.length/MAX_CHUNK);part=(part+1)%Math.max(1,count);updateStats();show('Bloco '+(part+1)+' de '+count+' selecionado.','ok')};
 function download(content,name,type='text/plain;charset=utf-8'){const blob=new Blob([content],{type});const ob=URL.createObjectURL(blob),a=document.createElement('a');a.href=ob;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(ob),10000)}
 function stamp(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+'-'+String(d.getMinutes()).padStart(2,'0')}
-$('downloadTxt').onclick=()=>{if(!ta.value.trim())return show('Não há transcrição para salvar.','warn');download(header()+'\n'+ta.value,'Live_Texto_EGI_'+stamp()+'.txt');show('TXT gerado. Verifique a pasta Downloads do Android.','ok')};
-$('downloadJson').onclick=()=>{download(JSON.stringify({app:'Live para Texto EGI Mobile V1.2',url:url.value,title:title.value,text:ta.value,savedAt:new Date().toISOString()},null,2),'Backup_Live_Texto_EGI_'+stamp()+'.json','application/json;charset=utf-8');show('Backup JSON gerado. Verifique Downloads.','ok')};
+$('downloadTxt').onclick=()=>{if(!ta.value.trim())return show('Não há transcrição para salvar.','warn');download(header()+'\n'+ta.value,'Live_Texto_EGI_'+stamp()+'.txt');show('TXT gerado. Verifique a pasta Downloads.','ok')};
+$('downloadJson').onclick=()=>{download(JSON.stringify({app:'Live para Texto EGI V1.4 LAB',url:url.value,title:title.value,text:ta.value,savedAt:new Date().toISOString()},null,2),'Backup_Live_Texto_EGI_'+stamp()+'.json','application/json;charset=utf-8');show('Backup JSON gerado. Verifique Downloads.','ok')};
 $('clear').onclick=()=>{if(!ta.value.trim())return;if(!confirm('Limpar o texto atual? Salve TXT ou JSON antes se precisar guardar.'))return;stopSpeech();ta.value='';confirmed='';interim='';part=0;updateStats();scheduleSave();show('Texto limpo.','ok')};
 $('jumpText').onclick=()=>{ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus()};
 function snapshot(){return {url:url.value,title:title.value,text:ta.value,savedAt:Date.now()}}
@@ -168,6 +216,117 @@ function initDb(){if(!('indexedDB' in window))return loadLocal();try{const req=i
 function persist(){const s=snapshot(),done=()=>{$('saveState').textContent='Salvo às '+new Date().toLocaleTimeString('pt-BR')};if(db)try{const req=db.transaction('draft','readwrite').objectStore('draft').put(s,'current');req.onsuccess=done;req.onerror=()=>show('Erro no armazenamento. Exporte TXT/JSON.','bad');return}catch{}try{localStorage.setItem(STORAGE,JSON.stringify(s));done()}catch{show('Armazenamento indisponível. Salve TXT/JSON.','bad')}}
 function scheduleSave(){clearTimeout(writeTimer);writeTimer=setTimeout(persist,600)}
 title.addEventListener('input',scheduleSave);window.addEventListener('pagehide',()=>{if(writeTimer){clearTimeout(writeTimer);persist()}if(recWanted)stopSpeech()});
+// Captura autorizada pelo usuário; apenas áudio é processado.
+let tabWorker=null,tabReady=false,tabLoading=false,tabBusy=false,tabStream=null,tabContext=null,tabSource=null,tabProcessor=null,tabMute=null;
+let tabChunks=[],tabSamples=0,tabRate=16000,tabQueue=[],tabCurrent=null,tabElapsed=0,tabActive=false,tabStarting=false,tabFailed=false,tabTimer=0;
+const tabStatus=(text,kind='')=>{const e=$('tabStatus');e.textContent=text;e.className='status'+(kind?' '+kind:'')};
+function tabControls(){
+ $('tabPrepare').disabled=tabLoading||tabActive||tabStarting||tabBusy;
+ $('tabStart').disabled=!tabReady||tabActive||tabStarting||tabBusy||tabQueue.length>0||tabFailed;
+ $('tabStop').disabled=!tabActive;
+ $('tabQueue').textContent='Áudio capturado: '+Math.floor(tabElapsed)+' s · blocos pendentes: '+(tabQueue.length+(tabBusy?1:0));
+ // Evita conflito entre voz e áudio da aba.
+ $('startMic').disabled=tabActive||tabBusy||tabQueue.length>0;
+ $('testMic').disabled=tabActive||tabBusy||tabQueue.length>0;
+ $('clear').disabled=tabActive||tabBusy||tabQueue.length>0;
+}
+function tabAppend(text){
+ if(!text.trim())return;
+ if(recWanted)stopSpeech();
+ ta.value=(ta.value.trimEnd()?ta.value.trimEnd()+'\n':'')+text.trim();
+ confirmed=ta.value;interim='';updateStats();scheduleSave();
+}
+function tabPump(){
+ if(!tabReady||tabBusy||tabFailed)return;
+ if(!tabQueue.length){tabControls();if(!tabActive)tabStatus('✅ Transcrição concluída. Revise o texto e use Salvar TXT para enviar ao ChatGPT.','ok');return;}
+ tabBusy=true;tabCurrent=tabQueue.shift();
+ const copy=tabCurrent.audio.slice();
+ tabWorker.postMessage({type:'transcribe',audio:copy,rate:tabCurrent.rate},[copy.buffer]);
+ tabStatus('Transcrevendo bloco de '+Math.round(tabCurrent.audio.length/tabCurrent.rate)+' segundos… O texto será acrescentado abaixo.');tabControls();
+}
+function tabWorkerFailure(message){
+ tabReady=false;tabLoading=false;tabFailed=true;
+ if(tabCurrent){tabQueue.unshift(tabCurrent);tabCurrent=null;}
+ tabBusy=false;
+ tabStopCapture();
+ if(tabWorker)tabWorker.terminate();tabWorker=null;clearTimeout(tabTimer);
+ tabStatus('Não consegui transcrever: '+message+'. O texto pronto foi preservado. Os blocos pendentes ficam nesta aba; toque em Preparar transcritor para tentar novamente. Não feche a página.','bad');tabControls();
+}
+$('tabPrepare').onclick=()=>{
+ if(tabActive||tabLoading||tabBusy)return;
+ if(!window.isSecureContext||!navigator.mediaDevices?.getDisplayMedia){tabStatus('Captura de aba indisponível. Abra o endereço HTTPS no Chrome do computador. No Android, use importar/colar texto.','bad');return;}
+ tabLoading=true;tabFailed=false;tabReady=false;tabStatus('Baixando e preparando o transcritor local… Na primeira vez, aguarde alguns minutos.');tabControls();
+ try{
+ if(tabWorker)tabWorker.terminate();
+ const workerUrl=URL.createObjectURL(new Blob([$('egiWhisperWorker').textContent],{type:'text/javascript'}));
+ tabWorker=new Worker(workerUrl,{type:'module'});URL.revokeObjectURL(workerUrl);
+ tabWorker.onerror=e=>tabWorkerFailure(e.message||'Falha ao carregar o módulo de voz');
+ tabWorker.onmessage=({data:d})=>{
+ if(d.type==='progress')tabStatus('Preparando transcritor: '+d.file+(Number.isFinite(d.progress)?' · '+Math.round(d.progress)+'%':''));
+ if(d.type==='ready'){clearTimeout(tabTimer);tabReady=true;tabLoading=false;tabStatus('✅ Transcritor pronto. Abra o YouTube em outra aba, deixe em 1× e toque em Capturar áudio da aba.','ok');tabControls();if(tabQueue.length)tabPump();}
+ if(d.type==='result'){
+ clearTimeout(tabTimer);const seconds=Math.round(tabCurrent.audio.length/tabCurrent.rate);
+ if(d.text?.trim())tabAppend(d.text);else if(d.silent)tabStatus('Bloco sem som; aguardando fala.','warn');
+ tabCurrent=null;tabBusy=false;tabControls();
+ if(tabQueue.length)tabPump();else if(tabActive)tabStatus('Ouvindo a aba… Texto atualizado. O próximo bloco aparece após cerca de 25 segundos mais o processamento.','ok');else tabPump();
+ }
+ if(d.type==='error')tabWorkerFailure(d.message);
+ };
+ tabWorker.postMessage({type:'load'});
+ }catch(e){tabWorkerFailure(e.message);}
+};
+function tabFlush(){
+ if(!tabSamples)return;
+ const audio=new Float32Array(tabSamples);let offset=0;for(const block of tabChunks){audio.set(block,offset);offset+=block.length;}
+ tabQueue.push({audio,rate:tabRate});tabChunks=[];tabSamples=0;tabPump();
+}
+function tabStopCapture(){
+ const wasActive=tabActive;tabActive=false;
+ if(tabProcessor){tabProcessor.onaudioprocess=null;tabProcessor.disconnect();tabProcessor=null;}
+ if(tabSource){tabSource.disconnect();tabSource=null;}
+ if(tabMute){tabMute.disconnect();tabMute=null;}
+ if(tabStream){for(const t of tabStream.getTracks()){t.onended=null;t.stop();}tabStream=null;}
+ if(tabContext){tabContext.close().catch(()=>{});tabContext=null;}
+ if(wasActive)tabFlush();tabControls();
+ if(wasActive&&!tabFailed){tabStatus(tabBusy||tabQueue.length?'Captura encerrada. Aguarde terminar os blocos pendentes antes de salvar o TXT.':'Captura encerrada. Nenhuma fala pendente.','ok');}
+}
+$('tabStart').onclick=async()=>{
+ if(!tabReady||tabActive||tabStarting||tabBusy||tabQueue.length)return;
+ tabStarting=true;tabControls();let selected=null;
+ try{
+ // Chamada direta no gesto de clique, antes de qualquer await de preparação.
+ selected=await navigator.mediaDevices.getDisplayMedia({video:true,audio:{suppressLocalAudioPlayback:false},selfBrowserSurface:'exclude',surfaceSwitching:'exclude',systemAudio:'exclude'});
+ if(!selected.getAudioTracks().length)throw Error('Nenhum áudio compartilhado. Escolha Guia do Chrome, selecione o YouTube e marque Compartilhar áudio da aba');
+ if(recWanted)stopSpeech();
+ const Context=window.AudioContext||window.webkitAudioContext;
+ tabContext=new Context();await tabContext.resume();tabRate=tabContext.sampleRate;
+ tabStream=selected;tabChunks=[];tabSamples=0;tabElapsed=0;
+ tabSource=tabContext.createMediaStreamSource(new MediaStream(selected.getAudioTracks()));
+ tabProcessor=tabContext.createScriptProcessor(4096,1,1);tabMute=tabContext.createGain();tabMute.gain.value=0;
+ tabSource.connect(tabProcessor);tabProcessor.connect(tabMute);tabMute.connect(tabContext.destination);
+ for(const track of selected.getTracks())track.onended=()=>tabStopCapture();
+ tabActive=true;
+ tabProcessor.onaudioprocess=e=>{
+ if(!tabActive)return;
+ const data=e.inputBuffer.getChannelData(0).slice();tabChunks.push(data);tabSamples+=data.length;tabElapsed+=data.length/tabRate;
+ let peak=0;for(let i=0;i<data.length;i++)peak=Math.max(peak,Math.abs(data[i]));
+ $('tabLevel').style.width=Math.min(100,peak*160)+'%';
+ if(tabSamples>=tabRate*25){tabFlush();if(tabQueue.length>=8){tabStopCapture();tabStatus('Captura pausada: o computador está processando mais devagar que o vídeo. Pause o YouTube, aguarde os blocos e retome a partir deste ponto.','warn');}}
+ tabControls();
+ };
+ tabStatus('🔴 Capturando áudio da aba. Dê Play no YouTube em 1×. O primeiro texto aparece após cerca de 25 segundos mais o processamento.','ok');
+ }catch(e){
+ if(selected)for(const t of selected.getTracks())t.stop();tabStopCapture();
+ tabStatus(e.name==='NotAllowedError'?'Compartilhamento cancelado ou bloqueado. Tente novamente e escolha a guia do YouTube com áudio.':e.message,'bad');
+ }finally{tabStarting=false;tabControls();}
+};
+$('tabStop').onclick=tabStopCapture;
+window.addEventListener('beforeunload',e=>{if(tabActive||tabBusy||tabQueue.length){e.preventDefault();e.returnValue='';}});
+window.addEventListener('pagehide',()=>{tabStopCapture();if(tabWorker)tabWorker.terminate();});
+if(!navigator.mediaDevices?.getDisplayMedia){$('tabPrepare').disabled=true;tabStatus('Captura de aba indisponível neste navegador. Use Chrome no computador, pelo endereço HTTPS.','warn');}
+
+$('tabSave').onclick=()=>{if(tabActive||tabBusy||tabQueue.length){tabStatus('Pare a captura e aguarde os blocos pendentes antes de salvar o TXT completo.','warn');return;}$('downloadTxt').click();};
+
 $('copyChunk').disabled=true;$('nextChunk').disabled=true;initDb();setTimeout(loadLocal,2000);
 })();
 </script>
