@@ -1,0 +1,302 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Radar EGI Automático V1.6 LAB</title><style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#141f32;--stroke:#2a3b56;--txt:#e5eefb;--muted:#a8b8cf;--blue:#51a8ff;--green:#37d6a2;--red:#ff7d8a;--gold:#f1c36e}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1510px;margin:auto;padding:20px}h1{font-size:25px;margin:0 0 4px}h2{font-size:17px;margin:0 0 12px}p{color:var(--muted);line-height:1.55}.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}.badge{display:inline-block;padding:4px 9px;border-radius:15px;background:#324761;color:#b6e0ff;font-weight:700;font-size:12px}.card{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:16px;margin:14px 0}.controls{display:flex;flex-wrap:wrap;gap:8px}button,select,input{background:#1e304b;color:var(--txt);border:1px solid #446083;border-radius:8px;padding:10px;font:inherit}button{cursor:pointer}button:hover{background:#2c4770}button.primary{background:#1765a2}button.danger{border-color:#924a55}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.metric{border:1px solid var(--stroke);padding:13px;border-radius:10px}.metric strong{display:block;font-size:22px;margin-top:6px}.muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:10px;border-bottom:1px solid #283a53;text-align:right}th:first-child,td:first-child{text-align:left}thead{background:#192b43;position:sticky;top:0}small{color:var(--muted)}#log{white-space:pre-wrap;max-height:170px;overflow:auto;color:#adc2da;font:12px ui-monospace,monospace}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:830px){.two{grid-template-columns:1fr}main{padding:10px}th,td{padding:8px}}label{display:flex;gap:6px;align-items:center}input[type=checkbox]{width:17px;height:17px}a{color:#8cc9ff}#report{white-space:pre-wrap;line-height:1.6}footer{color:var(--muted);font-size:12px;padding:15px 0}</style></head><body><main>
+<div class="top"><div><h1>Radar EGI Automático <span class="badge">V1.6 LAB • 21 ativos</span></h1><div class="muted">Candle fechado confirma • Registro histórico • Estudo, não execução de ordens</div></div><div id="clock" class="badge"></div></div>
+<div class="card"><h2>📋 Lista dos 21 ativos <span id="close4hHeader" class="badge">Último fechamento 4h (BRT): aguardando coleta</span></h2><div class="scroll"><table><thead><tr><th>Ativo / fonte</th><th>Preço USDT</th><th>RSI 15m</th><th>RSI 1h</th><th>RSI 2h</th><th>RSI 4h</th><th>MME9 15m</th><th>MME21 15m</th><th>Cruzamento 15m</th><th>Contexto 1h</th><th>Registro do estudo</th><th>MME80 1h</th><th>MME200 1h</th><th>Vol. relativo 15m</th><th>Suporte 15m</th><th>Resistência 15m</th><th>Leitura</th></tr></thead><tbody id="rows"><tr><td colspan="17" class="muted">Clique em Atualizar.</td></tr></tbody></table></div></div>
+<div class="card"><h2>Coleta e segurança</h2><div class="controls"><button class="primary" id="collect">Atualizar os 21 ativos</button><button id="save">Salvar instantâneo</button><button id="exportCsv">Exportar histórico CSV</button><button id="exportJson">Backup JSON</button><button id="diagnose">Diagnóstico de dados</button><button id="importCsv">Importar CSV anterior</button><button id="importJson">Restaurar JSON</button><input type="file" id="file" accept=".csv,.json,text/csv,application/json" hidden></div><p>Dados públicos da Binance Spot / Futuros e Bybit Futuros, sem API key. A atualização manual funciona com internet e navegador aberto. <b>Este HTML não coleta sozinho com o computador desligado ou a aba fechada.</b> Para coleta independente 06h/12h/18h/21h BRT, será necessária a etapa posterior no GitHub Actions. O botão “Salvar instantâneo” grava apenas leituras obtidas da API; não inventa dados. A cópia automática é local (IndexedDB) e não equivale a backup externo.</p><div class="controls"><label><input type="checkbox" id="auto"> Coletar automaticamente enquanto esta página estiver aberta (a cada 15 min)</label><label><input type="checkbox" id="autosave" checked> Salvar cada coleta automática no histórico local</label><label>Filtro <select id="filter"><option value="all">Todos</option><option value="ok">Disponíveis</option><option value="error">Sem leitura</option><option value="signal">Extremos</option></select></label></div><div class="muted" style="margin-top:9px">Agenda de referência: 06h, 12h, 18h, 21h BRT. Com a página aberta, o sistema tenta coletar no primeiro minuto do horário, respeitando a disponibilidade da API. Não executa com navegador fechado. Backup externo continua manual.</div><div id="status" class="muted" style="margin-top:10px">Pronto para consultar. Sem ordens, sem conexões com contas.</div><div id="storageState" class="muted" style="margin-top:8px">Verificando armazenamento do histórico…</div></div>
+<div class="card" id="studyPanel"><h2>🧪 Cruzamento 9/21 · 15m + contexto 80/200 · 1h</h2>
+<p>O cruzamento é calculado no último candle fechado de 15m. Contexto ALTA: fechamento 1h &gt; MME80 &gt; MME200. BAIXA: fechamento 1h &lt; MME80 &lt; MME200. Demais combinações: MISTO. LONG com ALTA e SHORT com BAIXA formam o grupo FAVORÁVEL. A comparação inclui os grupos CONTRÁRIO e MISTO.</p>
+<p>Volume relativo de 15m ≥ 1,2× é marcado como confirmado. Registramos também cruzamentos com volume inferior para comparação. Suporte/resistência continuam sendo as zonas dos 20 candles anteriores.</p>
+<div class="controls"><label><input type="checkbox" id="studyEnabled" checked> Acompanhar e gravar estudo nas coletas</label><button id="studyExport">Exportar RelEGI do cruzamento</button></div>
+<p id="studyStatus" role="status">Inicializando estudo…</p>
+<p>A primeira coleta cria uma linha de base por ativo/fonte. Nas seguintes, gravamos apenas cruzamentos novos do último candle fechado, observados até 15 minutos após o fechamento. A coleta já existente é reaproveitada. Acompanhamento exige página aberta e novas coletas. Retornos direcionais partem do fechamento do sinal e são hipotéticos, sem custos ou execução.</p>
+<div class="scroll"><table><thead><tr><th>Ativo</th><th>Fechamento BRT</th><th>Direção</th><th>Contexto</th><th>Volume</th><th>Vol. ≥1,2×</th><th>+3 · 45min</th><th>+6 · 90min</th><th>+12 · 180min</th></tr></thead><tbody id="studyEvents"></tbody></table></div>
+<h2 style="margin-top:18px">Comparação por contexto e volume</h2><p>Retorno médio direcional por horizonte, com o tamanho n da amostra avaliada. Valores pendentes ficam fora da média. LONG e SHORT são apresentados em grupos próprios. A tabela de eventos mostra os últimos 200 registros; o backup e o RelEGI incluem todos.</p>
+<div class="scroll"><table><thead><tr><th>Direção</th><th>Contexto</th><th>Volume</th><th>Eventos</th><th>Média +3</th><th>Média +6</th><th>Média +12</th></tr></thead><tbody id="studySummary"></tbody></table></div>
+<p>Arquive o Backup JSON para levar histórico, avisos e estudo a outro navegador.</p></div>
+<div class="card" id="alertsCard"><h2>🔔 Meu aviso de preço — adicionar e guardar abaixo</h2>
+<p>Escolha um ativo, digite seu preço e escreva o motivo livremente (suporte, resistência, alvo, stop ou observação). Clique em <b>Gravar aviso</b>: ele será acrescentado à lista abaixo, sem substituir os anteriores. É possível criar vários avisos para a mesma moeda. Monitoramento feito somente nas coletas com o HTML aberto.</p>
+<div class="controls" style="align-items:end"><label>Moeda <select id="alarmAsset"></select></label><label>Condição <select id="alarmDirection"><option value="up">Preço ≥ valor</option><option value="down">Preço ≤ valor</option></select></label><label>Preço desejado <input id="alarmPrice" type="text" inputmode="decimal" placeholder="Ex.: 80000" style="width:155px"></label><label>Minha observação <input id="alarmNote" type="text" maxlength="240" placeholder="Ex.: suporte / stop / alvo" style="min-width:220px"></label><button class="primary" id="addAlarm">+ Gravar aviso</button></div>
+<div class="controls" style="margin-top:12px"><button id="requestNotif">Permitir notificações do navegador</button><button id="exportAlerts">Exportar meus avisos JSON</button><span class="muted" id="alarmState">Avisos armazenados localmente neste navegador</span></div>
+<div class="scroll"><table><thead><tr><th>Ativo</th><th>Condição</th><th>Preço</th><th style="text-align:left">Observação gravada</th><th>Estado</th><th>Ações</th></tr></thead><tbody id="alertRows"></tbody></table></div></div>
+<div class="grid"><div class="metric">Ativos configurados<strong>21</strong></div><div class="metric">Leituras válidas<strong id="valid">0</strong></div><div class="metric">Registros históricos<strong id="counts">0</strong></div><div class="metric">Última coleta (BRT)<strong id="last" style="font-size:16px">—</strong></div></div>
+<div class="two"><div class="card"><h2>Comparação de instantâneos</h2><div class="controls"><label>Base <select id="base"></select></label><label>Atual <select id="current"></select></label><button id="compare">Comparar</button></div><div class="scroll"><table><thead><tr><th>Ativo</th><th>Antes</th><th>Depois</th><th>Variação</th><th>vs BTC</th></tr></thead><tbody id="comparison"></tbody></table></div></div><div class="card"><h2>RelEGI • leitura e auditoria</h2><div id="report" class="muted">Aguardando dois instantâneos comparáveis.</div><button id="reportTxt">Exportar relatório TXT</button></div></div>
+<div class="card" id="memoryCard"><h2>🧠 Memória EGI — evolução das últimas 24h</h2><p class="muted">Comparação com o instantâneo disponível mais próximo de 24h antes (tolerância ±45 minutos). Sem registro adequado, aparece “Sem base 24h”. Os candles 4h exibem seus fechamentos reais; não são reconstruídos a partir de coletas.</p><div class="controls"><button id="refreshMemory">Atualizar memória e placar</button><button id="memoryTxt">Exportar memória TXT</button><span id="memoryStatus" class="muted">Aguardando histórico.</span></div><div class="scroll"><table><thead><tr><th>Ativo</th><th>Variação 24h</th><th>vs BTC 24h</th><th>Placar relativo (últimos 4 intervalos)</th><th>RSI 4h atual</th><th>Último candle 4h</th></tr></thead><tbody id="memoryRows"></tbody></table></div><pre id="memoryReport" style="white-space:pre-wrap;max-height:300px;overflow:auto"></pre></div>
+<div class="card" id="dailyCard"><h2>🌙 Auditoria de 21h → 06h (Brasília)</h2><p class="muted">Compara uma coleta próxima de 21h com outra próxima de 06h do dia seguinte (tolerância ±30 min); registra a hora efetiva de ambas. Se não existir o par, fica pendente. Isso é estudo de movimento observado, não acerto de operação.</p><div class="controls"><button id="refreshDaily">Recalcular relatório noturno</button><button id="dailyTxt">Exportar relatório noturno TXT</button><span id="dailyStatus" class="muted"></span></div><div class="scroll"><table><thead><tr><th>Ativo</th><th>21h</th><th>06h</th><th>Variação</th><th>vs BTC</th><th>RSI 4h 21h</th><th>Fechamento 4h base</th></tr></thead><tbody id="dailyRows"></tbody></table></div><pre id="dailyReport" style="white-space:pre-wrap;max-height:320px;overflow:auto"></pre></div>
+<div class="card"><h2>SPCXUSDT — duas corretoras</h2><div class="grid"><div class="metric">Binance Futuros<strong id="spcxBin" style="font-size:18px">—</strong></div><div class="metric">Bybit Futuros<strong id="spcxBy" style="font-size:18px">—</strong></div><div class="metric">Diferença de preço<strong id="spcxDiff" style="font-size:18px">—</strong></div></div><p>A comparação usa o último candle fechado de 15m de cada corretora. Não implica arbitragem executável: diferenças de horário, spread, taxas e liquidez importam. Este derivativo não representa posse de ações da SpaceX.</p></div>
+<div class="card"><h2>Observações e procedimentos</h2><p><b>Brent:</b> leitura pelo contrato BZUSDT de Brent na Binance Futuros (não CLUSDT/WTI). É um derivativo, não cotação spot; se a API não responder, o painel mostrará erro, sem inventar preço. <b>XAUT:</b> consultado como XAUTUSDT Spot se disponível. <b>SPCXUSDT:</b> Binance Futuros como referência e Bybit Futuros como comparação; disponibilidade é verificada pela resposta da API.</p><p><b>Backups:</b> as coletas automáticas podem ser copiadas para o histórico local se “Salvar cada coleta” estiver marcado. Downloads JSON/CSV externos continuam manuais; o navegador não garante downloads agendados sem interação. Os instantâneos ficam no IndexedDB deste navegador, que pode ser apagado. Os registros antigos no localStorage não serão apagados na migração. Exporte JSON regularmente; o histórico importado do CSV de 04/11 às 21h é preservado e identificado como dado externo. <b>RSI:</b> Wilder 14; <b>MME:</b> EMA exponencial; <b>volume relativo:</b> 15m fechado dividido pela média dos 20 anteriores; <b>zonas:</b> mínimo/máximo dos 20 candles 15m anteriores ao último candle fechado (triagem, não suporte/resistência validado manualmente).</p><div id="log"></div></div>
+<footer>Radar EGI V1.6 LAB • sem chaves e sem execução de ordens • Fontes: Binance API e Bybit API. Resultados de investimento não são garantidos.</footer>
+</main><script>
+'use strict';
+// Regras fixas V1.6: gatilho 15m, contexto 1h e volume mínimo de 1,2×.
+const STUDY_STORE = 'crossStudyV14';
+const STUDY_PERIOD = 15 * 60 * 1000;
+let studyRows = [];
+
+function crossDirection(current9, current21, previous9, previous21) {
+  if (![current9, current21, previous9, previous21].every(Number.isFinite)) return '';
+  if (previous9 <= previous21 && current9 > current21) return 'LONG';
+  if (previous9 >= previous21 && current9 < current21) return 'SHORT';
+  return '';
+}
+
+function hourlyContext(hourlyClose, average80, average200) {
+  if (![hourlyClose, average80, average200].every(Number.isFinite)) return 'SEM DADOS';
+  if (hourlyClose > average80 && average80 > average200) return 'ALTA';
+  if (hourlyClose < average80 && average80 < average200) return 'BAIXA';
+  return 'MISTO';
+}
+
+function contextGroup(direction, context) {
+  if (context === 'MISTO' || context === 'SEM DADOS') return context;
+  return (direction === 'LONG' && context === 'ALTA') ||
+    (direction === 'SHORT' && context === 'BAIXA') ? 'FAVORÁVEL' : 'CONTRÁRIO';
+}
+
+function studyEventId(asset, source, candleTime, direction) {
+  return ['event', asset, source, candleTime, direction].join('|');
+}
+
+function evaluateStudyEvent(event, candles) {
+  const result = {...event, outcomes: {...event.outcomes}};
+  const available = new Map(candles.map(candle => [candle.t, candle.c]));
+  for (const horizon of [3, 6, 12]) {
+    const key = String(horizon);
+    if (Number.isFinite(result.outcomes[key])) continue;
+    // Horário exato evita avaliar +3 em outro candle quando houver lacuna.
+    const price = available.get(event.candleTime + horizon * STUDY_PERIOD);
+    if (Number.isFinite(price) && price > 0) {
+      result.outcomes[key] = (price / event.price - 1) * 100 * (event.direction === 'LONG' ? 1 : -1);
+    }
+  }
+  return result;
+}
+
+function updateStudyRecords(records, observation, candles, observedAt) {
+  const asset = observation.asset;
+  const source = observation.source;
+  const checkpointId = ['checkpoint', asset, source].join('|');
+  const previous = records.find(row => row.id === checkpointId);
+  const updates = records.filter(row => row.kind === 'event' && row.asset === asset && row.source === source)
+    .map(row => evaluateStudyEvent(row, candles));
+  const lag = observedAt - (observation.candleTime + STUDY_PERIOD);
+  const newCandle = previous && observation.candleTime > previous.candleTime;
+  // Primeira coleta cria baseline. Eventos antigos não viram registros prospectivos.
+  if (newCandle && observation.cross15 && lag >= 0 && lag <= STUDY_PERIOD) {
+    const id = studyEventId(asset, source, observation.candleTime, observation.cross15);
+    if (!records.some(row => row.id === id)) {
+      updates.push({
+        id, kind: 'event', asset, source, timeframe: '15m',
+        candleTime: observation.candleTime, observedAt, price: observation.price,
+        direction: observation.cross15, context: observation.context1h,
+        group: contextGroup(observation.cross15, observation.context1h),
+        volume: observation.vrel, volumeConfirmed: observation.vrel >= 1.2,
+        hourlyClose: observation.hourlyClose, hourlyCandleTime: observation.hourlyCandleTime,
+        ema9: observation.ema9, ema21: observation.ema21,
+        ema80: observation.ema80, ema200: observation.ema200,
+        support: observation.support, resistance: observation.resistance,
+        outcomes: {}, origin: 'OBSERVADO', rules: 'V1.6'
+      });
+    }
+  }
+  updates.push({id: checkpointId, kind: 'checkpoint', asset, source,
+    candleTime: Math.max(previous?.candleTime || 0, observation.candleTime)});
+  return updates;
+}
+
+function loadStudyRows() {
+  if (!storageReady || !db.objectStoreNames.contains(STUDY_STORE)) return Promise.resolve([]);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STUDY_STORE, 'readonly');
+    const request = transaction.objectStore(STUDY_STORE).getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function persistStudyObservation(observation, candles) {
+  if (!$('studyEnabled').checked) return 'Pausado';
+  if (!storageReady) return 'NÃO SALVO · exporte backup';
+  const observedAt = Date.now();
+  return new Promise((resolve, reject) => {
+    // Leitura e gravação na mesma transação impedem sobrescrita entre abas.
+    const transaction = db.transaction(STUDY_STORE, 'readwrite');
+    const store = transaction.objectStore(STUDY_STORE);
+    const request = store.getAll();
+    let message = '';
+    request.onsuccess = () => {
+      const records = request.result;
+      const exists = records.some(row => row.kind === 'checkpoint' && row.asset === observation.asset && row.source === observation.source);
+      const updates = updateStudyRecords(records, observation, candles, observedAt);
+      updates.forEach(row => store.put(row));
+      message = exists ? 'Registro atualizado' : 'Linha de base criada';
+      if (observation.cross15) {
+        const id = studyEventId(observation.asset, observation.source, observation.candleTime, observation.cross15);
+        message = records.some(row => row.id === id) || updates.some(row => row.id === id) ? 'Cruzamento registrado' : 'Cruzamento fora do acompanhamento';
+      }
+    };
+    transaction.oncomplete = () => resolve(message);
+    transaction.onerror = () => reject(transaction.error || Error('Falha no estudo'));
+    transaction.onabort = () => reject(transaction.error || Error('Registro cancelado'));
+  });
+}
+
+async function renderStudy() {
+  try {
+    studyRows = await loadStudyRows();
+    const events = studyRows.filter(row => row.kind === 'event').sort((a, b) => b.candleTime - a.candleTime);
+    $('studyStatus').textContent = storageReady ? events.length + ' cruzamentos gravados · ' +
+      ($('studyEnabled').checked ? 'acompanhamento ativo nas coletas' : 'acompanhamento pausado') : 'Persistência indisponível. Exporte seu backup.';
+    const outcome = (event, horizon) => Number.isFinite(event.outcomes[String(horizon)]) ? fmt(event.outcomes[String(horizon)], 2) + '%' : 'PENDENTE';
+    $('studyEvents').innerHTML = events.slice(0, 200).map(event => '<tr><td>' + htmlSafe(event.asset) +
+      '</td><td>' + tz(new Date(event.candleTime + STUDY_PERIOD)) + '</td><td>' + htmlSafe(event.direction) +
+      '</td><td>' + htmlSafe(event.group) + '</td><td>' + fmt(event.volume, 2) + '×</td><td>' +
+      (event.volumeConfirmed ? 'SIM' : 'NÃO') + '</td><td>' + outcome(event, 3) + '</td><td>' +
+      outcome(event, 6) + '</td><td>' + outcome(event, 12) + '</td></tr>').join('') || '<tr><td colspan="9">A primeira coleta cria a linha de base. Aguarde novos cruzamentos.</td></tr>';
+    const summaries = [];
+    for (const direction of ['LONG', 'SHORT']) {
+      for (const group of ['FAVORÁVEL', 'CONTRÁRIO', 'MISTO']) {
+        for (const volumeConfirmed of [true, false]) {
+          const sample = events.filter(event => event.direction === direction && event.group === group && event.volumeConfirmed === volumeConfirmed);
+          if (!sample.length) continue;
+          const means = [3, 6, 12].map(horizon => {
+            const values = sample.map(event => event.outcomes[String(horizon)]).filter(Number.isFinite);
+            return values.length ? fmt(values.reduce((sum, value) => sum + value, 0) / values.length, 2) + '% (n=' + values.length + ')' : 'PENDENTE (n=0)';
+          });
+          summaries.push([direction, group, volumeConfirmed ? '≥1,2×' : '<1,2×', sample.length, ...means]);
+        }
+      }
+    }
+    $('studySummary').innerHTML = summaries.map(row => '<tr>' + row.map(value => '<td>' + htmlSafe(value) + '</td>').join('') + '</tr>').join('') || '<tr><td colspan="7">Sem amostra observada ainda.</td></tr>';
+  } catch (error) {
+    $('studyStatus').textContent = 'Falha ao ler estudo: ' + error.message;
+  }
+}
+
+async function importStudyRows(rows) {
+  if (!Array.isArray(rows) || rows.length > 30000) throw Error('Estudo inválido ou acima de 30.000 registros');
+  const events = rows.filter(row => row?.kind === 'event');
+  for (const event of events) {
+    if (!assets.includes(event.asset) || !['Binance Spot', 'Binance Futuros'].includes(event.source) ||
+        !['LONG', 'SHORT'].includes(event.direction) || !['ALTA', 'BAIXA', 'MISTO'].includes(event.context) ||
+        event.group !== contextGroup(event.direction, event.context) ||
+        !Number.isFinite(event.price) || event.price <= 0 || !Number.isFinite(event.volume) || event.volume < 0 ||
+        event.volumeConfirmed !== (event.volume >= 1.2) ||
+        !Number.isFinite(event.candleTime) || event.candleTime % STUDY_PERIOD !== 0 ||
+        !Number.isFinite(event.observedAt) || event.observedAt < event.candleTime + STUDY_PERIOD ||
+        event.observedAt > event.candleTime + 2 * STUDY_PERIOD ||
+        event.id !== studyEventId(event.asset, event.source, event.candleTime, event.direction) ||
+        !event.outcomes || Object.entries(event.outcomes).some(([key, value]) => !['3', '6', '12'].includes(key) || !Number.isFinite(value))) {
+      throw Error('Evento de estudo inválido no backup');
+    }
+  }
+  if (!storageReady) throw Error('IndexedDB indisponível');
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STUDY_STORE, 'readwrite');
+    const store = transaction.objectStore(STUDY_STORE);
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const existing = new Set(request.result.map(row => row.id));
+      // Checkpoints importados são ignorados: cada instalação começa com baseline próprio.
+      events.filter(event => !existing.has(event.id)).forEach(event => store.put(event));
+    };
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error || Error('Importação cancelada'));
+  });
+}
+
+const assets=['BTC','ETH','SOL','BNB','XRP','LINK','AVAX','NEAR','ONDO','DOGE','PEPE','SUI','WLD','TIA','HYPE','UNI','AAVE','ADA','XAUT','BRENT','SPCX'];
+const key='radar_egi_lab_v1_snapshots'; const alertsKey='radar_egi_v11_alerts'; const scheduleKey='radar_egi_v11_schedule'; let history=[],live={},busy=false,loadedAt=''; let alerts={}; let lastScheduled=''; const $=id=>document.getElementById(id);
+const dbName='RadarEGIHistoryV13',storeName='snapshots';let db=null,storageReady=false;
+function idbOpen(){return new Promise((resolve,reject)=>{if(!('indexedDB'in window))return reject(Error('IndexedDB indisponível'));const r=indexedDB.open(dbName,2);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(storeName))r.result.createObjectStore(storeName,{keyPath:'id'});if(!r.result.objectStoreNames.contains(STUDY_STORE))r.result.createObjectStore(STUDY_STORE,{keyPath:'id'})};r.onblocked=()=>reject(Error('Feche outras abas do Radar e reabra para atualizar o banco de dados'));r.onsuccess=()=>{r.result.onversionchange=()=>{r.result.close();storageReady=false;notify('Banco atualizado em outra aba. Reabra este Radar.')};resolve(r.result)};r.onerror=()=>reject(r.error||Error('Erro ao abrir IndexedDB'))})}
+function idbWrite(h){return new Promise((resolve,reject)=>{const tx=db.transaction(storeName,'readwrite');tx.objectStore(storeName).put(h);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||Error('Erro ao gravar'));tx.onabort=()=>reject(tx.error||Error('Gravação cancelada'))})}
+function idbAll(){return new Promise((resolve,reject)=>{const tx=db.transaction(storeName,'readonly'),r=tx.objectStore(storeName).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error||Error('Erro de leitura'))})}
+async function initHistory(){let old=[];try{const x=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(x))old=x}catch(e){notify('Histórico antigo não pôde ser lido: '+e.message)}try{db=await idbOpen();let existing=await idbAll();const ids=new Set(existing.map(x=>x.id));let migrated=0;for(const h of old){if(h&&typeof h.id==='string'&&!ids.has(h.id)){await idbWrite(h);ids.add(h.id);migrated++}}history=await idbAll();history.sort((a,b)=>new Date(a.time)-new Date(b.time));storageReady=true;$('storageState').textContent='✅ IndexedDB disponível · '+history.length+' registros persistidos'+(migrated?' · '+migrated+' migrados da V1.2 sem excluir originais':'')+'. Backup externo ainda precisa ser exportado.';if(migrated)notify('Migração segura: '+migrated+' registros copiados ao IndexedDB. Original preservado.')}catch(e){history=old;storageReady=false;$('storageState').textContent='⚠️ Persistência indisponível: '+e.message+'. Exporte o backup JSON; novas coletas NÃO serão marcadas como salvas.';notify('ATENÇÃO: IndexedDB indisponível; histórico antigo mantido, sem novas gravações: '+e.message)}refreshMeta();updateSelectors();compare()}
+async function persist(h){if(!storageReady)throw Error('IndexedDB indisponível. Exporte backup JSON.');await idbWrite(h);history=await idbAll();history.sort((a,b)=>new Date(a.time)-new Date(b.time));refreshMeta();updateSelectors()}
+const tz=d=>new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'medium'}).format(d);
+function notify(s){$('status').textContent=s;$('log').textContent=tz(new Date())+' '+s+'\n'+$('log').textContent.slice(0,5000)}
+function fmt(n,d){return Number.isFinite(n)?n.toLocaleString('pt-BR',{maximumFractionDigits:d??(Math.abs(n)<.0001?10:Math.abs(n)<1?6:4)}):'—'}
+function intervalMs(tf){return ({'15m':900000,'1h':3600000,'2h':7200000,'4h':14400000})[tf]}
+async function req(url){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),14000);try{const r=await fetch(url,{signal:controller.signal,cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+function normalizeBinance(d){if(!Array.isArray(d))throw Error(d?.msg||'Formato Binance inválido');return d.map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}))}
+function normalizeBybit(d){if(d.retCode!==0)throw Error(d.retMsg||'Bybit: código '+d.retCode);return (d.result?.list||[]).map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]})).sort((a,b)=>a.t-b.t)}
+async function candles(asset,tf,ex='binance'){const symbol=(asset==='BRENT'?'BZ':asset)+'USDT',limit=260; if(ex==='bybit'){const u='https://api.bybit.com/v5/market/kline?category=linear&symbol='+symbol+'&interval='+({'15m':'15','1h':'60','2h':'120','4h':'240'}[tf])+'&limit='+limit;return normalizeBybit(await req(u))} const futures=asset==='SPCX'||asset==='BRENT';const root=futures?'https://fapi.binance.com/fapi/v1/klines':'https://data-api.binance.vision/api/v3/klines';return normalizeBinance(await req(root+'?symbol='+symbol+'&interval='+tf+'&limit='+limit))}
+function closed(cs,tf){return cs.filter(x=>x.t+intervalMs(tf)<=Date.now())}
+function chartUrl(asset,exchange='binance'){const symbol=(asset==='BRENT'?'BZ':asset)+'USDT';if(exchange==='bybit')return 'https://www.bybit.com/trade/usdt/'+encodeURIComponent(symbol);return (asset==='SPCX'||asset==='BRENT')?'https://www.binance.com/pt-BR/futures/'+encodeURIComponent(symbol):'https://www.binance.com/pt-BR/trade/'+encodeURIComponent(asset)+'_USDT?type=spot'}
+function format4h(iso){if(!iso)return '—';const d=new Date(iso);return Number.isNaN(d.getTime())?'—':new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(d)}
+function rsi(cs,n=14){if(cs.length<n+2)return NaN;let gain=0,loss=0;for(let i=1;i<=n;i++){const diff=cs[i].c-cs[i-1].c;gain+=Math.max(0,diff);loss+=Math.max(0,-diff)}gain/=n;loss/=n;for(let i=n+1;i<cs.length;i++){const diff=cs[i].c-cs[i-1].c;gain=(gain*(n-1)+Math.max(0,diff))/n;loss=(loss*(n-1)+Math.max(0,-diff))/n}return loss===0?(gain===0?50:100):100-100/(1+gain/loss)}
+function ema(cs,n){if(cs.length<n)return NaN;let e=cs.slice(0,n).reduce((a,b)=>a+b.c,0)/n;for(let i=n;i<cs.length;i++)e=cs[i].c*2/(n+1)+e*(n-1)/(n+1);return e}
+function interpret(o){if(!Number.isFinite(o.r15))return 'Sem dados';const r=[o.r15,o.r1,o.r2].filter(Number.isFinite);if(r.every(x=>x<=30))return 'Extremo RSI baixo';if(r.every(x=>x>=70))return 'Extremo RSI alto';if(o.r15<30)return 'RSI 15m baixo';if(o.r15>80)return 'RSI 15m alto';return 'Aguardando confirmação'}
+async function one(asset){let data={};try{const reads=await Promise.all(['15m','1h','2h','4h'].map(tf=>candles(asset,tf).then(c=>({tf,c:closed(c,tf)})).catch(e=>({tf,error:e.message}))));for(const x of reads){if(x.error)throw Error(x.tf+': '+x.error);if(x.c.length<201)throw Error('Histórico insuficiente '+x.tf);data[x.tf]=x.c}const a=data['15m'],last=a.at(-1),b=data['1h'].filter(candle=>candle.t+3600000<=last.t+STUDY_PERIOD),prior=a.slice(-21,-1);const obj={asset,status:'OK',source:(asset==='SPCX'||asset==='BRENT')?'Binance Futuros':'Binance Spot',price:last.c,r15:rsi(a),r1:rsi(b),r2:rsi(data['2h']),r4:rsi(data['4h']),ema80:ema(b,80),ema200:ema(b,200),vrel:last.v/(prior.reduce((v,k)=>v+k.v,0)/prior.length),support:Math.min(...prior.map(k=>k.l)),resistance:Math.max(...prior.map(k=>k.h)),candleTime:last.t,close4h:new Date(data['4h'].at(-1).t+intervalMs('4h')).toISOString()};obj.reading=interpret(obj);
+obj.ema9=ema(a,9);
+obj.ema21=ema(a,21);
+obj.cross15=crossDirection(obj.ema9,obj.ema21,ema(a.slice(0,-1),9),ema(a.slice(0,-1),21));
+obj.hourlyClose=b.at(-1).c;
+obj.hourlyCandleTime=b.at(-1).t;
+obj.context1h=hourlyContext(obj.hourlyClose,obj.ema80,obj.ema200);
+try { obj.studyState=await persistStudyObservation(obj,a); }
+catch(error) { obj.studyState='NÃO SALVO · '+error.message; }
+return obj}catch(e){return {asset,status:'Sem leitura: '+e.message,source:(asset==='SPCX'||asset==='BRENT')?'Binance Futuros':'Binance Spot'}}}
+async function pool(items,concurrency,fn){let i=0;async function worker(){while(i<items.length){const idx=i++;live[items[idx]]=await fn(items[idx]);render();$('status').textContent='Coleta '+(Object.keys(live).length)+'/'+items.length+' • '+items[idx]}}await Promise.all(Array.from({length:concurrency},worker))}
+async function spcx(){try{let a=closed(await candles('SPCX','15m','bybit'),'15m');if(!a.length)throw Error('Sem candle fechado');const p=a.at(-1).c;const b=live.SPCX?.price;$('spcxBy').textContent=fmt(p);$('spcxBin').textContent=fmt(b);$('spcxDiff').textContent=Number.isFinite(b)?fmt((p/b-1)*100,3)+'%':'—';live.SPCX.bybitPrice=p}catch(e){$('spcxBy').textContent='Indisponível';notify('Bybit SPCX: '+e.message)}}
+async function collect(){if(busy)return;busy=true;await historyReady;$('collect').disabled=true;live={};notify('Iniciando coleta dos 21 ativos...');try{await pool(assets,4,one);await spcx();loadedAt=new Date().toISOString();checkAlerts();{const invalid=assets.filter(a=>live[a]?.status!=='OK');notify('Coleta finalizada: '+(21-invalid.length)+'/21 válidos'+(invalid.length?' · SEM LEITURA: '+invalid.map(a=>a+' ('+(live[a]?.status||'sem resposta')+')').join('; '):'')+'.');}}finally{busy=false;$('collect').disabled=false;render();await renderStudy()}}
+function render(){const closedTimes=[...new Set(Object.values(live).filter(o=>o.status==='OK'&&o.close4h&&Number.isFinite(Date.parse(o.close4h))).map(o=>o.close4h))].sort();const header=$('close4hHeader');header.textContent=!closedTimes.length?'Último fechamento 4h (BRT): aguardando coleta':closedTimes.length===1?'Último fechamento 4h (BRT): '+format4h(closedTimes[0]):'Fechamentos 4h diferentes entre fontes: '+closedTimes.map(format4h).join(' / ');header.title=closedTimes.length>1?'Cada ativo mantém seu horário real de fechamento 4h no histórico/CSV/JSON.':'';const filter=$('filter').value;let arr=assets.map(a=>live[a]).filter(Boolean).filter(o=>filter==='all'||(filter==='ok'&&o.status==='OK')||(filter==='error'&&o.status!=='OK')||(filter==='signal'&&o.reading?.includes('Extremo')));$('rows').innerHTML=arr.map(o=>{const good=o.status==='OK';const num=(k)=>good?fmt(o[k]):'—';const r=k=>good?'<span class="'+(o[k]<30?'red':o[k]>80?'green':'')+'">'+fmt(o[k],1)+'</span>':'—';return '<tr><td><a href="'+chartUrl(o.asset)+'" target="_blank" rel="noopener noreferrer"><b>'+htmlSafe(o.asset)+'</b></a><br><small>'+htmlSafe(o.source||'—')+'</small>'+(o.asset==='SPCX'?'<br><a href="'+chartUrl(o.asset,'bybit')+'" target="_blank" rel="noopener noreferrer">Bybit</a>':'')+'</td><td>'+num('price')+'</td><td>'+r('r15')+'</td><td>'+r('r1')+'</td><td>'+r('r2')+'</td><td>'+r('r4')+'</td><td>'+num('ema9')+'</td><td>'+num('ema21')+'</td><td>'+htmlSafe(o.cross15||'Sem novo cruzamento')+'</td><td>'+htmlSafe(o.context1h||'—')+'</td><td>'+htmlSafe(o.studyState||'—')+'</td><td>'+num('ema80')+'</td><td>'+num('ema200')+'</td><td>'+num('vrel')+'×</td><td>'+num('support')+'</td><td>'+num('resistance')+'</td><td title="'+o.status.replace(/"/g,'')+'">'+(good?o.reading:o.status)+'</td></tr>'}).join('')||'<tr><td colspan="17">Nenhum resultado para o filtro.</td></tr>';$('valid').textContent=Object.values(live).filter(x=>x.status==='OK').length}
+async function save(){if(!loadedAt||!Object.values(live).some(x=>x.status==='OK'))return notify('Atualize antes de salvar; não há dados válidos.');const copy=JSON.parse(JSON.stringify(live));const id='api-'+loadedAt;if(history.some(h=>h.id===id))return notify('Esta coleta já foi salva.');try{await persist({id,time:loadedAt,origin:'API',data:copy});notify('✅ Gravação CONFIRMADA no IndexedDB: '+Object.values(copy).filter(x=>x.status==='OK').length+' leituras.')}catch(e){notify('❌ NÃO SALVO: '+e.message+'. Exporte o backup e verifique armazenamento.')}}
+function refreshMeta(){refreshStudies();$('counts').textContent=history.length;$('last').textContent=history.length?tz(new Date(history.at(-1).time)):'—'}
+function updateSelectors(){const opts=history.map(h=>'<option value="'+h.id+'">'+tz(new Date(h.time))+' • '+h.origin+'</option>').join('');$('base').innerHTML=opts;$('current').innerHTML=opts;if(history.length>1){$('base').value=history.at(-2).id;$('current').value=history.at(-1).id}};
+function compare(){const a=history.find(h=>h.id===$('base').value),b=history.find(h=>h.id===$('current').value);if(!a||!b){$('report').textContent='Importe ou registre dois instantâneos.';return}const bp=a.data.BTC?.price,cp=b.data.BTC?.price,btc=bp>0&&cp>0?(cp/bp-1)*100:NaN;let moves=[];const body=assets.map(asset=>{const x=a.data[asset]?.price,y=b.data[asset]?.price;const pct=x>0&&y>0?(y/x-1)*100:NaN;const rel=Number.isFinite(pct)&&Number.isFinite(btc)?pct-btc:NaN;if(Number.isFinite(pct))moves.push({asset,pct,rel});const style=v=>v>=0?'green':'red';return '<tr><td>'+asset+'</td><td>'+fmt(x)+'</td><td>'+fmt(y)+'</td><td class="'+style(pct)+'">'+(Number.isFinite(pct)?fmt(pct,2)+'%':'—')+'</td><td class="'+style(rel)+'">'+(Number.isFinite(rel)?fmt(rel,2)+' p.p.':'—')+'</td></tr>'}).join('');$('comparison').innerHTML=body;moves.sort((x,y)=>y.pct-x.pct);const top=moves.slice(0,5).map(x=>x.asset+' '+fmt(x.pct,2)+'%').join('; ');const weak=moves.slice(-5).map(x=>x.asset+' '+fmt(x.pct,2)+'%').join('; ');$('report').textContent='RELATÓRIO INTELIGENTE EGI — COMPARATIVO\nBase: '+tz(new Date(a.time))+' ('+a.origin+')\nAtual: '+tz(new Date(b.time))+' ('+b.origin+')\nAtivos comparáveis: '+moves.length+'\nBTC: '+(Number.isFinite(btc)?fmt(btc,2)+'%':'sem comparação')+'\nMaiores altas: '+(top||'sem dados')+'\nMenor desempenho: '+(weak||'sem dados')+'\n\nInterpretação: força relativa = variação do ativo menos variação do BTC (pontos percentuais), não é correlação nem sinal de entrada. Os preços podem vir de fontes e horários distintos. RSI, volume e candles confirmados devem ser avaliados antes de qualquer classificação operacional. Não há taxa de acerto calculada sem regras de sinal e horizonte de avaliação previamente definidos.'}
+function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+const keys=['asset','status','source','price','r15','r1','r2','r4','close4h','ema80','ema200','ema9','ema21','cross15','context1h','hourlyClose','hourlyCandleTime','studyState','vrel','support','resistance','reading','bybitPrice'];
+function exportCsv(){const rows=[['coleta_iso','origem',...keys].join(';')];for(const h of history)for(const [a,obj]of Object.entries(h.data)){const line=[h.time,h.origin,...keys.map(k=>k==='asset'?a:obj[k]??'')].map(v=>'"'+String(v).replaceAll('"','""')+'"');rows.push(line.join(';'))}download('Radar_EGI_Historico_'+new Date().toISOString().slice(0,10)+'.csv','\ufeff'+rows.join('\r\n'),'text/csv;charset=utf-8')}
+async function exportJson(){try{studyRows=await loadStudyRows()}catch(error){return notify('Backup interrompido: '+error.message)}download('Radar_EGI_Backup_V1_6_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'Radar EGI LAB',version:'1.6',exportedAt:new Date().toISOString(),history,alerts,crossStudy:studyRows},null,2),'application/json');notify('Backup JSON solicitado: confira o arquivo na pasta Downloads. O arquivo não é validado até ser conferido.')}
+function parseCSV(text){const lines=text.replace(/^\ufeff/,'').split(/\r?\n/).filter(x=>x.trim());if(!lines.length)throw Error('CSV vazio');const sep=lines[0].includes(';')?';':',';function split(row){const out=[];let q=false,cell='';for(let i=0;i<row.length;i++){const c=row[i];if(c==='"'){if(q&&row[i+1]==='"'){cell+='"';i++}else q=!q}else if(c===sep&&!q){out.push(cell);cell=''}else cell+=c}out.push(cell);return out}const head=split(lines[0]);const col=x=>head.indexOf(x);if(col('Par')<0||col('Último USDT')<0)throw Error('Formato CSV não reconhecido: esperado exportação Radar EGI com Par e Último USDT');const toNum=x=>{let s=String(x||'').replace(/\s/g,'');if(s.includes(','))s=s.replaceAll('.','').replace(',','.');return Number(s)};const data={};let stamp='';for(const line of lines.slice(1)){const v=split(line),raw=(v[col('Par')]||'').split(' · ')[0].trim(),asset=raw==='BZUSDT'?'BRENT':raw.replace(/USDT$/,'');if(!asset)continue;const p=toNum(v[col('Último USDT')]);if(!(p>0))continue;data[asset]={asset,status:'OK',source:'CSV importado',price:p,r15:toNum(v[col('RSI 15m')]),r1:toNum(v[col('RSI 1h')]),r2:toNum(v[col('RSI 2h')]),ema80:toNum(v[col('EMA 80 (1h)')]),ema200:toNum(v[col('EMA 200 (1h)')]),reading:'Registro CSV; sem classificação'};if(!stamp&&col('Consulta (BRT)')>=0)stamp=v[col('Consulta (BRT)')]}let time=new Date().toISOString();const m=stamp.match(/(\d\d)\/(\d\d)\/(\d{4}),?\s*(\d\d):(\d\d):(\d\d)/);if(m){const [_,day,month,year,h,mi,s]=m;time=new Date(Date.UTC(+year,+month-1,+day,+h+3,+mi,+s)).toISOString()}if(!Object.keys(data).length)throw Error('Nenhum ativo válido no CSV');return {id:'csv-'+time,time,origin:'CSV legado',data}}
+async function importFile(file){if(!file)return;try{const t=await file.text();let entries=[];let restoredAlerts=[];let restoredStudy=[];if(file.name.toLowerCase().endsWith('.csv'))entries=[parseCSV(t)];else{const x=JSON.parse(t);if(!Array.isArray(x.history))throw Error('Backup inválido: history ausente');entries=x.history;restoredAlerts=Array.isArray(x.alerts)?x.alerts:[];restoredStudy=x.crossStudy===undefined?[]:x.crossStudy;await importStudyRows(restoredStudy)}let added=0;for(const h of entries){if(typeof h.id==='string'&&typeof h.time==='string'&&h.data&&typeof h.data==='object'&&!history.some(v=>v.id===h.id)){await persist(h);added++}}if(restoredAlerts.length){const have=new Set(alerts.map(a=>a.id));for(const a of restoredAlerts){if(a.id&&!have.has(a.id)){alerts.push(a);have.add(a.id)}}persistAlerts();renderAlerts()}await renderStudy();compare();notify('Importação confirmada no IndexedDB: '+added+' registros novos de '+file.name)}catch(e){notify('Importação incompleta/não salva: '+e.message)}finally{$('file').value=''}}
+function htmlSafe(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function readAlerts(){try{const x=JSON.parse(localStorage.getItem(alertsKey)||'[]');if(Array.isArray(x)){alerts=x}else if(x&&typeof x==='object'){alerts=Object.entries(x).filter(([k,a])=>a&&a.target).map(([asset,a],i)=>({id:'legado-'+asset+'-'+i,asset,direction:a.direction||'up',target:String(a.target),note:'Importado da V1.1',triggered:!!a.triggered,triggeredAt:a.triggeredAt||null}))}else alerts=[]}catch{alerts=[]}}
+function persistAlerts(){try{localStorage.setItem(alertsKey,JSON.stringify(alerts))}catch(e){notify('Falha ao salvar avisos: '+e.message)}}
+function renderAlerts(){const body=$('alertRows');body.innerHTML=alerts.length?alerts.map(a=>`<tr><td><b>${htmlSafe(a.asset)}</b></td><td>${a.direction==='down'?'≤':'≥'}</td><td>${htmlSafe(a.target)}</td><td style="text-align:left;white-space:normal;min-width:180px">${htmlSafe(a.note||'—')}</td><td class="${a.triggered?'gold':'muted'}">${a.triggered?'🔔 ATINGIDO':'Armado'}</td><td><button data-rearm="${htmlSafe(a.id)}">Rearmar</button> <button data-clear="${htmlSafe(a.id)}">Excluir</button></td></tr>`).join(''):'<tr><td colspan="6" class="muted" style="text-align:left">Nenhum aviso salvo. Preencha os campos acima e clique em Gravar aviso.</td></tr>';
+body.querySelectorAll('[data-rearm]').forEach(b=>b.onclick=()=>{const a=alerts.find(x=>x.id===b.dataset.rearm);if(a){a.triggered=false;a.triggeredAt=null;persistAlerts();renderAlerts()}});body.querySelectorAll('[data-clear]').forEach(b=>b.onclick=()=>{alerts=alerts.filter(x=>x.id!==b.dataset.clear);persistAlerts();renderAlerts()});$('alarmState').textContent=alerts.length+' aviso(s) gravado(s) neste navegador'}
+function checkAlerts(){let changed=false;for(const a of alerts){const o=live[a.asset];if(!a.target||a.triggered||o?.status!=='OK'||!Number.isFinite(o.price))continue;const target=Number(String(a.target).replace(',','.'));if(!(target>0))continue;const hit=a.direction==='down'?o.price<=target:o.price>=target;if(hit){a.triggered=true;a.triggeredAt=new Date().toISOString();changed=true;notify('🔔 AVISO '+a.asset+': preço '+fmt(o.price)+' '+(a.direction==='down'?'≤':'≥')+' '+fmt(target)+(a.note?' • '+a.note:''));if('Notification' in window&&Notification.permission==='granted'){try{new Notification('Radar EGI · '+a.asset,{body:'Preço '+fmt(o.price)+' atingiu '+fmt(target)+(a.note?' | '+a.note:'')})}catch(e){}}}}if(changed)persistAlerts();renderAlerts()}
+$('alarmAsset').innerHTML=assets.map(a=>`<option value="${a}">${a}</option>`).join('');
+$('addAlarm').onclick=()=>{const asset=$('alarmAsset').value,direction=$('alarmDirection').value,target=$('alarmPrice').value.trim(),note=$('alarmNote').value.trim();const n=Number(target.replace(',','.'));if(!Number.isFinite(n)||n<=0)return notify('Informe um preço positivo válido para gravar o aviso.');alerts.push({id:'alert-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),asset,direction,target,note,triggered:false,createdAt:new Date().toISOString()});persistAlerts();renderAlerts();$('alarmPrice').value='';$('alarmNote').value='';notify('Aviso gravado para '+asset+' em '+target+'.')};
+$('requestNotif').onclick=async()=>{if(!('Notification' in window))return notify('Notificações indisponíveis neste navegador. O alerta permanece no painel.');try{const p=await Notification.requestPermission();notify('Permissão de notificações: '+p)}catch(e){notify('Não foi possível solicitar permissão: '+e.message)}};
+$('exportAlerts').onclick=()=>download('Radar_EGI_Alertas_V1_2.json',JSON.stringify({app:'Radar EGI',version:'1.2',exportedAt:new Date().toISOString(),alerts},null,2),'application/json');
+function brHour(d){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit',year:'numeric',month:'2-digit',day:'2-digit',hourCycle:'h23'}).formatToParts(d);return Object.fromEntries(parts.map(p=>[p.type,p.value]))}
+async function scheduledTick(){if(busy)return;const t=brHour(new Date());if(!['06','12','18','21'].includes(t.hour)||Number(t.minute)>4)return;const slot=`${t.year}-${t.month}-${t.day} ${t.hour}`;if(slot===lastScheduled)return;lastScheduled=slot;try{localStorage.setItem(scheduleKey,slot)}catch(e){}notify('Coleta programada local: '+slot+'h BRT');await collect();if($('autosave').checked&&Object.values(live).some(o=>o.status==='OK'))await save()}
+
+// V1.5: análises calculadas exclusivamente de instantâneos existentes; nenhuma chamada adicional à API.
+function pctChange(from,to){return from>0&&to>0?100*(to/from-1):NaN}
+function validPrice(s,asset){const o=s?.data?.[asset];return o?.status==='OK'&&Number(o.price)>0?Number(o.price):NaN}
+function apiHistory(){return history.filter(h=>h&&h.origin==='API'&&Number.isFinite(Date.parse(h.time))&&h.data&&typeof h.data==='object').sort((a,b)=>Date.parse(a.time)-Date.parse(b.time))}
+function closestSnapshot(list,target,tolerance,exclude){let best=null,err=Infinity;for(const h of list){if(h.id===exclude)continue;const e=Math.abs(Date.parse(h.time)-target);if(e<=tolerance&&e<err){best=h;err=e}}return best}
+function localSlot(dayOffset,hour){const d=new Date(Date.now()+dayOffset*86400000);const f=brHour(d);return {day:`${f.year}-${f.month}-${f.day}`,epoch:Date.parse(`${f.year}-${f.month}-${f.day}T${String(hour).padStart(2,'0')}:00:00-03:00`)}}
+function last4Scores(list,asset){const paired=[];for(let i=Math.max(1,list.length-4);i<list.length;i++){const x=list[i-1],y=list[i];const ap=pctChange(validPrice(x,asset),validPrice(y,asset)),bp=pctChange(validPrice(x,'BTC'),validPrice(y,'BTC'));if(Number.isFinite(ap)&&Number.isFinite(bp)&&Date.parse(y.time)-Date.parse(x.time)<=90*60000){paired.push(ap-bp)}}return {wins:paired.filter(v=>v>0).length,valid:paired.length}}
+function renderMemory(){const all=apiHistory();const latest=all.at(-1);const prior=latest&&closestSnapshot(all,Date.parse(latest.time)-24*3600000,45*60000,latest.id);const bp=prior&&latest?pctChange(validPrice(prior,'BTC'),validPrice(latest,'BTC')):NaN;const lines=[];let available=0;const rows=assets.map(asset=>{const change=prior?pctChange(validPrice(prior,asset),validPrice(latest,asset)):NaN;const rel=Number.isFinite(change)&&Number.isFinite(bp)?change-bp:NaN;const score=last4Scores(all,asset);const item=latest?.data?.[asset];if(Number.isFinite(change))available++;lines.push(`${asset}: 24h ${Number.isFinite(change)?fmt(change,2)+'%':'sem base'} | vs BTC ${Number.isFinite(rel)?fmt(rel,2)+' p.p.':'—'} | força ${score.wins}/${score.valid} intervalos válidos | RSI4h ${fmt(Number(item?.r4),1)} | candle4h ${format4h(item?.close4h)}`);return `<tr><td>${asset}</td><td>${Number.isFinite(change)?fmt(change,2)+'%':'Sem base 24h'}</td><td>${Number.isFinite(rel)?fmt(rel,2)+' p.p.':'—'}</td><td>${score.wins}/${score.valid}${score.valid<3?' (amostra pequena)':''}</td><td>${item?.status==='OK'?fmt(Number(item.r4),1):'—'}</td><td>${format4h(item?.close4h)}</td></tr>`});$('memoryRows').innerHTML=rows.join('');$('memoryStatus').textContent=latest?`${all.length} coletas API · ${available}/21 comparáveis em 24h`:'Sem coletas API salvas';$('memoryReport').textContent=`MEMÓRIA EGI V1.6 — 24 HORAS\nÚltima coleta: ${latest?tz(new Date(latest.time)):'indisponível'}\nBase 24h: ${prior?tz(new Date(prior.time)):'NÃO ENCONTRADA (±45 min)'}\nAtivos comparáveis: ${available}/21\n\n${lines.join('\n')}\n\nPlacar = número de intervalos em que o ativo superou a variação do BTC, entre até quatro pares recentes de coletas consecutivas com intervalo máximo de 90 min. Não é correlação nem sinal de entrada. A coleta pode ter lacunas; 0/0 significa sem dados.`}
+function nearestNightPair(){const list=apiHistory();if(!list.length)return null;const days=[...new Set(list.map(h=>{const x=brHour(new Date(h.time));return `${x.year}-${x.month}-${x.day}`}))].sort().reverse();for(const day of days){const start=Date.parse(`${day}T21:00:00-03:00`);const base=closestSnapshot(list,start,30*60000);const curr=closestSnapshot(list,start+9*3600000,30*60000,base?.id);if(base&&curr&&Date.parse(curr.time)>Date.parse(base.time))return {base,curr,day}}return null}
+function renderDaily(){const pair=nearestNightPair();if(!pair){$('dailyRows').innerHTML='<tr><td colspan="7">Aguardando par de coletas válidas próximas de 21h e 06h do dia seguinte.</td></tr>';$('dailyStatus').textContent='Pendente: não há par noturno completo';$('dailyReport').textContent='RELATÓRIO EGI NOTURNO V1.5\nNenhum par 21h → 06h disponível no histórico API. Importações CSV legadas não são assumidas como coleta da API.\nO fechamento das 21h e das 06h é definido pela hora de coleta BRT (tolerância ±30min), diferente do fechamento 4h de cada ativo.';return}const {base,curr}=pair;const btc=pctChange(validPrice(base,'BTC'),validPrice(curr,'BTC'));const lines=[];let compared=0;const rows=assets.map(asset=>{const x=validPrice(base,asset),y=validPrice(curr,asset),move=pctChange(x,y),rel=Number.isFinite(move)&&Number.isFinite(btc)?move-btc:NaN;const o=base.data?.[asset];if(Number.isFinite(move))compared++;lines.push(`${asset}: ${Number.isFinite(move)?fmt(move,2)+'%':'sem dados'} | vs BTC ${Number.isFinite(rel)?fmt(rel,2)+' p.p.':'—'}`);return `<tr><td>${asset}</td><td>${fmt(x)}</td><td>${fmt(y)}</td><td>${Number.isFinite(move)?fmt(move,2)+'%':'—'}</td><td>${Number.isFinite(rel)?fmt(rel,2)+' p.p.':'—'}</td><td>${o?.status==='OK'?fmt(Number(o.r4),1):'—'}</td><td>${format4h(o?.close4h)}</td></tr>`});$('dailyRows').innerHTML=rows.join('');$('dailyStatus').textContent=`${compared}/21 comparáveis · referência ${pair.day}`;$('dailyReport').textContent=`RELATÓRIO EGI NOTURNO V1.6 — ${pair.day}\nColeta 21h: ${tz(new Date(base.time))}\nColeta 06h: ${tz(new Date(curr.time))}\nAtivos comparáveis: ${compared}/21\nBTC: ${fmt(btc,2)}%\n\n${lines.join('\n')}\n\nResultado observado, não sinal operacional ou taxa de acerto. Validade depende de coletas persistidas e fontes comparáveis. Candle 4h base indicado individualmente.`}
+function refreshStudies(){renderMemory();renderDaily()}
+$('refreshMemory').onclick=renderMemory;$('refreshDaily').onclick=renderDaily;
+$('memoryTxt').onclick=()=>download('RelEGI_Memoria24h_V1_5.txt',$('memoryReport').textContent,'text/plain;charset=utf-8');
+$('dailyTxt').onclick=()=>download('RelEGI_Noturno21h06h_V1_5.txt',$('dailyReport').textContent,'text/plain;charset=utf-8');
+
+$('studyEnabled').onchange=renderStudy;
+$('studyExport').onclick=async()=>{
+  await renderStudy();
+  const events=studyRows.filter(row=>row.kind==='event');
+  const lines=['RELEGI — CRUZAMENTO 9/21 15m + CONTEXTO 80/200 1h — V1.6 LAB',
+    'Gerado BRT: '+tz(new Date()),
+    'Volume confirmado ≥1,2×. Retorno direcional hipotético sobre fechamento do sinal, sem custos.',
+    'Contexto ALTA: preço 1h > MME80 > MME200; BAIXA: preço 1h < MME80 < MME200; demais MISTO.',
+    'Eventos observados: '+events.length, ''];
+  for(const event of events){
+    const outcomes=[3,6,12].map(h=>'+'+h+': '+(Number.isFinite(event.outcomes[String(h)])?fmt(event.outcomes[String(h)],2)+'%':'PENDENTE'));
+    lines.push(event.asset+' | '+event.source+' | fechamento '+tz(new Date(event.candleTime+STUDY_PERIOD))+
+      ' | observado '+tz(new Date(event.observedAt))+' | '+event.direction+' | '+event.group+
+      ' | contexto '+event.context+' | preço '+fmt(event.price)+' | volume '+fmt(event.volume,2)+'× | '+outcomes.join(' | '));
+  }
+  lines.push('', 'RESUMO POR CONTEXTO / VOLUME', $('studySummary').innerText);
+  download('RelEGI_Cruzamento_V1_6.txt',lines.join('\n'),'text/plain;charset=utf-8');
+};
+
+$('diagnose').onclick=()=>{const invalid=assets.filter(a=>live[a]?.status!=='OK');notify('Diagnóstico: '+(21-invalid.length)+'/21 válidos. '+(invalid.length?'Pendentes: '+invalid.map(a=>a+': '+(live[a]?.status||'sem resposta')).join(' | '):'Todos OK')+'. Armazenamento: '+(storageReady?'IndexedDB OK':'indisponível')+'. Registros confirmados: '+history.length)};$('collect').onclick=collect;$('save').onclick=save;$('filter').onchange=render;$('compare').onclick=compare;$('exportCsv').onclick=exportCsv;$('exportJson').onclick=exportJson;$('reportTxt').onclick=()=>download('RelEGI_Comparativo.txt',$('report').textContent,'text/plain;charset=utf-8');let importMode='csv';$('importCsv').onclick=()=>{importMode='csv';$('file').accept='.csv';$('file').click()};$('importJson').onclick=()=>{importMode='json';$('file').accept='.json';$('file').click()};$('file').onchange=e=>importFile(e.target.files?.[0]);let timer=null;$('auto').onchange=e=>{if(timer)clearInterval(timer);timer=null;if(e.target.checked){timer=setInterval(()=>{if(!busy)collect().then(async()=>{if($('autosave').checked&&Object.values(live).some(x=>x.status==='OK'))await save()})},15*60*1000);notify('Coleta local a cada 15 minutos ativada. Só funciona com a página aberta.')}else notify('Coleta local periódica desativada.')};setInterval(()=>$('clock').textContent='Brasília • '+tz(new Date()),1000);$('clock').textContent='Brasília • '+tz(new Date());readAlerts();renderAlerts();const historyReady=initHistory().then(renderStudy);try{lastScheduled=localStorage.getItem(scheduleKey)||''}catch(e){};setInterval(scheduledTick,30000);scheduledTick();
+</script></body></html>
