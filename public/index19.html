@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101d">
-<title>RadarRMC V1.2 — Consulta Individual ADA/TIA</title>
+<title>RadarRMC V1.2 LAB — Persistência e Auditoria de Liberação</title>
 <style>
 :root{--bg:#07101d;--card:#101d31;--card2:#0b1728;--line:#29445f;--txt:#edf6ff;--muted:#9fb7d2;--green:#49e29b;--yellow:#ffd45a;--orange:#ff9c52;--red:#ff6c76;--blue:#6fa8ff;--cyan:#39d7ef;--purple:#bd9cff}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07101d,#0a1525 55%,#07101d);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}.wrap{max-width:1320px;margin:auto;padding:14px}
@@ -34,7 +34,7 @@ textarea,select,input,button{font:inherit;border-radius:11px;border:1px solid #3
 <body><div class="wrap">
 <section class="hero">
   <div class="sub">EGI • MACRO + ROTAÇÃO + MANADA + VOLATILIDADE + SMC + ROMPIMENTO + SETUPDT</div>
-  <h1>🧭 RadarRMC V1.0 — AUTOMÁTICO</h1>
+  <h1>🧭 RadarRMC V1.2 LAB — AUTOMÁTICO</h1>
   <div class="sub">Agora calcula Manada + Volatilidade diretamente da Binance, cruza a Confluência e executa o SMC do melhor candidato — sem precisar gerar e colar relatórios anteriores.</div>
   <div class="grid kpis">
     <div class="kpi"><small>Ativos cruzados</small><b id="crossCount">0</b></div>
@@ -44,7 +44,7 @@ textarea,select,input,button{font:inherit;border-radius:11px;border:1px solid #3
     <div class="kpi"><small>Estado</small><b id="state">Aguardando</b></div>
   </div>
 
-  <div class="notice ok" id="bootStatus"><b>✅ RadarRMC V1.1:</b> fluxo único carregado. Manada + Volatilidade alimentam a Confluência; SMC define contexto; Rompimento Qualificado EGI avalia base lateral, direção e volume antes do SetupDT.</div>
+  <div class="notice ok" id="bootStatus"><b>✅ RadarRMC V1.2 LAB:</b> fluxo único carregado. Manada + Volatilidade alimentam a Confluência; SMC define contexto; Rompimento Qualificado EGI avalia base lateral, direção e volume antes do SetupDT.</div>
   <div class="actions">
     <button class="primary" id="goAreaBtn">📥 IR PARA ÁREA 1</button>
     <button class="secondary" id="goMacroBtn">🌎 IR PARA MACRO</button>
@@ -166,7 +166,7 @@ textarea,select,input,button{font:inherit;border-radius:11px;border:1px solid #3
   <div class="tableWrap"><table class="table"><thead><tr>
     <th>#</th><th>Ativo</th><th>Manada</th><th>Entrada</th><th>Persistência</th><th>Vol</th><th>Qualidade</th><th>Equilíbrio</th><th>Risco</th><th>Confluência</th><th>Leitura</th><th>Próxima ação</th>
   </tr></thead><tbody id="rows"><tr><td colspan="12" style="text-align:center;padding:24px;color:#9fb7d2">Cole Manada + Volatilidade na Área 1 e clique em ATUALIZAR TUDO.</td></tr></tbody></table></div>
-  <div class="tiny" style="margin-top:8px">Score de Confluência é interno ao app. Persistência 1x não recebe bônus. Volatilidade perigosa, qualidade baixa, entrada tardia e pedido de pullback recebem penalidade.</div>
+  <div class="tiny" style="margin-top:8px">Score de Confluência é interno ao app e NÃO representa sinal. Persistência 1x = inicial; 2x = em formação; 3x ou mais = persistente, somente após candles 15m distintos e fechados. A coluna Próxima ação explica por que o candidato ainda não foi liberado.</div>
 </section>
 
 <section class="panel">
@@ -371,11 +371,11 @@ function readHistory(){try{const v=JSON.parse(localStorage.getItem(HISTORY_KEY)|
 function writeHistory(v){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(v.slice(0,30)))}catch(_){}}
 function renderHistory(){const root=$('#historyList');if(!root)return;const h=readHistory();if(!h.length){root.innerHTML='<div class="hist-item"><b>Sem histórico ainda.</b><small>Faça uma análise SMC para registrar a primeira leitura.</small></div>';return}root.innerHTML=h.map(x=>`<div class="hist-item"><b>${x.asset} • ${x.state}</b><small>${x.when} • nível ${x.key||'—'} • ${x.next||''}</small></div>`).join('')}
 function operationalDirection(smc){const t=(smc?.operVerdict||'').toUpperCase();if(t.includes('LONG'))return'LONG';if(t.includes('SHORT'))return'SHORT';const a=(smc?.st4||'')+' '+(smc?.st1||'');if(a.includes('ALTA')&&!a.includes('BAIXA'))return'LONG';if(a.includes('BAIXA')&&!a.includes('ALTA'))return'SHORT';return'BOTH'}
-function finalStateFrom(smc){if(!smc)return{state:'⚪ AGUARDANDO ANÁLISE',detail:'Analise um ativo para calcular o estado operacional.',next:'Analisar SMC',cls:''};const v=(smc.operVerdict||'').toUpperCase(), trig=(smc.triggerStatus||'').toUpperCase();const cr=crossed.find(x=>x.symbol===smc.sym);const dec=(cr?.decision?.label||'').toUpperCase();const macro=(macroState?.risk||'').toUpperCase();const rq=smc.rq||null;if(dec.includes('EVITAR')||v.includes('CONFLITO'))return{state:'🔴 EVITAR AGORA',detail:'Conflito estrutural ou filtro de Confluência desfavorável. O sinal continua visível, mas não merece prioridade.',next:'Aguardar nova estrutura',cls:'state-red'};if(trig.includes('CONFIRMADO')){if(rq&&!rq.qualified)return{state:'🟡 GATILHO CONFIRMADO • ROMPIMENTO AINDA NÃO QUALIFICADO',detail:`O gatilho técnico apareceu, mas o filtro de 8 candles + volume ainda não confirmou (${rq.score}/100). O botão SetupDT continua disponível; preferir esperar a qualificação.`,next:'Aguardar fechamento/volume ou validar com cautela no SetupDT',cls:'state-yellow'};if(macro.includes('MUITO ALTO'))return{state:'🟠 GATILHO CONFIRMADO • RISCO MACRO ALTO',detail:'O gatilho técnico confirmou, porém o ambiente macro pede menor agressividade. Confirmar no SetupDT.',next:'Abrir SetupDT e validar 15m/1h/4h',cls:'state-orange'};return{state:'🟢 ENVIAR PARA SETUPDT',detail:rq?.qualified?'SMC + gatilho + Rompimento Qualificado EGI estão alinhados. A decisão final continua no SetupDT.':'Estrutura e gatilho operacional estão alinhados. A decisão final continua no SetupDT 15m/1h/4h.',next:'Confirmar no SetupDT',cls:'state-green'}}if(v.includes('PREPARAR'))return{state:'🟡 PREPARAR — AGUARDAR GATILHO',detail:smc.operVerdictSub||'Estrutura favorável, mas ainda falta o gatilho micro.',next:'Esperar rompimento/reteste',cls:'state-yellow'};if(dec.includes('PULLBACK')||v.includes('REVERSÃO EM ESTUDO'))return{state:'🟠 ESPERAR PULLBACK / CONFIRMAÇÃO',detail:smc.operVerdictSub||'Há contexto, mas a localização/gatilho ainda não está pronta.',next:'Aguardar melhor localização',cls:'state-orange'};return{state:'🟡 OBSERVAR — SEM LIBERAÇÃO',detail:smc.operVerdictSub||'Contexto insuficiente para liberar o próximo passo.',next:'Aguardar gatilho',cls:'state-yellow'}}
+function finalStateFrom(smc){if(!smc)return{state:'⚪ AGUARDANDO ANÁLISE',detail:'Analise um ativo para calcular o estado operacional.',next:'Analisar SMC',cls:''};const v=(smc.operVerdict||'').toUpperCase(), trig=(smc.triggerStatus||'').toUpperCase();const cr=crossed.find(x=>x.symbol===smc.sym);const dec=(cr?.decision?.label||'').toUpperCase();const macro=(macroState?.risk||'').toUpperCase();const rq=smc.rq||null;if(dec.includes('EVITAR')||v.includes('CONFLITO'))return{state:'🔴 EVITAR AGORA',detail:'Conflito estrutural ou filtro de Confluência desfavorável. O sinal continua visível, mas não merece prioridade.',next:'Aguardar nova estrutura',cls:'state-red'};if(trig.includes('CONFIRMADO')){if(cr && (cr.man.persist?.count||0)<3)return{state:'🟡 GATILHO PRESENTE • PERSISTÊNCIA NÃO CONFIRMADA',detail:'Persistência '+(cr.man.persist?.count||1)+'x. Exigir pelo menos três candles 15m fechados distintos e revalidar SMC. Não é ordem.',next:'Aguardar persistência e reavaliar',cls:'state-yellow'};if(rq&&!rq.qualified)return{state:'🟡 GATILHO CONFIRMADO • ROMPIMENTO AINDA NÃO QUALIFICADO',detail:`O gatilho técnico apareceu, mas o filtro de 8 candles + volume ainda não confirmou (${rq.score}/100). O botão SetupDT continua disponível; preferir esperar a qualificação.`,next:'Aguardar fechamento/volume ou validar com cautela no SetupDT',cls:'state-yellow'};if(macro.includes('MUITO ALTO'))return{state:'🟠 GATILHO CONFIRMADO • RISCO MACRO ALTO',detail:'O gatilho técnico confirmou, porém o ambiente macro pede menor agressividade. Confirmar no SetupDT.',next:'Abrir SetupDT e validar 15m/1h/4h',cls:'state-orange'};return{state:'🟢 ENVIAR PARA SETUPDT',detail:rq?.qualified?'SMC + gatilho + Rompimento Qualificado EGI estão alinhados. A decisão final continua no SetupDT.':'Estrutura e gatilho operacional estão alinhados. A decisão final continua no SetupDT 15m/1h/4h.',next:'Confirmar no SetupDT',cls:'state-green'}}if(v.includes('PREPARAR'))return{state:'🟡 PREPARAR — AGUARDAR GATILHO',detail:smc.operVerdictSub||'Estrutura favorável, mas ainda falta o gatilho micro.',next:'Esperar rompimento/reteste',cls:'state-yellow'};if(dec.includes('PULLBACK')||v.includes('REVERSÃO EM ESTUDO'))return{state:'🟠 ESPERAR PULLBACK / CONFIRMAÇÃO',detail:smc.operVerdictSub||'Há contexto, mas a localização/gatilho ainda não está pronta.',next:'Aguardar melhor localização',cls:'state-orange'};return{state:'🟡 OBSERVAR — SEM LIBERAÇÃO',detail:smc.operVerdictSub||'Contexto insuficiente para liberar o próximo passo.',next:'Aguardar gatilho',cls:'state-yellow'}}
 function updateFinalState(record=false){const el=$('#finalFlowPanel');if(!el)return;const f=finalStateFrom(lastSmc);el.className='final-flow '+f.cls;$('#finalState').textContent=f.state;$('#finalDetail').textContent=f.detail;$('#finalAsset').textContent=lastSmc?.sym||'—';$('#finalKey').textContent=lastSmc?.keyLevel||'—';$('#finalNext').textContent=f.next;if(record&&lastSmc){let h=readHistory();const item={asset:lastSmc.sym,state:f.state,key:lastSmc.keyLevel||'—',next:f.next,when:new Date().toLocaleString('pt-BR')};const prev=h[0];if(!prev||prev.asset!==item.asset||prev.state!==item.state||prev.key!==item.key)h.unshift(item);writeHistory(h);renderHistory()}return f}
 function setupPacket(){if(!lastSmc)return null;const dir=operationalDirection(lastSmc),asset=lastSmc.sym.replace(/USDT$/,'');return{asset,dir,verdict:lastSmc.operVerdict||'—',key:lastSmc.keyLevel||'—',stop:lastSmc.tlbStop||lastSmc.tsStop||'—',trigger:lastSmc.triggerStatus||'—',rq:lastSmc.rq||null,next:finalStateFrom(lastSmc).next}}
 function setupUrl(){const p=setupPacket();if(!p)return'';let base=($('#setupUrl').value||'index.html').trim()||'index.html';try{localStorage.setItem(SETUP_URL_KEY,base)}catch(_){}const sep=base.includes('?')?'&':'?';let q=`viradas=${encodeURIComponent(p.asset)}&lado=${encodeURIComponent(p.dir)}`;if(p.dir==='LONG')q+=`&long=${encodeURIComponent(p.asset)}`;else if(p.dir==='SHORT')q+=`&short=${encodeURIComponent(p.asset)}`;return base+sep+q}
-function setupPacketText(){const p=setupPacket();if(!p)return'';const rq=p.rq?`\nRompimento Qualificado EGI: ${p.rq.score}/100 • ${p.rq.decision}`:'';return`PACOTE RADARRMC V1.0 → SETUPDT\nAtivo: ${p.asset}/USDT\nDireção contextual: ${p.dir}\nVeredito: ${p.verdict}\nGatilho: ${p.trigger}${rq}\nNível-chave: ${p.key}\nStop de referência: ${p.stop}\nPróxima ação: ${p.next}\nRegra: o SetupDT faz a confirmação final 15m/1h/4h; este pacote não é ordem.`}
+function setupPacketText(){const p=setupPacket();if(!p)return'';const rq=p.rq?`\nRompimento Qualificado EGI: ${p.rq.score}/100 • ${p.rq.decision}`:'';return`PACOTE RADARRMC V1.2 LAB → SETUPDT\nAtivo: ${p.asset}/USDT\nDireção contextual: ${p.dir}\nVeredito: ${p.verdict}\nGatilho: ${p.trigger}${rq}\nNível-chave: ${p.key}\nStop de referência: ${p.stop}\nPróxima ação: ${p.next}\nRegra: o SetupDT faz a confirmação final 15m/1h/4h; este pacote não é ordem.`}
 
 function num(v){if(v==null)return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null}
 function parsePersist(t){
@@ -438,10 +438,21 @@ function confluence(m,v){
 }
 function decision(x){
   const m=x.man,v=x.vol;
+  const p=Number(m.persist?.count||1);
+  const reasons=[];
+  if(p<3)reasons.push('Persistência '+p+'x: '+(p===1?'inicial':'em formação'));
+  if(m.entry<70)reasons.push('Entrada abaixo de 70');
+  if(v.quality<70)reasons.push('Qualidade abaixo de 70');
+  if(v.balance<50)reasons.push('Equilíbrio baixo');
+  if(v.danger>=55)reasons.push('Risco de volatilidade elevado');
+  if(/PULLBACK/i.test(m.action))reasons.push('Pullback pendente');
+  if(/NÃO PERSEGUIR/i.test(m.action))reasons.push('Entrada esticada');
+  x.blockReasons=reasons;
+  
   if(v.danger>=68||v.quality<55||/NÃO PERSEGUIR/i.test(m.action))return{label:'🔴 EVITAR AGORA',cls:'red',next:'Aguardar normalização/pullback'};
   if(/PULLBACK/i.test(m.action)||(m.rsi!=null&&m.rsi>70)||(m.space!=null&&m.space<.8))return{label:'🔵 ESPERAR PULLBACK',cls:'blue',next:'Reavaliar depois do recuo'};
-  if(x.score>=74&&m.entry>=70&&v.quality>=70&&v.balance>=65)return{label:'🟢 CONFLUÊNCIA FORTE',cls:'green',next:'Contexto SMC → SetupDT'};
-  if(x.score>=64)return{label:'🟡 PROMISSORA',cls:'yellow',next:'Observar / confirmar SMC'};
+  if(x.score>=74&&m.entry>=70&&v.quality>=70&&v.balance>=65&&p>=3)return{label:'🟢 CONFLUÊNCIA FORTE',cls:'green',next:'Avaliar SMC → confirmar SetupDT 6/6 (não é entrada)'};
+  if(x.score>=64)return{label:'🟡 PROMISSORA',cls:'yellow',next:reasons.length?reasons.join(' • '):'Esperar SMC e gatilho 15m fechado'};
   return{label:'⚪ BAIXA CONFLUÊNCIA',cls:'purple',next:'Não priorizar'};
 }
 function cross(){
@@ -1065,11 +1076,11 @@ async function updateMacroCrypto(){
 function macroText(){calcMacro();return `CONTEXTO MACRO EGI\nRegime: ${macroState.regime}\nRisco macro: ${macroState.risk}\nRotação altcoins: ${macroState.rotation}${macroState.rotationScore!=null?' ('+macroState.rotationScore+'/100)':''}\nBTC: ${macroState.btc!=null?fmtPrice(macroState.btc):'não atualizado'}${macroState.btc24!=null?' • 24h aprox. '+macroState.btc24.toFixed(2)+'%':''}\nETH/BTC 24h aprox.: ${macroState.ethbtc24!=null?macroState.ethbtc24.toFixed(2)+'%':'—'}\nSOL/BTC 24h aprox.: ${macroState.solbtc24!=null?macroState.solbtc24.toFixed(2)+'%':'—'}\nTreasury 10Y: ${$('#macro10y').value}% | DXY: ${$('#macroDxy').value} | VIX: ${$('#macroVix').value}\nRegra: esta camada NÃO bloqueia SetupDT 6/6; apenas ajusta agressividade e risco.`}
 
 function buildReport(){
-  if(!crossed.length)return'';let t=`RELATÓRIO — RADARRMC V1.1 AUTOMÁTICO\nGerado em: ${new Date().toLocaleString('pt-BR')}\n\nOBJETIVO\nCruzar Radar Manada V2.3 e Radar Volatilidade V2.3 para reduzir o universo antes do Contexto SMC e da confirmação final no SetupDT. O cruzamento não define LONG/SHORT.\n\nTOP CONFLUÊNCIA\n`;
-  crossed.slice(0,10).forEach((x,i)=>{t+=`${i+1}. ${x.symbol} | Confluência ${x.score}/100 | Manada ${x.man.manada} | Entrada ${x.man.entry} | Persistência ${x.man.persist.count}x${x.man.persist.score!=null?' score '+Math.round(x.man.persist.score):''} | Vol ${x.vol.vol} | Qual ${x.vol.quality} | Equilíbrio ${x.vol.balance} | Risco ${x.vol.danger} | ${x.decision.label} | Próxima ação ${x.decision.next}\n`});
+  if(!crossed.length)return'';let t=`RELATÓRIO — RADARRMC V1.2 LAB AUTOMÁTICO\nGerado em: ${new Date().toLocaleString('pt-BR')}\n\nOBJETIVO\nCruzar Radar Manada V2.3 e Radar Volatilidade V2.3 para reduzir o universo antes do Contexto SMC e da confirmação final no SetupDT. O cruzamento não define LONG/SHORT.\n\nTOP CONFLUÊNCIA\n`;
+  crossed.slice(0,10).forEach((x,i)=>{t+=`${i+1}. ${x.symbol} | Confluência ${x.score}/100 | Manada ${x.man.manada} | Entrada ${x.man.entry} | Persistência ${x.man.persist.count}x${x.man.persist.score!=null?' score '+Math.round(x.man.persist.score):''} | Vol ${x.vol.vol} | Qual ${x.vol.quality} | Equilíbrio ${x.vol.balance} | Risco ${x.vol.danger} | ${x.decision.label} | Próxima ação ${x.decision.next} | Pendências ${(x.blockReasons||[]).join('; ')||'Confirmar SMC, candle e SetupDT'}\n`});
   if(lastSmc)t+=`\nCONTEXTO SMC — ${lastSmc.sym}\n4h ${lastSmc.st4} | 1h ${lastSmc.st1} | Liquidez ${lastSmc.liq} | S/R varejista ${lastSmc.sr} | Varredura ${lastSmc.sweep} | Leitura S/R ${lastSmc.srRead} | Triângulo ${lastSmc.triType} ${lastSmc.triLegs}/5 ${lastSmc.triBias} | FVG ${lastSmc.fvg} | Quebra ${lastSmc.break} | OB ${lastSmc.ob} | Validação ${lastSmc.points}/3 | Micro ${lastSmc.micro}\nRSI 15m ${lastSmc.rsi15} | RSI 1h ${lastSmc.rsi1h} | RSI 4h ${lastSmc.rsi4h} | Score reversão ${lastSmc.rev}/100${lastSmc.revDir?' '+lastSmc.revDir:''} | Reteste ${lastSmc.retest}\nCamadas reversão: ${lastSmc.revParts||'—'}\nROMPIMENTO QUALIFICADO EGI: ${lastSmc.rq?lastSmc.rq.score+'/100 • '+lastSmc.rq.decision:'—'}\nBase: ${lastSmc.rq?.base||'—'} | Faixa: ${lastSmc.rq?.range||'—'} | Rompimento: ${lastSmc.rq?.breakout||'—'} | Volume: ${lastSmc.rq?.volume||'—'}\nDecisão: ${lastSmc.decision}\n`;
   t+=`\n\n${macroText()}\n`;
-  t+=`\nPEDIDO AO CHATGPT\nO RadarRMC já analisou os Top 3 no SMC. Escolha no máximo 3 candidatos para abrir no SetupDT. Dê preferência a confluência alta com entrada saudável, persistência confirmada/forte e risco de volatilidade controlado. Penalize entrada tardia, pullback pendente, volatilidade perigosa e qualidade baixa. Se houver SMC, trate-o como contexto/localização e não como ordem automática. Considere também o Rompimento Qualificado EGI: 8 candles laterais, fechamento além do limite, alinhamento 4h/1h e volume. Diga: 1) SetupDT agora; 2) esperar rompimento/volume/pullback; 3) evitar agora.`;return t;
+  t+=`\nPEDIDO AO CHATGPT\nO RadarRMC pode ter analisado os Top 3 no SMC; confira a existência de leitura individual antes de concluir. Escolha no máximo 3 candidatos para abrir no SetupDT. Dê preferência a confluência alta com entrada saudável, persistência confirmada/forte e risco de volatilidade controlado. Penalize entrada tardia, pullback pendente, volatilidade perigosa e qualidade baixa. Se houver SMC, trate-o como contexto/localização e não como ordem automática. Considere também o Rompimento Qualificado EGI: 8 candles laterais, fechamento além do limite, alinhamento 4h/1h e volume. Diga: 1) SetupDT agora; 2) esperar rompimento/volume/pullback; 3) evitar agora.`;return t;
 }
 async function copyText(t){if(!t)return;try{await navigator.clipboard.writeText(t)}catch(_){const ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove()}}
 
@@ -1086,7 +1097,7 @@ async function aBinance(path){let err;for(const base of ['https://data-api.binan
 function aLoadHist(){try{return JSON.parse(localStorage.getItem(AUTO_HIST_KEY)||'{}')||{}}catch(_){return{}}}
 function aSaveHist(map){try{localStorage.setItem(AUTO_HIST_KEY,JSON.stringify(map))}catch(_){}}
 function aCalcOne(sym,ks,ticker,book,liqRank,total,prev){
-  const rows=ks.map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],q:+k[7],tr:+k[8],tbq:+k[10]})).filter(r=>Number.isFinite(r.c));
+  const rows=ks.filter(k=>Number(k[6])<Date.now()).map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],q:+k[7],tr:+k[8],tbq:+k[10]})).filter(r=>Number.isFinite(r.c));
   if(rows.length<30)throw Error('candles insuficientes');
   const closes=rows.map(r=>r.c), last=rows.at(-1).c, e9=aEma(closes.slice(-60),9),e21=aEma(closes.slice(-70),21);
   const ss=aSessionStart().getTime();let ses=rows.filter(r=>r.t>=ss);if(ses.length<2)ses=rows.slice(-24);
@@ -1121,10 +1132,10 @@ function aCalcOne(sym,ks,ticker,book,liqRank,total,prev){
   const movement=Math.round(clamp(atrPct*18+range24*4+Math.min(2,vr)*16));
   const danger=Math.round(clamp(Math.max(0,vol-72)*1.7+Math.max(0,spread-.08)*180+Math.max(0,100-quality)*.35+Math.max(0,rsi-72)*1.2));
   // persistência
-  const now=Date.now(),old=prev?.[sym],validOld=old&&now-(old.ts||0)>120000;let count=validOld?Math.min(9,(old.count||1)+1):old?.count||1;
+  const now=Date.now(),old=prev?.[sym],lastClosedCandle=rows.at(-1).t;const validOld=old&&Number(old.lastClosedCandle)>0&&lastClosedCandle>Number(old.lastClosedCandle);let count=validOld?Math.min(9,(old.count||1)+1):(old?.lastClosedCandle===lastClosedCandle?old.count||1:1);
   const persScore=validOld?clamp(55+(manada-(old.manada||manada))*.8+(entry-(old.entry||entry))*.7+(action==='CONFIRMAR SETUPDT'?10:0)-(action==='NÃO PERSEGUIR'?15:0)):null;
   const persist={count,score:persScore,up:persScore!=null&&persScore>=65,down:persScore!=null&&persScore<45,text:count+'x'};
-  return {man:{symbol:sym,manada:Math.round(manada),entry:Math.round(entry),persist,action,rsi,space:spaceRes,dVwap:distVwap,dEma:distEma9,trend:trendUp?'ALTA':'TRANSIÇÃO'},vol:{symbol:sym,vol,quality,balance,movement,danger,spread,volRatio:vr},hist:{ts:now,count,manada,entry}};
+  return {man:{symbol:sym,manada:Math.round(manada),entry:Math.round(entry),persist,action,rsi,space:spaceRes,dVwap:distVwap,dEma:distEma9,trend:trendUp?'ALTA':'TRANSIÇÃO'},vol:{symbol:sym,vol,quality,balance,movement,danger,spread,volRatio:vr},hist:{ts:now,count,manada,entry,lastClosedCandle}};
 }
 
 function classifyTop3(smc){
@@ -1137,7 +1148,7 @@ function classifyTop3(smc){
   const rqDec=String(rq.decision||'').toUpperCase();
   const severe=v.includes('BLOQUE')||v.includes('INVALID')||conflict.includes('FORTE')||dec.includes('INVALID');
   const waiting=trig.includes('AGUARD')||trig.includes('NÃO CONFIRM')||v.includes('EM ESTUDO')||rqDec.includes('AGUARD')||dec.includes('AGUARD')||dec.includes('NÃO ANTECIPAR');
-  if((rq.score||0)>=70 && !severe && !rqDec.includes('AGUARD') && (trig.includes('CONFIRM')||v.includes('CONFIRM')))
+  if((rq.score||0)>=70 && rq.qualified===true && !severe && !rqDec.includes('AGUARD') && trig.includes('CONFIRM') && (crossed.find(x=>x.symbol===smc.sym)?.man?.persist?.count||0)>=3 && (crossed.find(x=>x.symbol===smc.sym)?.vol?.danger||0)<55)
     return {label:'🟢 SETUPDT AGORA',cls:'green',why:'Contexto + gatilho + rompimento com qualidade',next:'Abrir no SetupDT para confirmação final'};
   if(!severe && (waiting || (rq.score||0)>=25))
     return {label:'🟡 ESPERAR',cls:'yellow',why:'Candidato segue vivo, mas falta alinhamento, rompimento, volume, reteste ou gatilho',next:'Reavaliar no próximo gatilho'};
@@ -1148,7 +1159,7 @@ function classifyTop3(smc){
 function renderTop3Summary(){
   const box=$('#top3Summary'); if(!box)return;
   if(!top3Smc.length){box.innerHTML='<div class="top3-card"><b>Sem análise Top 3 ainda.</b></div>';return}
-  box.innerHTML=top3Smc.map((s,i)=>{const c=classifyTop3(s);const rank=crossed.findIndex(x=>x.symbol===s.sym)+1;const cf=crossed.find(x=>x.symbol===s.sym);return `<div class="top3-card"><h3>${i+1}. ${s.sym.replace('USDT','')} <small>Confluência ${cf?.score??'—'}</small></h3><div class="tag ${c.cls}">${c.label}</div><small>${c.why}</small><div style="margin-top:7px">SMC: <b>${s.operVerdict||'—'}</b></div><div>RQ: <b>${s.rq?.score??'—'}/100</b></div><div>Gatilho: <b>${s.triggerStatus||'—'}</b></div><div>Próximo passo: <b>${c.next||'—'}</b></div></div>`}).join('');
+  box.innerHTML=top3Smc.map((s,i)=>{const c=classifyTop3(s);const rank=crossed.findIndex(x=>x.symbol===s.sym)+1;const cf=crossed.find(x=>x.symbol===s.sym);return `<div class="top3-card"><h3>${i+1}. ${s.sym.replace('USDT','')} <small>Confluência ${cf?.score??'—'}</small></h3><div class="tag ${c.cls}">${c.label}</div><small>${c.why}</small><div style="margin-top:7px">SMC: <b>${s.operVerdict||'—'}</b></div><div>RQ: <b>${s.rq?.score??'—'}/100</b></div><div>Gatilho: <b>${s.triggerStatus||'—'}</b></div><div>Persistência: <b>${cf?.man?.persist?.count||'—'}x</b></div><div>Motivos: <small>${(cf?.blockReasons||[]).join(' • ')||'Aguardando confirmação SetupDT'}</small></div><div>Próximo passo: <b>${c.next||'—'}</b></div></div>`}).join('');
 }
 async function analyzeTop3(){
   top3Smc=[];
@@ -1205,7 +1216,7 @@ $('#macroUpdateBtn').onclick=updateMacroCrypto;$('#macroCalcBtn').onclick=calcMa
 $('#goAreaBtn').onclick=()=>$('#area1Text').scrollIntoView({behavior:'smooth',block:'center'});$('#goMacroBtn').onclick=()=>$('#macroPanel').scrollIntoView({behavior:'smooth'});$('#goSmcBtn').onclick=()=>$('#smcBtn').scrollIntoView({behavior:'smooth',block:'center'});
 $('#pasteBtn').onclick=async()=>{try{const t=await navigator.clipboard.readText();if(!t)throw Error('Área de transferência vazia');$('#area1Text').value=t;cross();$('#crossStatus').textContent+=' Texto colado com sucesso.'}catch(e){alert('O navegador bloqueou a leitura automática da área de transferência. Use Ctrl+V dentro da Área 1 ou IMPORTAR TXT.')}};
 $('#importBtn').onclick=()=>$('#importFile').click();$('#importFile').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$('#area1Text').value=await f.text();cross();};
-try{const saved=localStorage.getItem('egi_confluencia_area1');if(saved){$('#area1Text').value=saved;const r=cross();if(r.mCount&&r.vCount)$('#bootStatus').innerHTML='<b>✅ RadarRMC V1.0:</b> último relatório manual restaurado. O modo automático está disponível acima.'}}catch(_){}
+try{const saved=localStorage.getItem('egi_confluencia_area1');if(saved){$('#area1Text').value=saved;const r=cross();if(r.mCount&&r.vCount)$('#bootStatus').innerHTML='<b>✅ RadarRMC V1.2 LAB:</b> último relatório manual restaurado. O modo automático está disponível acima.'}}catch(_){}
 /* V5.1.1: atualização macro não é mais disparada automaticamente ao abrir. Use o botão de atualizar macro. */
 $('#smcManual').addEventListener('change',()=>{$('#smcManual').value=$('#smcManual').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'')});
 $('#copyAutoManadaBtn').onclick=()=>copyText($('#autoManadaReport').value);
