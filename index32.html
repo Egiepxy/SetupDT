@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Live → Texto EGI | Player V2.5 LAB</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121e30;--line:#2a3d54;--text:#eff5fb;--muted:#afc1d4;--mint:#81ecc7;--warn:#ffd18a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,sans-serif}
+main{max-width:1200px;margin:auto;padding:24px 18px 36px}
+header{margin-bottom:18px}
+h1,h2,p{margin:0} h1{font-size:clamp(1.6rem,4vw,2.35rem);line-height:1.2} h2{font-size:1.1rem}
+.badge{color:var(--mint);font-weight:750;letter-spacing:.12em;font-size:.73rem}
+.muted,small,li{color:var(--muted)}
+header p{margin-top:6px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;min-width:0}
+.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px;align-items:start}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label{display:block;font-weight:700;margin-bottom:6px}
+input{flex:1;min-width:min(100%,235px);width:auto}
+button,input{font:inherit;border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+input{background:var(--bg);color:var(--text)}
+button{background:#20344b;color:var(--text);cursor:pointer;font-weight:680}
+button.primary{background:var(--mint);color:#09201a;border-color:transparent}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--warn);outline-offset:3px}
+a{color:var(--mint)}
+.frame{aspect-ratio:16/9;min-height:200px;display:grid;place-items:center;text-align:center;background:#070e19;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:10px 0}
+.frame iframe{display:block;width:100%;height:100%;border:0}
+.status{font-size:.91rem;min-height:2.85em;margin:8px 0}
+.warn{color:var(--warn)}
+.headline{justify-content:space-between}
+.output{min-height:160px;max-height:400px;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;margin:10px 0;padding:10px;overflow-wrap:anywhere}
+.line{display:grid;grid-template-columns:auto 1fr;gap:9px;margin:0 0 8px}
+.line time{color:var(--mint);font: .8rem/1.95 ui-monospace,monospace}
+#partial{min-height:1.55em;margin:0 0 8px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+details{margin-top:14px} summary{cursor:pointer;font-weight:680} ol{padding-left:22px;margin:8px 0}
+code{overflow-wrap:anywhere} [hidden]{display:none!important}
+@media(max-width:800px){main{padding:15px 10px 28px}.grid{grid-template-columns:1fr}.output{max-height:265px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="badge">EGI LAB · V2.5</div>
+<h1>Live → Texto EGI</h1>
+<p class="muted">Assista no player e acompanhe o texto em português.</p>
+</header>
+<form id="load" class="card">
+<label for="url">Link da live ou do vídeo do YouTube</label>
+<div class="row">
+<input id="url" inputmode="url" placeholder="https://www.youtube.com/live/…" required autocomplete="off" spellcheck="false">
+<button id="open" class="primary">Abrir no player</button>
+</div>
+<p id="local" class="warn" hidden>Arquivo aberto direto do disco. Se o YouTube mostrar erro 153, abra por HTTPS ou pelo endereço local nas instruções abaixo.</p>
+</form>
+<div class="grid">
+<section class="card" aria-labelledby="playerTitle">
+<h2 id="playerTitle">Player</h2>
+<div class="frame" id="frame"><p class="muted">Cole o link para abrir o vídeo aqui.</p></div>
+<p id="playerStatus" class="status muted" role="status">Aguardando link.</p>
+<a id="external" target="_blank" rel="noopener noreferrer" hidden>Abrir no YouTube</a>
+</section>
+<section class="card" aria-labelledby="textTitle">
+<div class="row headline"><h2 id="textTitle">Transcrição · PT-BR</h2><small id="count">0 trechos</small></div>
+<div class="row">
+<button id="start" class="primary" disabled>Transcrever áudio da aba</button>
+<button id="stop" disabled>Parar</button>
+<button id="save" disabled>Baixar TXT</button>
+</div>
+<p id="status" class="status muted" role="status">Abra o vídeo para começar.</p>
+<div id="output" class="output" tabindex="0" aria-label="Trechos reconhecidos">
+<p id="empty" class="muted">Os trechos confirmados aparecem aqui.</p>
+</div>
+<p id="partial" aria-label="Prévia do trecho atual"></p>
+<small>O TXT inclui os trechos confirmados até o momento. Horários aproximados. O reconhecimento do navegador pode enviar o áudio ao serviço de fala.</small>
+</section>
+</div>
+<details class="card">
+<summary>Como testar no Chrome do Windows</summary>
+<ol>
+<li>Abra um vídeo curto com fala em português. Clique em <strong>Transcrever áudio da aba</strong> antes de dar play, se quiser pegar a fala desde o início.</li>
+<li>No seletor do Chrome, escolha <strong>esta aba</strong> e marque <strong>Compartilhar áudio da guia</strong>. Depois, dê play no vídeo.</li>
+<li>Clique em <strong>Baixar TXT</strong> a qualquer momento. Para receber o último trecho, clique em <strong>Parar</strong> e aguarde a finalização antes de baixar novamente.</li>
+<li>Se abrir direto do disco e o player mostrar erro 153, com Python instalado, abra o PowerShell na pasta do HTML e execute <code>py -m http.server 8765 --bind 127.0.0.1</code>. No Chrome, abra <a href="http://localhost:8765/Live_para_Texto_EGI_Player_V2_5_LAB.html">o HTML via localhost</a>. Uma página HTTPS que sirva este arquivo também é uma opção.</li>
+</ol>
+<small>Use uma aba própria do Chrome. O modo de captura da aba foi pensado para desktop. Se o dono do vídeo restringir a incorporação, teste outro vídeo.</small>
+</details>
+</main>
+<script>
+'use strict';
+
+const el = id => document.getElementById(id);
+const ui = Object.fromEntries([
+  'load','url','open','local','frame','playerStatus','external','start','stop','save','status','count','output','empty','partial'
+].map(id => [id, el(id)]));
+const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+const canCapture = Boolean(window.isSecureContext && navigator.mediaDevices?.getDisplayMedia && Speech);
+let videoId = '';
+let player = null;
+let playerReady = false;
+let playerAPI = null;
+let playerLoad = 0;
+let active = null;
+let lines = [];
+let savedCount = 0;
+const labLog = [];
+const SNAP_KEY = 'egi_live_texto_v25_checkpoint';
+const labPanel = document.createElement('section');
+labPanel.style.cssText = 'margin:12px 0;padding:12px;border:1px solid #62788c;border-radius:10px;white-space:pre-wrap;font:13px/1.5 system-ui';
+labPanel.setAttribute('aria-live','polite');
+labPanel.textContent = 'LAB V2.5 · monitor aguardando início';
+ui.status.parentNode.insertBefore(labPanel, ui.status.nextSibling);
+function logLab(message) {
+  labLog.push({at: new Date().toISOString(), event: message});
+  if (labLog.length > 300) labLog.shift();
+  refreshLab();
+}
+function refreshLab(){
+  const s = active;
+  const age = s?.lastResult ? Math.floor((Date.now()-s.lastResult)/1000) : 0;
+  labPanel.textContent = 'EGI LAB V2.5 · ' + (s ? s.phase : 'parado') +
+    '\nAba: ' + (document.hidden ? 'segundo plano (pode ser limitada pelo Chrome)' : 'visível') +
+    '\nÚltimo resultado: ' + (s?.lastResult ? age+'s atrás' : 'ainda nenhum') +
+    '\nReinícios automáticos: ' + (s?.restarts || 0) +
+    '\nTrechos confirmados: ' + lines.length +
+    '\nÚltimo evento: ' + (labLog.at(-1)?.event || 'nenhum');
+}
+function checkpoint(){
+  try {
+    const payload = JSON.stringify({version:'2.5', videoId, at:new Date().toISOString(), lines});
+    if (payload.length > 1800000) { logLab('Checkpoint local muito grande: exporte o TXT manualmente'); return; }
+    localStorage.setItem(SNAP_KEY,payload);
+  } catch(e){logLab('Checkpoint local indisponível: ' + e.name + '; use Baixar TXT');}
+}
+setInterval(()=>{ if(lines.length) checkpoint(); },120000);
+document.addEventListener('visibilitychange',()=>{ logLab(document.hidden ? 'Aba em segundo plano' : 'Aba visível novamente'); if(lines.length) checkpoint(); });
+window.addEventListener('pagehide',()=>{if(lines.length)checkpoint();});
+const recoverBar=document.createElement('div');
+recoverBar.style.cssText='margin:8px 0;display:flex;gap:8px;flex-wrap:wrap';
+recoverBar.innerHTML='<button type="button" id="egiRecover25">Recuperar checkpoint</button><button type="button" id="egiLog25">Baixar diagnóstico LAB</button>';
+labPanel.after(recoverBar);
+document.getElementById('egiRecover25').onclick=()=>{
+  try{
+    const data=JSON.parse(localStorage.getItem(SNAP_KEY)||'null');
+    if(!data?.lines?.length){logLab('Nenhum checkpoint encontrado');return;}
+    if(lines.length && !confirm('Substituir a transcrição atual pela cópia salva?'))return;
+    if(active){alert('Pare a captura antes de recuperar.');return;}
+    lines=[]; ui.output.replaceChildren();ui.empty.hidden=false;
+    for(const line of data.lines) addLine(line.text,line.time);
+    videoId=data.videoId||videoId;
+    logLab('Checkpoint restaurado ('+lines.length+' trechos). Exporte o TXT.');
+  }catch(e){logLab('Falha na recuperação: '+e.message);}
+};
+document.getElementById('egiLog25').onclick=()=>{
+  const blob=new Blob([JSON.stringify({version:'2.5',date:new Date().toISOString(),videoId,hidden:document.hidden,events:labLog},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='EGI_V2_5_Diagnostico.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
+};
+refreshLab();
+
+ui.local.hidden = location.protocol !== 'file:';
+if (!canCapture) tell('Abra o HTML em uma aba do Chrome atualizado no computador, via HTTPS ou localhost.', true);
+
+function tell(message, warning = false) {
+  ui.status.textContent = message;
+  ui.status.classList.toggle('warn', warning);
+  ui.status.classList.toggle('muted', !warning);
+}
+
+function youtubeId(value) {
+  const raw = value.trim();
+  const url = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw);
+  const parts = url.pathname.split('/').filter(Boolean);
+  let id;
+  if (url.hostname === 'youtu.be') id = parts[0];
+  if (['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com'].includes(url.hostname)) {
+    if (url.pathname === '/watch') id = url.searchParams.get('v');
+    if (['live','embed','shorts'].includes(parts[0])) id = parts[1];
+  }
+  if (!/^[\w-]{11}$/.test(id || '')) throw new Error('Cole um link direto de vídeo, live ou Short do YouTube.');
+  return id;
+}
+
+function apiReady() {
+  if (window.YT?.Player) return Promise.resolve();
+  if (playerAPI) return playerAPI;
+  playerAPI = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    const timeout = setTimeout(() => fail(), 12000);
+    function fail() {
+      clearTimeout(timeout);
+      script.remove();
+      reject(new Error('API do player indisponível'));
+    }
+    script.onerror = fail;
+    window.onYouTubeIframeAPIReady = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+    document.head.append(script);
+  }).catch(error => {
+    playerAPI = null;
+    throw error;
+  });
+  return playerAPI;
+}
+
+function playerProblem(code) {
+  if (code === 153) return 'Erro 153 do YouTube. Abra o HTML via HTTPS ou localhost e tente novamente.';
+  if ([101, 150].includes(code)) return 'O YouTube restringiu a incorporação deste vídeo. Teste outro link.';
+  if ([100, 2].includes(code)) return 'Vídeo indisponível ou link inválido.';
+  return 'O player encontrou um erro. Confira o vídeo ou teste outro link.';
+}
+
+function update() {
+  ui.start.disabled = !videoId || !canCapture || Boolean(active);
+  ui.stop.disabled = !active || active.phase === 'stopping';
+  ui.open.disabled = Boolean(active);
+  ui.url.disabled = Boolean(active);
+  ui.save.disabled = lines.length === 0;
+  ui.count.textContent = lines.length + (lines.length === 1 ? ' trecho' : ' trechos');
+}
+
+ui.load.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (active) return;
+  let id;
+  try {
+    id = youtubeId(ui.url.value);
+  } catch {
+    ui.playerStatus.textContent = 'Cole um link direto de vídeo, live ou Short do YouTube.';
+    return;
+  }
+  if (id !== videoId && lines.length > savedCount &&
+      !confirm('Há trechos que ainda não foram baixados. Trocar de vídeo e descartar a transcrição atual?')) return;
+
+  const request = ++playerLoad;
+  if (id !== videoId) {
+    lines = [];
+    savedCount = 0;
+    ui.output.replaceChildren(ui.empty);
+    ui.empty.hidden = false;
+  }
+  videoId = id;
+  playerReady = false;
+  player?.destroy();
+  player = null;
+  const watch = 'https://www.youtube.com/watch?v=' + id;
+  ui.external.href = watch;
+  ui.external.hidden = false;
+  ui.playerStatus.textContent = 'Carregando o player do YouTube…';
+  const embed = new URL('https://www.youtube.com/embed/' + id);
+  embed.searchParams.set('enablejsapi', '1');
+  embed.searchParams.set('playsinline', '1');
+  if (location.origin !== 'null') embed.searchParams.set('origin', location.origin);
+  const iframe = document.createElement('iframe');
+  iframe.title = 'Player do YouTube';
+  iframe.id = 'egi-youtube-player';
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+  iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+  iframe.allowFullscreen = true;
+  iframe.src = embed.href;
+  ui.frame.replaceChildren(iframe);
+  tell(canCapture ? 'Selecione o áudio desta aba no Chrome para começar.' :
+    'A captura desta aba requer um Chrome desktop compatível, via HTTPS ou localhost.', !canCapture);
+  update();
+
+  try {
+    await apiReady();
+    if (request !== playerLoad) return;
+    player = new YT.Player(iframe, {events: {
+      onReady() {
+        if (request !== playerLoad) return;
+        playerReady = true;
+        ui.playerStatus.textContent = 'Player pronto. Dê play quando quiser.';
+      },
+      onError(event) {
+        if (request !== playerLoad) return;
+        playerReady = false;
+        ui.playerStatus.textContent = playerProblem(event.data);
+      }
+    }});
+  } catch {
+    if (request === playerLoad) ui.playerStatus.textContent =
+      'O relógio do player está indisponível. Se o vídeo tocar, o TXT usará o horário de Brasília.';
+  }
+});
+
+function hms(seconds) {
+  const whole = Math.floor(seconds);
+  return [Math.floor(whole / 3600), Math.floor(whole / 60) % 60, whole % 60]
+    .map(value => String(value).padStart(2, '0')).join(':');
+}
+
+const clock = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+});
+
+function stamp() {
+  if (playerReady) {
+    const seconds = player?.getCurrentTime?.();
+    if (Number.isFinite(seconds) && seconds >= 0) return hms(seconds);
+  }
+  return clock.format(new Date()) + ' BRT';
+}
+
+function addLine(text, time) {
+  lines.push({time, text});
+  const nearBottom = ui.output.scrollHeight - ui.output.scrollTop - ui.output.clientHeight < 45;
+  const row = document.createElement('p');
+  row.className = 'line';
+  const label = document.createElement('time');
+  label.textContent = '[' + time + ']';
+  const words = document.createElement('span');
+  words.textContent = text;
+  row.append(label, words);
+  ui.empty.hidden = true;
+  ui.output.append(row);
+  if (nearBottom) ui.output.scrollTop = ui.output.scrollHeight;
+  update();
+  refreshLab();
+}
+
+function finish(session, message, warning = false) {
+  if (active !== session) return;
+  active = null;
+  clearTimeout(session.timer);
+  clearInterval(session.monitor);
+  if (lines.length) checkpoint();
+  try { session.recognition?.abort(); } catch {}
+  session.stream?.getTracks().forEach(track => track.stop());
+  ui.partial.textContent = '';
+  tell(message, warning);
+  update();
+}
+
+function recycle(session,reason){
+  if(active!==session||session.phase==='stopping'||session.phase==='restarting')return;
+  const now=Date.now();
+  session.restartTimes=(session.restartTimes||[]).filter(t=>now-t<600000);
+  if(session.restartTimes.length>=8){
+    logLab('Limite de reinícios atingido. Verifique áudio da aba e permissões.');
+    finish(session,'Muitas tentativas sem recuperação. Baixe o TXT e reinicie manualmente.',true);
+    return;
+  }
+  session.restartTimes.push(now);
+  session.restarts=(session.restarts||0)+1;
+  session.phase='restarting';
+  logLab('Reinício automático '+session.restarts+': '+reason);
+  const old=session.recognition;
+  session.recognition=null;
+  session.lastResult=now;
+  try{old?.abort();}catch{}
+  clearTimeout(session.timer);
+  session.timer=setTimeout(()=>{if(active===session){session.phase='starting';listen(session);}},1100);
+}
+function watch(session){
+  if(active!==session || session.phase!=='listening')return;
+  if(session.track?.readyState!=='live')return;
+  const now=Date.now();
+  const elapsed=now-(session.recognitionStarted||now);
+  const silent=now-(session.lastResult||session.recognitionStarted||now);
+  const playing=playerReady && player?.getPlayerState?.()===1;
+  if(elapsed>240000) recycle(session,'renovação preventiva após 4 minutos');
+  else if(playing && silent>100000) recycle(session,'vídeo tocando e sem resultados por 100 segundos');
+  refreshLab();
+}
+function listen(session) {
+  if (active !== session || session.phase === 'stopping') return;
+  if (session.track.readyState !== 'live') {
+    finish(session, 'O compartilhamento terminou. Você pode baixar o texto capturado.');
+    return;
+  }
+
+  const recognition = new Speech();
+  session.recognition = recognition;
+  recognition.lang = 'pt-BR';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  const timestamps = new Map();
+  const confirmed = new Set();
+  session.recognitionStarted = Date.now();
+  recognition.onstart = () => {
+    if (active === session && session.phase !== 'stopping') {
+      session.phase = 'listening';
+      tell('Transcrevendo o áudio da aba. Dê play no vídeo se estiver pausado.');
+    }
+  };
+  recognition.onresult = event => {
+    if (active !== session || session.recognition !== recognition) return;
+    const interim = [];
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      const text = result[0].transcript.trim();
+      if (!text) continue;
+      if (!timestamps.has(i)) timestamps.set(i, stamp());
+      if (!result.isFinal) interim.push(text);
+      else if (!confirmed.has(i)) {
+        confirmed.add(i);
+        addLine(text, timestamps.get(i));
+      }
+    }
+    session.lastResult = Date.now();
+    ui.partial.textContent = interim.join(' ');
+  };
+  recognition.onerror = event => {
+    if (active !== session || session.recognition !== recognition) return;
+    logLab('SpeechRecognition erro: ' + event.error);
+    if (event.error === 'no-speech' || event.error === 'aborted' || session.phase === 'stopping') return;
+    const explanations = {
+      'not-allowed': 'O navegador bloqueou o reconhecimento de fala.',
+      'service-not-allowed': 'O serviço de reconhecimento não está disponível neste navegador.',
+      'network': 'O serviço de reconhecimento perdeu a conexão.',
+      'audio-capture': 'O navegador não conseguiu usar a trilha de áudio da aba.'
+    };
+    finish(session, explanations[event.error] || 'O reconhecimento foi interrompido. Tente novamente.', true);
+  };
+  recognition.onend = () => {
+    if (active !== session || session.recognition !== recognition) return;
+    session.recognition = null;
+    ui.partial.textContent = '';
+    if (session.phase === 'stopping') {
+      finish(session, 'Transcrição parada. Baixe o TXT com os trechos confirmados.');
+      return;
+    }
+    logLab('Reconhecimento encerrou; reinício em 700ms');
+    session.timer = setTimeout(() => listen(session), 700);
+  };
+
+  try {
+    recognition.start(session.track);
+  } catch {
+    finish(session, 'O navegador não aceitou o áudio da aba. Use o Chrome atualizado no computador.', true);
+  }
+}
+
+ui.start.addEventListener('click', async () => {
+  if (!canCapture || !videoId || active) return;
+  const session = {phase: 'choosing',restarts:0,lastResult:Date.now()};
+  active = session;
+  update();
+  tell('No seletor, escolha esta aba e ative o compartilhamento de áudio.');
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: {displaySurface: 'browser'},
+      audio: {suppressLocalAudioPlayback: false},
+      preferCurrentTab: true,
+      systemAudio: 'exclude',
+      surfaceSwitching: 'exclude'
+    });
+    if (active !== session) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+    session.stream = stream;
+    const videoTrack = stream.getVideoTracks()[0];
+    if (videoTrack?.getSettings().displaySurface !== 'browser') {
+      finish(session, 'Selecione uma aba do Chrome. Abra novamente a opção de transcrever.', true);
+      return;
+    }
+    session.track = stream.getAudioTracks()[0];
+    if (!session.track) {
+      finish(session, 'A aba foi compartilhada sem áudio. Tente novamente e marque “Compartilhar áudio da guia”.', true);
+      return;
+    }
+    for (const track of stream.getTracks()) {
+      track.addEventListener('ended', () => {
+        if (active !== session || session.phase === 'stopping') return;
+        finish(session, 'O compartilhamento terminou. Você pode baixar o texto capturado.');
+      }, {once: true});
+    }
+    session.phase = 'starting';
+    tell('Iniciando o reconhecimento do áudio da aba…');
+    listen(session);
+    session.monitor=setInterval(()=>watch(session),12000);
+    logLab('Monitor ativado; captura de áudio ativa');
+  } catch (error) {
+    finish(session, error.name === 'NotAllowedError' ?
+      'O compartilhamento foi cancelado ou bloqueado pelo navegador.' :
+      'A captura não iniciou. Abra o HTML em uma aba própria do Chrome via HTTPS ou localhost.', true);
+  }
+});
+
+ui.stop.addEventListener('click', () => {
+  const session = active;
+  if (!session) return;
+  clearTimeout(session.timer);
+  clearInterval(session.monitor);
+  if (!session.recognition) {
+    finish(session, 'Captura parada.');
+    return;
+  }
+  session.phase = 'stopping';
+  tell('Finalizando o último trecho…');
+  update();
+  try {
+    session.recognition.stop();
+    if (active === session) session.timer = setTimeout(() => {
+      finish(session, 'O último trecho ficou sem confirmação. Baixe os trechos já confirmados.', true);
+    }, 5000);
+  } catch {
+    finish(session, 'Captura parada. Você pode baixar os trechos confirmados.');
+  }
+});
+
+ui.save.addEventListener('click', () => {
+  if (!lines.length) return;
+  const header = [
+    'Live → Texto EGI · V2.5 LAB',
+    'https://www.youtube.com/watch?v=' + videoId,
+    'Horários aproximados do player. Trechos marcados BRT usam o relógio de Brasília.',
+    'Transcrição automática em português.',
+    ''
+  ];
+  const text = [...header, ...lines.map(row => '[' + row.time + '] ' + row.text)].join('\r\n');
+  const url = URL.createObjectURL(new Blob(['\ufeff', text], {type: 'text/plain;charset=utf-8'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Live_Texto_EGI_' + videoId + '.txt';
+  document.body.append(link);
+  link.click();
+  link.remove();
+  savedCount = lines.length;
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+});
+
+window.addEventListener('beforeunload', event => {
+  if (lines.length <= savedCount) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
+</script>
+</body>
+</html>
