@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111e">
+<meta name="description" content="Radar Receita EGI V1.1 — estudo independente de taxas, receitas, captura de valor, crescimento e riscos. Sem operações.">
+<title>Radar Receita EGI V1.1 — Estudo GEOD com Áudio</title>
+<style>
+:root{color-scheme:dark;--bg:#07111e;--panel:#0e1d2f;--panel2:#11263a;--line:#24405b;--text:#e9f3ff;--muted:#9bb1c5;--green:#52e1ad;--amber:#ffc974;--red:#ff7e8d;--blue:#65adff;--shadow:0 17px 48px #0006;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:radial-gradient(ellipse at 75% 0,#123658 0,transparent 37%),var(--bg);color:var(--text);margin:0;font-size:14px;min-height:100vh}a{color:#89c3ff}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1270px;margin:0 auto;padding:18px 18px 65px}.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin:12px 0 20px}.eyebrow{font-size:11px;color:var(--green);font-weight:750;letter-spacing:2.1px;text-transform:uppercase}h1{margin:7px 0 6px;line-height:1.13;letter-spacing:-.8px;font-size:clamp(27px,4vw,43px)}h1 span{color:var(--green)}.sub{max-width:700px;color:var(--muted);line-height:1.7}.version{display:inline-flex;border:1px solid #3b6c79;border-radius:30px;padding:7px 12px;color:#b8f1e5;background:#1b5b5a2c;font-size:12px;white-space:nowrap}
+.toolbar,.filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.toolbar{margin:12px 0 15px}.btn{border:1px solid var(--line);border-radius:11px;background:#14304b;color:var(--text);padding:10px 14px;font-weight:650;min-height:41px}.btn:hover:not(:disabled){border-color:var(--blue);background:#1b3b5a}.btn.primary{background:linear-gradient(120deg,#38cfa4,#67d9d8);border-color:#54dfc1;color:#042324}.btn.primary:hover{filter:brightness(1.07)}.btn.ghost{background:transparent}.btn.danger{color:var(--red)}.btn.compact{padding:6px 9px;min-height:31px;font-size:12px}.btn.selected{border-color:var(--green);color:var(--green)}.chip{border:1px solid var(--line);border-radius:50px;padding:7px 12px;background:#10243a;color:var(--muted);cursor:pointer}.chip.active{background:#1f534a;color:#bdfbe7;border-color:#409d81}
+.statusline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:12px 0 20px}.dot{height:8px;width:8px;border-radius:50%;display:inline-block;background:var(--amber);box-shadow:0 0 10px #e3bd3b80}.dot.online{background:var(--green)}.dot.error{background:var(--red)}.card{background:linear-gradient(155deg,#12283e,#0d2032);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:17px}.kpi{padding:16px}.kpi .small{font-size:12px;color:var(--muted);margin-bottom:10px}.kpi .value{font-size:clamp(21px,2.8vw,30px);font-weight:800;letter-spacing:-.5px}.kpi .meta{color:var(--muted);font-size:11px;margin-top:7px}.kpi .value.green{color:var(--green)}
+.notices{border:1px solid #5b5140;background:#46351c51;color:#f6dca4;padding:11px 14px;border-radius:12px;line-height:1.55;margin-bottom:18px;font-size:12px}.notices.error{border-color:#663341;background:#5d253033;color:#ffc2ca}.panel{padding:17px;margin-bottom:18px}.sectiontop{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:13px}.sectiontop h2{margin:0;font-size:18px}.sectiontop p{margin:4px 0 0;color:var(--muted);font-size:12px}.filters input,.filters select,.formline input,.formline select,textarea{background:#071727;border:1px solid #2a4b64;color:var(--text);border-radius:10px;padding:10px 11px;min-height:41px}.filters input[type="search"]{flex:1;min-width:190px}.filters select{max-width:230px}.filters{margin:12px 0}.micro{font-size:11px;color:var(--muted)}.switch{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;margin:5px 0}.switch input{accent-color:var(--green);width:17px;min-width:17px;height:17px;flex:none}.switch{min-width:0;overflow-wrap:anywhere}.info{font-size:12px;color:var(--muted)}
+.scrolltable{overflow-x:auto}.tbl{width:100%;border-collapse:collapse;min-width:830px;white-space:nowrap}.tbl th{text-align:right;padding:11px 10px;color:#9ab6c9;font-weight:650;letter-spacing:.2px;font-size:11px;border-bottom:1px solid var(--line)}.tbl th:nth-child(2),.tbl td:nth-child(2){text-align:left}.tbl td{text-align:right;border-bottom:1px solid #27415a70;padding:12px 10px;font-size:12px}.tbl tr:hover td{background:#284e6530}.tbl tr:last-child td{border:none}.asset{display:flex;align-items:center;gap:8px;min-width:148px}.assetname{font-weight:750;font-size:13px}.asset .assetmeta{font-size:11px;color:var(--muted);margin-top:3px}.coinico{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#27556b;color:#c0fdeb;font-weight:800;flex-shrink:0}.score{font-weight:800;font-size:16px;color:var(--green)}.score.warn{color:var(--amber)}.score.risk{color:var(--red)}.riskpill{display:inline-flex;padding:5px 8px;border-radius:50px;font-size:11px;background:#523021;color:var(--amber)}.riskpill.low{background:#1b493c;color:var(--green)}.riskpill.high{background:#592d3c;color:#ff9fac}.positive{color:var(--green)}.negative{color:var(--red)}.muted{color:var(--muted)}.n{font-variant-numeric:tabular-nums}.star{border:0;background:none;color:#8ca2b7;font-size:21px;cursor:pointer;padding:2px}.star.yes{color:var(--amber)}.actions{display:flex;gap:5px;justify-content:flex-end}.paginator{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:9px;flex-wrap:wrap}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.pick{padding:13px;border-radius:13px;background:#0a1b2c;border:1px solid #264563;min-height:138px;display:flex;flex-direction:column;gap:8px}.pick small{color:var(--muted)}.pick h3{margin:0;font-size:16px}.pick .metric{font-weight:850;font-size:23px;color:var(--green)}
+.methods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.method{border:1px solid #29465d;background:#0a1d30;padding:13px;border-radius:12px;min-height:112px}.method b{color:#afe7f1;font-size:16px}.method p{color:var(--muted);font-size:11px;line-height:1.5;margin:7px 0 0}.footer{margin-top:15px;color:var(--muted);font-size:12px;line-height:1.7}.footer a{white-space:nowrap}
+.overlay{position:fixed;inset:0;z-index:50;background:#01070bc9;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 10px}.overlay.open{display:flex}.modal{width:min(760px,100%);margin:auto;background:#11263c;border:1px solid #386180;border-radius:17px;box-shadow:0 25px 100px #000b;padding:21px;position:relative}.modal h2{margin:0 0 10px;font-size:24px}.modal h3{font-size:14px;margin:20px 0 10px}.close{position:absolute;right:13px;top:12px;min-height:35px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{background:#0a1b2c;border:1px solid var(--line);padding:12px;border-radius:10px}.stat span{display:block;color:var(--muted);font-size:11px}.stat strong{display:block;font-size:16px;margin-top:5px}.bullet{padding-left:18px;line-height:1.6;color:#c8d8e5}.formline{display:grid;gap:7px;margin:12px 0}.formline label{font-size:12px;color:var(--muted);font-weight:650}.formline textarea{min-height:77px;resize:vertical}.footactions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.hidden{display:none!important}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#e2fff4;color:#092721;padding:11px 15px;border-radius:10px;box-shadow:0 10px 40px #000a;z-index:100;display:none;font-weight:700;font-size:12px;max-width:90vw}
+@media(max-width:900px){.methods{grid-template-columns:repeat(2,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.podium{grid-template-columns:1fr 1fr 1fr}.wrap{padding:14px 11px 45px}}@media(max-width:650px){.hero{flex-direction:column;gap:10px}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar .btn{padding:11px 8px;font-size:12px}.filters{display:grid;grid-template-columns:1fr 1fr}.filters input{grid-column:span 2}.filters select{max-width:unset;width:100%}.filters>.micro{grid-column:1/-1}.podium{grid-template-columns:1fr}.pick{min-height:auto}.kpi{padding:13px}.stats{grid-template-columns:1fr 1fr}.methods{grid-template-columns:1fr 1fr}.modal{padding:17px}.panel{padding:12px}}@media(max-width:390px){.methods{grid-template-columns:1fr}.kpi .value{font-size:20px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* GEOD estudo anexado — escopo independente do ranking EGI */
+.geod-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}
+.geod-head h2{font-size:clamp(20px,2.7vw,27px);margin:4px 0 7px}
+.geod-head p{margin:0;line-height:1.6;color:var(--muted)}
+.geod-tag{display:inline-block;border:1px solid #477d7f;color:#b6efe5;background:#133b4366;padding:6px 10px;border-radius:50px;font-size:11px;font-weight:750}
+.geod-snapshot{color:#ffdc9f;background:#483a2455;border:1px solid #826432;padding:11px 12px;border-radius:11px;margin:13px 0 15px;font-size:12px;line-height:1.6}
+.geod-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:13px 0}
+.geod-actions .btn{font-size:12px;padding:10px 12px}
+.geod-actions select{background:#071727;border:1px solid #2a4b64;border-radius:9px;color:var(--text);min-height:40px;padding:7px 9px}
+.geod-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:15px 0}
+.geod-kpi{border:1px solid #2a465e;border-radius:12px;background:#091b2c;padding:13px;min-width:0}
+.geod-kpi .big{font-weight:800;font-size:clamp(15px,2.1vw,20px);margin:6px 0;color:var(--green);font-variant-numeric:tabular-nums}
+.geod-kpi .small{color:var(--muted);font-size:11px}
+.geod-flow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.geod-sub{padding:15px;border-radius:13px;background:#081b2c;border:1px solid #28455e;line-height:1.65;min-width:0}
+.geod-sub h3{font-size:15px;margin:0 0 9px;color:#c8e8ff}
+.geod-sub p{margin:7px 0;color:#c8d8e5}
+.geod-sub ul{padding-left:19px;margin:8px 0;color:#c8d8e5}
+.geod-sub li{margin:5px 0}
+.geod-full{grid-column:1/-1}
+.geod-zones{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.geod-zones th{text-align:left;font-size:11px;color:var(--muted);padding:8px 6px;border-bottom:1px solid var(--line)}
+.geod-zones td{padding:9px 6px;border-bottom:1px solid #2b45614d;vertical-align:top;font-size:12px}
+.geod-zones td:first-child{font-weight:750;white-space:nowrap}
+.geod-zones tr:last-child td{border-bottom:0}
+.geod-green{color:var(--green)}.geod-warn{color:var(--amber)}.geod-red{color:var(--red)}
+.geod-textarea{width:100%;min-height:105px;resize:vertical;line-height:1.5}
+.geod-audio-status{color:#b5c9db;font-size:12px;min-width:210px;flex:1}
+.geod-mini{font-size:11px;color:var(--muted);line-height:1.65}
+@media(max-width:700px){.geod-flow{grid-template-columns:1fr}.geod-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.geod-head .version{white-space:normal}.geod-actions .btn{flex:1 1 105px}.geod-actions select{flex:1}}
+@media(max-width:380px){.geod-kpis{gap:6px}.geod-kpi{padding:9px}.geod-zones td{font-size:11px}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header class="hero"><div><div class="eyebrow">Laboratório Fundamentalista • Ecossistema EGI</div><h1>RADAR <span>RECEITA</span> EGI</h1><div class="sub">Encontre protocolos com atividade econômica mensurável. Compare receita, captura de valor pelo token, aceleração, valorização e riscos <strong>sem executar nenhuma operação.</strong></div></div><div class="version">V1.1 · GEOD + ÁUDIO · SOMENTE ESTUDO</div></header>
+ <div class="toolbar">
+  <button class="btn primary" id="refresh">↻ Atualizar dados</button>
+  <button class="btn" id="prices">◈ Complementar valorização</button>
+  <button class="btn" id="report">▤ Relatório GPT</button>
+  <button class="btn selected" id="open-geod-study" type="button">📖 Estudo GEOD 🔊</button>
+  <button class="btn" id="downloadcsv">↓ Exportar CSV</button>
+  <button class="btn" id="backup">↓ Salvar favoritos</button>
+  <button class="btn" id="restore">↑ Restaurar favoritos</button>
+  <button class="btn ghost" id="demo">▣ Demonstração</button>
+ </div>
+ <input id="restorefile" type="file" accept="application/json,.json" class="hidden">
+ <div class="statusline" role="status"><span><i class="dot" id="statusdot"></i> <strong id="status">Iniciando…</strong></span><span id="sync">—</span><span id="count">0 protocolos</span><span id="priceStatus"></span></div>
+ <div class="notices" id="notice">Fonte: DefiLlama (dados públicos) e CoinGecko (consulta opcional). <b>Receita destinada a detentores NÃO é necessariamente recompra.</b> Scores são heurísticos, não probabilidades de valorização. Dados ausentes aparecem como “n/d”.</div>
+ <section class="kpis">
+  <div class="card kpi"><div class="small">Protocolos analisados</div><div class="value n" id="kCount">—</div><div class="meta">Com dados de receita</div></div>
+  <div class="card kpi"><div class="small">Receita 30d • universo</div><div class="value green n" id="kRevenue">—</div><div class="meta">Soma simples; pode incluir protocolos agregados</div></div>
+  <div class="card kpi"><div class="small">Com captura de valor 30d</div><div class="value n" id="kHolders">—</div><div class="meta">Métrica dos detentores, não apenas recompra</div></div>
+  <div class="card kpi"><div class="small">Crescimento positivo 30/30d</div><div class="value n" id="kGrowth">—</div><div class="meta">30 dias contra 30 anteriores, quando disponível</div></div>
+ </section>
+
+<section class="card panel" id="geod-study" aria-labelledby="geod-title">
+ <div class="geod-head">
+  <div>
+   <span class="geod-tag">📚 DOSSIÊ SALVO • TOP 1 FUNDAMENTALISTA EM ESTUDO</span>
+   <h2 id="geod-title">GEOD / USDT — Estudo técnico + conclusão EGI</h2>
+   <p>GEODNET · MEXC Spot · 15m / 1h / 4h / Diário · <strong>sem execução de operações</strong></p>
+  </div>
+  <span class="version">📅 Referência: 11/10/2026</span>
+ </div>
+ <div class="geod-snapshot" role="note"><strong>⚠️ Estudo arquivado, não sinal ao vivo.</strong> O preço de US$ 0,2822, os níveis, as leituras de RSI e a avaliação fundamentalista abaixo vêm do estudo anterior de 11/10/2026. <strong>Não são recalculados</strong> ao clicar em “Atualizar dados” e não devem ser usados como gatilho atual sem conferir novos candles, spread e livro de ofertas na corretora. O radar de receitas e este estudo técnico são módulos independentes.</div>
+ <div class="geod-actions" aria-label="Controles de leitura do estudo">
+  <button class="btn primary" id="geod-play" type="button">🔊 Ouvir estudo</button>
+  <button class="btn" id="geod-pause" type="button">⏸ Pausar</button>
+  <button class="btn" id="geod-resume" type="button">▶ Continuar</button>
+  <button class="btn danger" id="geod-stop" type="button">⏹ Parar</button>
+  <label for="geod-speed" class="info">Velocidade:</label>
+  <select id="geod-speed" aria-label="Velocidade da leitura"><option value="0.8">0,8×</option><option value="1" selected>1,0×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="1.75">1,75×</option></select>
+ </div>
+ <div class="geod-audio-status" id="geod-audio-status" role="status" aria-live="polite">Áudio pronto. Toque em “Ouvir estudo”. Usa a voz do seu navegador (pt-BR quando disponível).</div>
+ <div id="geod-study-content" class="geod-flow" style="margin-top:15px">
+  <div class="geod-sub geod-full">
+   <h3>🎯 Parecer executivo</h3>
+   <div class="geod-kpis">
+    <div class="geod-kpi"><div class="small">Preço de referência histórico</div><div class="big">US$ 0,2822</div><div class="small">Não é cotação atual</div></div>
+    <div class="geod-kpi"><div class="small">Receita 30 dias*</div><div class="big">US$ 933,1 mil</div><div class="small">Relatório de 18h45</div></div>
+    <div class="geod-kpi"><div class="small">Captura 30 dias*</div><div class="big">US$ 746,5 mil</div><div class="small">Não prova recompra</div></div>
+    <div class="geod-kpi"><div class="small">Crescimento 30/30d*</div><div class="big">+2,4%</div><div class="small">Data-base: 11/10/2026</div></div>
+   </div>
+   <p class="geod-voice"><strong>GEODNET foi selecionada como TOP 1 para investigação fundamentalista, não como melhor entrada do mercado.</strong> Ela oferece serviços de posicionamento de alta precisão e apresentou receita registrada. A relação entre receita do protocolo e benefício econômico ao token precisa continuar sendo verificada.</p>
+   <p class="geod-voice">O preço usado no estudo técnico era de aproximadamente zero vírgula dois oito dois dois dólar em onze de outubro de dois mil e vinte e seis. Esse preço é histórico e não representa a cotação atual.</p>
+  </div>
+  <div class="geod-sub">
+   <h3>📊 Leitura por tempo gráfico</h3>
+   <p class="geod-voice"><strong>Quinze minutos:</strong> sem candles recentes verificados. Não foi possível confirmar gatilho de entrada.</p>
+   <p class="geod-voice"><strong>Uma hora:</strong> RSI informado de vinte e dois vírgula quatorze e pressão vendedora. Sobrevenda não significa fundo confirmado; o MACD ainda não demonstrava reversão compradora.</p>
+   <p class="geod-voice"><strong>Quatro horas:</strong> sem candles recentes verificados. O período precisa ser conferido antes de avaliar uma entrada.</p>
+   <p class="geod-voice"><strong>Diário:</strong> RSI informado de sessenta vírgula sessenta e nove, com preço acima das médias exponenciais de vinte e cinquenta períodos. O cenário maior parecia favorável, mas a divergência entre os tempos impedia liberação técnica.</p>
+   <p class="geod-mini">RSI e médias são leituras registradas no estudo anterior, <strong>não atualizadas neste quadro</strong>.</p>
+  </div>
+  <div class="geod-sub">
+   <h3>🧭 Fundamentalista e riscos</h3>
+   <p class="geod-voice">O relatório de receitas indicou aproximadamente novecentos e trinta e três mil dólares de receita em trinta dias e setecentos e quarenta e seis mil dólares destinados à captura de valor. A métrica de receita dos detentores não comprova, sozinha, recompras executadas.</p>
+   <p class="geod-voice">Os principais riscos são emissões e desbloqueios futuros, possível desaceleração da receita, liquidez da negociação e diferença entre capitalização circulante e valor totalmente diluído.</p>
+   <p class="geod-mini">*Valores retirados da coleta fornecida de 11/10/2026 às 18h45. Sem auditoria independente; não se atualizam nesta ficha.</p>
+  </div>
+  <div class="geod-sub geod-full">
+   <h3>📍 Mapa de preços de referência histórica</h3>
+   <div class="scrolltable"><table class="geod-zones"><thead><tr><th>Zona (USDT)</th><th>Leitura em 11/10/2026</th><th>Uso no estudo</th></tr></thead><tbody>
+    <tr><td class="geod-green">0,335–0,342</td><td>Resistência superior</td><td>Possível oferta</td></tr>
+    <tr><td class="geod-green">0,310–0,317</td><td>Resistência intermediária</td><td>Recuperação a confirmar</td></tr>
+    <tr><td class="geod-green">0,299–0,303</td><td>Primeira resistência importante</td><td>Rompimento e reteste hipotéticos</td></tr>
+    <tr><td>0,2822</td><td>Preço de referência, não atual</td><td>Base do estudo arquivado</td></tr>
+    <tr><td class="geod-warn">0,275–0,280</td><td>Suporte imediato</td><td>Observar reação com candle fechado</td></tr>
+    <tr><td class="geod-warn">0,259–0,265</td><td>Suporte inferior</td><td>Possível pressão se perder o suporte acima</td></tr>
+    <tr><td class="geod-red">0,254–0,255</td><td>Referência de invalidação estrutural</td><td>Não é stop validado</td></tr>
+   </tbody></table></div>
+   <p class="geod-voice">As regiões arquivadas são: resistência inicial entre zero vírgula dois nove nove e zero vírgula três zero três; suporte imediato entre zero vírgula dois sete cinco e zero vírgula dois oito zero; suporte inferior entre zero vírgula dois cinco nove e zero vírgula dois seis cinco; e referência de invalidação estrutural perto de zero vírgula dois cinco quatro. Essas faixas não podem ser usadas como níveis atuais sem nova conferência.</p>
+  </div>
+  <div class="geod-sub">
+   <h3>🔵 Cenário A — reação no suporte</h3>
+   <p class="geod-voice">Na faixa histórica entre zero vírgula dois sete cinco e zero vírgula dois oito zero, observar apenas se ocorrer reação compradora, candle fechado de confirmação, volume adequado e alinhamento do RSI. Nenhum gatilho atual foi confirmado.</p>
+   <h3>🟢 Cenário B — recuperação confirmada</h3>
+   <p class="geod-voice">Uma recuperação consistente da antiga zona entre zero vírgula dois nove nove e zero vírgula três zero três, com reteste e manutenção do suporte, representaria melhora estrutural naquele contexto. É preciso checar novamente o gráfico atual antes de utilizar esta hipótese.</p>
+  </div>
+  <div class="geod-sub">
+   <h3>🔴 Cenário C — continuação da queda</h3>
+   <p class="geod-voice">A perda da antiga zona de zero vírgula dois sete cinco aumentaria o risco de visita aos suportes inferiores. A região próxima de zero vírgula dois cinco quatro foi registrada como referência estrutural, e não como stop operacional.</p>
+   <h3>✅ O que falta?</h3>
+   <ul><li>15m e 4h com candles fechados atuais</li><li>Confirmação de 1h e diário</li><li>Volume, spread, liquidez e tokenomics recentes</li><li>Definir entrada e invalidação apenas após validação</li></ul>
+  </div>
+  <div class="geod-sub geod-full">
+   <h3>🏁 Conclusão EGI e organização</h3>
+   <p class="geod-voice"><strong>Conclusão:</strong> GEOD continua registrada como TOP 1 para pesquisa fundamentalista, mas sem entrada LONG ou SHORT confirmada. A preferência é investigar a qualidade e persistência das receitas, estudar os riscos de diluição e buscar confirmação técnica atual no RadarMVC e no SetupDT. Não executar operações nem perseguir preço.</p>
+   <p class="geod-voice">Rotina sugerida: primeiro atualizar o Radar Receita; depois conferir receita e captura de valor em sete, trinta e noventa dias; conferir desbloqueios e liquidez; cruzar o RadarMVC com o SetupDT somente para estudo; por último registrar o que mudou e se a hipótese continua válida.</p>
+   <div class="geod-actions">
+    <button class="btn primary" id="geod-copy" type="button">📋 Copiar estudo para GPT</button>
+    <button class="btn" id="geod-export" type="button">↓ Baixar estudo .txt</button>
+    <a class="btn" href="https://www.mexc.com/exchange/GEOD_USDT" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center">↗ Conferir GEOD/USDT na MEXC</a>
+   </div>
+   <label for="geod-notes" class="info" style="display:block;margin-bottom:7px">📝 Minhas anotações de estudo (salvas neste navegador):</label>
+   <textarea id="geod-notes" class="geod-textarea" placeholder="Ex.: conferir candles atuais, volume, desbloqueios e se a receita permanece consistente..."></textarea>
+   <div class="geod-actions"><button class="btn" id="geod-save" type="button">💾 Salvar anotações</button><span id="geod-save-status" class="geod-mini" role="status">As anotações ficam neste dispositivo, não são enviadas para a nuvem.</span></div>
+   <p class="geod-mini">🎧 O áudio é gerado pela síntese de voz do Chrome ou navegador compatível. Toque para iniciar; funciona conforme as vozes instaladas no aparelho e pode depender das configurações de áudio. Não há arquivo MP3 incluído.</p>
+  </div>
+ </div>
+</section>
+
+ <section class="card panel">
+ <div class="sectiontop"><div><h2>🎯 Top 3 candidatos em observação</h2><p>Classificação fundamentalista; não indica momento de entrada. Sem dados suficientes, o candidato fica pendente.</p></div><button class="btn compact ghost" id="how">Como pontuamos?</button></div>
+ <div class="podium" id="top3"><div class="pick">Aguardando dados de fonte externa.</div></div>
+ </section>
+ <section class="card panel" id="ranking">
+ <div class="sectiontop"><div><h2>Classificação de oportunidades</h2><p id="pagecaption">Ranking por score, com filtros e indicadores de qualidade dos dados.</p></div><span class="version" id="universe">Sem carregamento</span></div>
+ <div class="filters">
+  <input id="search" type="search" placeholder="Buscar protocolo, símbolo ou rede" aria-label="Buscar protocolo">
+  <select id="filter" aria-label="Filtro">
+    <option value="all">Todos com receita</option><option value="micro">Microcap • até US$ 100 mi</option><option value="small">Pequenas • até US$ 500 mi</option><option value="capture">Com captura ao token</option><option value="buyback">Recompra documentada*</option><option value="grow">Receita crescendo</option><option value="watch">★ Favoritos</option><option value="unknown">Pendências de dados</option>
+  </select>
+  <select id="sort" aria-label="Ordenar">
+    <option value="score">Maior score EGI</option><option value="revenue">Maior receita 30d</option><option value="holders">Maior captura de valor 30d</option><option value="buybacks">Recompras documentadas primeiro</option><option value="growth">Maior crescimento de receita</option><option value="valuation">Menor MCAP/receita anualiz.</option><option value="price">Maior valorização em 30d</option><option value="risk">Menor risco estimado</option>
+  </select>
+  <select id="chain" aria-label="Rede"><option value="all">Todas as redes</option></select>
+ </div>
+ <div class="filters"><label class="switch"><input type="checkbox" id="tokenOnly" checked> Só protocolos com token identificado</label><label class="switch"><input type="checkbox" id="excludeStretched"> Ocultar altas maiores que 100% em 30d</label><span class="micro">Filtro de microcaps exige capitalização identificada. Ausência de dados não equivale a zero.</span></div>
+ <div class="scrolltable"><table class="tbl"><thead><tr><th>#</th><th>Ativo / protocolo</th><th>Score</th><th>Receita 30d</th><th>Captura 30d</th><th>Mecanismo*</th><th>Cresc. 30/30d</th><th>MCAP / receita¹</th><th>Preço 30d</th><th>Risco</th><th>Ações</th></tr></thead><tbody id="tbody"><tr><td colspan="10" style="text-align:center;padding:30px">Conectando às fontes…</td></tr></tbody></table></div>
+ <div class="paginator"><span class="micro" id="pagetext">—</span><div><button class="btn compact" id="prev">◀ Anterior</button> <button class="btn compact" id="next">Próximo ▶</button></div></div>
+ <p class="micro">* Mecanismos assinalados manualmente com URL: não representam auditoria independente do radar. A existência de recompra não garante alta de preço. ¹ Capitalização de mercado dividida pela receita dos últimos 30 dias × 12. Projeção mecânica (não previsão). Dados de mercado opcionais do CoinGecko ou DefiLlama quando disponíveis. O score muda com a qualidade dos dados; não constitui recomendação.</p>
+ </section>
+ <section class="card panel"><div class="sectiontop"><h2>🧭 Regras de leitura EGI</h2></div>
+  <div class="methods">
+   <div class="method"><b>25 • Receita</b><p>Quanto é retido pelo protocolo, e não somente quanto os usuários pagam em taxas.</p></div>
+   <div class="method"><b>20 • Captura</b><p>Valor destinado aos detentores; recompra só conta como confirmada após auditoria com fonte.</p></div>
+   <div class="method"><b>20 • Crescimento</b><p>Compara 30 dias recentes com os 30 anteriores; identifica aceleração e deterioração.</p></div>
+   <div class="method"><b>15 • Valorização</b><p>Compara capitalização/receita anualizada e apreciação de preço, penalizando altas esticadas.</p></div>
+   <div class="method"><b>20 • Risco</b><p>Considera volatilidade recente, base de receita, concentração e diluição quando disponíveis.</p></div>
+  </div>
+  <div class="footer"><b>Fluxo correto:</b> Radar Receita EGI → verificar tokenomics, desbloqueios, liquidez e auditorias → RadarMVC (volume/confluência) → SetupDT Light (gatilho, stop, alvos e risco). <b>Nenhum desses passos envia ordens.</b><br>
+  Fontes: <a href="https://defillama.com/fees" target="_blank" rel="noopener noreferrer">DefiLlama • taxas</a> · <a href="https://defillama.com/revenue" target="_blank" rel="noopener noreferrer">DefiLlama • receitas</a> · <a href="https://defillama.com/holders-revenue" target="_blank" rel="noopener noreferrer">Captura por detentores</a> · <a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko</a> · <a href="https://docs.llama.fi/analysts/data-definitions" target="_blank" rel="noopener noreferrer">Metodologia</a>. Não há garantia de cobertura integral. Pesquisa educacional; não é indicação de investimento.</div>
+ </section>
+</div>
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-label="Detalhes e ferramentas"><div class="modal"><button class="btn compact close" id="close">✕ Fechar</button><div id="modalbody"></div></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), LS='radar_receita_egi_v1', API_BASE='https://api.llama.fi', PAGE=30;
+const state={items:[],all:[],mode:'vazio',loadedAt:null,pg:0,pricesAt:null,feesOk:false,revOk:false,holdersOk:false,metaOk:false,watch:new Set(),audits:{},current:null};
+const getNum=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
+const round=(n,d=0)=>n==null?'n/d':n.toLocaleString('pt-BR',{maximumFractionDigits:d,minimumFractionDigits:d});
+const money=n=>{if(n==null)return'n/d'; const abs=Math.abs(n),s=n<0?'-':''; if(abs>=1e9)return s+'US$ '+round(abs/1e9,2)+' bi';if(abs>=1e6)return s+'US$ '+round(abs/1e6,2)+' mi';if(abs>=1e3)return s+'US$ '+round(abs/1e3,1)+' mil';return s+'US$ '+round(abs,0)};
+const pct=n=>n==null?'n/d':(n>0?'+':'')+round(n,1)+'%';
+const el=(tag,textContent,attrs={})=>{const node=document.createElement(tag);if(textContent!=null)node.textContent=String(textContent);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node};
+const clear=node=>{while(node.firstChild)node.removeChild(node.firstChild)};
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+const minmax=(x,min,max)=>Math.min(max,Math.max(min,x));
+const nonNeg=v=>{let n=getNum(v);return n===null?null:Math.max(0,n)};
+const div=(a,b)=>a==null||b==null||b<=0?null:a/b;
+const avgChange=(current,previous)=>current==null||previous==null||previous<=0?null:(current/previous-1)*100;
+const val=(obj,key)=>obj?getNum(obj[key]):null;
+let toastTimer;function toast(t){let n=$('toast');n.textContent=t;n.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>n.style.display='none',3400)}
+function save(){try{localStorage.setItem(LS,JSON.stringify({watch:[...state.watch],audits:state.audits}))}catch(e){toast('Não foi possível salvar neste navegador')}}
+function load(){try{let d=JSON.parse(localStorage.getItem(LS)||'{}');state.watch=new Set(Array.isArray(d.watch)?d.watch:[]);state.audits=d.audits&&typeof d.audits==='object'?d.audits:{}}catch(e){state.watch=new Set();state.audits={}}}
+function setStatus(text,kind='wait'){ $('status').textContent=text;$('statusdot').className='dot'+(kind==='online'?' online':kind==='error'?' error':'')}
+function detailKey(r){return r.id||r.slug}
+function normalizeProto(p){let id=String(p.defillamaId??p.id??'');let name=String(p.displayName||p.name||'Protocolo sem nome');let slug=String(p.slug||name.toLowerCase().replace(/[^a-z0-9]+/g,'-')).replace(/^\-+|\-+$/g,''); return{id,name,slug,ref:p, nname:norm(name),r30:nonNeg(p.total30d),r7:nonNeg(p.total7d),r24:nonNeg(p.total24h),prev30:nonNeg(p.total60dto30d),prev7:nonNeg(p.total14dto7d), category:String(p.category||'—'),chains:Array.isArray(p.chains)?p.chains:[],symbol:p.symbol||null,geckoId:p.gecko_id||null, mcap:getNum(p.mcap), fdv:getNum(p.fdv), pc30:null,pc7:null,tokenVolume:null,holders30:null,holders7:null, fees30:null,holdersOrigin:'ausente',score:0,risk:100,partial:true, verified:false, problems:[], signals:[],valuation:null,growth:null,revQuality:false, hasToken:false}};
+function join(records,over,fn){const byId=new Map(),byName=new Map();for(let p of over.protocols||[]){let id=String(p.defillamaId??p.id??''); if(id){byId.set(id,p)}let k=norm(p.displayName||p.name);if(k&&!byName.has(k))byName.set(k,p);else if(k)byName.set(k,null)}for(let r of records){const o=(r.id&&byId.get(r.id))||byName.get(r.nname);if(o)fn(r,o)}}
+function mergeSources(rv,fs,hs,meta){const recs=(rv.protocols||[]).map(normalizeProto).filter(p=>p.r30!==null&&p.r30>0);join(recs,fs,(r,o)=>{r.fees30=nonNeg(o.total30d)});join(recs,hs,(r,o)=>{r.holders30=nonNeg(o.total30d);r.holders7=nonNeg(o.total7d);r.holdersOrigin='DefiLlama'});
+ const idmap=new Map(),byname=new Map();for(const p of meta||[]){if(p.id!=null)idmap.set(String(p.id),p);if(p.name){const k=norm(p.name);if(!byname.has(k))byname.set(k,p);else byname.set(k,null)}}
+ for(let r of recs){let p=(r.id&&idmap.get(r.id))||byname.get(r.nname);if(p){r.symbol=String(p.symbol||r.symbol||'').toUpperCase().trim()||null;r.geckoId=p.gecko_id||r.geckoId||null;r.mcap=getNum(p.mcap)??r.mcap;r.fdv=getNum(p.fdv)??r.fdv;r.chains=r.chains.length?r.chains:Array.isArray(p.chains)?p.chains:[];r.category=r.category==='—'?(p.category||'—'):r.category;r.slug=String(p.slug||r.slug)}r.hasToken=Boolean(r.symbol&&!['USD','USDT','USDC','DAI'].includes(r.symbol));score(r)}return recs}
+function score(r){r.problems=[];r.signals=[];
+ r.growth=avgChange(r.r30,r.prev30);let concentration=div(r.r24,r.r30),share=div(r.holders30,r.r30);r.valuation=div(r.mcap,r.r30*12);
+ // Scoring components: revenue 0–25; capture 0–20; growth 0–20; valuation/momentum 0–15; risk-control 0–20.
+ let a=0,b=0,c=0,d=0,e=0;
+ if(r.r30!=null&&r.r30>0){a=minmax(5+5*Math.log10(1+r.r30/10000),0,25)}else r.problems.push('Receita 30d ausente');
+ if(r.holders30!=null){b=share>0?minmax(6+16*Math.sqrt(Math.min(1,share)),0,20):0;if(r.holders30>0)r.signals.push('Captura de valor aos detentores informada; tipo precisa de confirmação');else r.problems.push('Nenhuma captura de valor informada em 30d')}
+ else r.problems.push('Sem dado de receita para detentores');
+ if(r.growth!=null){c=r.growth>=0?minmax(10+12*(1-Math.exp(-r.growth/55)),0,20):minmax(10+r.growth*.24,0,20);if(r.growth>15)r.signals.push('Receita em expansão frente aos 30 dias anteriores');if(r.growth< -20)r.problems.push('Receita em queda acentuada')}else r.problems.push('Sem histórico anterior para medir crescimento');
+ if(r.valuation!=null){d=minmax(12-3*Math.log10(Math.max(.3,r.valuation)),0,12);if(r.valuation<=5)r.signals.push('Razão MCAP/receita anualizada relativamente baixa (verificar sustentabilidade)');if(r.valuation>100)r.problems.push('Valuation elevado frente à receita anualizada')}
+ else r.problems.push('Valuation sem capitalização validada');
+ if(r.pc30!=null){if(r.pc30>200){r.problems.push('Valorização de preço muito acelerada (>200% em 30 dias)')}else if(r.pc30>100){r.problems.push('Alta acima de 100% em 30 dias — risco de entrada tardia')}d+=r.pc30>100?0:r.pc30>30?1:r.pc30>=-10?3:r.pc30>=-35?2:0}
+ else r.problems.push('Valorização de preço em 30 dias indisponível');
+ e=20; if(r.r30<20000){e-=6;r.problems.push('Receita mensal muito baixa')}
+ else if(r.r30<100000){e-=3}
+ if(r.growth!=null&&r.growth< -30)e-=4;
+ if(concentration!=null&&concentration>.20){e-=4;r.problems.push('Receita concentrada em 24h: verificar possível evento pontual')}
+ if(r.pc30!=null&&r.pc30>100)e-=4;
+ if(r.mcap==null){e-=5;r.problems.push('Capitalização não identificada')}
+ else if(r.mcap<5000000){e-=5;r.problems.push('Microcapitalização abaixo de US$ 5 milhões')}
+ else if(r.mcap<20000000)e-=3;
+ if(r.fdv!=null&&r.mcap!=null&&r.mcap>0){let dilution=r.fdv/r.mcap;if(dilution>4){e-=5;r.problems.push('Diluição potencial: FDV mais de 4x a capitalização')}else if(dilution>2){e-=3;r.problems.push('Diluição potencial: FDV acima de 2x a capitalização')}}
+ if(r.holders30==null)e-=2;
+ if(!r.hasToken){e-=3;r.problems.push('Token do protocolo não confirmado')}
+ e=minmax(e,0,20);r.score=Math.round(a+b+c+d+e);r.parts={revenue:Math.round(a),holders:Math.round(b),growth:Math.round(c),valuation:Math.round(d),risk:Math.round(e)};
+ let riskBase=100-e*4.4; if(r.pc30!=null&&r.pc30>150)riskBase+=9;if(r.mcap==null)riskBase+=12;if(r.growth==null)riskBase+=6;r.risk=minmax(Math.round(riskBase),0,100);
+ r.partial=(r.mcap==null||r.holders30==null||r.growth==null||r.pc30==null||!r.hasToken);
+ if(!r.partial&&r.risk<=35&&r.score>=75)r.classification='🟢 PESQUISAR PRIORIDADE';else if(r.score>=58)r.classification='🟡 EM OBSERVAÇÃO';else r.classification='⚪ ESTUDO / CAUTELA';
+ if(r.partial)r.classification='🟡 DADOS PENDENTES • '+(r.score>=58?'OBSERVAR':'ESTUDAR');return r}
+const fetchJson=async(url,timeout=16000)=>{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),timeout);try{let res=await fetch(url,{cache:'no-store',signal:ctrl.signal,headers:{Accept:'application/json'}});if(!res.ok)throw Error('HTTP '+res.status);return await res.json()}finally{clearTimeout(t)}};
+async function update(){if($('refresh').disabled)return;setStatus('Consultando DefiLlama…');$('refresh').disabled=true;$('prices').disabled=true;$('sync').textContent='Fontes públicas • carregando';$('notice').className='notices';
+ try{const base=API_BASE+'/overview/fees?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=';
+ const requests=[fetchJson(base+'dailyRevenue',25000),fetchJson(base+'dailyFees',25000),fetchJson(base+'dailyHoldersRevenue',25000),fetchJson(API_BASE+'/protocols',25000)];
+ const out=await Promise.allSettled(requests);let [r,f,h,m]=out.map(x=>x.status==='fulfilled'?x.value:null);state.revOk=!!(r&&Array.isArray(r.protocols));state.feesOk=!!(f&&Array.isArray(f.protocols));state.holdersOk=!!(h&&Array.isArray(h.protocols));state.metaOk=Array.isArray(m);
+ if(!state.revOk)throw Error('Receitas não disponíveis pela API pública ('+(out[0].reason?.message||'resposta inválida')+').');
+ state.items=mergeSources(r,f||{protocols:[]},h||{protocols:[]},Array.isArray(m)?m:[]);state.all=state.items;state.mode='live';state.loadedAt=new Date();state.pg=0;state.pricesAt=null;
+ setStatus('Receitas recebidas','online');$('sync').textContent='Consultado: '+state.loadedAt.toLocaleString('pt-BR');$('priceStatus').textContent='Preços 30d opcionais';let absent=[!state.feesOk?'taxas':null,!state.holdersOk?'detentores':null,!state.metaOk?'capitalização':null].filter(Boolean);
+ $('notice').className='notices';$('notice').textContent=absent.length?'Leitura parcial: não foi possível obter '+absent.join(', ')+'. Os campos faltantes permanecem n/d e o score fica com confiança limitada. Verifique novamente antes de tomar decisões.':'Dados de receita e captura foram recebidos. A consulta de valorização 30d/FDV pelo CoinGecko é opcional. Receita a detentores não confirma isoladamente recompra.';
+ updateChain();render();toast('Ranking atualizado • '+state.items.length+' protocolos.');
+ }catch(err){setStatus('Falha de conexão','error');$('sync').textContent='API indisponível • dados não inventados';$('notice').className='notices error';$('notice').textContent='Não foi possível buscar os dados públicos. '+err.message+' Confira sua internet, bloqueio CORS/extensões ou abra o arquivo em site HTTPS (GitHub Pages/Render). Use Demonstração apenas para testar os botões — nela todos os números são fictícios.';if(!state.items.length){$('tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px">Não há dados reais carregados. Clique em Atualizar para tentar novamente ou em Demonstração (números fictícios).</td></tr>'}render();}
+ finally{$('refresh').disabled=false;$('prices').disabled=false}}
+function updateChain(){const ch=$('chain'),old=ch.value;ch.length=1;let nets=[...new Set(state.items.flatMap(x=>x.chains||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));for(let n of nets){let o=document.createElement('option');o.value=n;o.textContent=n;ch.append(o)}ch.value=nets.includes(old)?old:'all'}
+function visible(){let s=$('search').value.trim().toLowerCase(),fil=$('filter').value,chain=$('chain').value,token=$('tokenOnly').checked,stretched=$('excludeStretched').checked;
+ let list=state.items.filter(r=>{if(s&&!`${r.name} ${r.symbol||''} ${r.category} ${(r.chains||[]).join(' ')}`.toLowerCase().includes(s))return false;
+ if(token&&!r.hasToken)return false;if(stretched&&r.pc30!=null&&r.pc30>100)return false;if(chain!=='all'&&!r.chains.includes(chain))return false;
+ if(fil==='micro'&&!(r.mcap!=null&&r.mcap>0&&r.mcap<=1e8))return false;
+ if(fil==='small'&&!(r.mcap!=null&&r.mcap>0&&r.mcap<=5e8))return false;
+ if(fil==='capture'&&!(r.holders30!=null&&r.holders30>0))return false;
+ if(fil==='buyback'&&!(state.audits[detailKey(r)]?.type==='buyback'&&state.audits[detailKey(r)]?.url))return false;
+ if(fil==='grow'&&!(r.growth!=null&&r.growth>0))return false;
+ if(fil==='watch'&&!state.watch.has(detailKey(r)))return false;
+ if(fil==='unknown'&&!r.partial)return false;return true});
+ let typ=$('sort').value;let get=r=>typ==='revenue'?r.r30:typ==='holders'?r.holders30:typ==='growth'?r.growth:typ==='buybacks'?(state.audits[detailKey(r)]?.type==='buyback'&&state.audits[detailKey(r)]?.url?1:0):typ==='valuation'?(r.valuation===null?null:-r.valuation):typ==='price'?r.pc30:typ==='risk'?-r.risk:r.score;
+ return list.sort((a,b)=>{let aa=get(a),bb=get(b);if(aa===null||aa===undefined)return bb==null?b.score-a.score:1;if(bb===null||bb===undefined)return -1;return bb-aa||b.score-a.score})}
+function td(text,classes){let t=el('td',text);if(classes)t.className=classes;return t}
+function riskLabel(r){return r.risk>=60?'ALTO':r.risk>=35?'MÉDIO':'MENOR*'}
+function render(){let all=state.items;let rs=visible();const k=all.filter(r=>r.hasToken);$('kCount').textContent=round(all.length);$('kRevenue').textContent=money(all.reduce((s,r)=>s+(r.r30||0),0));$('kHolders').textContent=state.holdersOk?round(all.filter(r=>(r.holders30||0)>0).length):'n/d';$('kGrowth').textContent=round(all.filter(r=>r.growth!=null&&r.growth>0).length);
+ $('count').textContent=round(all.length)+' protocolos (universo), '+round(rs.length)+' no filtro';$('universe').textContent=state.mode==='demo'?'DADOS FICTÍCIOS':state.mode==='live'?'DADOS DA API':'SEM DADOS';
+ let best=rs.filter(r=>r.r30>0).slice(0,3),pod=$('top3');clear(pod);if(!best.length)pod.append(el('div','Nenhum candidato no filtro atual.',{class:'pick'}));
+ for(let r of best){let card=el('div',null,{class:'pick'}),hdr=el('small',r.classification),h=el('h3',`${r.symbol? r.symbol+' · ':''}${r.name}`),m=el('div',r.score+'/100',{class:'metric n'}),meta=el('small','Receita 30d: '+money(r.r30)+' | '+riskLabel(r)+(r.partial?' · dados parciais':'')),b=el('button','Ver diagnóstico',{class:'btn compact'});b.addEventListener('click',()=>openDetail(detailKey(r)));card.append(hdr,h,m,meta,b);pod.append(card)}
+ const maxpage=Math.max(0,Math.ceil(rs.length/PAGE)-1);state.pg=Math.min(state.pg,maxpage);const rows=rs.slice(state.pg*PAGE,(state.pg+1)*PAGE),body=$('tbody');clear(body);
+ if(!rows.length){let tr=el('tr');let c=td(state.items.length?'Nenhum resultado para os filtros escolhidos.':'Sem dados. Atualize ou abra o modo Demonstração.');c.colSpan=11;c.style.textAlign='center';c.style.padding='24px';tr.append(c);body.append(tr)}
+ for(let [i,r] of rows.entries()){const tr=el('tr');tr.append(td(state.pg*PAGE+i+1,'muted n'));
+ let cell=el('td'),asset=el('div',null,{class:'asset'}),icon=el('div',(r.symbol||r.name).slice(0,2).toUpperCase(),{class:'coinico'}),nameDiv=el('div'),an=el('div',r.name,{class:'assetname'}),meta=el('div',(r.symbol?r.symbol+' · ':'')+(r.chains[0]||r.category||'—'),{class:'assetmeta'});nameDiv.append(an,meta);asset.append(icon,nameDiv);cell.append(asset);tr.append(cell);
+ tr.append(td(r.score+'/100'+(r.partial?'*':''),'score n '+(r.score<50?'risk':r.score<70?'warn':'')));tr.append(td(money(r.r30),'n'));tr.append(td(money(r.holders30),'n'));let au=state.audits[detailKey(r)];tr.append(td(au?.type==='buyback'&&au?.url?'↻ Recompra*':au?.type==='burn'?'🔥 Queima*':au?.type==='distribution'?'Distribuição*':au?.type==='other'?'Outro*':'Não verificado','micro'));tr.append(td(pct(r.growth),(r.growth==null?'muted':r.growth>=0?'positive':'negative')+' n'));
+ tr.append(td(r.valuation==null?'n/d':round(r.valuation,1)+'×','n'));tr.append(td(pct(r.pc30),(r.pc30==null?'muted':r.pc30>0?'positive':'negative')+' n'));
+ let riskCell=td('');riskCell.append(el('span',riskLabel(r),{class:'riskpill '+(r.risk>=60?'high':r.risk>=35?'':'low')}));tr.append(riskCell);
+ let actionCell=el('td'),a=el('div',null,{class:'actions'}),fav=el('button',state.watch.has(detailKey(r))?'★':'☆',{class:'star'+(state.watch.has(detailKey(r))?' yes':''),'aria-label':'Alternar favorito'});fav.addEventListener('click',()=>toggleFav(detailKey(r)));let info=el('button','Detalhes',{class:'btn compact'});info.addEventListener('click',()=>openDetail(detailKey(r)));a.append(fav,info);actionCell.append(a);tr.append(actionCell);body.append(tr)}
+ $('pagetext').textContent=rs.length?`Exibindo ${state.pg*PAGE+1}–${Math.min(rs.length,(state.pg+1)*PAGE)} de ${rs.length} • Página ${state.pg+1}/${Math.max(1,Math.ceil(rs.length/PAGE))}`:'0 resultados';$('prev').disabled=state.pg===0;$('next').disabled=state.pg>=maxpage;}
+function toggleFav(id){if(state.watch.has(id))state.watch.delete(id);else state.watch.add(id);save();render();toast(state.watch.has(id)?'★ Adicionado aos favoritos':'Removido dos favoritos')}
+function htmlSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function linkSafe(v){try{let u=new URL(v);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return''}}
+function modal(html){$('modalbody').innerHTML=html;$('overlay').classList.add('open');$('close').focus()}
+function closeModal(){$('overlay').classList.remove('open');state.current=null}
+function openDetail(id){let r=state.items.find(p=>detailKey(p)===id);if(!r)return;state.current=id;let a=state.audits[id]||{};
+ const s=(text,n)=>`<div class="stat"><span>${text}</span><strong>${n}</strong></div>`;
+ const riskB=r.problems.length?'<ul class="bullet">'+r.problems.map(x=>`<li>${htmlSafe(x)}</li>`).join('')+'</ul>':'<p>Sem alertas automáticos identificados; análise manual continua obrigatória.</p>';
+ const sourceLink='https://defillama.com/protocol/'+encodeURIComponent(r.slug);
+ modal(`<p class="eyebrow">Diagnóstico individual · ${state.mode==='demo'?'DADOS FICTÍCIOS':'DefiLlama'}</p><h2>${htmlSafe(r.name)} ${r.symbol?'('+htmlSafe(r.symbol)+')':''}</h2><p class="info">${htmlSafe(r.classification)} · Categoria: ${htmlSafe(r.category)} · Redes: ${htmlSafe(r.chains.join(', ')||'n/d')} · Confiança de dados: <b>${r.partial?'PARCIAL':'MAIS COMPLETA'}</b></p>
+ <div class="stats">${s('Score EGI',r.score+'/100')}${s('Receita em 30d',money(r.r30))}${s('Taxas em 30d',money(r.fees30))}${s('Captura p/ token em 30d',money(r.holders30))}${s('Receita vs 30d anteriores',pct(r.growth))}${s('MCAP',money(r.mcap))}${s('MCAP/receita anualizada',r.valuation==null?'n/d':round(r.valuation,2)+'×')}${s('Valorização 30d',pct(r.pc30))}${s('FDV',money(r.fdv))}</div>
+ <h3>Composição do score (heurístico)</h3><p class="info">Receita <b>${r.parts.revenue}/25</b> · Captura <b>${r.parts.holders}/20</b> · Crescimento <b>${r.parts.growth}/20</b> · Valorização <b>${r.parts.valuation}/15</b> · Risco <b>${r.parts.risk}/20</b>.</p>
+ <h3>⚠️ Alertas e pendências</h3>${riskB}
+ <h3>Auditoria manual de recompras e mecanismos de captura</h3><p class="info">A métrica “captura p/ token” pode incluir queimas de taxas ou distribuições. Nunca se transforma automaticamente em recompra confirmada. Informe um link público para registrar sua checagem.</p>
+ <div class="formline"><label for="auditType">Mecanismo identificado</label><select id="auditType"><option value="">Não verificado</option><option value="buyback">Recompra documentada</option><option value="burn">Queima de taxas</option><option value="distribution">Distribuição direta / staking</option><option value="other">Outro mecanismo (estudar)</option></select></div>
+ <div class="formline"><label for="auditUrl">Fonte pública de verificação (URL obrigatória para confirmar)</label><input id="auditUrl" type="url" placeholder="https://..." value="${htmlSafe(a.url||'')}"></div>
+ <div class="formline"><label for="auditNote">Observações / tokenomics / riscos</label><textarea id="auditNote" placeholder="Contratos, provas de recompra, vesting, unlocks, incentivos...">${htmlSafe(a.note||'')}</textarea></div>
+ <div class="footactions"><button class="btn primary" id="saveaudit">Guardar auditoria</button><button class="btn" id="modalFav">${state.watch.has(id)?'★ Remover favorito':'☆ Favoritar'}</button>${state.mode==='live'?`<a class="btn" href="${sourceLink}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">↗ Fonte DefiLlama</a>`:''}<button class="btn" id="copyitem">Copiar diagnóstico</button></div>`);
+ $('auditType').value=a.type||'';$('saveaudit').onclick=()=>{let type=$('auditType').value,url=linkSafe($('auditUrl').value.trim()),note=$('auditNote').value.trim();if(type&&!url){toast('Para marcar o mecanismo, informe uma URL http(s) válida.');$('auditUrl').focus();return}state.audits[id]={type,url,note,checkedAt:new Date().toISOString()};save();toast('Registro de auditoria salvo neste dispositivo.');closeModal();render()};
+ $('modalFav').onclick=()=>{toggleFav(id);openDetail(id)};$('copyitem').onclick=()=>copyText(singleReport(r))}
+function singleReport(r){let a=state.audits[detailKey(r)]||{}, t={buyback:'recompra documentada',burn:'queima de taxas',distribution:'distribuição direta',other:'outro'};return`RADAR RECEITA EGI V1.0 — ESTUDO, SEM OPERAÇÕES\nFonte: ${state.mode==='demo'?'DEMONSTRAÇÃO FICTÍCIA':'DefiLlama, CoinGecko opcional'} | Consulta ${state.loadedAt?.toLocaleString('pt-BR')||'n/d'}\n${r.name} ${r.symbol||''} | ${r.classification} | Score ${r.score}/100 (${r.partial?'dados pendentes':'dados mais completos'})\nReceita 30d: ${money(r.r30)} | Taxas: ${money(r.fees30)} | Captura p/ token: ${money(r.holders30)}\nCrescimento mês/mês: ${pct(r.growth)} | MCAP: ${money(r.mcap)} | FDV: ${money(r.fdv)} | MCAP/receita anualizada: ${r.valuation==null?'n/d':round(r.valuation,2)+'x'} | Preço 30d: ${pct(r.pc30)}\nScore por pilar: receita ${r.parts.revenue}/25; captura ${r.parts.holders}/20; crescimento ${r.parts.growth}/20; valorização ${r.parts.valuation}/15; risco ${r.parts.risk}/20.\nRisco heurístico: ${riskLabel(r)}. Alertas: ${r.problems.join(' | ')||'Nenhum detectado, requer diligência.'}\nAuditoria da recompra/captura (registro manual, sem verificação independente): ${t[a.type]||'NÃO VERIFICADA'} | Fonte: ${a.url||'não fornecida'} | Notas: ${a.note||'—'}\nNÃO LIBERA OPERAÇÃO. Exige verificar tokenomics, vesting, volume real, smart contracts e SetupDT.`}
+async function copyText(s){try{await navigator.clipboard.writeText(s);toast('Copiado para a área de transferência')}catch{let ta=document.createElement('textarea');ta.value=s;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();try{document.execCommand('copy');toast('Texto copiado')}catch{toast('Copie manualmente o texto exibido')}ta.remove()}}
+function exportFile(name,content,type){let blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=el('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function report(){let l=visible().slice(0,20),msg=`RELATÓRIO INTELIGENTE EGI — RADAR RECEITA V1.0\nGERADO: ${new Date().toLocaleString('pt-BR')} | COLETA: ${state.loadedAt?.toLocaleString('pt-BR')||'n/d'}\nMODO: ${state.mode==='demo'?'DADOS FICTÍCIOS DE DEMONSTRAÇÃO':'DADOS PÚBLICOS (sem auditoria externa independente)'}\nFONTE: DefiLlama (receita/taxas/captura); CoinGecko (preço/FDV opcionais)\nESCOPO: ${state.items.length} protocolos; ${visible().length} após filtros. Apenas estudo.\nREGRAS: receita real 25, captura 20, crescimento 20, valuation+valorização 15, risco 20.\nALERTA: holders revenue ≠ recompra comprovada; score não é probabilidade; auditoria de recompra manual com URL, não independente; dados ausentes n/d; sem ordens ou sinais de entrada.\n\nTOP ${l.length} DO FILTRO\n`+l.map((r,i)=>`${i+1}. ${r.symbol||'S/ TOKEN'} — ${r.name} | score ${r.score} | receita30d ${money(r.r30)} | captura30d ${money(r.holders30)} | crescimento ${pct(r.growth)} | MCAP ${money(r.mcap)} | MCAP/receita ${r.valuation==null?'n/d':round(r.valuation,1)+'x'} | valorização30d ${pct(r.pc30)} | risco ${riskLabel(r)} | ${r.partial?'DADOS PARCIAIS':'DADOS MAIS COMPLETOS'} | auditoria ${state.audits[detailKey(r)]?.type||'não verificada'}`).join('\n')+`\n\nSOLICITAÇÃO AO CHATGPT: Identificar apenas candidatos para investigação, apontar riscos de tokenomics e liquidez, distinguir receitas sustentáveis de picos, e cruzar com RadarMVC/SetupDT somente para estudo. Não executar operações nem inventar dados.`;
+ modal('<p class="eyebrow">Compartilhar com ChatGPT</p><h2>Relatório para análise</h2><p class="info">Selecione e copie. Inclui os 20 primeiros candidatos segundo os filtros ativos; não envia dados sozinho.</p><textarea id="reportText" style="width:100%;min-height:330px;line-height:1.5"></textarea><div class="footactions"><button id="copyreport" class="btn primary">Copiar relatório</button><button id="saveReport" class="btn">Baixar .txt</button></div>');$('reportText').value=msg;$('copyreport').onclick=()=>copyText($('reportText').value);$('saveReport').onclick=()=>exportFile('Relatorio_Radar_Receita_EGI.txt',$('reportText').value,'text/plain;charset=utf-8')}
+async function priceEnrich(){if(!state.items.length){toast('Atualize o ranking antes de consultar preços');return}if(state.mode==='demo'){toast('Demonstração: preços fictícios não são atualizados');return}
+ const list=visible().filter(r=>r.geckoId).slice(0,60);if(!list.length){toast('Sem identificadores CoinGecko no filtro. Confira a API de metadados.');return}const ids=[...new Set(list.map(r=>r.geckoId))];$('prices').disabled=true;$('priceStatus').textContent='Consultando preços de '+ids.length+' ativos…';
+ try{let chunks=[];for(let i=0;i<ids.length;i+=30)chunks.push(ids.slice(i,i+30));let outs=[];for(let c of chunks){let u='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+encodeURIComponent(c.join(','))+'&price_change_percentage=7d%2C30d&per_page=100&page=1';let dat=await fetchJson(u,22000);if(Array.isArray(dat))outs.push(...dat)}if(!outs.length)throw Error('Resposta vazia');let map=new Map(outs.map(p=>[p.id,p]));let changed=0;for(let r of state.items){let p=map.get(r.geckoId);if(!p)continue;r.mcap=getNum(p.market_cap)??r.mcap;r.fdv=getNum(p.fully_diluted_valuation)??r.fdv;r.pc30=getNum(p.price_change_percentage_30d_in_currency)??getNum(p.price_change_percentage_30d)??r.pc30;r.pc7=getNum(p.price_change_percentage_7d_in_currency)??r.pc7;r.tokenVolume=getNum(p.total_volume);score(r);changed++}state.pricesAt=new Date();$('priceStatus').textContent='CoinGecko: '+changed+' tokens às '+state.pricesAt.toLocaleTimeString('pt-BR');render();toast('Valorização/FDV recebidos para '+changed+' tokens.');
+ }catch(err){$('priceStatus').textContent='CoinGecko indisponível • preço n/d';toast('CoinGecko falhou ('+err.message+'). Ranking de receita continua disponível.')}finally{$('prices').disabled=false}}
+function showDemo(){const arr=[{id:'EX1',name:'Exemplo Alpha',symbol:'EXA',r30:450000,prev30:200000,holders30:180000,fees30:650000,mcap:14000000,fdv:16000000,pc30:35,chains:['Solana'],category:'Launchpad'},{id:'EX2',name:'Exemplo Beta',symbol:'EXB',r30:800000,prev30:1200000,holders30:80000,fees30:1700000,mcap:200000000,fdv:900000000,pc30:220,chains:['Ethereum'],category:'Dexs'},{id:'EX3',name:'Exemplo Gamma',symbol:'EXG',r30:90000,prev30:30000,holders30:0,fees30:260000,mcap:6000000,fdv:12000000,pc30:-25,chains:['Base'],category:'Lending'},{id:'EX4',name:'Exemplo Delta',symbol:'EXD',r30:2100000,prev30:1950000,holders30:1000000,fees30:9000000,mcap:85000000,fdv:91000000,pc30:13,chains:['Arbitrum'],category:'Derivatives'}];state.items=arr.map(o=>score({...normalizeProto({name:o.name,defillamaId:o.id,total30d:o.r30,total60dto30d:o.prev30,category:o.category,chains:o.chains,symbol:o.symbol}),...o,hasToken:true,partial:false,slug:'exemplo-nao-real',geckoId:null}));state.mode='demo';state.loadedAt=new Date();state.holdersOk=true;state.revOk=true;state.pg=0;setStatus('Modo demonstração','wait');$('sync').textContent='Dados 100% FICTÍCIOS';$('priceStatus').textContent='';$('notice').className='notices error';$('notice').textContent='DEMONSTRAÇÃO — valores totalmente fictícios. Use este modo para aprender a interface, sem fazer inferências sobre ativos reais. Para dados reais, clique em Atualizar dados.';updateChain();render();toast('Demonstração fictícia carregada.')}
+function infoModal(){modal(`<p class="eyebrow">Metodologia transparente</p><h2>Como funciona o ranking EGI?</h2><p>Os pesos são 25/20/20/15/20, mas <b>não são probabilidades nem foram validados em backtest</b>. A fórmula é uma heurística inicial que deve ser testada antes de qualquer aplicação financeira.</p><ul class="bullet"><li><b>Receita 25:</b> transformação logarítmica da receita 30d, com preferência por negócio que já fatura.</li><li><b>Captura 20:</b> relação entre valor destinado aos detentores e receita. <b>Isso não significa recompra confirmada.</b></li><li><b>Crescimento 20:</b> variação da receita30d frente à receita do período anterior. Níveis ausentes reduzem a pontuação.</li><li><b>Valorização 15:</b> capitalização dividida por receita anualizada de 30d e variação do token em 30d (consulta opcional). <b>Não presume que receita persista.</b></li><li><b>Risco 20:</b> redução de pontos para receitas muito pequenas, concentração diária, forte alta de preço, baixa capitalização e FDV dilutivo.</li><li><b>Dados parciais:</b> * aparece no score; pode mudar ao complementar mercado/preços.</li><li><b>Auditoria:</b> o usuário fornece a URL de prova de recompra, queima ou distribuição. Registrar não significa auditoria independente pela aplicação.</li></ul><p class="info">Exemplo: lucro alto da empresa/protocolo não implica necessariamente demanda pelo token. Recompras podem parar e diluição pode anular parte do benefício. Verifique contratos, tokenomics, liquidez, unlocks, qualidade das receitas e riscos de execução.</p><p><a href="https://docs.llama.fi/analysts/data-definitions" rel="noopener noreferrer" target="_blank">Metodologia oficial de taxas e receitas ↗</a></p>`)}
+function makeCSV(){let rows=visible(),cols=['Posição','Nome','Token','Redes','Categoria','Score','Score parcial','Receita30d_USD','Taxas30d_USD','HoldersRevenue30d_USD','Crescimento30x30_pct','MCAP_USD','FDV_USD','MCAP_por_ReceitaAnualizada','Valorizacao30d_pct','Risco0a100','Auditoria_tipo','Auditoria_url','Fonte_DefiLlama'];let data=rows.map((r,i)=>[i+1,r.name,r.symbol||'',r.chains.join(' / '),r.category,r.score,r.partial?'SIM':'NÃO',r.r30,r.fees30,r.holders30,r.growth,r.mcap,r.fdv,r.valuation,r.pc30,r.risk,state.audits[detailKey(r)]?.type||'',state.audits[detailKey(r)]?.url||'',state.mode==='live'?'https://defillama.com/protocol/'+r.slug:'EXEMPLO FICTÍCIO']);let esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';exportFile('Radar_Receita_EGI_'+new Date().toISOString().slice(0,10)+'.csv','\ufeff'+[cols,...data].map(r=>r.map(esc).join(';')).join('\r\n'),'text/csv;charset=utf-8')}
+function backup(){let d={schema:'RADAR-RECEITA-EGI-V1',exportedAt:new Date().toISOString(),watch:[...state.watch],audits:state.audits};exportFile('Favoritos_Radar_Receita_EGI.json',JSON.stringify(d,null,2),'application/json;charset=utf-8');toast('Favoritos e auditorias exportados')}
+function restore(file){if(!file)return;file.text().then(t=>{let d=JSON.parse(t);if(d.schema!=='RADAR-RECEITA-EGI-V1'||!Array.isArray(d.watch)||typeof d.audits!=='object'||d.audits==null)throw Error('Formato incompatível');state.watch=new Set(d.watch.filter(x=>typeof x==='string').slice(0,2000));state.audits=Object.fromEntries(Object.entries(d.audits).filter(([k,v])=>typeof k==='string'&&v&&typeof v==='object').slice(0,2000));save();render();toast('Favoritos e auditorias restaurados')}).catch(e=>toast('Falha ao importar: '+e.message));$('restorefile').value=''}
+function bind(){load();$('refresh').onclick=update;$('prices').onclick=priceEnrich;$('report').onclick=report;$('downloadcsv').onclick=makeCSV;$('backup').onclick=backup;$('restore').onclick=()=>$('restorefile').click();$('restorefile').onchange=e=>restore(e.target.files?.[0]);$('demo').onclick=showDemo;$('how').onclick=infoModal;
+ for(let id of ['search','filter','sort','chain','tokenOnly','excludeStretched']){$(id).addEventListener(id==='search'?'input':'change',()=>{state.pg=0;render()})}
+ $('next').onclick=()=>{state.pg++;render();$('ranking').scrollIntoView({block:'start',behavior:'smooth'})};$('prev').onclick=()=>{state.pg--;render();$('ranking').scrollIntoView({block:'start',behavior:'smooth'})};$('close').onclick=closeModal;$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('overlay').classList.contains('open'))closeModal()});render();update()}
+bind();
+})();
+</script>
+<script>
+/* Estudo GEOD: leitor TTS, exportação e anotações; isolado do ranking */
+(()=>{'use strict';
+ const q=id=>document.getElementById(id);
+ const article=q('geod-study');if(!article)return;
+ const status=q('geod-audio-status');
+ const engine=('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window)?window.speechSynthesis:null;
+ const noteKey='radar_receita_egi_geod_notes_v1';
+ let seq=[],idx=0,reading=false,paused=false,generation=0;
+ const voiceParagraphs=()=>Array.from(article.querySelectorAll('.geod-voice')).map(n=>n.textContent.trim()).filter(Boolean);
+ const audioParts=()=>{const parts=[];for(const p of voiceParagraphs()){
+   // Dividir frases grandes para evitar interrupções em alguns TTS Android.
+   const sentences=p.match(/[^.!?;]+[.!?;]?/g)||[p];
+   for(let text of sentences){text=text.trim();if(!text)continue;
+     while(text.length>185){let cut=text.lastIndexOf(' ',185);if(cut<70)cut=185;parts.push(text.slice(0,cut).trim());text=text.slice(cut).trim()}
+     if(text)parts.push(text);
+   }
+ }return parts};
+ function ptVoice(){if(!engine)return null;const vv=engine.getVoices();return vv.find(v=>v.lang.toLowerCase()==='pt-br')||vv.find(v=>v.lang.toLowerCase().startsWith('pt'))||null}
+ function resetAudio(message){generation++;reading=false;paused=false;idx=0;seq=[];if(engine)engine.cancel();status.textContent=message||'Leitura encerrada.'}
+ function nextAudio(ticket){if(!reading||paused||ticket!==generation)return;
+  if(idx>=seq.length){reading=false;status.textContent='✅ Leitura concluída.';return}
+  const utter=new SpeechSynthesisUtterance(seq[idx]);utter.lang='pt-BR';utter.rate=Number(q('geod-speed').value)||1;utter.pitch=1;const v=ptVoice();if(v)utter.voice=v;
+  const pos=idx+1;utter.onstart=()=>{if(ticket===generation)status.textContent='🔊 Lendo o estudo: trecho '+pos+' de '+seq.length+' · '+q('geod-speed').value+'×'};
+  utter.onend=()=>{if(ticket!==generation||!reading)return;idx++;nextAudio(ticket)};
+  utter.onerror=e=>{if(ticket!==generation||!reading)return;
+    if(e.error==='interrupted'||e.error==='canceled')return;
+    reading=false;paused=false;status.textContent='⚠️ Não foi possível continuar a voz ('+(e.error||'erro do navegador')+'). Toque em Ouvir estudo para tentar novamente.';
+  };
+  try{engine.speak(utter)}catch(e){resetAudio('⚠️ Áudio indisponível neste navegador: '+e.message)}
+ }
+ q('open-geod-study').addEventListener('click',()=>article.scrollIntoView({behavior:'smooth',block:'start'}));
+ q('geod-play').addEventListener('click',()=>{
+  if(!engine){status.textContent='⚠️ Seu navegador não oferece leitura por voz. Abra o HTML no Chrome do Android ou em outro navegador compatível.';return}
+  resetAudio('Preparando leitura…');seq=audioParts();idx=0;reading=true;paused=false;nextAudio(generation);
+ });
+ q('geod-pause').addEventListener('click',()=>{
+  if(!engine||!reading||paused){status.textContent=reading?'Leitura já pausada.':'Inicie o áudio primeiro.';return}
+  paused=true;engine.pause();status.textContent='⏸ Leitura pausada no trecho '+(idx+1)+'.';
+ });
+ q('geod-resume').addEventListener('click',()=>{
+  if(!engine||!reading){status.textContent='Inicie o áudio em “Ouvir estudo”.';return}
+  if(!paused){status.textContent='A leitura já está em andamento.';return}
+  paused=false;engine.resume();status.textContent='▶ Leitura retomada.';
+ });
+ q('geod-stop').addEventListener('click',()=>resetAudio('⏹ Leitura interrompida.'));
+ window.addEventListener('pagehide',()=>{if(reading)resetAudio('Leitura encerrada ao sair.');});
+ const studyText=()=>{
+  const table=[...article.querySelectorAll('.geod-zones tbody tr')].map(tr=>[...tr.cells].map(td=>td.textContent.trim()).join(' | ')).join('\n');
+  return 'ESTUDO GEOD/USDT — RADAR RECEITA EGI V1.1\nREGISTRADO: 11/10/2026 — DADOS HISTÓRICOS, NÃO AO VIVO\nNÃO É SINAL DE ENTRADA; SEM OPERAÇÕES.\n\n'+
+  'Preço referência: US$ 0,2822 | Receita 30d: US$ 933,1 mil | Captura 30d: US$ 746,5 mil | Crescimento 30/30d: +2,4%\n'+
+  'Top 1 para investigação fundamentalista; entrada técnica não confirmada.\n\n'+
+  'LEITURA E CONCLUSÕES\n'+voiceParagraphs().join('\n\n')+'\n\nZONAS HISTÓRICAS\n'+table+'\n\n'+
+  '15m e 4h: sem candles atuais verificados; 1h e diário: valores antigos. Os níveis exigem revalidação.\n'+
+  'ANOTAÇÕES PESSOAIS\n'+(q('geod-notes').value.trim()||'—')+'\n\nSolicitação ao ChatGPT: estudar sem inventar cotações atuais nem executar operações.';
+ };
+ async function copy(s){try{await navigator.clipboard.writeText(s);return true}catch(_){const ta=document.createElement('textarea');ta.value=s;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok}}
+ q('geod-copy').addEventListener('click',async()=>{status.textContent=await copy(studyText())?'📋 Estudo copiado.':'Não foi possível copiar automaticamente. Use o botão “Baixar estudo .txt”.'});
+ q('geod-export').addEventListener('click',()=>{
+  const blob=new Blob(['\ufeff'+studyText()],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='GEOD_EGI_Estudo_2026-10-11.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ });
+ try{q('geod-notes').value=localStorage.getItem(noteKey)||''}catch(_){}
+ q('geod-save').addEventListener('click',()=>{
+  try{localStorage.setItem(noteKey,q('geod-notes').value);q('geod-save-status').textContent='✅ Anotações salvas neste navegador.'}
+  catch(e){q('geod-save-status').textContent='⚠️ Não foi possível salvar aqui. Exporte o estudo para preservar suas notas.'}
+ });
+})();
+</script>
+</body></html>
