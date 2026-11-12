@@ -359,9 +359,14 @@ header h1{font-size:26px}
 @media(max-width:520px){.lesson-resumption{padding:10px;font-size:12px}}
 </style>
 <style>.egi-lab-flag{position:fixed;right:8px;bottom:8px;z-index:9999;background:#17365c;color:#d9edff;border:1px solid #4da3ff;border-radius:9px;padding:6px 10px;font:700 11px system-ui;pointer-events:none}</style>
+<style>
+#egiRobotPanel{position:relative;margin:12px auto;max-width:760px;padding:14px;border:1px solid #4da3ff;border-radius:14px;background:#101e34;color:#eaf2ff;font:13px system-ui}
+#egiRobotPanel h2{font-size:17px;margin:0 0 8px}#egiRobotPanel .egiGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}#egiRobotPanel .egiItem{padding:10px;background:#182943;border-radius:9px}#egiRobotPanel small{display:block;color:#aebed6;margin-top:4px}#egiRobotPanel .egiOn{color:#65e5a8}#egiRobotPanel .egiOff{color:#ffd96d}#egiRobotPanel button{width:auto;padding:7px 12px;margin-top:10px}
+</style>
 </head>
 <body>
 <div class="egi-lab-flag">EGI LAB • cópia de testes</div>
+<section id="egiRobotPanel" aria-label="Robôs em atividade"><h2>🤖 Robôs em atividade — EGI LAB</h2><p id="egiRobotSummary">Verificando esta aba...</p><div class="egiGrid" id="egiRobotGrid"></div><button type="button" id="egiRobotRefresh">🔄 Atualizar status</button><small>Este painel mostra somente o funcionamento desta aba. Não verifica outros aparelhos, abas fechadas ou processos externos. ntfy habilitado não garante entrega.</small></section>
 <div class="wrap">
 <header>
   <div>
@@ -4041,6 +4046,24 @@ try{
   setTimeout(()=>$('coinQuery')?.focus(),150);
 }catch{}
 
+</script>
+<script>
+(function(){
+const $egi=id=>document.getElementById(id);
+function show(){
+ const cards=[
+ ['Varredura automática',typeof autoRunning!=='undefined'&&autoRunning,'Intervalo: '+($egi('autoMin')?.value||'?')+' min'],
+ ['Monitor multimoedas',typeof multiMonitorRunning!=='undefined'&&multiMonitorRunning,(typeof multiMonitorBusy!=='undefined'&&multiMonitorBusy)?'Varredura em andamento':'Aguardando ciclo'],
+ ['Consulta automática',typeof queryAutoTimer!=='undefined'&&!!queryAutoTimer,'Moeda: '+($egi('coinQuery')?.value||'não informada')],
+ ['Notificações ntfy',$egi('ntfyEnabled')?.value==='1','Habilitação local; entrega não verificada'],
+ ['Avaliação de sinais',typeof lastMultiTf!=='undefined'&&!!lastMultiTf,'Última análise disponível nesta aba']
+ ];
+ $egi('egiRobotGrid').innerHTML=cards.map(([name,on,detail])=>'<div class="egiItem"><b>'+name+'</b><small class="'+(on?'egiOn':'egiOff')+'">'+(on?'● ATIVO':'● INATIVO / SEM DADOS')+'</small><small>'+detail.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))+'</small></div>').join('');
+ $egi('egiRobotSummary').textContent='Ativos nesta aba: '+cards.filter(x=>x[1]).length+'/'+cards.length+' • Verificado: '+new Date().toLocaleTimeString('pt-BR');
+}
+$egi('egiRobotRefresh')?.addEventListener('click',show);
+setInterval(show,5000);show();
+})();
 </script>
 </body>
 </html>
