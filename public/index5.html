@@ -3607,5 +3607,73 @@ window.addEventListener("load", initReversalMonitorUI);
 window.addEventListener("load", initReversalNtfyUI);
 window.addEventListener("load", updateAll);
 </script>
+
+<!-- EGI LAB REVERSÃO V8.9.5 — módulo aditivo, preserva motor original -->
+<section class="card section" id="egiRevLab" style="margin:16px auto;max-width:1200px;border-color:#36769b">
+<h2>🧪 EGI LAB V8.9.5 — Repique × Reversão e Auditoria 1R/2R/3R</h2>
+<p class="small">Observação técnica separada da autorização de entrada. Candles fechados e reteste continuam obrigatórios. Resultados registrados manualmente; sem prometer ganho nem simular acertos.</p>
+<div id="egiLabReading" class="reversalStage" aria-live="polite">Atualize Tudo para classificar a estrutura atual.</div>
+<div class="toolbar">
+<button type="button" class="primary" onclick="egiLabRegister()">📝 Registrar observação</button>
+<button type="button" onclick="egiLabExport()">⬇️ Backup JSON</button>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">📂 Importar JSON <input type="file" id="egiLabFile" accept=".json,application/json" onchange="egiLabImport(event)" style="max-width:200px"></label>
+<button type="button" onclick="egiLabExportTxt()">⬇️ Auditoria TXT</button>
+</div>
+<div class="small">Resultados de auditoria: selecione um registro, depois marque STOP, 1R, 2R ou 3R quando houver evidência. 1R/2R/3R representa o maior alvo atingido informado; não é lucro realizado automaticamente.</div>
+<div id="egiLabStats" class="reversalStage"></div>
+<div style="overflow:auto"><table><thead><tr><th>Horário BRT</th><th>Ativo / figura</th><th>Score</th><th>Leitura</th><th>Preço / Neckline / Stop técnico</th><th>Resultado</th><th>Ação</th></tr></thead><tbody id="egiLabRows"></tbody></table></div>
+<div class="small" id="egiLabInfo">Dados locais deste navegador. Exporte JSON regularmente. Nenhuma ordem é enviada.</div>
+</section>
+<script>
+(function(){
+'use strict';
+const KEY='egi_lab_reversao_index5_v895';
+const outcomes=['PENDENTE','STOP','1R','2R','3R','INDETERMINADO'];
+function records(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(_){return []}}
+function persist(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,300)));return true}catch(e){alert('Armazenamento insuficiente. Exporte o backup JSON.');return false}}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function number(n){return Number.isFinite(+n)?Number(n).toLocaleString('pt-BR',{maximumFractionDigits:8}):'n/d'}
+function classification(r){
+ const p=r?.best;
+ if(!p||p.type==='NONE')return {label:'⚪ AGUARDAR FIGURA',note:'Sem W/M detectado no timeframe prioritário.'};
+ const direction=p.side;
+ if(!['LONG','SHORT'].includes(direction))return {label:'⚪ ESTRUTURA NEUTRA',note:'Sem viés direcional confirmado.'};
+ if(!p.confirmed)return {label:direction==='LONG'?'🟡 POSSÍVEL REPIQUE LONG':'🟡 POSSÍVEL REPIQUE SHORT',note:'Figura em formação. Aguardar fechamento 15m, rompimento, volume e reteste.'};
+ if(r.confirm1h!=='CONFIRMA')return {label:direction==='LONG'?'🟠 ROMPIMENTO / REPIQUE LONG':'🟠 ROMPIMENTO / REPIQUE SHORT',note:'Rompimento detectado, mas 1h não confirma. Não tratar como reversão maior.'};
+ if(r.context4h==='CONTRÁRIO')return {label:'🟠 REVERSÃO 15m EM TESTE',note:'1h alinhado; 4h contrário. Mudança de tendência 4h não confirmada.'};
+ return {label:'🟢 ALINHAMENTO TÉCNICO MTF',note:'Rompimento e direção 1h alinhados; conferir candle fechado, reteste e volume. Não é entrada automática.'};
+}
+function data(){if(!window.lastData && typeof lastData==='undefined')return null;try{return lastData}catch(_){return window.lastData||null}}
+function analysis(){const d=data();if(!d||typeof buildReversalAnalysis!=='function')return null;try{return {d,r:buildReversalAnalysis(d)}}catch(e){console.warn('EGI Lab:',e);return null}}
+function update(){
+ const x=analysis(),el=document.getElementById('egiLabReading');if(!el)return;
+ if(!x){el.textContent='Dados não carregados. Clique em Atualizar Tudo.';return}
+ const {d,r}=x,p=r.best,c=classification(r);
+ el.textContent=c.label+' • '+(d.symbol||'BTCUSDT')+' • '+(p.name||'sem figura')+' • Prioridade '+r.score+'/100\n'+c.note+'\n15m = gatilho | 1h: '+r.confirm1h+' | 4h: '+r.context4h+' | Exaustão: '+(r.ex?.score??'n/d')+'/100\nNeckline: '+number(p.neckline)+' | Invalidação técnica: '+number(p.invalid)+' | Último preço do padrão: '+number(p.price)+'\nScore é prioridade heurística, não taxa de acerto.';
+}
+window.egiLabRegister=function(){
+ const x=analysis();if(!x){alert('Atualize os dados antes de registrar.');return}
+ const {d,r}=x,p=r.best,c=classification(r);if(p.type==='NONE'){alert('Sem figura para registrar nesta leitura.');return}
+ const a=records(),now=new Date(),id=now.getTime().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+ a.unshift({id,time:now.toISOString(),symbol:d.symbol||'BTCUSDT',tf:p.tf,figure:p.name,side:p.side,score:r.score,stage:r.stage,label:c.label,price:Number.isFinite(p.price)?p.price:null,neckline:Number.isFinite(p.neckline)?p.neckline:null,invalid:Number.isFinite(p.invalid)?p.invalid:null,confirm1h:r.confirm1h,context4h:r.context4h,outcome:'PENDENTE'});
+ if(persist(a))render();
+};
+window.egiLabOutcome=function(id,v){if(!outcomes.includes(v))return;const a=records(),x=a.find(y=>y.id===id);if(!x)return;x.outcome=v;persist(a);render()};
+window.egiLabDelete=function(id){if(!confirm('Excluir somente este registro do laboratório?'))return;persist(records().filter(x=>x.id!==id));render()};
+function render(){
+ const a=records(),done=a.filter(x=>['STOP','1R','2R','3R'].includes(x.outcome)),wins=done.filter(x=>x.outcome!=='STOP');
+ const groups={};for(const x of a){const k=x.symbol||'?';if(!groups[k])groups[k]={n:0,closed:0,w:0};groups[k].n++;if(['STOP','1R','2R','3R'].includes(x.outcome)){groups[k].closed++;if(x.outcome!=='STOP')groups[k].w++}}
+ document.getElementById('egiLabStats').textContent='Registros '+a.length+' • Encerrados com resultado '+done.length+' • STOP '+done.filter(x=>x.outcome==='STOP').length+' • 1R '+done.filter(x=>x.outcome==='1R').length+' • 2R '+done.filter(x=>x.outcome==='2R').length+' • 3R '+done.filter(x=>x.outcome==='3R').length+' • Taxa observada '+(done.length?(wins.length/done.length*100).toFixed(1)+'%':'n/d')+'\nPor moeda: '+(Object.entries(groups).map(([k,v])=>k+' '+v.w+'/'+v.closed+' ganhos/encerrados ('+(v.closed?(100*v.w/v.closed).toFixed(1)+'%':'n/d')+')').join(' • ')||'sem registros');
+ document.getElementById('egiLabRows').innerHTML=a.slice(0,80).map(x=>'<tr><td>'+safe(new Date(x.time).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}))+'</td><td>'+safe(x.symbol)+'<div class="small">'+safe(x.figure)+' '+safe(x.tf)+'</div></td><td>'+safe(x.score)+'/100</td><td>'+safe(x.label)+'</td><td>'+number(x.price)+'<div class="small">N '+number(x.neckline)+' • Inv. '+number(x.invalid)+'</div></td><td>'+safe(x.outcome)+'</td><td><select aria-label="Resultado" data-egi-id="'+safe(x.id)+'" onchange="egiLabOutcome(this.dataset.egiId,this.value)">'+outcomes.map(o=>'<option value="'+o+'" '+(x.outcome===o?'selected':'')+'>'+o+'</option>').join('')+'</select> <button type="button" class="danger" onclick="egiLabDelete(this.dataset.id)" data-id="'+safe(x.id)+'">✕</button></td></tr>').join('')||'<tr><td colspan="7">Nenhum registro. Use Registrar observação após a atualização.</td></tr>';
+}
+function download(text,name,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+window.egiLabExport=function(){download(JSON.stringify({app:'EGI LAB REVERSAO INDEX5',version:'8.9.5',exportedAt:new Date().toISOString(),records:records()},null,2),'EGI_LAB_Reversao_Index5_'+new Date().toISOString().slice(0,10)+'.json','application/json')};
+window.egiLabExportTxt=function(){const a=records();download('EGI LAB REVERSÃO — AUDITORIA\n'+a.map(x=>[x.time,x.symbol,x.tf,x.figure,x.side,x.score,x.label,'Preço '+x.price,'Neckline '+x.neckline,'Invalidação '+x.invalid,'Resultado '+x.outcome].join(' | ')).join('\n'),'EGI_LAB_Reversao_Auditoria.txt','text/plain;charset=utf-8')};
+window.egiLabImport=async function(ev){const f=ev.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(j.app!=='EGI LAB REVERSAO INDEX5'||!Array.isArray(j.records))throw Error('Arquivo não pertence a este laboratório');const merged=[...records(),...j.records.filter(x=>x&&typeof x.id==='string'&&outcomes.includes(x.outcome))];const unique=[...new Map(merged.map(x=>[x.id,x])).values()].sort((a,b)=>String(b.time).localeCompare(String(a.time)));if(!confirm('Importar '+j.records.length+' registros e mesclar por ID com os atuais?'))return;persist(unique);render()}catch(e){alert('Importação recusada: '+e.message)}finally{ev.target.value=''}};
+window.addEventListener('load',()=>{render();update();});
+if(typeof window.renderReversalPanel==='function'){const prev=window.renderReversalPanel;window.renderReversalPanel=function(...args){const ret=prev.apply(this,args);try{update()}catch(e){console.warn('EGI Lab painel:',e)}return ret}}
+})();
+</script>
+
 </body>
 </html>
