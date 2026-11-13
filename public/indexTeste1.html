@@ -1,6 +1,6 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EGI LAB V2.6 • Biblioteca e Transcrição</title><style>:root{color-scheme:dark;font-family:system-ui,Arial;background:#0b1220;color:#e9f0ff}*{box-sizing:border-box}body{margin:0;max-width:1080px;padding:20px;margin:auto}h1{font-size:1.55rem}h2{font-size:1.1rem;margin:0 0 12px}small,.muted{color:#a6b7d0}section{background:#172337;border:1px solid #31435f;border-radius:14px;padding:18px;margin:14px 0}label{display:block;margin:10px 0 5px;font-size:.9rem}input,textarea,select{width:100%;background:#0d192a;color:white;border:1px solid #45607f;border-radius:8px;padding:10px;font:inherit}textarea{min-height:160px;resize:vertical}button{border:0;background:#2d79cf;color:white;padding:10px 14px;border-radius:8px;margin:4px 5px 4px 0;cursor:pointer;font-weight:600}button.secondary{background:#354b69}button.warn{background:#a6474a}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.item{border:1px solid #38516d;border-radius:10px;padding:12px;margin:10px 0}.item strong{overflow-wrap:anywhere}.status{color:#aee6c6;min-height:1.4em}.row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.badge{display:inline-block;border-radius:8px;background:#354c67;padding:3px 8px;font-size:.75rem}a{color:#9fd0ff}#player{width:100%;aspect-ratio:16/9;border:0;background:#09111d;border-radius:10px}summary{cursor:pointer}code{overflow-wrap:anywhere}</style></head><body><h1>🎙️ Live → Texto EGI <span class="badge">V2.6 LAB</span></h1><p class="muted">Biblioteca local de links, transcrições, busca e auditoria. Versão independente: não altera o index32.html.</p>
 <section id="egi26" style="border:2px solid #45d3ab">
-<h2>🎤 2.6 · Captura da aba e transcrição ao vivo</h2>
+<h2>🎤 V2.6.1 LAB · Diagnóstico de áudio e reconhecimento</h2>
 <p class="muted">Windows 11 + Chrome 135 ou superior. Abra a live, clique em <b>Capturar áudio da aba</b>, escolha a aba com a live e marque <b>Compartilhar áudio da guia</b>. Não usa microfone. Apenas assistir ao vídeo não inicia a transcrição.</p>
 <div class="row">
 <button type="button" id="egi26start">▶ Capturar áudio + transcrever</button>
@@ -10,7 +10,7 @@
 <button type="button" id="egi26recover" class="secondary">↶ Recuperar texto de emergência</button>
 </div>
 <p id="egi26status" role="status" style="color:#aee6c6">Pronto para capturar. Nenhum áudio ou texto foi capturado ainda.</p>
-<p id="egi26detail" class="muted"></p>
+<p id="egi26detail" class="muted"></p><p id="egi26meter" class="muted">Nível do áudio: ainda não medido</p><button type="button" id="egi26retry" class="secondary" disabled>↻ Tentar reconhecimento novamente</button>
 <div style="border-radius:10px;background:#0d192a;padding:12px;margin-top:10px">
 <strong>Diagnóstico</strong>
 <pre id="egi26log" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:150px;overflow:auto;font-size:12px">Aguardando início...</pre>
@@ -20,25 +20,26 @@
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-let stream=null,recorder=null,chunks=[],recognizer=null,active=false,restarts=0,recognized=0,starting=false,lastError='',autosaveTimer=null;
+let stream=null,recorder=null,chunks=[],recognizer=null,active=false,restarts=0,recognized=0,starting=false,lastError='',autosaveTimer=null,noSpeech=0,audioContext=null,analyser=null,audioSource=null,audioSamples=null,audioPeak=0,meterTimer=null,recognitionEnabled=false;
 const KEY='EGI_V26_TRANSCRICAO_EMERGENCIA';
 const status=(s,error=false)=>{$('egi26status').textContent=s;$('egi26status').style.color=error?'#ffa5a5':'#aee6c6'};
 const log=s=>{const t=new Date().toLocaleTimeString('pt-BR')+' · '+s;$('egi26log').textContent=t+'\n'+$('egi26log').textContent.slice(0,3500)};
 function emergency(){try{const val=$('transcript').value;localStorage.setItem(KEY,JSON.stringify({text:val,when:new Date().toISOString()}))}catch(e){log('Backup local indisponível: '+e.message)}}
-function append(txt){txt=String(txt||'').trim();if(!txt)return;const area=$('transcript');area.value+=(area.value.trim()?'\n':'')+'['+new Date().toLocaleTimeString('pt-BR')+'] '+txt;area.dispatchEvent(new Event('input',{bubbles:true}));recognized++;emergency();$('egi26detail').textContent=recognized+' trecho(s) reconhecido(s). Reinícios do reconhecedor: '+restarts;status('Transcrevendo: '+recognized+' trecho(s) registrados');}
+function append(txt){txt=String(txt||'').trim();if(!txt)return;const area=$('transcript');area.value+=(area.value.trim()?'\n':'')+'['+new Date().toLocaleTimeString('pt-BR')+'] '+txt;area.dispatchEvent(new Event('input',{bubbles:true}));recognized++;noSpeech=0;emergency();$('egi26detail').textContent=recognized+' trecho(s) reconhecido(s). Reinícios do reconhecedor: '+restarts;status('Transcrevendo: '+recognized+' trecho(s) registrados');}
 function download(name,blob){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),15000)}
 function saveText(){const t=$('transcript').value;if(!t.trim()){status('Ainda não há texto reconhecido para salvar.',true);return}download('Live_Texto_EGI_V2_6_'+new Date().toISOString().replace(/[:.]/g,'-')+'.txt',new Blob([t],{type:'text/plain;charset=utf-8'}));emergency();log('TXT solicitado.')}
 function saveAudio(){if(!chunks.length){status('Nenhum áudio gravado. Verifique a opção Compartilhar áudio da guia.',true);return}const mime=recorder?.mimeType||'audio/webm';download('Live_Audio_EGI_V2_6_'+new Date().toISOString().replace(/[:.]/g,'-')+'.webm',new Blob(chunks,{type:mime}));log('Download WEBM solicitado.')}
+function monitorAudio(audioOnly){try{audioContext=new (window.AudioContext||window.webkitAudioContext)();analyser=audioContext.createAnalyser();analyser.fftSize=2048;audioSource=audioContext.createMediaStreamSource(audioOnly);audioSource.connect(analyser);audioSamples=new Float32Array(analyser.fftSize);meterTimer=setInterval(()=>{if(!analyser)return;analyser.getFloatTimeDomainData(audioSamples);let sum=0;for(const v of audioSamples)sum+=v*v;const rms=Math.sqrt(sum/audioSamples.length);audioPeak=Math.max(audioPeak,rms);const db=20*Math.log10(Math.max(rms,0.000001));$('egi26meter').textContent='Nível do áudio capturado: '+db.toFixed(1)+' dBFS · pico observado '+(20*Math.log10(Math.max(audioPeak,0.000001))).toFixed(1)+' dBFS'+(db < -58?' (silêncio ou volume muito baixo)':' (sinal detectado)');},400);audioContext.resume().catch(()=>{});}catch(e){log('Medidor de áudio indisponível: '+e.message)}}
 function startRecognizer(track){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){status('Reconhecimento de fala não disponível neste navegador. A gravação WEBM pode continuar.',true);log('SpeechRecognition ausente');return}
  function launch(){
- if(!active||track.readyState!=='live'||starting)return;
+ if(!active||!recognitionEnabled||track.readyState!=='live'||starting)return;
  const r=new SR();recognizer=r;r.lang='pt-BR';r.continuous=true;r.interimResults=true;r.maxAlternatives=1;starting=true;
  r.onstart=()=>{starting=false;status('Áudio da aba conectado. Ouvindo fala para transcrever...');log('Reconhecimento iniciado a partir da faixa de áudio, sem microfone.')};
- r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const a=e.results[i];if(a.isFinal)append(a[0]?.transcript||'')}};
- r.onerror=e=>{lastError=e.error||'desconhecido';log('Falha de transcrição: '+lastError);if(['not-allowed','service-not-allowed','language-not-supported','audio-capture'].includes(lastError)){status('Transcrição bloqueada: '+lastError+'. O WEBM continua sendo gravado.',true);active=false;return}status('Problema de reconhecimento: '+lastError+'. Tentando recuperar... ',true)};
- r.onend=()=>{starting=false;if(active&&track.readyState==='live'){restarts++;log('Reconhecimento interrompido; reinício '+restarts);setTimeout(launch,700)}};
+ r.onresult=e=>{noSpeech=0;for(let i=e.resultIndex;i<e.results.length;i++){const a=e.results[i];if(a.isFinal)append(a[0]?.transcript||'')}};
+ r.onerror=e=>{lastError=e.error||'desconhecido';if(lastError==='aborted'&&!recognitionEnabled)return;log('Falha de transcrição: '+lastError);if(['not-allowed','service-not-allowed','language-not-supported','audio-capture'].includes(lastError)){status('Reconhecimento bloqueado: '+lastError+'. A gravação WEBM continua. ',true);recognitionEnabled=false;$('egi26retry').disabled=false;return}if(lastError==='no-speech'){noSpeech++;if(noSpeech>=3){recognitionEnabled=false;$('egi26retry').disabled=false;status('Reconhecimento pausado após 3 erros no-speech. Confira o medidor de áudio, salve o WEBM e use Tentar novamente.',true);log('Repetições limitadas; captura WEBM mantida.');return}}status('Falha: '+lastError+'. Tentativa '+noSpeech+'/3; gravação continua.',true)};
+ r.onend=()=>{starting=false;if(active&&recognitionEnabled&&track.readyState==='live'){restarts++;log('Reconhecimento interrompido; reinício '+restarts);setTimeout(launch,700)}};
  try{r.start(track);log('start(audioTrack) solicitado.')}catch(e){starting=false;lastError=e.message;log('Falha em start(audioTrack): '+e.message);status('Não foi possível transcrever a faixa de áudio; WEBM continua gravando. '+e.message,true)}
  }
  launch();
@@ -52,13 +53,13 @@ async function begin(){
  stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
  const tracks=stream.getAudioTracks();if(!tracks.length){status('A aba foi compartilhada SEM áudio. Encerre e marque Compartilhar áudio da guia.',true);log('Nenhuma faixa de áudio recebida');stream.getTracks().forEach(t=>t.stop());stream=null;return}
  const track=tracks[0];log('Faixa de áudio ativa: '+track.label+' ('+track.readyState+')');
- chunks=[];recognized=0;restarts=0;active=true;lastError='';starting=false;
+ chunks=[];recognized=0;restarts=0;noSpeech=0;audioPeak=0;active=true;recognitionEnabled=true;lastError='';starting=false;$('egi26retry').disabled=true;
  const audioOnly=new MediaStream([track]);
  const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
  recorder=new MediaRecorder(audioOnly,{mimeType:mime});
  recorder.ondataavailable=e=>{if(e.data?.size){chunks.push(e.data);$('egi26audio').disabled=false}};
  recorder.onerror=e=>log('Erro na gravação: '+(e.error?.message||'desconhecido'));
- recorder.start(5000);
+ recorder.start(5000);monitorAudio(audioOnly);
  stream.getVideoTracks().forEach(t=>t.addEventListener('ended',stop,{once:true}));
  track.addEventListener('ended',stop,{once:true});
  $('egi26start').disabled=true;$('egi26stop').disabled=false;
@@ -67,14 +68,15 @@ async function begin(){
  }catch(e){log('Falha ao compartilhar: '+e.message);status('Captura cancelada ou negada: '+e.message,true);stream?.getTracks().forEach(t=>t.stop());stream=null;active=false}
 }
 function stop(){
- const had=!!stream;active=false;starting=false;
+ const had=!!stream;active=false;recognitionEnabled=false;starting=false;
  try{recognizer?.abort()}catch{}
  recognizer=null;
  try{if(recorder?.state==='recording')recorder.stop()}catch(e){log(e.message)}
- stream?.getTracks().forEach(t=>t.stop());stream=null;clearInterval(autosaveTimer);emergency();
+ stream?.getTracks().forEach(t=>t.stop());stream=null;clearInterval(autosaveTimer);clearInterval(meterTimer);meterTimer=null;audioSource?.disconnect();audioSource=null;analyser=null;audioContext?.close().catch(()=>{});audioContext=null;emergency();$('egi26retry').disabled=true;
  $('egi26start').disabled=false;$('egi26stop').disabled=true;
  if(had){status('Captura encerrada: '+recognized+' trecho(s) reconhecido(s). Salve TXT e WEBM.');log('Captura encerrada. Áudio registrado em '+chunks.length+' bloco(s).')}
 }
+$('egi26retry').addEventListener('click',()=>{if(!stream?.getAudioTracks()[0]){status('Inicie a captura da aba primeiro.',true);return}noSpeech=0;recognitionEnabled=true;$('egi26retry').disabled=true;try{recognizer?.abort()}catch{}setTimeout(()=>startRecognizer(stream.getAudioTracks()[0]),450);status('Nova tentativa de reconhecimento solicitada.');});
 $('egi26start').addEventListener('click',begin);$('egi26stop').addEventListener('click',stop);
 $('egi26txt').addEventListener('click',saveText);$('egi26audio').addEventListener('click',saveAudio);
 $('egi26recover').addEventListener('click',()=>{try{const item=JSON.parse(localStorage.getItem(KEY)||'null');if(!item?.text){status('Nenhuma transcrição de emergência armazenada.',true);return}if($('transcript').value.trim()&&!confirm('Substituir o texto atual pelo backup de emergência?'))return;$('transcript').value=item.text;$('transcript').dispatchEvent(new Event('input',{bubbles:true}));status('Texto de emergência recuperado de '+item.when)}catch(e){status('Falha ao recuperar: '+e.message,true)}});
