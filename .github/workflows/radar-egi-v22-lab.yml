@@ -1,0 +1,33 @@
+name: Radar EGI V2.2 LAB
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: radar-egi-v22-lab
+  cancel-in-progress: false
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Executar radar
+        env:
+          ENABLE_NTFY: 'true'
+          NTFY_TOPIC: RadarIA_11
+        run: python public/lab/radar_egi_v22/bot.py
+      - name: Persistir estado LAB
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/lab/radar_egi_v22/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(lab): atualizar estado Radar EGI V2.2"
+            git push
+          fi
