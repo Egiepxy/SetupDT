@@ -1,0 +1,26 @@
+name: Radar EGI V2.4 LAB — testes isolados
+on:
+  push:
+    branches:
+      - lab/radar-egi-v24
+    paths:
+      - 'public/lab/radar_egi_v24/*.py'
+      - '.github/workflows/radar-egi-v24-lab.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lab/radar-egi-v24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testes unitarios offline
+        run: python -m unittest discover -s public/lab/radar_egi_v24 -p 'tests.py' -v
+      - name: Compilacao
+        run: python -m py_compile public/lab/radar_egi_v24/bot.py public/lab/radar_egi_v24/audit.py public/lab/radar_egi_v24/tests.py
