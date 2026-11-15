@@ -51,7 +51,7 @@
       "createdAt": "2026-11-15T04:20:34.128709+00:00"
     }
   ],
-  "lastRun": "2026-11-15T04:20:34.128721+00:00",
+  "lastRun": "2026-11-15T04:20:58.504308+00:00",
   "multi": {
     "15m": {
       "BTC": {
@@ -353,25 +353,25 @@
   "errors": [],
   "diagnostics": {
     "XRP": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 4.71,
       "price": 0.9725
     },
     "LINK": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 1.58,
       "price": 9.146
     },
     "ETH": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 1.75,
       "price": 1820.57
     },
     "SOL": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 0.497,
       "price": 71.45
@@ -388,8 +388,8 @@
   "delivery": {
     "sent": 0,
     "failed": 0,
-    "disabled": 4,
-    "duplicates": 0
+    "disabled": 0,
+    "duplicates": 4
   },
   "bySymbol": {
     "XRP": {
