@@ -1,0 +1,77 @@
+name: Radar EGI V2.4 LAB — automático 15min
+on:
+  schedule:
+    - cron: '0,15,30,45 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: radar-egi-v24-lab
+  cancel-in-progress: false
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout LAB (não altera main)
+        uses: actions/checkout@v4
+        with:
+          ref: lab/radar-egi-v24
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testes unitários e compilação
+        run: |
+          python -m unittest discover -s public/lab/radar_egi_v24 -p 'tests.py' -v
+          python -m py_compile public/lab/radar_egi_v24/bot.py public/lab/radar_egi_v24/audit.py
+      - name: Coletar Binance Spot (candles fechados) e atualizar JSON
+        env:
+          ENABLE_NTFY: 'false'
+          NTFY_TEST: 'false'
+          NTFY_TOPIC: RadarIA_11
+        run: python public/lab/radar_egi_v24/bot.py
+      - name: Verificar coleta real e estado persistível
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("public/lab/radar_egi_v24/state.json")
+          s=json.loads(p.read_text(encoding="utf-8"))
+          expected={"15m","1h","2h","4h"}
+          symbols={"BTC","XRP","LINK","ETH","SOL","ONDO"}
+          multi=s.get("multi",{})
+          counts={tf:len(multi.get(tf,{})) for tf in expected}
+          errors=s.get("errors",[])
+          print("Candles fechados coletados por TF:",counts)
+          print("Observações:",len(s.get("events",[])),"Trades simulados:",len(s.get("paperTrades",[])))
+          print("ntfy:",s.get("ntfyTest",{}),"auditoria:",s.get("audit",{}))
+          if errors:print("Erros:",errors)
+          assert all(symbols.issubset(set(multi.get(tf,{}))) for tf in expected), "Coleta incompleta"
+          assert not errors, "Erro(s) Binance Spot"
+          assert s.get("version")=="2.4-LAB"
+          assert s.get("ntfyTest",{}).get("mode")=="dry-run", "Notificação deve ficar desativada"
+          assert s.get("history"), "Histórico JSON ausente"
+          assert isinstance(s.get("audit"),dict) and isinstance(s.get("paperTrades"),list)
+          for tf,items in multi.items():
+              for symbol,m in items.items():
+                  assert m.get("end") and m.get("price",0)>0, f"Dado inválido: {symbol} {tf}"
+          print("VALIDAÇÃO REAL VERDE: 24 pares, candles fechados, estado e ntfy desligado")
+          PY
+      - name: Salvar histórico JSON somente na branch V2.4 LAB
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/lab/radar_egi_v24/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(lab): persistir histórico Radar EGI V2.4"
+            git push origin HEAD:lab/radar-egi-v24
+          else
+            echo "Sem mudanças no histórico"
+          fi
+      - name: Anexar snapshot JSON da execução
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-egi-v24-state
+          path: public/lab/radar_egi_v24/state.json
+          retention-days: 30
