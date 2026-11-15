@@ -47,7 +47,7 @@ def main():
         if key not in cache:cache[key]=get(symbol,tf)
         return cache[key]
     state=json.loads(STATE.read_text()) if STATE.exists() else {"sent":[],"events":[]}
-    sent=set(state.get("sent",[])); multi={};errors=[];new=[];diagnostics={}
+    sent=set(state.get("sent",[])); known={e.get("id") for e in state.get("events",[]) if e.get("id")}; multi={};errors=[];new=[];diagnostics={}
     delivery={"sent":0,"failed":0,"disabled":0,"duplicates":0}
     for tf in TFS:
         multi[tf]={}
@@ -83,7 +83,9 @@ def main():
                "relative":round(relative,2),
                "createdAt":datetime.datetime.now(datetime.timezone.utc).isoformat(),
                "origin":"V2.4"}
-        new.append(event)
+        if key not in known:
+            new.append(event)
+            known.add(key)
         msg=f'OBSERVAR {sym}USDT 15m | Preço {a["price"]:.8g} USDT | RSI {a["rsi"]} | Força vs BTC {relative:+.2f}pp | Candle fechado. NÃO É ENTRADA.'
         if os.getenv("ENABLE_NTFY")!="true":
             delivery["disabled"]+=1
