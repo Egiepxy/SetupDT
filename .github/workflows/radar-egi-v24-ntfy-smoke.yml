@@ -1,0 +1,44 @@
+name: Radar EGI V2.4 LAB — teste real ntfy
+on:
+  push:
+    branches:
+      - lab/radar-egi-v24
+    paths:
+      - '.github/workflows/radar-egi-v24-ntfy-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ntfy-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Enviar somente uma mensagem TESTE para RadarIA_11
+        env:
+          NTFY_TOPIC: RadarIA_11
+        run: |
+          python - <<'PY'
+          import datetime,json,urllib.request,urllib.parse
+          from urllib.error import HTTPError
+          topic="RadarIA_11"
+          stamp=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          data=("TESTE DE ENTREGA Radar EGI V2.4 LAB | "+stamp+" | Mensagem de teste; nao e sinal, nao e entrada.").encode()
+          request=urllib.request.Request(
+             "https://ntfy.sh/"+urllib.parse.quote(topic,safe=""),
+             data=data,
+             headers={"Title":"EGI V2.4 LAB - TESTE","Tags":"test_tube","Priority":"low"},
+             method="POST")
+          try:
+              with urllib.request.urlopen(request,timeout=15) as response:
+                  payload=response.read().decode("utf-8","replace")
+                  print("NTFY_HTTP_STATUS",response.status)
+                  print("NTFY_RESPONSE",payload[:750])
+                  assert response.status in (200,201), "ntfy nao aceitou envio"
+                  obj=json.loads(payload)
+                  assert obj.get("topic")==topic, "topico inesperado"
+                  assert obj.get("id"), "sem identificador de mensagem ntfy"
+                  print("NTFY_TEST_ACCEPTED",obj.get("id"))
+          except HTTPError as exc:
+              print("NTFY_HTTP_ERROR",exc.code,exc.read().decode("utf-8","replace")[:500])
+              raise
+          PY
