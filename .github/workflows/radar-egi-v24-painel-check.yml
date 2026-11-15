@@ -1,0 +1,37 @@
+name: Radar EGI V2.4 LAB — validar painel HTML
+on:
+  push:
+    branches:
+      - lab/radar-egi-v24
+    paths:
+      - 'public/lab/radar_egi_v24/painel_auditoria.html'
+      - '.github/workflows/radar-egi-v24-painel-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lab/radar-egi-v24
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar interface e extrair JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path("public/lab/radar_egi_v24/painel_auditoria.html").read_text(encoding="utf-8")
+          required=("id=\"totals\"","id=\"summary\"","id=\"trades\"","id=\"professor\"","id=\"history\"","id=\"refresh\"","id=\"import\"","id=\"download\"","id=\"export\"","raw.githubusercontent.com/Egiepxy/SetupDT/lab/radar-egi-v24")
+          assert all(s in html for s in required), "Componentes ausentes"
+          scripts=re.findall(r"<script[^>]*>([\s\S]*?)</script>",html)
+          assert len(scripts)==1 and scripts[0].strip(), "JavaScript ausente"
+          Path("/tmp/radar-egi-v24-panel.js").write_text(scripts[0],encoding="utf-8")
+          print("HTML validado: componentes de auditoria e fonte GitHub")
+          PY
+      - name: Verificar sintaxe JavaScript
+        run: node --check /tmp/radar-egi-v24-panel.js
