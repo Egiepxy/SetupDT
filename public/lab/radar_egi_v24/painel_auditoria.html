@@ -21,7 +21,7 @@ const valid=s=>s&&Array.isArray(s.events)&&Array.isArray(s.paperTrades)&&Array.i
 function render(){
 if(!state)return;
 const trades=state.paperTrades,closed=trades.filter(isClosed),wins=closed.filter(t=>Number(t.realizedR)>0).length;
-const stats=[["Observações",state.events.length],["Abertas",trades.filter(t=>t.status==="ABERTO").length],["Fechadas",closed.length],["Acerto",closed.length?n(100*wins/closed.length,1)+"%":"Sem amostra"],["1R / 2R / 3R",[1,2,3].map(k=>trades.filter(t=>t.hit?.[k+"R"]).length).join(" / ")]],["Snapshots",state.history.length]];
+const stats=[["Observações",state.events.length],["Abertas",trades.filter(t=>t.status==="ABERTO").length],["Fechadas",closed.length],["Acerto",closed.length?n(100*wins/closed.length,1)+"%":"Sem amostra"],["1R / 2R / 3R",[1,2,3].map(k=>trades.filter(t=>t.hit?.[k+"R"]).length).join(" / ")],["Snapshots",state.history.length]];
 $("totals").replaceChildren();stats.forEach(([a,b])=>{let el=elem("div",undefined,"stat");el.append(elem("span",a),elem("strong",b));$("totals").append(el)});
 const syms=Object.keys(state.audit).sort();const selected=$("symbol").value;$("symbol").replaceChildren(new Option("Todas",""));syms.forEach(s=>$("symbol").add(new Option(s,s)));if(syms.includes(selected))$("symbol").value=selected;
 $("summary").replaceChildren();syms.filter(s=>!$("symbol").value||$("symbol").value===s).forEach(s=>{let a=state.audit[s];row($("summary"),[s,a.signals??0,a.open??0,a.closed??0,a.winRate==null?"—":n(a.winRate,1)+"% ("+(a.sample||"")+")",[(a.hit1R||0),(a.hit2R||0),(a.hit3R||0)].join(" / "),a.payoff==null?"—":n(a.payoff),n(a.totalR||0)+"R"])});
