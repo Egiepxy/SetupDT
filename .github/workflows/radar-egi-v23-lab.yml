@@ -1,0 +1,33 @@
+name: Radar EGI V2.3 LAB (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: radar-egi-v23-lab
+  cancel-in-progress: false
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lab/radar-egi-v23
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Executar radar V2.3
+        env:
+          ENABLE_NTFY: 'false'
+          NTFY_TOPIC: RadarIA_11
+        run: python public/lab/radar_egi_v23/bot.py
+      - name: Persistir estado V2.3 LAB
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/lab/radar_egi_v23/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(lab): estado Radar EGI V2.3"
+            git push origin HEAD:lab/radar-egi-v23
+          fi
