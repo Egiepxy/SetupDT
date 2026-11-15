@@ -3,8 +3,11 @@
   "sent": [
     "ETH|15m|1794716099999|OBS",
     "LINK|15m|1794716099999|OBS",
+    "LINK|15m|1794716999999|OBS",
     "SOL|15m|1794716099999|OBS",
-    "XRP|15m|1794716099999|OBS"
+    "SOL|15m|1794716999999|OBS",
+    "XRP|15m|1794716099999|OBS",
+    "XRP|15m|1794716999999|OBS"
   ],
   "events": [
     {
@@ -54,6 +57,42 @@
       "relative": 0.5,
       "createdAt": "2026-11-15T04:28:00.139831+00:00",
       "origin": "V2.4"
+    },
+    {
+      "id": "XRP|15m|1794716999999|OBS",
+      "a": "XRP",
+      "tf": "15m",
+      "end": 1794716999999,
+      "price": 0.9761,
+      "kind": "OBSERVAÇÃO",
+      "state": "AGUARDANDO CONFIRMAÇÃO",
+      "relative": 4.71,
+      "createdAt": "2026-11-15T04:30:43.412850+00:00",
+      "origin": "V2.4"
+    },
+    {
+      "id": "LINK|15m|1794716999999|OBS",
+      "a": "LINK",
+      "tf": "15m",
+      "end": 1794716999999,
+      "price": 9.161,
+      "kind": "OBSERVAÇÃO",
+      "state": "AGUARDANDO CONFIRMAÇÃO",
+      "relative": 1.58,
+      "createdAt": "2026-11-15T04:30:43.412890+00:00",
+      "origin": "V2.4"
+    },
+    {
+      "id": "SOL|15m|1794716999999|OBS",
+      "a": "SOL",
+      "tf": "15m",
+      "end": 1794716999999,
+      "price": 71.47,
+      "kind": "OBSERVAÇÃO",
+      "state": "AGUARDANDO CONFIRMAÇÃO",
+      "relative": 0.5,
+      "createdAt": "2026-11-15T04:30:43.412907+00:00",
+      "origin": "V2.4"
     }
   ],
   "paperTrades": [
@@ -62,45 +101,55 @@
       "symbol": "XRP",
       "timeframe": "15m",
       "signalEnd": 1794716099999,
-      "status": "PENDENTE",
-      "entry": null,
-      "stop": null,
-      "risk": null,
-      "targets": {},
+      "status": "ABERTO",
+      "entry": 0.9761,
+      "stop": 0.9640785714285715,
+      "risk": 0.012021428571428556,
+      "targets": {
+        "1R": 0.9881214285714285,
+        "2R": 1.000142857142857,
+        "3R": 1.0121642857142856
+      },
       "hit": {
         "1R": false,
         "2R": false,
         "3R": false
       },
-      "evaluatedTo": 1794716099999,
+      "evaluatedTo": 1794716999999,
       "createdAt": "2026-11-15T04:28:00.139887+00:00",
-      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
+      "professor": "Simulação LONG confirmada após candle fechado; stop e metas fixadas. Não é ordem.",
+      "entryEnd": 1794716999999
     },
     {
       "eventId": "LINK|15m|1794716099999|OBS",
       "symbol": "LINK",
       "timeframe": "15m",
       "signalEnd": 1794716099999,
-      "status": "PENDENTE",
-      "entry": null,
-      "stop": null,
-      "risk": null,
-      "targets": {},
+      "status": "ABERTO",
+      "entry": 9.161,
+      "stop": 9.054071428571428,
+      "risk": 0.10692857142857141,
+      "targets": {
+        "1R": 9.267928571428572,
+        "2R": 9.374857142857142,
+        "3R": 9.481785714285714
+      },
       "hit": {
         "1R": false,
         "2R": false,
         "3R": false
       },
-      "evaluatedTo": 1794716099999,
+      "evaluatedTo": 1794716999999,
       "createdAt": "2026-11-15T04:28:00.139937+00:00",
-      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
+      "professor": "Simulação LONG confirmada após candle fechado; stop e metas fixadas. Não é ordem.",
+      "entryEnd": 1794716999999
     },
     {
       "eventId": "ETH|15m|1794716099999|OBS",
       "symbol": "ETH",
       "timeframe": "15m",
       "signalEnd": 1794716099999,
-      "status": "PENDENTE",
+      "status": "INVALIDADO",
       "entry": null,
       "stop": null,
       "risk": null,
@@ -112,13 +161,39 @@
       },
       "evaluatedTo": 1794716099999,
       "createdAt": "2026-11-15T04:28:00.139982+00:00",
-      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
+      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar.",
+      "closedAt": 1794716999999,
+      "realizedR": null
     },
     {
       "eventId": "SOL|15m|1794716099999|OBS",
       "symbol": "SOL",
       "timeframe": "15m",
       "signalEnd": 1794716099999,
+      "status": "ABERTO",
+      "entry": 71.47,
+      "stop": 70.56714285714285,
+      "risk": 0.9028571428571419,
+      "targets": {
+        "1R": 72.37285714285714,
+        "2R": 73.27571428571429,
+        "3R": 74.17857142857143
+      },
+      "hit": {
+        "1R": false,
+        "2R": false,
+        "3R": false
+      },
+      "evaluatedTo": 1794716999999,
+      "createdAt": "2026-11-15T04:28:00.140020+00:00",
+      "professor": "Simulação LONG confirmada após candle fechado; stop e metas fixadas. Não é ordem.",
+      "entryEnd": 1794716999999
+    },
+    {
+      "eventId": "XRP|15m|1794716999999|OBS",
+      "symbol": "XRP",
+      "timeframe": "15m",
+      "signalEnd": 1794716999999,
       "status": "PENDENTE",
       "entry": null,
       "stop": null,
@@ -129,8 +204,46 @@
         "2R": false,
         "3R": false
       },
-      "evaluatedTo": 1794716099999,
-      "createdAt": "2026-11-15T04:28:00.140020+00:00",
+      "evaluatedTo": 1794716999999,
+      "createdAt": "2026-11-15T04:30:43.412988+00:00",
+      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
+    },
+    {
+      "eventId": "LINK|15m|1794716999999|OBS",
+      "symbol": "LINK",
+      "timeframe": "15m",
+      "signalEnd": 1794716999999,
+      "status": "PENDENTE",
+      "entry": null,
+      "stop": null,
+      "risk": null,
+      "targets": {},
+      "hit": {
+        "1R": false,
+        "2R": false,
+        "3R": false
+      },
+      "evaluatedTo": 1794716999999,
+      "createdAt": "2026-11-15T04:30:43.413117+00:00",
+      "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
+    },
+    {
+      "eventId": "SOL|15m|1794716999999|OBS",
+      "symbol": "SOL",
+      "timeframe": "15m",
+      "signalEnd": 1794716999999,
+      "status": "PENDENTE",
+      "entry": null,
+      "stop": null,
+      "risk": null,
+      "targets": {},
+      "hit": {
+        "1R": false,
+        "2R": false,
+        "3R": false
+      },
+      "evaluatedTo": 1794716999999,
+      "createdAt": "2026-11-15T04:30:43.413231+00:00",
       "professor": "Ainda não houve candle fechado de confirmação; observar, não entrar."
     }
   ],
@@ -294,14 +407,94 @@
         }
       },
       "errors": []
+    },
+    {
+      "at": "2026-11-15T04:30:43.413440+00:00",
+      "signals": 7,
+      "paperTrades": 7,
+      "audit": {
+        "XRP": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "LINK": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "ETH": {
+          "signals": 1,
+          "confirmed": 0,
+          "invalidated": 1,
+          "open": 0,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "SOL": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        }
+      },
+      "errors": []
     }
   ],
   "audit": {
     "XRP": {
-      "signals": 1,
-      "confirmed": 0,
+      "signals": 2,
+      "confirmed": 1,
       "invalidated": 0,
-      "open": 0,
+      "open": 1,
       "closed": 0,
       "wins": 0,
       "losses": 0,
@@ -316,10 +509,10 @@
       "sample": "sem operações fechadas"
     },
     "LINK": {
-      "signals": 1,
-      "confirmed": 0,
+      "signals": 2,
+      "confirmed": 1,
       "invalidated": 0,
-      "open": 0,
+      "open": 1,
       "closed": 0,
       "wins": 0,
       "losses": 0,
@@ -336,7 +529,7 @@
     "ETH": {
       "signals": 1,
       "confirmed": 0,
-      "invalidated": 0,
+      "invalidated": 1,
       "open": 0,
       "closed": 0,
       "wins": 0,
@@ -352,10 +545,10 @@
       "sample": "sem operações fechadas"
     },
     "SOL": {
-      "signals": 1,
-      "confirmed": 0,
+      "signals": 2,
+      "confirmed": 1,
       "invalidated": 0,
-      "open": 0,
+      "open": 1,
       "closed": 0,
       "wins": 0,
       "losses": 0,
@@ -371,80 +564,80 @@
     }
   },
   "errors": [],
-  "lastRun": "2026-11-15T04:30:14.979435+00:00",
+  "lastRun": "2026-11-15T04:30:43.412922+00:00",
   "multi": {
     "15m": {
       "BTC": {
-        "price": 64914.33,
-        "rsi": 56.08,
-        "rsiPrev": 55.2,
-        "e9": 64658.37446170688,
-        "e21": 64381.911002962144,
-        "e80": 65339.772831089074,
-        "e200": 67295.0309666832,
-        "rv": 0.3092230892840905,
-        "ret": -0.4430304034157784,
-        "end": 1794716099999
+        "price": 64934.5,
+        "rsi": 56.29,
+        "rsiPrev": 56.08,
+        "e9": 64713.599569365506,
+        "e21": 64432.14636634212,
+        "e80": 65329.607310608946,
+        "e200": 67274.4706336464,
+        "rv": 0.2294372013360209,
+        "ret": -0.1007845998793,
+        "end": 1794716999999
       },
       "XRP": {
-        "price": 0.9725,
-        "rsi": 70.23,
-        "rsiPrev": 68.2,
-        "e9": 0.9564657541391237,
-        "e21": 0.9425675531863306,
-        "e80": 0.9537161640508872,
-        "e200": 0.9869426021883186,
-        "rv": 0.9361317529134492,
-        "ret": 1.049459684123022,
-        "end": 1794716099999
+        "price": 0.9761,
+        "rsi": 71.53,
+        "rsiPrev": 70.23,
+        "e9": 0.9603926033112989,
+        "e21": 0.9456159574429152,
+        "e80": 0.9542681154561247,
+        "e200": 0.9870957342430653,
+        "rv": 0.7034488859507745,
+        "ret": 1.3708588638487784,
+        "end": 1794716999999
       },
       "LINK": {
-        "price": 9.146,
-        "rsi": 62.95,
-        "rsiPrev": 61.47,
-        "e9": 9.067797938751914,
-        "e21": 8.984495567116783,
-        "e80": 9.147379539637834,
-        "e200": 9.535458494550278,
-        "rv": 0.2797962969275287,
-        "ret": 0.17524644030668668,
-        "end": 1794716099999
+        "price": 9.161,
+        "rsi": 63.79,
+        "rsiPrev": 62.95,
+        "e9": 9.086438351001531,
+        "e21": 9.000541424650027,
+        "e80": 9.147701847302189,
+        "e200": 9.534540177577227,
+        "rv": 0.2072638227812835,
+        "ret": 0.6924598812925842,
+        "end": 1794716999999
       },
       "ETH": {
-        "price": 1820.57,
-        "rsi": 61.3,
-        "rsiPrev": 60.81,
-        "e9": 1807.170686557399,
-        "e21": 1791.4316692646148,
-        "e80": 1823.6151973187605,
-        "e200": 1889.1717037247065,
-        "rv": 0.6631537718672144,
-        "ret": -0.14863323241630644,
-        "end": 1794716099999
+        "price": 1818.87,
+        "rsi": 60.51,
+        "rsiPrev": 61.3,
+        "e9": 1809.5105492459193,
+        "e21": 1793.9260629685762,
+        "e80": 1823.4956454422882,
+        "e200": 1888.7641629101054,
+        "rv": 0.37670819968249153,
+        "ret": -0.08020523751187669,
+        "end": 1794716999999
       },
       "SOL": {
-        "price": 71.45,
-        "rsi": 56.64,
-        "rsiPrev": 56.09,
-        "e9": 71.05279017448545,
-        "e21": 70.62587829290155,
-        "e80": 72.35643898819477,
-        "e200": 75.98947996223582,
-        "rv": 0.4792560673172601,
-        "ret": -0.45973808860406695,
-        "end": 1794716099999
+        "price": 71.47,
+        "rsi": 56.79,
+        "rsiPrev": 56.64,
+        "e9": 71.13623213958836,
+        "e21": 70.70261662990997,
+        "e80": 72.33442964989341,
+        "e200": 75.96203199469338,
+        "rv": 1.5720021131307327,
+        "ret": 0.05599888002238984,
+        "end": 1794716999999
       },
       "ONDO": {
-        "price": 0.3029,
-        "rsi": 56.84,
-        "rsiPrev": 56.16,
-        "e9": 0.30127807288124764,
-        "e21": 0.29946910057590204,
-        "e80": 0.3082443264726102,
-        "e200": 0.32580497109207246,
-        "rv": 0.19307562380967516,
-        "ret": -0.1647989452867482,
-        "end": 1794716099999
+        "price": 0.3043,
+        "rsi": 59.23,
+        "rsiPrev": 56.84,
+        "e9": 0.3018824583049981,
+        "e21": 0.2999082732509424,
+        "e80": 0.30814571688082854,
+        "e200": 0.32569981124844755,
+        "rv": 0.488078680578015,
+        "ret": 0.9621765096217594,
+        "end": 1794716999999
       }
     },
     "1h": {
@@ -672,28 +865,30 @@
   },
   "diagnostics": {
     "XRP": {
-      "status": "DUPLICADO",
+      "status": "OBSERVAÇÃO CANDIDATA",
       "reasons": [],
       "relative": 4.71,
-      "price": 0.9725
+      "price": 0.9761
     },
     "LINK": {
-      "status": "DUPLICADO",
+      "status": "OBSERVAÇÃO CANDIDATA",
       "reasons": [],
       "relative": 1.58,
-      "price": 9.146
+      "price": 9.161
     },
     "ETH": {
-      "status": "DUPLICADO",
-      "reasons": [],
+      "status": "SEM SINAL",
+      "reasons": [
+        "RSI 15m não crescente"
+      ],
       "relative": 1.75,
-      "price": 1820.57
+      "price": 1818.87
     },
     "SOL": {
-      "status": "DUPLICADO",
+      "status": "OBSERVAÇÃO CANDIDATA",
       "reasons": [],
       "relative": 0.497,
-      "price": 71.45
+      "price": 71.47
     },
     "ONDO": {
       "status": "SEM SINAL",
@@ -701,24 +896,24 @@
         "RSI 1h não crescente"
       ],
       "relative": 0.49,
-      "price": 0.3029
+      "price": 0.3043
     }
   },
   "delivery": {
     "sent": 0,
     "failed": 0,
-    "disabled": 0,
-    "duplicates": 4
+    "disabled": 3,
+    "duplicates": 0
   },
   "bySymbol": {
     "XRP": {
-      "observations": 1,
+      "observations": 2,
       "resolved": 0,
       "wins": 0,
       "losses": 0
     },
     "LINK": {
-      "observations": 1,
+      "observations": 2,
       "resolved": 0,
       "wins": 0,
       "losses": 0
@@ -730,7 +925,7 @@
       "losses": 0
     },
     "SOL": {
-      "observations": 1,
+      "observations": 2,
       "resolved": 0,
       "wins": 0,
       "losses": 0
@@ -746,9 +941,9 @@
     "noLookahead": true,
     "legacyV23Excluded": true
   },
-  "auditUpdatedAt": "2026-11-15T04:30:14.979657+00:00",
+  "auditUpdatedAt": "2026-11-15T04:30:43.413420+00:00",
   "ntfyTest": {
-    "at": "2026-11-15T04:30:14.979672+00:00",
+    "at": "2026-11-15T04:30:43.413434+00:00",
     "mode": "dry-run",
     "topic": "RadarIA_11",
     "delivered": false
