@@ -27,7 +27,7 @@ jobs:
           python -m py_compile public/lab/radar_egi_v24/bot.py public/lab/radar_egi_v24/audit.py
       - name: Coletar Binance Spot (candles fechados) e atualizar JSON
         env:
-          ENABLE_NTFY: 'false'
+          ENABLE_NTFY: 'true'
           NTFY_TEST: 'false'
           NTFY_TOPIC: RadarIA_11
         run: python public/lab/radar_egi_v24/bot.py
@@ -45,18 +45,19 @@ jobs:
           errors=s.get("errors",[])
           print("Candles fechados coletados por TF:",counts)
           print("Observações:",len(s.get("events",[])),"Trades simulados:",len(s.get("paperTrades",[])))
-          print("ntfy:",s.get("ntfyTest",{}),"auditoria:",s.get("audit",{}))
+          print("ntfy teste:",s.get("ntfyTest",{}),"envios:",s.get("delivery",{}),"auditoria:",s.get("audit",{}))
           if errors:print("Erros:",errors)
           assert all(symbols.issubset(set(multi.get(tf,{}))) for tf in expected), "Coleta incompleta"
           assert not errors, "Erro(s) Binance Spot"
           assert s.get("version")=="2.4-LAB"
           assert s.get("ntfyTest",{}).get("mode")=="dry-run", "Notificação deve ficar desativada"
+          assert s.get("delivery",{}).get("failed",0)==0, "Falha de entrega ntfy"
           assert s.get("history"), "Histórico JSON ausente"
           assert isinstance(s.get("audit"),dict) and isinstance(s.get("paperTrades"),list)
           for tf,items in multi.items():
               for symbol,m in items.items():
                   assert m.get("end") and m.get("price",0)>0, f"Dado inválido: {symbol} {tf}"
-          print("VALIDAÇÃO REAL VERDE: 24 pares, candles fechados, estado e ntfy desligado")
+          print("VALIDAÇÃO REAL VERDE: 24 pares, candles fechados, estado persistível e ntfy habilitado para novas observações")
           PY
       - name: Salvar histórico JSON somente na branch V2.4 LAB
         run: |
