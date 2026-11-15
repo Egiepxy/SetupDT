@@ -487,6 +487,86 @@
         }
       },
       "errors": []
+    },
+    {
+      "at": "2026-11-15T04:41:15.568895+00:00",
+      "signals": 7,
+      "paperTrades": 7,
+      "audit": {
+        "XRP": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "LINK": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "ETH": {
+          "signals": 1,
+          "confirmed": 0,
+          "invalidated": 1,
+          "open": 0,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        },
+        "SOL": {
+          "signals": 2,
+          "confirmed": 1,
+          "invalidated": 0,
+          "open": 1,
+          "closed": 0,
+          "wins": 0,
+          "losses": 0,
+          "hit1R": 0,
+          "hit2R": 0,
+          "hit3R": 0,
+          "totalR": 0.0,
+          "grossWinR": 0.0,
+          "grossLossR": 0.0,
+          "winRate": null,
+          "payoff": null,
+          "sample": "sem operações fechadas"
+        }
+      },
+      "errors": []
     }
   ],
   "audit": {
@@ -564,7 +644,7 @@
     }
   },
   "errors": [],
-  "lastRun": "2026-11-15T04:30:43.412922+00:00",
+  "lastRun": "2026-11-15T04:41:15.568675+00:00",
   "multi": {
     "15m": {
       "BTC": {
@@ -865,13 +945,13 @@
   },
   "diagnostics": {
     "XRP": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 4.71,
       "price": 0.9761
     },
     "LINK": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 1.58,
       "price": 9.161
@@ -885,7 +965,7 @@
       "price": 1818.87
     },
     "SOL": {
-      "status": "OBSERVAÇÃO CANDIDATA",
+      "status": "DUPLICADO",
       "reasons": [],
       "relative": 0.497,
       "price": 71.47
@@ -902,8 +982,8 @@
   "delivery": {
     "sent": 0,
     "failed": 0,
-    "disabled": 3,
-    "duplicates": 0
+    "disabled": 0,
+    "duplicates": 3
   },
   "bySymbol": {
     "XRP": {
@@ -941,9 +1021,9 @@
     "noLookahead": true,
     "legacyV23Excluded": true
   },
-  "auditUpdatedAt": "2026-11-15T04:30:43.413420+00:00",
+  "auditUpdatedAt": "2026-11-15T04:41:15.568874+00:00",
   "ntfyTest": {
-    "at": "2026-11-15T04:30:43.413434+00:00",
+    "at": "2026-11-15T04:41:15.568889+00:00",
     "mode": "dry-run",
     "topic": "RadarIA_11",
     "delivered": false
