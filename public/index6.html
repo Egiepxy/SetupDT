@@ -364,7 +364,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V9.1.1 • Ponte SetupDT no topo • Sinais preservados</div>
+    <div class="sub">V9.2 LAB • Histórico isolado • Auditoria de candles fechados</div>
   </div>
   <div class="badge">📡 MM1 V9.1.1 • SETUPDT + NTFY</div>
 </header>
@@ -779,18 +779,22 @@ header h1{font-size:26px}
 </div>
 
 <script>
+// V9.2 LAB: storage isolated from production, no migration or deletion.
+const labStorage={getItem:k=>window.localStorage.getItem('egi_v92_lab:'+k),setItem:(k,v)=>window.localStorage.setItem('egi_v92_lab:'+k,v),removeItem:k=>window.localStorage.removeItem('egi_v92_lab:'+k)};
+function labEligibleCandles(candles,t,now=Date.now()){const signal=Number(t.signalCandleClose),observed=Date.parse(t.ts);if(!Number.isFinite(signal)||signal<=0||!Number.isFinite(observed))return [];return candles.filter(k=>Number.isFinite(Number(k[0]))&&Number.isFinite(Number(k[6]))&&Number(k[0])>signal&&Number(k[0])>=observed&&Number(k[6])>=Number(k[0])&&Number(k[6])<=now-1400).sort((a,b)=>Number(a[0])-Number(b[0]));}
+
 const API = 'https://api.binance.com';
 const stableBases = new Set(['USDC','FDUSD','TUSD','USDP','DAI','EUR','TRY','BRL','AEUR','EURI','USD1','USDE','PYUSD','BFUSD']);
 let rows = [];
 let currentFilter = 'ALL';
 let gptReviews = {};
-try{ gptReviews = JSON.parse(localStorage.getItem('radar_mme921_gpt_reviews')||'{}') || {}; }catch{ gptReviews = {}; }
+try{ gptReviews = JSON.parse(labStorage.getItem('radar_mme921_gpt_reviews')||'{}') || {}; }catch{ gptReviews = {}; }
 
 function reviewKey(symbol){ return `${$('tf')?.value||'15m'}:${symbol}`; }
 function getGptReview(symbol){ return gptReviews[reviewKey(symbol)] || 'PENDENTE'; }
 function setGptReview(symbol,value){
   gptReviews[reviewKey(symbol)] = value;
-  localStorage.setItem('radar_mme921_gpt_reviews', JSON.stringify(gptReviews));
+  labStorage.setItem('radar_mme921_gpt_reviews', JSON.stringify(gptReviews));
   updateStats(); render();
 }
 function finalDecision(r){
@@ -1347,7 +1351,7 @@ function renderMultiTf(symbol, results){
     const tf=btn.dataset.mtf;
     const r=results[tf];
     $('tf').value=tf;
-    localStorage.setItem('radar_mme921_light_tf',tf);
+    labStorage.setItem('radar_mme921_light_tf',tf);
     renderMultiTf(symbol,results);
     if(r){
       rows=[r]; currentFilter='ALL';
@@ -1412,9 +1416,9 @@ async function consultCoin(silent=false){
     render();
     renderMultiTf(symbol,results);
     $('bar').style.width='100%';
-    localStorage.setItem('radar_mme921_last_query',JSON.stringify({ts:Date.now(),tf:detailTf,symbol,row:result,multi:results}));
-    localStorage.setItem('radar_mme921_light_coin', symbol.replace('USDT',''));
-    localStorage.setItem('radar_mme921_light_tf', detailTf);
+    labStorage.setItem('radar_mme921_last_query',JSON.stringify({ts:Date.now(),tf:detailTf,symbol,row:result,multi:results}));
+    labStorage.setItem('radar_mme921_light_coin', symbol.replace('USDT',''));
+    labStorage.setItem('radar_mme921_light_tf', detailTf);
     const base=symbol.replace('USDT','');
     let autoAdded=false;
     if(!savedAssets.includes(base)){
@@ -1586,7 +1590,7 @@ async function scan(){
       $('status').textContent=`Analisando ${done}/${tops.length} • ${tf} • ${new Date().toLocaleTimeString('pt-BR')}`;
       await sleep(120);
     }
-    localStorage.setItem('radar_mme921_last',JSON.stringify({ts:Date.now(),tf,topN,rows}));
+    labStorage.setItem('radar_mme921_last',JSON.stringify({ts:Date.now(),tf,topN,rows}));
     $('status').textContent=`Concluído: ${rows.length} ativos analisados • ${new Date().toLocaleString('pt-BR')}`;
   }catch(e){
     $('status').textContent=`Erro ao acessar a Binance: ${e.message}. Verifique internet/região e tente novamente.`;
@@ -1647,20 +1651,20 @@ function mmePublish(symbol,results,source){
   }
   if(!reports.length)return;
   try{
-    let old;try{old=JSON.parse(localStorage.getItem(MME_REPORT_KEY)||'null');}catch{old=null;}
+    let old;try{old=JSON.parse(labStorage.getItem(MME_REPORT_KEY)||'null');}catch{old=null;}
     const entries=old?.schema==='EGI-MME1-REPORT-V1'&&Array.isArray(old.entries)?old.entries:[];
     const map=new Map();
     for(const x of entries)if(x&&now-Number(x.reportAt||0)<86400000)map.set(x.asset+'|'+x.tf,x);
     for(const x of reports){const k=x.asset+'|'+x.tf,prev=map.get(k);if(!prev||Number(x.candleClose)>=Number(prev.candleClose||0))map.set(k,x);}
     const all=[...map.values()].sort((a,b)=>b.reportAt-a.reportAt).slice(0,600);
-    localStorage.setItem(MME_REPORT_KEY,JSON.stringify({schema:'EGI-MME1-REPORT-V1',version:'9.1',updatedAt:now,entries:all}));
+    labStorage.setItem(MME_REPORT_KEY,JSON.stringify({schema:'EGI-MME1-REPORT-V1',version:'9.1',updatedAt:now,entries:all}));
     if($('mme1ReportStatus'))$('mme1ReportStatus').textContent='✅ Publicado '+symbol+' • '+reports.map(x=>x.tf+' '+x.state).join(' | ')+' • '+new Date(now).toLocaleTimeString('pt-BR')+' • '+all.length+' registros.';
   }catch(e){if($('mme1ReportStatus'))$('mme1ReportStatus').textContent='⚠️ Não foi possível salvar relatório: '+String(e.message||e);}
 }
 function mmeReportInit(){
   $('mme1ReportPublishNow')?.addEventListener('click',()=>consultCoin(false));
   $('mme1ReportSave')?.addEventListener('click',()=>{
-    const raw=localStorage.getItem(MME_REPORT_KEY);
+    const raw=labStorage.getItem(MME_REPORT_KEY);
     if(!raw){alert('Consulte ou monitore uma moeda antes de exportar.');return;}
     downloadText('RadarMME1_Relatorio_SetupDT_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(JSON.parse(raw),null,2));
   });
@@ -1669,7 +1673,7 @@ function mmeReportInit(){
     if(!win)$('mme1ReportStatus').textContent='Abra o SetupDT pelo menu caso a nova aba tenha sido bloqueada.';
   });
   try{
-    const p=JSON.parse(localStorage.getItem(MME_REPORT_KEY)||'null');
+    const p=JSON.parse(labStorage.getItem(MME_REPORT_KEY)||'null');
     if(p?.schema==='EGI-MME1-REPORT-V1')$('mme1ReportStatus').textContent='📁 '+p.entries.length+' registros existentes • última publicação '+new Date(p.updatedAt).toLocaleString('pt-BR')+'.';
   }catch{}
 }
@@ -1713,7 +1717,7 @@ function ntfyFingerprint(title,message){
 
 function loadNtfyRecent(){
   try{
-    const obj=JSON.parse(localStorage.getItem(NTFY_RECENT_KEY)||'{}');
+    const obj=JSON.parse(labStorage.getItem(NTFY_RECENT_KEY)||'{}');
     return obj && typeof obj==='object' ? obj : {};
   }catch{ return {}; }
 }
@@ -1724,14 +1728,14 @@ function ntfyWasRecentlySent(key){
   for(const k of Object.keys(recent)){
     if(now-Number(recent[k]||0) > NTFY_DUP_WINDOW_MS*2) delete recent[k];
   }
-  localStorage.setItem(NTFY_RECENT_KEY,JSON.stringify(recent));
+  labStorage.setItem(NTFY_RECENT_KEY,JSON.stringify(recent));
   return Number(recent[key]||0) > 0 && now-Number(recent[key]) < NTFY_DUP_WINDOW_MS;
 }
 
 function markNtfySent(key){
   const recent=loadNtfyRecent();
   recent[key]=Date.now();
-  localStorage.setItem(NTFY_RECENT_KEY,JSON.stringify(recent));
+  labStorage.setItem(NTFY_RECENT_KEY,JSON.stringify(recent));
 }
 
 function parseRetryAfter(response){
@@ -1745,18 +1749,18 @@ function parseRetryAfter(response){
 }
 function loadNtfySettings(){
   if(!$('ntfyEnabled') || !$('ntfyTopic')) return;
-  $('ntfyEnabled').value=localStorage.getItem('radar_mme1_ntfy_enabled')==='1'?'1':'0';
-  const configured=localStorage.getItem('radar_mme1_ntfy_topic');
+  $('ntfyEnabled').value=labStorage.getItem('radar_mme1_ntfy_enabled')==='1'?'1':'0';
+  const configured=labStorage.getItem('radar_mme1_ntfy_topic');
   $('ntfyTopic').value=sanitizeNtfyTopic(configured===null?'RadarEgi_ugY2B7MLZg':configured);
-  if(configured===null)localStorage.setItem('radar_mme1_ntfy_topic',$('ntfyTopic').value);
+  if(configured===null)labStorage.setItem('radar_mme1_ntfy_topic',$('ntfyTopic').value);
   updateNtfyStatus();
 }
 function saveNtfySettings(){
   if(!$('ntfyEnabled') || !$('ntfyTopic')) return;
   const topic=sanitizeNtfyTopic($('ntfyTopic').value);
   $('ntfyTopic').value=topic;
-  localStorage.setItem('radar_mme1_ntfy_enabled',$('ntfyEnabled').value);
-  localStorage.setItem('radar_mme1_ntfy_topic',topic);
+  labStorage.setItem('radar_mme1_ntfy_enabled',$('ntfyEnabled').value);
+  labStorage.setItem('radar_mme1_ntfy_topic',topic);
   updateNtfyStatus();
 }
 function setNtfyHealth(state,detail=''){
@@ -1951,14 +1955,14 @@ async function testNtfy(){
 }
 
 function loadRobotSettings(){
-  const min=Number(localStorage.getItem('radar_mme921_robot_min')||97);
-  const aud=localStorage.getItem('radar_mme921_robot_audio');
+  const min=Number(labStorage.getItem('radar_mme921_robot_min')||97);
+  const aud=labStorage.getItem('radar_mme921_robot_audio');
   if($('robotRelOkMin')) $('robotRelOkMin').value=String(Number.isFinite(min)?min:97);
   if($('robotAudio')) $('robotAudio').value=aud===null?'1':aud;
-  const savedStreak=localStorage.getItem('radar_mme921_max_stop_streak');
+  const savedStreak=labStorage.getItem('radar_mme921_max_stop_streak');
   if($('maxStopStreak')) $('maxStopStreak').value=savedStreak===null?'3':savedStreak;
-  try{ robotTrades=JSON.parse(localStorage.getItem(ROBOT_TRADES_KEY)||'[]'); if(!Array.isArray(robotTrades)) robotTrades=[]; }catch{ robotTrades=[]; }
-  try{ robotEvents=JSON.parse(localStorage.getItem(ROBOT_EVENTS_KEY)||'[]'); if(!Array.isArray(robotEvents)) robotEvents=[]; }catch{ robotEvents=[]; }
+  try{ robotTrades=JSON.parse(labStorage.getItem(ROBOT_TRADES_KEY)||'[]'); if(!Array.isArray(robotTrades)) robotTrades=[]; }catch{ robotTrades=[]; }
+  try{ robotEvents=JSON.parse(labStorage.getItem(ROBOT_EVENTS_KEY)||'[]'); if(!Array.isArray(robotEvents)) robotEvents=[]; }catch{ robotEvents=[]; }
   robotTrades=robotTrades.map(t=>({
     hit1R:false, hit1RAt:null, exitAt:null, exitReason:'', resultR:null, durationMs:null,
     dist9:null, sep:null, slope9:null, slope21:null, trRatio:null, entryType:'—',
@@ -2044,10 +2048,10 @@ function tradeStatusClass(t){
   return 'trade-open';
 }
 function persistRobotTrades(){
-  localStorage.setItem(ROBOT_TRADES_KEY,JSON.stringify(robotTrades));
+  labStorage.setItem(ROBOT_TRADES_KEY,JSON.stringify(robotTrades));
 }
 function persistRobotEvents(){
-  localStorage.setItem(ROBOT_EVENTS_KEY,JSON.stringify(robotEvents));
+  labStorage.setItem(ROBOT_EVENTS_KEY,JSON.stringify(robotEvents));
 }
 function recordRobotEvent(kind,data={}){
   const ev={
@@ -2112,7 +2116,7 @@ function consecutiveStops(){
 function signalsPausedByStops(){
   const max=Number($('maxStopStreak')?.value||0);
   if(!max) return false;
-  const manualResumeAt=Number(localStorage.getItem('radar_mme921_manual_resume_at')||0);
+  const manualResumeAt=Number(labStorage.getItem('radar_mme921_manual_resume_at')||0);
   const latestClosed=Math.max(0,...robotTrades.filter(t=>t.exitAt).map(t=>Date.parse(t.exitAt)||0));
   if(manualResumeAt>=latestClosed) return false;
   return consecutiveStops()>=max;
@@ -2289,8 +2293,7 @@ function updateOpenTrades(symbol,candleSets){
     if(t.status!=='ABERTA' || t.symbol!==symbol) continue;
     const candles=byTf[t.tf];
     if(!candles?.length) continue;
-    const startAfter=Number(t.signalCandleClose)||Date.parse(t.ts)||0;
-    const eligible=candles.filter(k=>Number(k[0])>startAfter);
+    const eligible=labEligibleCandles(candles,t);
 
     for(const k of eligible){
       if(t.status!=='ABERTA') break;
@@ -2404,9 +2407,9 @@ function evaluateRobot(symbol,results,showUi=true){
       Entrada ${fmt(r.entry)} • Stop ${fmt(r.stop)} • 1R ${fmt(r.r1)} • 2R ${fmt(r.r2)}`;
   }
   const sig=tradeSignature(symbol,tf,r);
-  const last=localStorage.getItem(ROBOT_ALERT_KEY)||'';
+  const last=labStorage.getItem(ROBOT_ALERT_KEY)||'';
   if(sig!==last){
-    localStorage.setItem(ROBOT_ALERT_KEY,sig);
+    labStorage.setItem(ROBOT_ALERT_KEY,sig);
     const rec={
       id:Date.now(), ts:new Date().toISOString(), symbol, tf, direction:r.state,
       relOk:r.parecerScore, iqe:r.iqe, score:r.quality,
@@ -2561,9 +2564,9 @@ function clearRobotTrades(){
   if(!confirm('Apagar o diário de operações e o histórico de avisos do Robô Essencial?')) return;
   robotTrades=[];
   robotEvents=[];
-  localStorage.removeItem(ROBOT_TRADES_KEY);
-  localStorage.removeItem(ROBOT_EVENTS_KEY);
-  localStorage.removeItem(ROBOT_ALERT_KEY);
+  labStorage.removeItem(ROBOT_TRADES_KEY);
+  labStorage.removeItem(ROBOT_EVENTS_KEY);
+  labStorage.removeItem(ROBOT_ALERT_KEY);
   renderTradeLog();
   renderEventLog();
   renderPerformance();
@@ -2970,7 +2973,7 @@ function setTopN(n, persist=true){
   if(!allowed.includes(n)) n=50;
   $('topN').value=String(n);
   document.querySelectorAll('.topn-btn').forEach(b=>b.classList.toggle('active', Number(b.dataset.n)===n));
-  if(persist) localStorage.setItem('radar_mme921_topN', String(n));
+  if(persist) labStorage.setItem('radar_mme921_topN', String(n));
 }
 
 document.querySelectorAll('.topn-btn').forEach(b=>b.addEventListener('click',()=>{
@@ -3053,18 +3056,18 @@ async function ensureMarketMonitorUniverse(){
 }
 
 function loadMultiMonitorPrefs(){
-  const sec=localStorage.getItem('radar_mme1_multi_sec');
-  const max=localStorage.getItem('radar_mme1_multi_max');
-  if($('multiMonitorSec')){ const k='radar_mme1_60_default_v1'; if(localStorage.getItem(k)!=='1'){ $('multiMonitorSec').value='60';localStorage.setItem('radar_mme1_multi_sec','60');localStorage.setItem(k,'1'); }else if(['30','60'].includes(sec)) $('multiMonitorSec').value=sec; }
-  if($('multiMonitorMax')) { const migration='radar_mme1_20_default_v1'; if(localStorage.getItem(migration)!=='1'){ $('multiMonitorMax').value='20';localStorage.setItem('radar_mme1_multi_max','20');localStorage.setItem(migration,'1'); } else if(['5','10','20'].includes(max)) $('multiMonitorMax').value=max; }
+  const sec=labStorage.getItem('radar_mme1_multi_sec');
+  const max=labStorage.getItem('radar_mme1_multi_max');
+  if($('multiMonitorSec')){ const k='radar_mme1_60_default_v1'; if(labStorage.getItem(k)!=='1'){ $('multiMonitorSec').value='60';labStorage.setItem('radar_mme1_multi_sec','60');labStorage.setItem(k,'1'); }else if(['30','60'].includes(sec)) $('multiMonitorSec').value=sec; }
+  if($('multiMonitorMax')) { const migration='radar_mme1_20_default_v1'; if(labStorage.getItem(migration)!=='1'){ $('multiMonitorMax').value='20';labStorage.setItem('radar_mme1_multi_max','20');labStorage.setItem(migration,'1'); } else if(['5','10','20'].includes(max)) $('multiMonitorMax').value=max; }
   try{
-    const raw=JSON.parse(localStorage.getItem(MULTI_MONITOR_STATE_KEY)||'{}');
+    const raw=JSON.parse(labStorage.getItem(MULTI_MONITOR_STATE_KEY)||'{}');
     multiMonitorState=raw && typeof raw==='object' ? raw : {};
   }catch{ multiMonitorState={}; }
   renderMultiMonitor();
 }
 function persistMultiMonitorState(){
-  try{ localStorage.setItem(MULTI_MONITOR_STATE_KEY,JSON.stringify(multiMonitorState)); }catch{}
+  try{ labStorage.setItem(MULTI_MONITOR_STATE_KEY,JSON.stringify(multiMonitorState)); }catch{}
 }
 function openTradeForSymbol(symbol){
   return robotTrades
@@ -3139,7 +3142,7 @@ function renderMultiMonitor(){
   $('mmList').querySelectorAll('[data-mm-asset]').forEach(btn=>btn.addEventListener('click',()=>{
     const base=btn.dataset.mmAsset;
     $('coinQuery').value=base;
-    localStorage.setItem('radar_mme921_light_coin',base);
+    labStorage.setItem('radar_mme921_light_coin',base);
     consultCoin();
   }));
 }
@@ -3256,13 +3259,13 @@ async function toggleMultiMonitor(){
 const ASSET_LIST_KEY='radar_mme1_light_assets_v1';
 const FAVORITES_KEY='radar_mme1_favorites_v1';
 let favoriteAssets=[];
-function persistFavorites(){try{localStorage.setItem(FAVORITES_KEY,JSON.stringify(favoriteAssets));}catch(e){console.warn('Favoritos não salvos:',e);}renderAssets();}
+function persistFavorites(){try{labStorage.setItem(FAVORITES_KEY,JSON.stringify(favoriteAssets));}catch(e){console.warn('Favoritos não salvos:',e);}renderAssets();}
 function toggleFavorite(base){favoriteAssets=favoriteAssets.includes(base)?favoriteAssets.filter(x=>x!==base):[...favoriteAssets,base].sort((a,b)=>a.localeCompare(b));persistFavorites();}
 function clearStudyList(){
   if(!confirm('Limpar toda a lista de monitoramento? Os favoritos serão preservados.'))return;
   stopMultiMonitor();savedAssets=[];multiMonitorState={};persistMultiMonitorState();
   // A limpeza altera somente o cadastro; o universo descoberto pela API fica disponível ao monitor.
-  localStorage.setItem('radar_mme1_list_cleared_v1','1');persistAssets();renderMultiMonitor();
+  labStorage.setItem('radar_mme1_list_cleared_v1','1');persistAssets();renderMultiMonitor();
 }
 
 const EGI_STUDY_20=['BTC','ETH','SOL','LINK','XRP','BNB','SUI','ENA','ONDO','HYPE','NEAR','ADA','DOGE','PEPE','AAVE','SKY','ZRO','INJ','PENDLE','ARB'];
@@ -3275,9 +3278,9 @@ function normalizeBaseAsset(value){
 }
 
 function loadAssets(){
-  try{const f=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');favoriteAssets=Array.isArray(f)?[...new Set(f.map(normalizeBaseAsset).filter(Boolean))]:[];}catch{favoriteAssets=[];}
+  try{const f=JSON.parse(labStorage.getItem(FAVORITES_KEY)||'[]');favoriteAssets=Array.isArray(f)?[...new Set(f.map(normalizeBaseAsset).filter(Boolean))]:[];}catch{favoriteAssets=[];}
   try{
-    const raw=JSON.parse(localStorage.getItem(ASSET_LIST_KEY)||'[]');
+    const raw=JSON.parse(labStorage.getItem(ASSET_LIST_KEY)||'[]');
     savedAssets=Array.isArray(raw) ? raw.map(normalizeBaseAsset).filter(Boolean) : [];
     savedAssets=[...new Set(savedAssets)].sort((a,b)=>a.localeCompare(b));
   }catch{ savedAssets=[]; }
@@ -3310,8 +3313,8 @@ function load20StandardAssets(){
 }
 function persistAssets(){
   try{
-    localStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));
-    const stored=JSON.parse(localStorage.getItem(ASSET_LIST_KEY)||'[]');
+    labStorage.setItem(ASSET_LIST_KEY,JSON.stringify(savedAssets));
+    const stored=JSON.parse(labStorage.getItem(ASSET_LIST_KEY)||'[]');
     if(!Array.isArray(stored)||stored.length!==savedAssets.length)throw new Error('a conferência da gravação falhou');
     if($('assetSaveStatus')) $('assetSaveStatus').textContent=`✅ ${savedAssets.length} moeda(s) gravadas neste navegador. Para outro aparelho, baixe o Backup JSON.`;
   }catch(e){
@@ -3338,7 +3341,7 @@ function renderAssets(){
   list.querySelectorAll('[data-favorite]').forEach(btn=>btn.addEventListener('click',()=>toggleFavorite(btn.dataset.favorite)));
   list.querySelectorAll('[data-asset]').forEach(btn=>btn.addEventListener('click',()=>{
     $('coinQuery').value=btn.dataset.asset;
-    localStorage.setItem('radar_mme921_light_coin',btn.dataset.asset);
+    labStorage.setItem('radar_mme921_light_coin',btn.dataset.asset);
     consultCoin();
   }));
   list.querySelectorAll('[data-delete]').forEach(btn=>btn.addEventListener('click',e=>{
@@ -3418,8 +3421,8 @@ const LESSON_TF_MS={'5m':300000,'15m':900000,'30m':1800000,'1h':3600000,'4h':144
 let lessonStates={};
 let lessonHistory=[];
 let lessonLastPushAt=0;
-try{lessonStates=JSON.parse(localStorage.getItem(LESSON_STATE_KEY)||'{}')||{};}catch{lessonStates={};}
-try{lessonHistory=JSON.parse(localStorage.getItem(LESSON_HISTORY_KEY)||'[]')||[];}catch{lessonHistory=[];}
+try{lessonStates=JSON.parse(labStorage.getItem(LESSON_STATE_KEY)||'{}')||{};}catch{lessonStates={};}
+try{lessonHistory=JSON.parse(labStorage.getItem(LESSON_HISTORY_KEY)||'[]')||[];}catch{lessonHistory=[];}
 function lessonEsc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function lessonWhen(ts){return Number.isFinite(+ts)&& +ts>0 ? new Date(+ts).toLocaleString('pt-BR') : '—';}
 function lessonTime(ts){return Number.isFinite(+ts)&& +ts>0 ? new Date(+ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '—';}
@@ -3622,9 +3625,9 @@ function lessonSaveData(){
   try{
     const keys=Object.keys(lessonStates);
     if(keys.length>280){keys.sort((a,b)=>(lessonStates[b].seenAt||0)-(lessonStates[a].seenAt||0));lessonStates=Object.fromEntries(keys.slice(0,280).map(k=>[k,lessonStates[k]]));}
-    localStorage.setItem(LESSON_STATE_KEY,JSON.stringify(lessonStates));
+    labStorage.setItem(LESSON_STATE_KEY,JSON.stringify(lessonStates));
     lessonHistory=lessonHistory.slice(0,300);
-    localStorage.setItem(LESSON_HISTORY_KEY,JSON.stringify(lessonHistory));
+    labStorage.setItem(LESSON_HISTORY_KEY,JSON.stringify(lessonHistory));
   }catch{}
 }
 function lessonObserve(symbol,results,origin='consulta'){
@@ -3809,8 +3812,8 @@ function lessonResumeRender(){
 // ===== Laboratório descritivo de sinais NÃO liberados, sem estimar acertos =====
 const LESSON_LAB_KEY='radar_mme1_laboratorio_observacoes_v831';
 let lessonLab=[];
-try{const v=JSON.parse(localStorage.getItem(LESSON_LAB_KEY)||'[]');lessonLab=Array.isArray(v)?v:[];}catch{lessonLab=[];}
-function lessonLabPersist(){try{lessonLab=lessonLab.slice(0,250);localStorage.setItem(LESSON_LAB_KEY,JSON.stringify(lessonLab));}catch{}}
+try{const v=JSON.parse(labStorage.getItem(LESSON_LAB_KEY)||'[]');lessonLab=Array.isArray(v)?v:[];}catch{lessonLab=[];}
+function lessonLabPersist(){try{lessonLab=lessonLab.slice(0,250);labStorage.setItem(LESSON_LAB_KEY,JSON.stringify(lessonLab));}catch{}}
 function lessonLabObserve(symbol,results,origin='consulta'){
   let changed=false;
   const now=Date.now();
@@ -3910,7 +3913,7 @@ async function lessonCopy(){const txt=lessonSummary();if(!txt){alert('Faça prim
   }
 }
 function lessonInit(){
-  try{const p=JSON.parse(localStorage.getItem(LESSON_PREF_KEY)||'{}');
+  try{const p=JSON.parse(labStorage.getItem(LESSON_PREF_KEY)||'{}');
     if(p.capital)$('lessonCapital').value=p.capital;
     if(p.risk)$('lessonRiskPercent').value=p.risk;
     if(p.leverage)$('lessonLev').value=p.leverage;
@@ -3922,7 +3925,7 @@ function lessonInit(){
     if(['15m','15m,30m,1h','5m,15m,30m,1h,4h,1d'].includes(p.materialTf))$('lessonMaterialTf').value=p.materialTf;
   }catch{}
   for(const id of ['lessonCapital','lessonRiskPercent','lessonLev','lessonMarginCap','lessonFee','lessonSlip','lessonEarlyNtfy','lessonMaterialNtfy','lessonMaterialTf']){
-    $(id)?.addEventListener('change',()=>{try{localStorage.setItem(LESSON_PREF_KEY,JSON.stringify({capital:$('lessonCapital').value,risk:$('lessonRiskPercent').value,leverage:$('lessonLev').value,cap:$('lessonMarginCap').value,fee:$('lessonFee').value,slip:$('lessonSlip').value,early:$('lessonEarlyNtfy').checked,material:$('lessonMaterialNtfy').checked,materialTf:$('lessonMaterialTf').value}));}catch{}lessonRiskRender();if(lastMultiTf?.results)renderLessonPanel(lastMultiTf.symbol,lastMultiTf.results);});
+    $(id)?.addEventListener('change',()=>{try{labStorage.setItem(LESSON_PREF_KEY,JSON.stringify({capital:$('lessonCapital').value,risk:$('lessonRiskPercent').value,leverage:$('lessonLev').value,cap:$('lessonMarginCap').value,fee:$('lessonFee').value,slip:$('lessonSlip').value,early:$('lessonEarlyNtfy').checked,material:$('lessonMaterialNtfy').checked,materialTf:$('lessonMaterialTf').value}));}catch{}lessonRiskRender();if(lastMultiTf?.results)renderLessonPanel(lastMultiTf.symbol,lastMultiTf.results);});
   }
   $('lessonCopyBtn')?.addEventListener('click',lessonCopy);
   $('lessonSaveBtn')?.addEventListener('click',lessonDownload);
@@ -3942,7 +3945,7 @@ $('quickRefreshBtn').addEventListener('click',consultCoin);
 $('queryAutoSec').addEventListener('change',applyQueryAuto);
 $('tf').addEventListener('change',()=>{
   const tf=$('tf').value;
-  localStorage.setItem('radar_mme921_light_tf',tf);
+  labStorage.setItem('radar_mme921_light_tf',tf);
   if(lastMultiTf && lastMultiTf.results && lastMultiTf.results[tf]){
     rows=[lastMultiTf.results[tf]];
     currentFilter='ALL';
@@ -3962,11 +3965,11 @@ $('restoreAssetsInput').addEventListener('change',e=>restoreAssetsFile(e.target.
 $('mmViewFilter')?.addEventListener('change',()=>{mmViewFilter=$('mmViewFilter').value;renderMultiMonitor();});
 $('multiMonitorBtn')?.addEventListener('click',toggleMultiMonitor);
 $('multiMonitorSec')?.addEventListener('change',()=>{
-  localStorage.setItem('radar_mme1_multi_sec',$('multiMonitorSec').value);
+  labStorage.setItem('radar_mme1_multi_sec',$('multiMonitorSec').value);
   if(multiMonitorRunning) scheduleNextMultiMonitor();
 });
 $('multiMonitorMax')?.addEventListener('change',()=>{
-  localStorage.setItem('radar_mme1_multi_max',$('multiMonitorMax').value);
+  labStorage.setItem('radar_mme1_multi_max',$('multiMonitorMax').value);
 });
 
 $('exportBtn').addEventListener('click',exportTxt);
@@ -3977,9 +3980,9 @@ $('autoBtn').addEventListener('click',toggleAuto);
 $('autoMin').addEventListener('change',()=>{
   if(autoRunning) startAuto();
 });
-$('gptLimit').addEventListener('change',()=>localStorage.setItem('radar_mme921_gptLimit',$('gptLimit').value));
+$('gptLimit').addEventListener('change',()=>labStorage.setItem('radar_mme921_gptLimit',$('gptLimit').value));
 $('tf').addEventListener('change',()=>{
-  localStorage.setItem('radar_mme921_light_tf',$('tf').value);
+  labStorage.setItem('radar_mme921_light_tf',$('tf').value);
   if(rows.length) render();
 });
 
@@ -3987,10 +3990,10 @@ $('tf').addEventListener('change',()=>{
 $('robotRelOkMin')?.addEventListener('change',()=>{
   let v=Math.max(70,Math.min(100,Number($('robotRelOkMin').value||97)));
   $('robotRelOkMin').value=String(v);
-  localStorage.setItem('radar_mme921_robot_min',String(v));
+  labStorage.setItem('radar_mme921_robot_min',String(v));
   if(lastMultiTf) evaluateRobot(lastMultiTf.symbol,lastMultiTf.results);
 });
-$('robotAudio')?.addEventListener('change',()=>localStorage.setItem('radar_mme921_robot_audio',$('robotAudio').value));
+$('robotAudio')?.addEventListener('change',()=>labStorage.setItem('radar_mme921_robot_audio',$('robotAudio').value));
 $('exportTradesBtn')?.addEventListener('click',exportRobotTrades);
 $('clearTradesBtn')?.addEventListener('click',clearRobotTrades);
 
@@ -4006,13 +4009,13 @@ $('ntfyGenerateBtn')?.addEventListener('click',generateNtfyTopic);
 $('ntfyTestBtn')?.addEventListener('click',testNtfy);
 
 $('maxStopStreak')?.addEventListener('change',()=>{
-  localStorage.setItem('radar_mme921_max_stop_streak',$('maxStopStreak').value);
-  localStorage.removeItem('radar_mme921_manual_resume_at');
+  labStorage.setItem('radar_mme921_max_stop_streak',$('maxStopStreak').value);
+  labStorage.removeItem('radar_mme921_manual_resume_at');
   renderPerformance();
   if(lastMultiTf) evaluateRobot(lastMultiTf.symbol,lastMultiTf.results);
 });
 $('resumeSignalsBtn')?.addEventListener('click',()=>{
-  localStorage.setItem('radar_mme921_manual_resume_at',String(Date.now()));
+  labStorage.setItem('radar_mme921_manual_resume_at',String(Date.now()));
   renderPerformance();
   if(lastMultiTf) evaluateRobot(lastMultiTf.symbol,lastMultiTf.results);
 });
@@ -4028,8 +4031,8 @@ if($('queryAutoSec')) $('queryAutoSec').value='60';
 applyQueryAuto();
 
 try{
-  const savedCoin=localStorage.getItem('radar_mme921_light_coin') || '';
-  const savedTf=localStorage.getItem('radar_mme921_light_tf') || '15m';
+  const savedCoin=labStorage.getItem('radar_mme921_light_coin') || '';
+  const savedTf=labStorage.getItem('radar_mme921_light_tf') || '15m';
   if(['5m','15m','30m','1h','4h','1d'].includes(savedTf)) $('tf').value=savedTf;
   $('coinQuery').value=savedCoin;
   rows=[];
