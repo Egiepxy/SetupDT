@@ -364,7 +364,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V9.2 LAB • Histórico isolado • Auditoria de candles fechados</div>
+    <div class="sub">V9.2 LAB • Estatísticas e 3R • Histórico isolado • Auditoria de candles fechados</div>
   </div>
   <div class="badge">📡 MM1 V9.1.1 • SETUPDT + NTFY</div>
 </header>
@@ -778,6 +778,7 @@ header h1{font-size:26px}
 </div>
 </div>
 
+<section id="labPanel92" style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.2 LAB — Estatísticas por moeda / TF</h2><p>2R é o resultado original. 3R é estudo paralelo com stop original, sem alterar a operação, sem alertas adicionais. Candles parciais e lacunas não são usados. Histórico local LAB.</p><pre id="labStats92" style="white-space:pre-wrap"></pre><h3>Professor EGI — indícios após STOP (não causas comprovadas)</h3><pre id="labProfessor92" style="white-space:pre-wrap"></pre><button type="button" id="labBackup92">Exportar backup JSON</button> <button type="button" id="labTest92">Autotestes</button><p id="labTestResult92" role="status"></p></section>
 <script>
 // V9.2 LAB: storage isolated from production, no migration or deletion.
 const labStorage={getItem:k=>window.localStorage.getItem('egi_v92_lab:'+k),setItem:(k,v)=>window.localStorage.setItem('egi_v92_lab:'+k,v),removeItem:k=>window.localStorage.removeItem('egi_v92_lab:'+k)};
@@ -1751,7 +1752,7 @@ function loadNtfySettings(){
   if(!$('ntfyEnabled') || !$('ntfyTopic')) return;
   $('ntfyEnabled').value=labStorage.getItem('radar_mme1_ntfy_enabled')==='1'?'1':'0';
   const configured=labStorage.getItem('radar_mme1_ntfy_topic');
-  $('ntfyTopic').value=sanitizeNtfyTopic(configured===null?'RadarEgi_ugY2B7MLZg':configured);
+  $('ntfyTopic').value=sanitizeNtfyTopic(configured===null?'':configured);
   if(configured===null)labStorage.setItem('radar_mme1_ntfy_topic',$('ntfyTopic').value);
   updateNtfyStatus();
 }
@@ -2274,6 +2275,7 @@ function renderPerformance(){
   if($('band97100')) $('band97100').textContent=bandText(bandStats(97,100));
   updateGuardState();
   renderStudyAudit();
+  labRender();
 }
 function finishTrade(t,status,eventTs,resultR,reason){
   if(t.status!=='ABERTA') return false;
@@ -2284,7 +2286,50 @@ function finishTrade(t,status,eventTs,resultR,reason){
   t.durationMs=Math.max(0,eventTs-Date.parse(t.ts));
   return true;
 }
+
+function lab3Step(t,a,candles,now){
+ if(a.status!=='ABERTA')return a;
+ const risk=Math.abs(t.entry-t.stop),target=t.entry+(t.direction==='LONG'?1:-1)*3*risk;
+ const duration=tfToMs(t.tf),observed=Date.parse(t.ts);
+ if(!risk||!Number.isFinite(observed)||!Number(t.signalCandleClose))return {...a,status:'SEM_DADOS'};
+ let cursor=a.cursor??(Math.ceil(observed/duration)*duration-duration);
+ for(const k of labEligibleCandles(candles,t,now)){
+  const open=Number(k[0]);if(open<=cursor)continue;
+  if(open!==cursor+duration)return {...a,cursor,status:'LACUNA'};
+  const high=Number(k[2]),low=Number(k[3]);if(!Number.isFinite(high)||!Number.isFinite(low)||high<low)return {...a,cursor,status:'LACUNA'};
+  const stop=t.direction==='LONG'?low<=t.stop:high>=t.stop;
+  const hit=t.direction==='LONG'?high>=target:low<=target;
+  cursor=open;
+  if(stop||hit)return {cursor,status:stop&&hit?'INDETERMINADA':hit?'3R':'STOP',at:Number(k[6])};
+ }
+ return {...a,cursor};
+}
+function labStats(trades){
+ const groups=new Map();
+ for(const t of trades){const k=t.symbol+' | '+t.tf;const g=groups.get(k)||{key:k,n:0,one:0,two:0,stop:0,open:0,amb:0,r:0,three:0,threeStop:0,threeUnknown:0,threeOpen:0};g.n++;g.one+=t.hit1R?1:0;g.two+=t.status==='2R'?1:0;g.stop+=t.status==='STOP'?1:0;g.open+=t.status==='ABERTA'?1:0;g.amb+=t.status==='INDETERMINADA'?1:0;if(['2R','STOP'].includes(t.status)&&Number.isFinite(t.resultR))g.r+=t.resultR;const a=t.lab3?.status;g.three+=a==='3R'?1:0;g.threeStop+=a==='STOP'?1:0;g.threeOpen+=a==='ABERTA'?1:0;g.threeUnknown+=!['3R','STOP','ABERTA'].includes(a)?1:0;groups.set(k,g);}
+ return [...groups.values()].sort((a,b)=>b.n-a.n||a.key.localeCompare(b.key));
+}
+function labAudit3(symbol,sets){
+ let changed=false;
+ for(const t of robotTrades){if(t.symbol!==symbol||!t.lab3||t.lab3.status!=='ABERTA')continue;const candles=sets[LIGHT_TFS.indexOf(t.tf)];if(!Array.isArray(candles))continue;const a=lab3Step(t,t.lab3,candles,Date.now());if(JSON.stringify(a)!==JSON.stringify(t.lab3)){t.lab3=a;changed=true;}}
+ if(changed)persistRobotTrades();
+}
+function labRender(){
+ const el=document.getElementById('labStats92');if(!el)return;
+ const groups=labStats(robotTrades);
+ el.textContent=groups.length?groups.map(g=>g.key+' | n='+g.n+' | 1R '+g.one+' | 2R '+g.two+' | STOP '+g.stop+' | abertas '+g.open+' | indet. '+g.amb+' | acerto 2R '+(g.two+g.stop?(100*g.two/(g.two+g.stop)).toFixed(1)+'%':'—')+' | '+g.r.toFixed(1)+'R | estudo 3R: '+g.three+' alvo, '+g.threeStop+' stop, '+g.threeOpen+' abertas, '+g.threeUnknown+' sem conclusão').join('\n'):'Sem sinais LAB.';
+ const p=document.getElementById('labProfessor92');const d=studyAuditData();p.textContent=d.details.length?d.details.slice(0,10).map(x=>x.t.symbol+' '+x.t.tf+' | '+(x.findings.join(', ')||'sem indício identificado')+' | '+(x.missing.length?'Faltam: '+x.missing.join(', '):'Rever reteste, candle fechado e contexto antes de nova entrada')).join('\n'):'Nenhum STOP registrado.';
+}
+function labBackup(){const blob=new Blob([JSON.stringify({schema:'EGI-LAB92',exportedAt:new Date().toISOString(),trades:robotTrades,events:robotEvents},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='RadarMME1_V92_LAB_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function labSelfTest(){
+ const t={symbol:'TESTUSDT',tf:'15m',direction:'LONG',entry:100,stop:90,signalCandleClose:899999,ts:new Date(900000).toISOString()};
+ const k=(o,h,l)=>[o,0,h,l,100,0,o+899999];const a={status:'ABERTA'};
+ const cases=[lab3Step(t,a,[k(900000,131,95)],2000000).status==='3R',lab3Step(t,a,[k(900000,131,89)],2000000).status==='INDETERMINADA',lab3Step(t,a,[k(900000,110,89)],2000000).status==='STOP',lab3Step(t,a,[k(1800000,131,95)],3000000).status==='LACUNA',lab3Step(t,a,[k(900000,131,95)],1000000).status==='ABERTA',lab3Step({...t,direction:'SHORT',stop:110},a,[k(900000,105,69)],2000000).status==='3R',labStats([{...t,status:'2R',hit1R:true,resultR:2,lab3:{status:'3R'}},{...t,status:'STOP',resultR:-1}])[0].r===1];
+ return cases;
+}
+
 function updateOpenTrades(symbol,candleSets){
+  labAudit3(symbol,candleSets);
   let changed=false;
   const byTf={};
   LIGHT_TFS.forEach((tf,i)=>{ if(Array.isArray(candleSets[i])) byTf[tf]=candleSets[i]; });
@@ -2425,8 +2470,9 @@ function evaluateRobot(symbol,results,showUi=true){
       signalCandleClose:Number(r.signalCandleClose||0),
       status:'ABERTA', hit1R:false, hit1RAt:null, exitAt:null, exitReason:'', resultR:null, durationMs:null
     };
+    rec.lab3={status:'ABERTA'};
     robotTrades.unshift(rec);
-    robotTrades=robotTrades.slice(0,200);
+    // LAB preserves all trade records; export regularly to avoid browser quota.
     persistRobotTrades();
     renderTradeLog();
     renderPerformance();
@@ -4020,6 +4066,8 @@ $('resumeSignalsBtn')?.addEventListener('click',()=>{
   if(lastMultiTf) evaluateRobot(lastMultiTf.symbol,lastMultiTf.results);
 });
 
+document.getElementById('labBackup92').addEventListener('click',labBackup);
+document.getElementById('labTest92').addEventListener('click',()=>{const a=labSelfTest();document.getElementById('labTestResult92').textContent=a.filter(Boolean).length+'/'+a.length+' testes aprovados';});
 loadRobotSettings();
 loadNtfySettings();
 lessonInit();
