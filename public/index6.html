@@ -364,7 +364,7 @@ header h1{font-size:26px}
 <header>
   <div>
     <h1>RadarMME1 Light</h1>
-    <div class="sub">V9.2 LAB • Estatísticas e 3R • Histórico isolado • Auditoria de candles fechados</div>
+    <div class="sub">V9.3 LAB • Transição • Estatísticas e 3R • Histórico isolado • Auditoria de candles fechados</div>
   </div>
   <div class="badge">📡 MM1 V9.1.1 • SETUPDT + NTFY</div>
 </header>
@@ -778,7 +778,7 @@ header h1{font-size:26px}
 </div>
 </div>
 
-<section id="labPanel92" style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.2 LAB — Estatísticas por moeda / TF</h2><p>2R é o resultado original. 3R é estudo paralelo com stop original, sem alterar a operação, sem alertas adicionais. Candles parciais e lacunas não são usados. Histórico local LAB.</p><pre id="labStats92" style="white-space:pre-wrap"></pre><h3>Professor EGI — indícios após STOP (não causas comprovadas)</h3><pre id="labProfessor92" style="white-space:pre-wrap"></pre><button type="button" id="labBackup92">Exportar backup JSON</button> <button type="button" id="labTest92">Autotestes</button><button type="button" id="labImport92">Recuperar backup JSON</button><input type="file" id="labFile92" accept=".json,application/json" hidden><p id="labRestoreStatus92" role="status"></p><p id="labTestResult92" role="status"></p></section>
+<section style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.3 LAB — Radar de Transição</h2><p>Observacional: compressão abaixo de 0,25%; expansão em 3 candles; confirmação técnica com 2 candles acima do limiar e volume mínimo 1,2x crescente. Não libera ordens nem altera robô. Contagens de observações, não acertos.</p><pre id="transRead93" style="white-space:pre-wrap">Aguardando coleta.</pre><pre id="transStats93" style="white-space:pre-wrap"></pre><button id="transExport93" type="button">Exportar observações JSON</button></section><section id="labPanel92" style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.3 LAB — Estatísticas por moeda / TF</h2><p>2R é o resultado original. 3R é estudo paralelo com stop original, sem alterar a operação, sem alertas adicionais. Candles parciais e lacunas não são usados. Histórico local LAB.</p><pre id="labStats92" style="white-space:pre-wrap"></pre><h3>Professor EGI — indícios após STOP (não causas comprovadas)</h3><pre id="labProfessor92" style="white-space:pre-wrap"></pre><button type="button" id="labBackup92">Exportar backup JSON</button> <button type="button" id="labTest92">Autotestes</button><button type="button" id="labImport92">Recuperar backup JSON</button><input type="file" id="labFile92" accept=".json,application/json" hidden><p id="labRestoreStatus92" role="status"></p><p id="labTestResult92" role="status"></p></section>
 <script>
 // V9.2 LAB: storage isolated from production, no migration or deletion.
 const labStorage={getItem:k=>window.localStorage.getItem('egi_v92_lab:'+k),setItem:(k,v)=>window.localStorage.setItem('egi_v92_lab:'+k,v),removeItem:k=>window.localStorage.removeItem('egi_v92_lab:'+k)};
@@ -2349,7 +2349,43 @@ function labSelfTest(){
  return cases;
 }
 
+
+const TRANS_KEY93='transition_v93';
+function transClass93(seps,vols){
+ if(seps.length<5||vols.length<3||!seps.every(Number.isFinite)||!vols.every(Number.isFinite))return 'SEM_DADOS';
+ const [a,b,c,d,e]=seps.slice(-5),v=vols.at(-1),vp=vols.at(-2);
+ if(Math.abs(e)<.25)return 'COMPRESSAO';
+ const dir=e>0?1:-1,side=dir===1?'LONG':'SHORT';
+ const expansion=dir*e>dir*d&&dir*d>dir*c&&dir*c>=0;
+ const recent=Math.min(Math.abs(a),Math.abs(b),Math.abs(c),Math.abs(d))<.25;
+ if(expansion&&recent&&v>=1.2&&v>=vp&&dir*d>=.25)return 'CONFIRMACAO_TECNICA_'+side;
+ if(expansion&&recent)return 'EXPANSAO_'+side;
+ return 'SEM_TRANSICAO';
+}
+function transRead93(candles,tf,now){
+ const i=egiClosedIndex(candles,now);if(i<44)return null;
+ const cc=candles.slice(0,i+1),close=Number(cc.at(-1)[6]),step=tfToMs(tf);
+ if(close!==Math.floor(now/step)*step-1)return null;
+ const tail=cc.slice(-45);if(tail.some((k,j)=>!Number.isFinite(Number(k[4]))||Number(k[4])<=0||!Number.isFinite(Number(k[5]))||Number(k[5])<0||(j&&Number(k[0])-Number(tail[j-1][0])!==step)))return null;
+ const prices=cc.map(k=>Number(k[4]));if(!prices.every(x=>Number.isFinite(x)&&x>0))return null;
+ const f=ema(prices,9),g=ema(prices,21),seps=[],vols=[];
+ for(let j=i-4;j<=i;j++){seps.push(100*(f[j]-g[j])/g[j]);const avg=cc.slice(j-20,j).reduce((a,k)=>a+Number(k[5]),0)/20;vols.push(avg>0?Number(cc[j][5])/avg:NaN);}
+ return {close,seps,vols,state:transClass93(seps,vols)};
+}
+function transAppend93(old,row){const key=row.symbol+'|'+row.tf;const prev=old.find(x=>x.symbol+'|'+x.tf===key);if(prev&&prev.close>=row.close)return old;return [row,...old];}
+function transObserve93(symbol,sets){
+ let history;try{history=JSON.parse(labStorage.getItem(TRANS_KEY93)||'[]');if(!Array.isArray(history))history=[];}catch{history=[];}
+ let next=history;const lines=[],now=Date.now();
+ LIGHT_TFS.forEach((tf,i)=>{const c=Array.isArray(sets[i])?transRead93(sets[i],tf,now):null;if(!c){lines.push(tf+' | sem candle atual ou dados suficientes');return;}next=transAppend93(next,{symbol,tf,...c});lines.push(tf+' | '+c.state+' | MME '+c.seps.map(x=>x.toFixed(3)+'%').join(' → ')+' | volume '+c.vols.map(x=>Number.isFinite(x)?x.toFixed(2)+'x':'—').join(' → '));});
+ const el=document.getElementById('transRead93');el.textContent=symbol+' • '+lines.join('\n');
+ try{if(next!==history)labStorage.setItem(TRANS_KEY93,JSON.stringify(next));}catch(e){el.textContent+='\nFalha de persistência: exporte o histórico de transição.';next=history;}
+ const counts={};for(const x of next.filter(x=>x.symbol===symbol)){const k=x.tf+' '+x.state;counts[k]=(counts[k]||0)+1;}
+ document.getElementById('transStats93').textContent=Object.entries(counts).map(([k,v])=>k+': '+v).join('\n')||'Sem observações.';
+}
+function transTests93(){const v=[.7,1,1.3],row={symbol:'BTCUSDT',tf:'15m',close:10};return [transClass93([.01,.02,.03,.04,.05],v)==='COMPRESSAO',transClass93([.05,.1,.2,.26,.35],v)==='CONFIRMACAO_TECNICA_LONG',transClass93([-.05,-.1,-.2,-.26,-.35],v)==='CONFIRMACAO_TECNICA_SHORT',transClass93([.05,.1,.2,.26,.35],[.6,.7,.8])==='EXPANSAO_LONG',transClass93([.05,.1,.2,.26,.35],[.6,2,1.3])==='EXPANSAO_LONG',transClass93([.05],v)==='SEM_DADOS',transAppend93([row],row).length===1,transAppend93([row],{...row,close:9}).length===1,transAppend93([row],{...row,close:11}).length===2];}
+
 function updateOpenTrades(symbol,candleSets){
+  transObserve93(symbol,candleSets);
   labAudit3(symbol,candleSets);
   let changed=false;
   const byTf={};
@@ -4088,9 +4124,10 @@ $('resumeSignalsBtn')?.addEventListener('click',()=>{
 });
 
 document.getElementById('labBackup92').addEventListener('click',labBackup);
-document.getElementById('labTest92').addEventListener('click',()=>{const a=[...labSelfTest(),...labRestoreTests(),labStorageTest()];document.getElementById('labTestResult92').textContent=a.filter(Boolean).length+'/'+a.length+' testes aprovados';});
+document.getElementById('labTest92').addEventListener('click',()=>{const a=[...labSelfTest(),...labRestoreTests(),labStorageTest(),...transTests93()];document.getElementById('labTestResult92').textContent=a.filter(Boolean).length+'/'+a.length+' testes aprovados';});
 document.getElementById('labImport92').addEventListener('click',()=>document.getElementById('labFile92').click());
 document.getElementById('labFile92').addEventListener('change',e=>{labRestoreFile(e.target.files[0]);e.target.value='';});
+document.getElementById('transExport93').addEventListener('click',()=>{const b=new Blob([labStorage.getItem(TRANS_KEY93)||'[]'],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='RadarTransicao_V93.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);});
 loadRobotSettings();
 loadNtfySettings();
 lessonInit();
