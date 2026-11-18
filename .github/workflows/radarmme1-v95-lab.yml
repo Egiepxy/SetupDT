@@ -1,0 +1,39 @@
+name: RadarMME1 V9.5 LAB
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '2,17,32,47 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: radar-v95-lab
+  cancel-in-progress: false
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/lab/radarmme1-v95'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lab/radarmme1-v95
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node lab/v95/test.cjs
+      - name: Collect public candles
+        id: collect
+        continue-on-error: true
+        run: node lab/v95/audit.cjs
+      - name: Persist audit
+        if: always() && steps.collect.outcome != 'skipped'
+        run: |
+          git config user.name 'egi-lab-bot'
+          git config user.email 'egi-lab-bot@users.noreply.github.com'
+          git add lab/v95/data
+          if ! git diff --cached --quiet; then
+            git commit -m 'LAB V9.5 audit snapshot'
+            git push origin HEAD:refs/heads/lab/radarmme1-v95
+          fi
+      - name: Report collection failure
+        if: steps.collect.outcome == 'failure'
+        run: exit 1
