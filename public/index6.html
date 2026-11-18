@@ -778,7 +778,7 @@ header h1{font-size:26px}
 </div>
 </div>
 
-<section id="labPanel92" style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.2 LAB — Estatísticas por moeda / TF</h2><p>2R é o resultado original. 3R é estudo paralelo com stop original, sem alterar a operação, sem alertas adicionais. Candles parciais e lacunas não são usados. Histórico local LAB.</p><pre id="labStats92" style="white-space:pre-wrap"></pre><h3>Professor EGI — indícios após STOP (não causas comprovadas)</h3><pre id="labProfessor92" style="white-space:pre-wrap"></pre><button type="button" id="labBackup92">Exportar backup JSON</button> <button type="button" id="labTest92">Autotestes</button><p id="labTestResult92" role="status"></p></section>
+<section id="labPanel92" style="margin:12px;padding:14px;border:1px solid #64748b;border-radius:12px"><h2>V9.2 LAB — Estatísticas por moeda / TF</h2><p>2R é o resultado original. 3R é estudo paralelo com stop original, sem alterar a operação, sem alertas adicionais. Candles parciais e lacunas não são usados. Histórico local LAB.</p><pre id="labStats92" style="white-space:pre-wrap"></pre><h3>Professor EGI — indícios após STOP (não causas comprovadas)</h3><pre id="labProfessor92" style="white-space:pre-wrap"></pre><button type="button" id="labBackup92">Exportar backup JSON</button> <button type="button" id="labTest92">Autotestes</button><button type="button" id="labImport92">Recuperar backup JSON</button><input type="file" id="labFile92" accept=".json,application/json" hidden><p id="labRestoreStatus92" role="status"></p><p id="labTestResult92" role="status"></p></section>
 <script>
 // V9.2 LAB: storage isolated from production, no migration or deletion.
 const labStorage={getItem:k=>window.localStorage.getItem('egi_v92_lab:'+k),setItem:(k,v)=>window.localStorage.setItem('egi_v92_lab:'+k,v),removeItem:k=>window.localStorage.removeItem('egi_v92_lab:'+k)};
@@ -2320,6 +2320,27 @@ function labRender(){
  el.textContent=groups.length?groups.map(g=>g.key+' | n='+g.n+' | 1R '+g.one+' | 2R '+g.two+' | STOP '+g.stop+' | abertas '+g.open+' | indet. '+g.amb+' | acerto 2R '+(g.two+g.stop?(100*g.two/(g.two+g.stop)).toFixed(1)+'%':'—')+' | '+g.r.toFixed(1)+'R | estudo 3R: '+g.three+' alvo, '+g.threeStop+' stop, '+g.threeOpen+' abertas, '+g.threeUnknown+' sem conclusão').join('\n'):'Sem sinais LAB.';
  const p=document.getElementById('labProfessor92');const d=studyAuditData();p.textContent=d.details.length?d.details.slice(0,10).map(x=>x.t.symbol+' '+x.t.tf+' | '+(x.findings.join(', ')||'sem indício identificado')+' | '+(x.missing.length?'Faltam: '+x.missing.join(', '):'Rever reteste, candle fechado e contexto antes de nova entrada')).join('\n'):'Nenhum STOP registrado.';
 }
+
+function labRestorePlan(p,trades,events){
+ if(!p||p.schema!=='EGI-LAB92'||!Array.isArray(p.trades)||!Array.isArray(p.events))throw Error('Formato inválido');
+ const check=x=>{if(typeof x==='string'&&(/[<>&]/.test(x)||x.length>20000))throw Error('Texto inválido');if(x&&typeof x==='object')for(const [k,v] of Object.entries(x)){if(['__proto__','constructor','prototype'].includes(k))throw Error('Chave inválida');check(v);}};check(p);
+ for(const t of p.trades){if(!t||!['LONG','SHORT'].includes(t.direction)||!['ABERTA','2R','STOP','INDETERMINADA'].includes(t.status)||!(/^[A-Z0-9]{2,32}$/.test(t.symbol))||!['5m','15m','30m','1h','4h','1d'].includes(t.tf)||!Number.isFinite(Date.parse(t.ts))||![t.entry,t.stop,t.r1,t.r2].every(Number.isFinite)||t.entry<=0||t.stop<=0||t.entry===t.stop)throw Error('Operação inválida');}
+ for(const e of p.events)if(!e||typeof e.id!=='string'||!Number.isFinite(Date.parse(e.ts)))throw Error('Evento inválido');
+ const merge=(a,b,key)=>{const m=new Map(a.map(x=>[key(x),x]));for(const x of b)if(!m.has(key(x)))m.set(key(x),x);return [...m.values()].sort((x,y)=>Date.parse(y.ts)-Date.parse(x.ts));};
+ return {trades:merge(trades,p.trades,t=>[t.symbol,t.tf,t.direction,t.signalCandleClose||t.ts].join('|')),events:merge(events,p.events,e=>e.id)};
+}
+async function labRestoreFile(file){
+ const status=document.getElementById('labRestoreStatus92');
+ try{if(!file||file.size>4000000)throw Error('Arquivo ausente ou acima de 4 MB');const p=JSON.parse(await file.text());
+ if(!confirm('Mesclar backup LAB sem substituir registros existentes?'))return;
+ const next=labRestorePlan(p,robotTrades,robotEvents);const oldT=labStorage.getItem(ROBOT_TRADES_KEY),oldE=labStorage.getItem(ROBOT_EVENTS_KEY);
+ try{labStorage.setItem(ROBOT_TRADES_KEY,JSON.stringify(next.trades));labStorage.setItem(ROBOT_EVENTS_KEY,JSON.stringify(next.events));}catch(e){try{oldT===null?labStorage.removeItem(ROBOT_TRADES_KEY):labStorage.setItem(ROBOT_TRADES_KEY,oldT);oldE===null?labStorage.removeItem(ROBOT_EVENTS_KEY):labStorage.setItem(ROBOT_EVENTS_KEY,oldE);}catch{}throw e;}
+ robotTrades=next.trades;robotEvents=next.events;renderTradeLog();renderEventLog();renderPerformance();status.textContent='Backup mesclado: '+robotTrades.length+' operações, '+robotEvents.length+' eventos.';
+ }catch(e){status.textContent='Falha: '+e.message;}
+}
+function labRestoreTests(){const t={symbol:'BTCUSDT',tf:'15m',direction:'LONG',status:'ABERTA',ts:'2026-11-18T00:00:00Z',entry:100,stop:90,r1:110,r2:120,signalCandleClose:1};const p={schema:'EGI-LAB92',trades:[t,t],events:[]};const rejects=x=>{try{labRestorePlan(x,[],[]);return false}catch{return true}};return [labRestorePlan(p,[],[]).trades.length===1,labRestorePlan(p,[{...t,status:'STOP'}],[]).trades[0].status==='STOP',rejects({...p,schema:'wrong'}),rejects({...p,trades:[{...t,symbol:'<bad>'}]}),rejects({...p,trades:[{...t,entry:null}]})];}
+function labStorageTest(){const k='selftest_'+Date.now();try{labStorage.setItem(k,'ok');return labStorage.getItem(k)==='ok'}catch{return false}finally{try{labStorage.removeItem(k)}catch{}}}
+
 function labBackup(){const blob=new Blob([JSON.stringify({schema:'EGI-LAB92',exportedAt:new Date().toISOString(),trades:robotTrades,events:robotEvents},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='RadarMME1_V92_LAB_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 function labSelfTest(){
  const t={symbol:'TESTUSDT',tf:'15m',direction:'LONG',entry:100,stop:90,signalCandleClose:899999,ts:new Date(900000).toISOString()};
@@ -4067,7 +4088,9 @@ $('resumeSignalsBtn')?.addEventListener('click',()=>{
 });
 
 document.getElementById('labBackup92').addEventListener('click',labBackup);
-document.getElementById('labTest92').addEventListener('click',()=>{const a=labSelfTest();document.getElementById('labTestResult92').textContent=a.filter(Boolean).length+'/'+a.length+' testes aprovados';});
+document.getElementById('labTest92').addEventListener('click',()=>{const a=[...labSelfTest(),...labRestoreTests(),labStorageTest()];document.getElementById('labTestResult92').textContent=a.filter(Boolean).length+'/'+a.length+' testes aprovados';});
+document.getElementById('labImport92').addEventListener('click',()=>document.getElementById('labFile92').click());
+document.getElementById('labFile92').addEventListener('change',e=>{labRestoreFile(e.target.files[0]);e.target.value='';});
 loadRobotSettings();
 loadNtfySettings();
 lessonInit();
