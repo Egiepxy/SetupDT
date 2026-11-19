@@ -1,0 +1,49 @@
+name: Connors V1.6 LAB validation
+on:
+  push:
+    branches: [lab/connors-v16]
+    paths:
+      - '.github/workflows/connors-v16.yml'
+      - 'lab/connors/monitor-v16.mjs'
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: connors-v16-lab
+  cancel-in-progress: false
+jobs:
+  audit:
+    if: github.ref_name == 'lab/connors-v16'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/cache/restore@v4
+        with:
+          path: lab/connors/state-v16.json
+          key: connors-v16-state-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: connors-v16-state-
+      - run: node lab/connors/auditoria-v15.mjs --test
+      - run: node lab/connors/monitor-v16.mjs --test
+      - run: node lab/connors/auditoria-v15.mjs
+      - run: node lab/connors/monitor-v16.mjs
+        env:
+          NTFY_TEST: 'true'
+      - uses: actions/cache/save@v4
+        if: always() && hashFiles('lab/connors/state-v16.json') != ''
+        with:
+          path: lab/connors/state-v16.json
+          key: connors-v16-state-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: connors-v16-auditoria
+          path: |
+            lab/connors/state-v16.json
+            lab/connors/report-v16.json
+            lab/connors/auditoria-v15.json
