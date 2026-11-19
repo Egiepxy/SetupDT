@@ -18,8 +18,14 @@ jobs:
         with:
           node-version: '22'
       - run: node lab/connors/auditoria-v15.mjs --test
+      - run: node lab/connors/notificar-v15.mjs --test
       - run: node lab/connors/auditoria-v15.mjs
+      - run: node lab/connors/notificar-v15.mjs
+        env:
+          NTFY_ENABLED: 'false'
       - uses: actions/upload-artifact@v4
         with:
           name: connors-v15-auditoria
-          path: lab/connors/auditoria-v15.json
+          path: |
+            lab/connors/auditoria-v15.json
+            lab/connors/notificacoes-v15.json
