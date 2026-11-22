@@ -1,0 +1,40 @@
+// LAB: regressão sobre funções reais de public/index.html, sem navegador nem ordens.
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../../public/index.html',import.meta.url),'utf8');
+function extract(name,next){
+ const start=html.indexOf('function '+name+'(');
+ assert.ok(start>=0,name+' ausente');
+ const end=html.indexOf('function '+next+'(',start);
+ assert.ok(end>start,'limite de função '+name+' não localizado');
+ return html.slice(start,end);
+}
+const source=extract('applyFlowGate','crowdingMode')+'\n'+extract('applyLiveEntryFilter','invalidate');
+const ctx={};
+vm.createContext(ctx);
+vm.runInContext(source,ctx,{timeout:1500});
+const ev={tradable:true,day:'LONG',marketRisk:{status:'OK'},levels:{entry:100,stop:95,t1:110}};
+ctx.flowGate15m=()=>({confirmed:false,phase:'AGUARDAR'});
+let x=ctx.applyFlowGate(structuredClone(ev),[]);
+assert.equal(x.preFlowTradable,true);
+assert.equal(x.tradable,false);
+assert.equal(x.flowBlocked,true);
+x=ctx.applyLiveEntryFilter(x,{price:100});
+assert.equal(x.technicalTradable,true);
+assert.equal(x.liveEntryState,'WAITING_FLOW');
+assert.equal(x.tradable,false);
+ctx.flowGate15m=()=>({confirmed:true,phase:'CONFIRMADO'});
+x=ctx.applyFlowGate(structuredClone(ev),[]);
+assert.equal(x.tradable,true);
+x=ctx.applyLiveEntryFilter(x,{price:111});
+assert.equal(x.tradable,false);
+assert.equal(x.liveEntryState,'MISSED');
+x=ctx.applyLiveEntryFilter(ctx.applyFlowGate(structuredClone(ev),[]),{price:94});
+assert.equal(x.liveEntryState,'INVALIDATED');
+x=ctx.applyLiveEntryFilter(ctx.applyFlowGate(structuredClone(ev),[]),{price:105});
+assert.equal(x.liveEntryState,'WAITING_ENTRY');
+x=ctx.applyLiveEntryFilter(ctx.applyFlowGate(structuredClone(ev),[]),{price:100});
+assert.equal(x.liveEntryState,'ACTIVE');
+assert.equal(x.tradable,true);
+console.log('PASS: fluxo pendente, fluxo confirmado, entrada perdida, stop, pullback e entrada ativa (funções extraídas do HTML real)');
