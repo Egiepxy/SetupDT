@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {inspectHtml} from './identificar-html.mjs';
+const html='<html><title>SetupDT EGI V3.5 LAB</title><script>function applyLiveEntryFilter(){}; const x="WAITING_FLOW";</script></html>';
+const r=inspectHtml(html,'app.html');
+assert.equal(r.title,'SetupDT EGI V3.5 LAB');
+assert.equal(r.sha256.length,64);
+assert.equal(r.compatibleForComparison,true);
+assert.equal(inspectHtml('<title>outro</title>').compatibleForComparison,false);
+assert.equal(inspectHtml(html,'outra.html').sha256,r.sha256);
+console.log('PASS: identificação local HTML — 5 verificações');
