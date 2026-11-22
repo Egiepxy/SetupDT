@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Radar EGI V2.2 LAB — alertas de estudo, sem ordens."""
 import json, os, urllib.request, urllib.parse, datetime, pathlib, math
+from professor import explain, audit_all
 ROOT=pathlib.Path(__file__).resolve().parent
 STATE=ROOT/"state.json"
 SYMS=["BTC","XRP","LINK","ETH","SOL","ONDO"]
@@ -41,11 +42,14 @@ def send(msg):
     with urllib.request.urlopen(req,timeout=15) as r:return r.status==200
 def main():
     state=json.loads(STATE.read_text()) if STATE.exists() else {"sent":[],"events":[]}
-    sent=set(state.get("sent",[])); multi={};errors=[]; new=[]
+    sent=set(state.get("sent",[])); multi={};errors=[]; new=[]; candles15={}
     for tf in TFS:
         multi[tf]={}
         for sym in SYMS:
-            try:multi[tf][sym]=measure(get(sym,tf))
+            try:
+                rows=get(sym,tf)
+                multi[tf][sym]=measure(rows)
+                if tf=="15m":candles15[sym]=rows
             except Exception as e:errors.append(sym+" "+tf+": "+str(e)[:140])
     btc=multi.get("1h",{}).get("BTC")
     for sym in SYMS:
@@ -59,7 +63,8 @@ def main():
             if key not in sent:
                 event={"id":key,"a":sym,"tf":"15m","end":a["end"],"price":a["price"],
                     "kind":"OBSERVAÇÃO","state":"AGUARDANDO CONFIRMAÇÃO","relative":round(relative,2),
-                    "createdAt":datetime.datetime.now(datetime.timezone.utc).isoformat()}
+                    "createdAt":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    "professor":explain(a,h,relative)}
                 new.append(event)
                 msg=f'OBSERVAR {sym}USDT 15m | Preço {a["price"]:.8g} USDT | RSI {a["rsi"]} | Força vs BTC {relative:+.2f}pp | Candle fechado. NÃO É ENTRADA.'
                 try:
@@ -67,9 +72,10 @@ def main():
                     elif os.getenv("ENABLE_NTFY")!="true":sent.add(key)
                 except Exception as e:errors.append("ntfy: "+str(e)[:120])
     state["events"]=(state.get("events",[])+new)[-500:]
+    state["audits"]=audit_all(state["events"],candles15)
     state["sent"]=list(sent)[-1000:]
     state["lastRun"]=datetime.datetime.now(datetime.timezone.utc).isoformat()
     state["multi"]=multi;state["errors"]=errors
     STATE.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n")
-    print(json.dumps({"new":len(new),"errors":errors,"pairs":sum(map(len,multi.values()))},ensure_ascii=False))
+    print(json.dumps({"new":len(new),"errors":errors,"pairs":sum(map(len,multi.values())),"audited":sum(v.get("status")=="COMPLETO" for v in state["audits"].values())},ensure_ascii=False))
 if __name__=="__main__":main()
