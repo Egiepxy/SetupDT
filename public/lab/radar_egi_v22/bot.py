@@ -72,7 +72,18 @@ def main():
                     elif os.getenv("ENABLE_NTFY")!="true":sent.add(key)
                 except Exception as e:errors.append("ntfy: "+str(e)[:120])
     state["events"]=(state.get("events",[])+new)[-500:]
-    state["audits"]=audit_all(state["events"],candles15)
+    previous_audits=state.get("audits",{})
+    current_audits=audit_all(state["events"],candles15)
+    for key, current in current_audits.items():
+        old=previous_audits.get(key,{})
+        if old.get("status")=="COMPLETO":
+            continue
+        if old.get("horizons"):
+            current["horizons"]={**current.get("horizons",{}),
+                **{n:v for n,v in old["horizons"].items() if v.get("status")=="AUDITADO"}}
+            current["status"]="COMPLETO" if all(current["horizons"].get(str(n),{}).get("status")=="AUDITADO" for n in (1,2,4)) else "PARCIAL"
+        previous_audits[key]=current
+    state["audits"]=previous_audits
     state["sent"]=list(sent)[-1000:]
     state["lastRun"]=datetime.datetime.now(datetime.timezone.utc).isoformat()
     state["multi"]=multi;state["errors"]=errors
