@@ -1,0 +1,17 @@
+name: Radar EGI Professor V2.3 LAB - Autotestes
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar sintaxe Python
+        run: python -m py_compile public/lab/radar_egi_v22/professor.py public/lab/radar_egi_v22/bot.py public/lab/radar_egi_v22/test_professor.py
+      - name: Autotestes sem API, NTFY ou ordens
+        run: python -m unittest discover -s public/lab/radar_egi_v22 -p 'test_professor.py' -v
