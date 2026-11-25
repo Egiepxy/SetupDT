@@ -7,7 +7,7 @@ Monitoramento automático de sinais técnicos do SetupDT, em modo somente leitur
 - Binance Spot pública, sem chave de API.
 - Watchlist de 21 ativos EGI, configurada em `scripts/scan.mjs`.
 - Candles fechados de 15m, 1h, 4h e 1d; preço atual usado apenas para invalidar ou marcar entrada perdida/aguardando pullback.
-- Reaproveita o cálculo do SetupDT V1.9.52 para tendência, escore, RSI, ATR, checklist 6/6, fluxo EGI e níveis técnicos.
+- Espelha o cálculo-base do SetupDT V1.9.52 para tendência, escore, RSI, ATR, checklist 6/6, fluxo EGI e níveis técnicos.
 - Grava a última leitura e o histórico em `state.json`.
 - Não envia ordens nem configura notificações externas.
 
