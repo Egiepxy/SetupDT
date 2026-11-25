@@ -72,7 +72,41 @@ async function collectAsset(asset){
   const price=Number(raw.quote.price);if(!Number.isFinite(price)||price<=0)throw new Error('Cotação atual inválida.');
   return {asset,market:'Binance Spot',price,updatedAt:new Date().toISOString(),result:evaluate(snaps,rows['15m'],{price,time:Date.now()})};
 }
-async function loadState(){try{return JSON.parse(await fs.readFile(STATE_PATH,'utf8'));}catch{return {schema:'setupdt-robot-lab/v1',generatedAt:null,latestRun:null,assets:{},signals:[],runs:[],execution:'NONE',notification:'NOT_CONFIGURED'};}}
+async function loadState(){try{return JSON.parse(await fs.readFile(STATE_PATH,'utf8'));}catch{return {schema:'setupdt-robot-lab/v1',generatedAt:null,latestRun:null,assets:{},signals:[],runs:[],execution:'NONE',notification:{channel:'Telegram',status:'NOT_CONFIGURED'}};}}
+function telegramDate(ms){
+  return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}).format(new Date(ms));
+}
+function telegramMessage(items,now){
+  const lines=['📡 SetupDT EGI LAB • novo(s) candidato(s) técnico(s)','Leitura '+telegramDate(Date.parse(now))+' BRT',''];
+  for(const item of items){
+    const r=item.result;
+    lines.push(item.asset+'USDT • '+r.status+' • Checklist '+r.count+'/6');
+    lines.push('Preço: '+Number(item.price).toLocaleString('pt-BR',{maximumFractionDigits:8})+' USDT');
+    lines.push('Fluxo: '+(r.flow?.label||'n/d')+' • Candle 15m: '+telegramDate(r.signalCandle));
+    lines.push('Confirmação completa do SetupDT: pendente. Sem ordem.');
+    lines.push('');
+  }
+  lines.push('Fonte: Binance Spot. SHORT é leitura direcional; não abre posição vendida no Spot.');
+  return lines.join('\n').slice(0,3900);
+}
+async function notifyTelegram(items,now){
+  const token=String(process.env.TELEGRAM_BOT_TOKEN||'').trim(),chatId=String(process.env.TELEGRAM_CHAT_ID||'').trim();
+  if(!token||!chatId)return {channel:'Telegram',status:'NOT_CONFIGURED',sent:0,attemptedAt:now};
+  if(!items.length)return {channel:'Telegram',status:'IDLE',sent:0,attemptedAt:now};
+  const text=telegramMessage(items,now);
+  try{
+    const response=await fetch('https://api.telegram.org/bot'+token+'/sendMessage',{
+      method:'POST',headers:{'content-type':'application/json','accept':'application/json'},
+      body:JSON.stringify({chat_id:chatId,text,disable_web_page_preview:true}),
+      signal:AbortSignal.timeout(12000)
+    });
+    const payload=await response.json().catch(()=>null);
+    if(!response.ok||payload?.ok!==true)return {channel:'Telegram',status:'PENDING',sent:0,attemptedAt:now,error:'Telegram HTTP '+response.status};
+    return {channel:'Telegram',status:'SENT',sent:1,signalCount:items.length,attemptedAt:now,messageId:payload.result?.message_id||null};
+  }catch(_){
+    return {channel:'Telegram',status:'PENDING',sent:0,attemptedAt:now,error:'Falha de conexão Telegram; será tentado novamente.'};
+  }
+}
 async function main(){
   const old=await loadState(),assets={},errors=[];
   for(let i=0;i<ASSETS.length;i+=3){
@@ -82,10 +116,34 @@ async function main(){
   }
   const now=new Date().toISOString(),run={at:now,assetsOk:Object.values(assets).filter(x=>x.result).length,assetsFailed:errors.length,candidates:Object.values(assets).filter(x=>String(x.result?.status||'').startsWith('CANDIDATO')).length,errors};
   const history=Array.isArray(old.signals)?old.signals:[];
-  for(const item of Object.values(assets)){const r=item.result;if(!r||!String(r.status).startsWith('CANDIDATO'))continue;const key=item.asset+'|'+r.day+'|'+r.signalCandle;if(!history.some(x=>x.key===key))history.push({key,asset:item.asset,direction:r.day,status:r.status,candle:r.signalCandle,detectedAt:now,price:item.price,flow:r.flow,execution:'NONE'});}
-  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history.slice(-500),runs:[...(Array.isArray(old.runs)?old.runs:[]),run].slice(-96),execution:'NONE',notification:'NOT_CONFIGURED',scope:'Read-only signal monitoring; no exchange keys and no orders.'};
+  const added=[];
+  for(const item of Object.values(assets)){
+    const r=item.result;if(!r||!String(r.status).startsWith('CANDIDATO'))continue;
+    const key=item.asset+'|'+r.day+'|'+r.signalCandle;
+    if(history.some(x=>x.key===key))continue;
+    const record={key,asset:item.asset,direction:r.day,status:r.status,candle:r.signalCandle,detectedAt:now,price:item.price,flow:r.flow,execution:'NONE',telegramStatus:process.env.TELEGRAM_BOT_TOKEN&&process.env.TELEGRAM_CHAT_ID?'PENDING':'NOT_CONFIGURED'};
+    history.push(record);added.push(record);
+  }
+  const pending=history.filter(x=>x.telegramStatus==='PENDING').slice(0,20);
+  const byKey=new Map();
+  for(const record of pending)byKey.set(record.key,record);
+  const sendItems=[];
+  for(const record of byKey.values()){
+    const latest=assets[record.asset];
+    if(latest?.result&&latest.result.signalCandle===record.candle)sendItems.push(latest);
+    else sendItems.push({asset:record.asset,price:record.price,result:{status:record.status,count:6,flow:record.flow,signalCandle:record.candle}});
+  }
+  const notification=await notifyTelegram(sendItems,now);
+  if(notification.status==='SENT'){
+    for(const record of pending){record.telegramStatus='SENT';record.telegramSentAt=now;}
+  }else if(notification.status==='PENDING'){
+    for(const record of pending){record.telegramAttempts=(Number(record.telegramAttempts)||0)+1;}
+  }else if(notification.status==='NOT_CONFIGURED'){
+    for(const record of pending)record.telegramStatus='NOT_CONFIGURED';
+  }
+  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history.slice(-500),runs:[...(Array.isArray(old.runs)?old.runs:[]),run].slice(-96),execution:'NONE',notification,scope:'Read-only signal monitoring; no exchange keys and no orders.'};
   await fs.mkdir(path.dirname(STATE_PATH),{recursive:true});const temp=STATE_PATH+'.tmp';await fs.writeFile(temp,JSON.stringify(state,null,2)+'\n','utf8');await fs.rename(temp,STATE_PATH);
-  console.log(JSON.stringify({generatedAt:now,assetsOk:run.assetsOk,assetsFailed:run.assetsFailed,candidates:run.candidates,errors:errors.slice(0,10)},null,2));
+  console.log(JSON.stringify({generatedAt:now,assetsOk:run.assetsOk,assetsFailed:run.assetsFailed,candidates:run.candidates,telegram:notification.status,pendingTelegram:history.filter(x=>x.telegramStatus==='PENDING').length,errors:errors.slice(0,10)},null,2));
   if(run.assetsOk===0)process.exitCode=1;
 }
 main().catch(error=>{console.error('Falha fatal no monitor SetupDT LAB:',error);process.exitCode=1;});
