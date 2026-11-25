@@ -18,7 +18,7 @@ O campo `status` pode indicar observação, preparação, espera de fluxo, candi
 
 ## Agenda
 
-O workflow propõe execução a cada 15 minutos, nos minutos 7, 22, 37 e 52 UTC. O arquivo de workflow está nesta branch LAB. O agendamento recorrente do GitHub só começa depois que o workflow estiver presente na branch padrão `main`; antes disso, a execução manual pelo GitHub Actions é a única opção.
+O workflow propõe execução a cada 15 minutos, nos minutos 7, 22, 37 e 52 UTC. O arquivo de workflow está nesta branch LAB. Nem o cron nem a execução manual ficam disponíveis até o workflow estar presente na branch padrão `main`. Depois da integração, a execução manual pode selecionar `lab/setupdt-robot` como ref; a agenda roda a cada 15 minutos.
 
 Para cada execução, o workflow consulta o código desta branch e salva o estado de volta em `lab/setupdt-robot/state.json`. Nenhum arquivo da aplicação SetupDT de produção é alterado.
 
