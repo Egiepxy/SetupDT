@@ -1,0 +1,13 @@
+{
+  "schema": "setupdt-robot-lab/v1",
+  "generatedAt": null,
+  "source": "Binance Spot public API",
+  "schedule": "15 min proposed; not active until workflow is on main",
+  "assets": {},
+  "latestRun": null,
+  "signals": [],
+  "runs": [],
+  "execution": "NONE",
+  "notification": "NOT_CONFIGURED",
+  "scope": "Read-only signal monitoring; no exchange keys and no orders."
+}
