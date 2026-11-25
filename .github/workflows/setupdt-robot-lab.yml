@@ -29,6 +29,8 @@ jobs:
         working-directory: labstate
         env:
           SETUPDT_STATE_PATH: lab/setupdt-robot/state.json
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node lab/setupdt-robot/scripts/scan.mjs
       - name: Persist read-only results in LAB
         working-directory: labstate
