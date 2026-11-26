@@ -72,7 +72,7 @@ async function collectAsset(asset){
   const price=Number(raw.quote.price);if(!Number.isFinite(price)||price<=0)throw new Error('Cotação atual inválida.');
   return {asset,market:'Binance Spot',price,updatedAt:new Date().toISOString(),result:evaluate(snaps,rows['15m'],{price,time:Date.now()})};
 }
-async function loadState(){try{return JSON.parse(await fs.readFile(STATE_PATH,'utf8'));}catch{return {schema:'setupdt-robot-lab/v1',generatedAt:null,latestRun:null,assets:{},signals:[],runs:[],execution:'NONE',notification:{channel:'Telegram',status:'NOT_CONFIGURED'}};}}
+async function loadState(){const raw=await fs.readFile(STATE_PATH,'utf8');const state=JSON.parse(raw);if(!Array.isArray(state.signals)||!Array.isArray(state.runs))throw new Error('Estado inválido; restauração manual necessária');return state;}
 function telegramDate(ms){
   return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}).format(new Date(ms));
 }
@@ -120,11 +120,12 @@ async function main(){
   for(const item of Object.values(assets)){
     const r=item.result;if(!r||!String(r.status).startsWith('CANDIDATO'))continue;
     const key=item.asset+'|'+r.day+'|'+r.signalCandle;
-    if(history.some(x=>x.key===key))continue;
+    if(history.some(x=>x.key===key)||Date.parse(now)-r.signalCandle>20*60*1000)continue;
     const record={key,asset:item.asset,direction:r.day,status:r.status,candle:r.signalCandle,detectedAt:now,price:item.price,flow:r.flow,execution:'NONE',telegramStatus:process.env.TELEGRAM_BOT_TOKEN&&process.env.TELEGRAM_CHAT_ID?'PENDING':'NOT_CONFIGURED'};
     history.push(record);added.push(record);
   }
-  const pending=history.filter(x=>x.telegramStatus==='PENDING').slice(0,20);
+  for(const record of history){if(record.telegramStatus==='PENDING'&&Date.parse(now)-record.candle>20*60*1000)record.telegramStatus='EXPIRED';}
+  const pending=history.filter(x=>x.telegramStatus==='PENDING').slice(0,5);
   const byKey=new Map();
   for(const record of pending)byKey.set(record.key,record);
   const sendItems=[];
@@ -133,17 +134,24 @@ async function main(){
     if(latest?.result&&latest.result.signalCandle===record.candle)sendItems.push(latest);
     else sendItems.push({asset:record.asset,price:record.price,result:{status:record.status,count:6,flow:record.flow,signalCandle:record.candle}});
   }
-  const notification=await notifyTelegram(sendItems,now);
+  // Persist intent before external delivery; ambiguous outcomes require manual reconciliation.
+  for(const record of pending)record.telegramStatus='IN_FLIGHT';
+  await saveState({...old,signals:history});
+  const notification=process.env.SETUPDT_TELEGRAM_ENABLED==='1'?await notifyTelegram(sendItems,now):{status:'DISABLED',sent:0};
+  if(notification.status==='DISABLED')for(const record of pending)record.telegramStatus='PENDING';
   if(notification.status==='SENT'){
     for(const record of pending){record.telegramStatus='SENT';record.telegramSentAt=now;}
   }else if(notification.status==='PENDING'){
-    for(const record of pending){record.telegramAttempts=(Number(record.telegramAttempts)||0)+1;}
+    for(const record of pending){record.telegramAttempts=(Number(record.telegramAttempts)||0)+1;record.telegramStatus='UNCERTAIN';}
   }else if(notification.status==='NOT_CONFIGURED'){
     for(const record of pending)record.telegramStatus='NOT_CONFIGURED';
   }
-  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history.slice(-500),runs:[...(Array.isArray(old.runs)?old.runs:[]),run].slice(-96),execution:'NONE',notification,scope:'Read-only signal monitoring; no exchange keys and no orders.'};
-  await fs.mkdir(path.dirname(STATE_PATH),{recursive:true});const temp=STATE_PATH+'.tmp';await fs.writeFile(temp,JSON.stringify(state,null,2)+'\n','utf8');await fs.rename(temp,STATE_PATH);
+  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history,runs:[...old.runs,run],health:{lastSuccess:run.assetsOk===ASSETS.length?now:old.health?.lastSuccess??null,lastAttempt:now,status:run.assetsOk===ASSETS.length?'OK':'DEGRADED'},dailyReports:dailyReports(old,run,history),execution:'NONE',notification,scope:'Read-only signal monitoring; no exchange keys and no orders.'};
+  await saveState(state);
   console.log(JSON.stringify({generatedAt:now,assetsOk:run.assetsOk,assetsFailed:run.assetsFailed,candidates:run.candidates,telegram:notification.status,pendingTelegram:history.filter(x=>x.telegramStatus==='PENDING').length,errors:errors.slice(0,10)},null,2));
   if(run.assetsOk===0)process.exitCode=1;
 }
-main().catch(error=>{console.error('Falha fatal no monitor SetupDT LAB:',error);process.exitCode=1;});
+async function saveState(state){const temp=STATE_PATH+'.tmp';await fs.writeFile(temp,JSON.stringify(state,null,2)+'\n',{flag:'wx'});await fs.rename(temp,STATE_PATH);}
+function dailyReports(old,run,history){const reports={...old.dailyReports};const local=new Date(Date.parse(run.at)-3*3600000).toISOString();const day=local.slice(0,10);if(local.slice(11,16)>='21:00'&&!reports[day]){const start=Date.parse(day+'T00:00:00-03:00'),end=Date.parse(day+'T21:00:00-03:00');const runs=[...old.runs,run].filter(x=>Date.parse(x.at)>=start&&Date.parse(x.at)<=end);reports[day]={cutoff:new Date(end).toISOString(),generatedAt:run.at,runs:runs.length,signals:history.filter(x=>Date.parse(x.detectedAt)>=start&&Date.parse(x.detectedAt)<=end).length,execution:'NONE'};}return reports;}
+export {evaluate,parseCandles,dailyReports};
+if(process.env.SETUPDT_TEST!=='1')main().catch(error=>{console.error('Falha fatal no monitor SetupDT LAB:',error);process.exitCode=1;});
