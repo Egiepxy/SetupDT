@@ -19,12 +19,15 @@ jobs:
       - name: Checkout persistent LAB branch
         uses: actions/checkout@v4
         with:
-          ref: lab/setupdt-robot
+          ref: lab/setupdt-robot-v11
           path: labstate
           persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Offline selftests
+        working-directory: labstate
+        run: node lab/setupdt-robot/scripts/selftest.mjs
       - name: Scan closed candles and update state
         working-directory: labstate
         env:
@@ -37,10 +40,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lab/setupdt-robot/state.json
+          git add lab/setupdt-robot/state.json lab/setupdt-robot/state.json.backup.json
           if git diff --cached --quiet; then
             echo "No state changes to commit"
           else
             git commit -m "chore(lab): update SetupDT signal state"
-            git push origin HEAD:refs/heads/lab/setupdt-robot
+            git push origin HEAD:refs/heads/lab/setupdt-robot-v11-v11
           fi
