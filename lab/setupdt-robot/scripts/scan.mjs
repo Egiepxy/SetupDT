@@ -109,6 +109,7 @@ async function notifyTelegram(items,now){
 }
 async function main(){
   const old=await loadState(),assets={},errors=[];
+  await fs.copyFile(STATE_PATH,STATE_PATH+'.backup.json');
   for(let i=0;i<ASSETS.length;i+=3){
     const batch=ASSETS.slice(i,i+3);
     const done=await Promise.all(batch.map(async asset=>{try{return {asset,value:await collectAsset(asset)};}catch(error){return {asset,error:String(error?.message||error)};}}));
