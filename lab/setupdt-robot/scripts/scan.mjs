@@ -152,7 +152,16 @@ async function main(){
   console.log(JSON.stringify({generatedAt:now,assetsOk:run.assetsOk,assetsFailed:run.assetsFailed,candidates:run.candidates,telegram:notification.status,pendingTelegram:history.filter(x=>x.telegramStatus==='PENDING').length,errors:errors.slice(0,10)},null,2));
   if(run.assetsOk===0)process.exitCode=1;
 }
-async function saveState(state){const temp=STATE_PATH+'.tmp';await fs.writeFile(temp,JSON.stringify(state,null,2)+'\n',{flag:'wx'});await fs.rename(temp,STATE_PATH);}
+async function saveState(state) {
+  const temporaryDirectory = await fs.mkdtemp(STATE_PATH + '.tmp-');
+  const temporaryState = path.join(temporaryDirectory, 'state.json');
+  try {
+    await fs.writeFile(temporaryState, JSON.stringify(state, null, 2) + '\n', { flag: 'wx' });
+    await fs.rename(temporaryState, STATE_PATH);
+  } finally {
+    await fs.rm(temporaryDirectory, { recursive: true, force: true }).catch(() => {});
+  }
+}
 function dailyReports(old,run,history){const reports={...old.dailyReports};const local=new Date(Date.parse(run.at)-3*3600000).toISOString();const day=local.slice(0,10);if(local.slice(11,16)>='21:00'&&!reports[day]){const start=Date.parse(day+'T00:00:00-03:00'),end=Date.parse(day+'T21:00:00-03:00');const runs=[...old.runs,run].filter(x=>Date.parse(x.at)>=start&&Date.parse(x.at)<=end);reports[day]={cutoff:new Date(end).toISOString(),generatedAt:run.at,runs:runs.length,signals:history.filter(x=>Date.parse(x.detectedAt)>=start&&Date.parse(x.detectedAt)<=end).length,execution:'NONE'};}return reports;}
 export {evaluate,parseCandles,dailyReports};
 if(process.env.SETUPDT_TEST!=='1')main().catch(error=>{console.error('Falha fatal no monitor SetupDT LAB:',error);process.exitCode=1;});
