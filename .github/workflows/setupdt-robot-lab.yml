@@ -1,6 +1,9 @@
 name: SetupDT Robot LAB
 on:
   workflow_dispatch:
+  push:
+    branches: [lab/setupdt-robot-v11]
+    paths: ['.github/workflows/setupdt-robot-lab.yml', 'lab/setupdt-robot/scripts/**']
   schedule:
     - cron: '7,22,37,52 * * * *'
 permissions:
@@ -10,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   scan:
-    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/lab/setupdt-robot-v11' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -31,6 +34,7 @@ jobs:
       - name: Scan closed candles and update state
         working-directory: labstate
         env:
+          SETUPDT_TELEGRAM_ENABLED: '0'
           SETUPDT_STATE_PATH: lab/setupdt-robot/state.json
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -45,5 +49,5 @@ jobs:
             echo "No state changes to commit"
           else
             git commit -m "chore(lab): update SetupDT signal state"
-            git push origin HEAD:refs/heads/lab/setupdt-robot-v11-v11
+            git push origin HEAD:refs/heads/lab/setupdt-robot-v11
           fi
