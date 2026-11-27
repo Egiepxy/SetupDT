@@ -1,14 +1,14 @@
 {
   "schema": "setupdt-robot-lab/v1",
-  "generatedAt": "2026-11-27T10:36:09.347Z",
+  "generatedAt": "2026-11-27T10:37:58.302Z",
   "source": "Binance Spot public API",
   "schedule": "15 min (GitHub Actions; requires workflow on default branch)",
   "assets": {
     "BTC": {
       "asset": "BTC",
       "market": "Binance Spot",
-      "price": 61626,
-      "updatedAt": "2026-11-27T10:36:08.254Z",
+      "price": 61640,
+      "updatedAt": "2026-11-27T10:37:57.267Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -94,8 +94,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 61626,
-          "time": 1795775768254
+          "price": 61640,
+          "time": 1795775877267
         },
         "levels": null,
         "stopModel": {
@@ -114,8 +114,8 @@
     "ETH": {
       "asset": "ETH",
       "market": "Binance Spot",
-      "price": 1728.95,
-      "updatedAt": "2026-11-27T10:36:08.302Z",
+      "price": 1728.55,
+      "updatedAt": "2026-11-27T10:37:57.310Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -201,8 +201,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 1728.95,
-          "time": 1795775768302
+          "price": 1728.55,
+          "time": 1795775877310
         },
         "levels": null,
         "stopModel": {
@@ -221,8 +221,8 @@
     "SOL": {
       "asset": "SOL",
       "market": "Binance Spot",
-      "price": 73.42,
-      "updatedAt": "2026-11-27T10:36:08.365Z",
+      "price": 73.37,
+      "updatedAt": "2026-11-27T10:37:57.221Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -308,8 +308,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 73.42,
-          "time": 1795775768365
+          "price": 73.37,
+          "time": 1795775877221
         },
         "levels": null,
         "stopModel": {
@@ -328,8 +328,8 @@
     "LINK": {
       "asset": "LINK",
       "market": "Binance Spot",
-      "price": 9.554,
-      "updatedAt": "2026-11-27T10:36:08.531Z",
+      "price": 9.551,
+      "updatedAt": "2026-11-27T10:37:57.474Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -415,8 +415,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 9.554,
-          "time": 1795775768531
+          "price": 9.551,
+          "time": 1795775877474
         },
         "levels": null,
         "stopModel": {
@@ -435,8 +435,8 @@
     "XRP": {
       "asset": "XRP",
       "market": "Binance Spot",
-      "price": 0.9838,
-      "updatedAt": "2026-11-27T10:36:08.532Z",
+      "price": 0.984,
+      "updatedAt": "2026-11-27T10:37:57.476Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -522,8 +522,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.9838,
-          "time": 1795775768532
+          "price": 0.984,
+          "time": 1795775877476
         },
         "levels": null,
         "stopModel": {
@@ -542,8 +542,8 @@
     "AVAX": {
       "asset": "AVAX",
       "market": "Binance Spot",
-      "price": 6.809,
-      "updatedAt": "2026-11-27T10:36:08.530Z",
+      "price": 6.807,
+      "updatedAt": "2026-11-27T10:37:57.477Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -629,8 +629,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 6.809,
-          "time": 1795775768530
+          "price": 6.807,
+          "time": 1795775877477
         },
         "levels": null,
         "stopModel": {
@@ -649,8 +649,8 @@
     "NEAR": {
       "asset": "NEAR",
       "market": "Binance Spot",
-      "price": 3.132,
-      "updatedAt": "2026-11-27T10:36:08.697Z",
+      "price": 3.13,
+      "updatedAt": "2026-11-27T10:37:57.643Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -736,8 +736,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 3.132,
-          "time": 1795775768697
+          "price": 3.13,
+          "time": 1795775877643
         },
         "levels": null,
         "stopModel": {
@@ -757,7 +757,7 @@
       "asset": "ONDO",
       "market": "Binance Spot",
       "price": 0.2958,
-      "updatedAt": "2026-11-27T10:36:08.696Z",
+      "updatedAt": "2026-11-27T10:37:57.639Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -844,7 +844,7 @@
         },
         "quote": {
           "price": 0.2958,
-          "time": 1795775768696
+          "time": 1795775877639
         },
         "levels": null,
         "stopModel": {
@@ -864,7 +864,7 @@
       "asset": "PENDLE",
       "market": "Binance Spot",
       "price": 1.236,
-      "updatedAt": "2026-11-27T10:36:08.695Z",
+      "updatedAt": "2026-11-27T10:37:57.640Z",
       "result": {
         "status": "PREPARAR SHORT",
         "day": "PREPARAR SHORT",
@@ -951,7 +951,7 @@
         },
         "quote": {
           "price": 1.236,
-          "time": 1795775768695
+          "time": 1795775877640
         },
         "levels": null,
         "stopModel": {
@@ -970,8 +970,8 @@
     "SUI": {
       "asset": "SUI",
       "market": "Binance Spot",
-      "price": 0.6916,
-      "updatedAt": "2026-11-27T10:36:08.859Z",
+      "price": 0.6915,
+      "updatedAt": "2026-11-27T10:37:57.808Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1057,8 +1057,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.6916,
-          "time": 1795775768859
+          "price": 0.6915,
+          "time": 1795775877808
         },
         "levels": null,
         "stopModel": {
@@ -1078,7 +1078,7 @@
       "asset": "CKB",
       "market": "Binance Spot",
       "price": 0.000859,
-      "updatedAt": "2026-11-27T10:36:08.857Z",
+      "updatedAt": "2026-11-27T10:37:57.804Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1165,7 +1165,7 @@
         },
         "quote": {
           "price": 0.000859,
-          "time": 1795775768857
+          "time": 1795775877804
         },
         "levels": null,
         "stopModel": {
@@ -1185,7 +1185,7 @@
       "asset": "INJ",
       "market": "Binance Spot",
       "price": 6.495,
-      "updatedAt": "2026-11-27T10:36:08.858Z",
+      "updatedAt": "2026-11-27T10:37:57.805Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1272,7 +1272,7 @@
         },
         "quote": {
           "price": 6.495,
-          "time": 1795775768858
+          "time": 1795775877805
         },
         "levels": null,
         "stopModel": {
@@ -1291,8 +1291,8 @@
     "AAVE": {
       "asset": "AAVE",
       "market": "Binance Spot",
-      "price": 97.24,
-      "updatedAt": "2026-11-27T10:36:09.021Z",
+      "price": 97.34,
+      "updatedAt": "2026-11-27T10:37:57.973Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1378,8 +1378,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 97.24,
-          "time": 1795775769021
+          "price": 97.34,
+          "time": 1795775877973
         },
         "levels": null,
         "stopModel": {
@@ -1399,7 +1399,7 @@
       "asset": "ENA",
       "market": "Binance Spot",
       "price": 0.1076,
-      "updatedAt": "2026-11-27T10:36:09.020Z",
+      "updatedAt": "2026-11-27T10:37:57.971Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1486,7 +1486,7 @@
         },
         "quote": {
           "price": 0.1076,
-          "time": 1795775769020
+          "time": 1795775877971
         },
         "levels": null,
         "stopModel": {
@@ -1506,15 +1506,15 @@
       "asset": "HYPE",
       "status": "SEM DADOS",
       "error": "Menos de 200 candles fechados em 1d",
-      "updatedAt": "2026-11-27T10:36:09.021Z",
+      "updatedAt": "2026-11-27T10:37:57.974Z",
       "fullSetupDTApproval": false,
       "execution": "NONE"
     },
     "SEI": {
       "asset": "SEI",
       "market": "Binance Spot",
-      "price": 0.03899,
-      "updatedAt": "2026-11-27T10:36:09.185Z",
+      "price": 0.03898,
+      "updatedAt": "2026-11-27T10:37:58.139Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1600,8 +1600,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.03899,
-          "time": 1795775769185
+          "price": 0.03898,
+          "time": 1795775878139
         },
         "levels": null,
         "stopModel": {
@@ -1620,8 +1620,8 @@
     "TIA": {
       "asset": "TIA",
       "market": "Binance Spot",
-      "price": 0.3436,
-      "updatedAt": "2026-11-27T10:36:09.180Z",
+      "price": 0.3437,
+      "updatedAt": "2026-11-27T10:37:58.135Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1707,8 +1707,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.3436,
-          "time": 1795775769180
+          "price": 0.3437,
+          "time": 1795775878135
         },
         "levels": null,
         "stopModel": {
@@ -1727,8 +1727,8 @@
     "WLD": {
       "asset": "WLD",
       "market": "Binance Spot",
-      "price": 0.253,
-      "updatedAt": "2026-11-27T10:36:09.184Z",
+      "price": 0.2531,
+      "updatedAt": "2026-11-27T10:37:58.138Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1814,8 +1814,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.253,
-          "time": 1795775769184
+          "price": 0.2531,
+          "time": 1795775878138
         },
         "levels": null,
         "stopModel": {
@@ -1834,8 +1834,8 @@
     "PEPE": {
       "asset": "PEPE",
       "market": "Binance Spot",
-      "price": 0.00000363,
-      "updatedAt": "2026-11-27T10:36:09.346Z",
+      "price": 0.00000364,
+      "updatedAt": "2026-11-27T10:37:58.302Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -1921,8 +1921,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 0.00000363,
-          "time": 1795775769346
+          "price": 0.00000364,
+          "time": 1795775878302
         },
         "levels": null,
         "stopModel": {
@@ -1942,7 +1942,7 @@
       "asset": "ADA",
       "market": "Binance Spot",
       "price": 0.1528,
-      "updatedAt": "2026-11-27T10:36:09.344Z",
+      "updatedAt": "2026-11-27T10:37:58.301Z",
       "result": {
         "status": "AGUARDAR FLUXO",
         "day": "LONG",
@@ -2032,7 +2032,7 @@
         },
         "quote": {
           "price": 0.1528,
-          "time": 1795775769344
+          "time": 1795775878301
         },
         "levels": {
           "entry": 0.1526,
@@ -2057,8 +2057,8 @@
     "UNI": {
       "asset": "UNI",
       "market": "Binance Spot",
-      "price": 4.893,
-      "updatedAt": "2026-11-27T10:36:09.345Z",
+      "price": 4.89,
+      "updatedAt": "2026-11-27T10:37:58.301Z",
       "result": {
         "status": "OBSERVAR",
         "day": "AGUARDAR",
@@ -2144,8 +2144,8 @@
           "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
         },
         "quote": {
-          "price": 4.893,
-          "time": 1795775769346
+          "price": 4.89,
+          "time": 1795775878301
         },
         "levels": null,
         "stopModel": {
@@ -2163,7 +2163,7 @@
     }
   },
   "latestRun": {
-    "at": "2026-11-27T10:36:09.347Z",
+    "at": "2026-11-27T10:37:58.302Z",
     "assetsOk": 20,
     "assetsFailed": 1,
     "candidates": 0,
@@ -2187,11 +2187,24 @@
           "error": "Menos de 200 candles fechados em 1d"
         }
       ]
+    },
+    {
+      "at": "2026-11-27T10:37:58.302Z",
+      "assetsOk": 20,
+      "assetsFailed": 1,
+      "candidates": 0,
+      "errors": [
+        {
+          "asset": "HYPE",
+          "error": "Menos de 200 candles fechados em 1d"
+        }
+      ]
     }
   ],
   "health": {
     "lastSuccess": null,
-    "lastAttempt": "2026-11-27T10:36:09.347Z",
+    "lastPartialSuccess": "2026-11-27T10:37:58.302Z",
+    "lastAttempt": "2026-11-27T10:37:58.302Z",
     "status": "DEGRADED"
   },
   "dailyReports": {},
