@@ -12,6 +12,14 @@ for(const dir of ['LONG','SHORT']){
  assert.ok(sign*(result.levels.t1-result.levels.entry)>0);
 }
 assert.throws(()=>parseCandles([], '15m',Date.now()));
+const ms=900000, now=ms*1000+5000;
+const candle=i=>[i*ms,100,101,99,100,10,i*ms+ms-1,0,0,5];
+const valid=Array.from({length:200},(_,i)=>candle(800+i));
+assert.equal(parseCandles([...valid,candle(1000)],'15m',now).length,200);
+assert.throws(()=>parseCandles(Array.from({length:200},(_,i)=>candle(799+i)),'15m',now),/esperado ausente/);
+assert.throws(()=>parseCandles([...valid.slice(0,100),valid[99],...valid.slice(100)],'15m',now),/duplicados/);
+assert.throws(()=>parseCandles(valid.filter((_,i)=>i!==100).concat([candle(799)]),'15m',now),/fora de ordem/);
+assert.equal(parseCandles([candle(799),...valid],'15m',ms*1000+1).at(-1).start,998*ms);
 const run={at:'2026-11-26T00:07:00Z'};
 assert.equal(dailyReports({runs:[]},run,[])['2026-11-25'].runs,0);
 console.log('LONG/SHORT, candle validation and daily cutoff passed');

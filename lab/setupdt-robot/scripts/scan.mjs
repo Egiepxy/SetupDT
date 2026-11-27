@@ -5,7 +5,7 @@ const ASSETS = ['BTC','ETH','SOL','LINK','XRP','AVAX','NEAR','ONDO','PENDLE','SU
 const TIMEFRAMES = ['15m','1h','4h','1d'];
 const BASES = ['https://api.binance.com/api/v3/','https://data-api.binance.vision/api/v3/'];
 const STATE_PATH = process.env.SETUPDT_STATE_PATH || path.resolve('state.json');
-const NOW = Date.now();
+const TF_MS = {'15m':900000,'1h':3600000,'4h':14400000,'1d':86400000};
 
 function sma(a,n){return a.length<n?null:a.slice(-n).reduce((x,y)=>x+y,0)/n;}
 function rsi(closes,period=14){if(closes.length<=period)return null;let gains=0,loss=0;for(let i=closes.length-period;i<closes.length;i++){const d=closes[i]-closes[i-1];if(d>0)gains+=d;else loss-=d;}if(loss===0)return gains===0?50:100;return 100-100/(1+(gains/period)/(loss/period));}
@@ -55,6 +55,11 @@ function parseCandles(payload,tf,now){
   const rows=payload.filter(x=>Array.isArray(x)&&Number(x[6])<now-1000).map(x=>({start:Number(x[0]),open:Number(x[1]),high:Number(x[2]),low:Number(x[3]),close:Number(x[4]),volume:Number(x[5]),end:Number(x[6]),takerBuyBase:Number.isFinite(Number(x[9]))?Number(x[9]):null}));
   if(rows.length<200)throw new Error('Menos de 200 candles fechados em '+tf);
   if(rows.some(c=>![c.start,c.open,c.high,c.low,c.close,c.volume,c.end].every(Number.isFinite)||c.open<=0||c.close<=0||c.low<=0||c.high<Math.max(c.open,c.close)||c.low>Math.min(c.open,c.close)||c.volume<0))throw new Error('Candles inconsistentes em '+tf);
+  const step=TF_MS[tf];
+  if(!step)throw new Error('Timeframe inválido: '+tf);
+  if(rows.some((c,i)=>c.start%step!==0||c.end!==c.start+step-1||(i>0&&c.start!==rows[i-1].start+step)))throw new Error('Candles fora de ordem, duplicados ou com lacuna em '+tf);
+  const expected=Math.floor((now-1000)/step)*step-step;
+  if(rows.at(-1).start!==expected)throw new Error('Último candle fechado esperado ausente em '+tf);
   return rows;
 }
 async function fetchJson(pathname){
@@ -147,7 +152,7 @@ async function main(){
   }else if(notification.status==='NOT_CONFIGURED'){
     for(const record of pending)record.telegramStatus='NOT_CONFIGURED';
   }
-  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history,runs:[...old.runs,run],health:{lastSuccess:run.assetsOk===ASSETS.length?now:old.health?.lastSuccess??null,lastAttempt:now,status:run.assetsOk===ASSETS.length?'OK':'DEGRADED'},dailyReports:dailyReports(old,run,history),execution:'NONE',notification,scope:'Read-only signal monitoring; no exchange keys and no orders.'};
+  const state={schema:'setupdt-robot-lab/v1',generatedAt:now,source:'Binance Spot public API',schedule:'15 min (GitHub Actions; requires workflow on default branch)',assets,latestRun:run,signals:history,runs:[...old.runs,run],health:{lastSuccess:run.assetsOk===ASSETS.length?now:old.health?.lastSuccess??null,lastPartialSuccess:run.assetsOk>0?now:old.health?.lastPartialSuccess??null,lastAttempt:now,status:run.assetsOk===ASSETS.length?'OK':'DEGRADED'},dailyReports:dailyReports(old,run,history),execution:'NONE',notification,scope:'Read-only signal monitoring; no exchange keys and no orders.'};
   await saveState(state);
   console.log(JSON.stringify({generatedAt:now,assetsOk:run.assetsOk,assetsFailed:run.assetsFailed,candidates:run.candidates,telegram:notification.status,pendingTelegram:history.filter(x=>x.telegramStatus==='PENDING').length,errors:errors.slice(0,10)},null,2));
   if(run.assetsOk===0)process.exitCode=1;
