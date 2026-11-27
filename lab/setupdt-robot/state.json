@@ -1,13 +1,2204 @@
 {
   "schema": "setupdt-robot-lab/v1",
-  "generatedAt": null,
+  "generatedAt": "2026-11-27T10:36:09.347Z",
   "source": "Binance Spot public API",
-  "schedule": "15 min proposed; not active until workflow is on main",
-  "assets": {},
-  "latestRun": null,
+  "schedule": "15 min (GitHub Actions; requires workflow on default branch)",
+  "assets": {
+    "BTC": {
+      "asset": "BTC",
+      "market": "Binance Spot",
+      "price": 61626,
+      "updatedAt": "2026-11-27T10:36:08.254Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -2
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 61715.31,
+            "r": 50.15438551349251,
+            "ma20": 61740.71050000001,
+            "ma50": 61314.328400000006,
+            "ma200": 60408.07279999994,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 199.26071428571282,
+            "volRatio": 0.4227554628085871,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 61630,
+            "r": 74.4470373648776,
+            "ma20": 61020.91499999999,
+            "ma50": 60386.28779999999,
+            "ma200": 60643.973249999995,
+            "trend": "Alta",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 401.71571428571406,
+            "volRatio": 0.8270940199544153,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 61673.45,
+            "r": 65.85518736578905,
+            "ma20": 60146.403000000006,
+            "ma50": 60593.01359999999,
+            "ma200": 71057.81659999996,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 1021.1549999999988,
+            "volRatio": 0.8450732298769061,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 60577.18,
+            "r": 22.157272692850455,
+            "ma20": 66031.7695,
+            "ma50": 74781.41239999999,
+            "ma200": 71980.10924999996,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 3423.91,
+            "volRatio": 0.7227778511559059,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 61626,
+          "time": 1795775768254
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 308.57655,
+          "multiplier": 1.5,
+          "atrPct": 0.003228707986490108,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "ETH": {
+      "asset": "ETH",
+      "market": "Binance Spot",
+      "price": 1728.95,
+      "updatedAt": "2026-11-27T10:36:08.302Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -2
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 1730.6,
+            "r": 43.87199999999962,
+            "ma20": 1733.864,
+            "ma50": 1720.625,
+            "ma200": 1692.4797999999992,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 5.772142857142837,
+            "volRatio": 0.34726009433316646,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 1728.24,
+            "r": 64.19827172347581,
+            "ma20": 1711.607,
+            "ma50": 1692.4088000000004,
+            "ma200": 1702.9652999999994,
+            "trend": "Alta",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 13.797857142857131,
+            "volRatio": 1.0389550927535072,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 1735.44,
+            "r": 63.89293426404866,
+            "ma20": 1686.8700000000001,
+            "ma50": 1701.8532,
+            "ma200": 2036.5351500000006,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 35.41714285714287,
+            "volRatio": 0.9949795137214721,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 1689.85,
+            "r": 26.374665196155675,
+            "ma20": 1857.6525000000001,
+            "ma50": 2169.8892000000005,
+            "ma200": 2111.2920500000005,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 115.96642857142857,
+            "volRatio": 0.648196479774677,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 1728.95,
+          "time": 1795775768302
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 8.658214285714255,
+          "multiplier": 1.5,
+          "atrPct": 0.003335341995344295,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "SOL": {
+      "asset": "SOL",
+      "market": "Binance Spot",
+      "price": 73.42,
+      "updatedAt": "2026-11-27T10:36:08.365Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 73.47,
+            "r": 67.1999999999995,
+            "ma20": 73.265,
+            "ma50": 72.46439999999998,
+            "ma200": 70.68995,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.29785714285714604,
+            "volRatio": 0.4310170590093589,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 73.6,
+            "r": 81.52173913043487,
+            "ma20": 71.9435,
+            "ma50": 70.66680000000001,
+            "ma200": 70.97025000000001,
+            "trend": "Alta",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.6078571428571432,
+            "volRatio": 1.5889236973003091,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 73.29,
+            "r": 70.5479452054795,
+            "ma20": 70.34649999999999,
+            "ma50": 70.90940000000005,
+            "ma200": 84.20354999999998,
+            "trend": "Lateral",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 1.558571428571428,
+            "volRatio": 0.7494930910700087,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 71.03,
+            "r": 33.22874176341388,
+            "ma20": 75.969,
+            "ma50": 91.38999999999999,
+            "ma200": 87.95949999999999,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 5.084285714285717,
+            "volRatio": 0.6051394112311203,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 73.42,
+          "time": 1795775768365
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.44678571428571906,
+          "multiplier": 1.5,
+          "atrPct": 0.004054132882226025,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "LINK": {
+      "asset": "LINK",
+      "market": "Binance Spot",
+      "price": 9.554,
+      "updatedAt": "2026-11-27T10:36:08.531Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": 1,
+          "weighted": 1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 9.556,
+            "r": 41.50943396226367,
+            "ma20": 9.607300000000002,
+            "ma50": 9.496839999999997,
+            "ma200": 9.160815,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.040785714285714265,
+            "volRatio": 0.937283194319013,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 9.585,
+            "r": 67.83295711060957,
+            "ma20": 9.399849999999999,
+            "ma50": 9.158559999999998,
+            "ma200": 8.902135000000001,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.1023571428571431,
+            "volRatio": 0.8664456751894085,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 9.599,
+            "r": 75.56468172484595,
+            "ma20": 9.043,
+            "ma50": 8.889100000000001,
+            "ma200": 10.211935000000006,
+            "trend": "Alta",
+            "score": 0,
+            "signal": "N",
+            "dir": "NEUTRO",
+            "atr": 0.21971428571428614,
+            "volRatio": 1.1990062077267059,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 9.278,
+            "r": 38.70884106818773,
+            "ma20": 9.4662,
+            "ma50": 10.936900000000001,
+            "ma200": 10.067755000000004,
+            "trend": "Baixa",
+            "score": -3,
+            "signal": "S+",
+            "dir": "SHORT",
+            "atr": 0.6222857142857146,
+            "volRatio": 0.730497061670483,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 9.554,
+          "time": 1795775768531
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.0611785714285714,
+          "multiplier": 1.5,
+          "atrPct": 0.004268073910183578,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "XRP": {
+      "asset": "XRP",
+      "market": "Binance Spot",
+      "price": 0.9838,
+      "updatedAt": "2026-11-27T10:36:08.532Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 56,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.9825,
+            "r": 67.99999999999997,
+            "ma20": 0.9763400000000002,
+            "ma50": 0.962696,
+            "ma200": 0.9448360000000001,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0045785714285714475,
+            "volRatio": 0.60023976522844,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.9786,
+            "r": 74.19962335216582,
+            "ma20": 0.9578500000000002,
+            "ma50": 0.9446039999999999,
+            "ma200": 0.9386390000000001,
+            "trend": "Alta forte",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0076142857142857245,
+            "volRatio": 0.9186646681324768,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.9786,
+            "r": 69.25845932325409,
+            "ma20": 0.9377849999999999,
+            "ma50": 0.9379560000000001,
+            "ma200": 1.1040610000000006,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.020678571428571404,
+            "volRatio": 1.0128805087327544,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.9438,
+            "r": 37.08609271523179,
+            "ma20": 0.9906149999999998,
+            "ma50": 1.1815220000000002,
+            "ma200": 1.2299749999999998,
+            "trend": "Baixa forte",
+            "score": -3,
+            "signal": "S+",
+            "dir": "SHORT",
+            "atr": 0.06252857142857142,
+            "volRatio": 0.6425680130962608,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.9838,
+          "time": 1795775768532
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.006867857142857171,
+          "multiplier": 1.5,
+          "atrPct": 0.00466012359142132,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "AVAX": {
+      "asset": "AVAX",
+      "market": "Binance Spot",
+      "price": 6.809,
+      "updatedAt": "2026-11-27T10:36:08.530Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "count": 4,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 6.805,
+            "r": 61.58192090395485,
+            "ma20": 6.778650000000002,
+            "ma50": 6.713940000000001,
+            "ma200": 6.614405000000005,
+            "trend": "Alta forte",
+            "score": 4,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.02399999999999996,
+            "volRatio": 1.3079554399431264,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 6.808,
+            "r": 69.74789915966392,
+            "ma20": 6.677650000000002,
+            "ma50": 6.613479999999998,
+            "ma200": 6.685604999999999,
+            "trend": "Alta",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.05035714285714299,
+            "volRatio": 1.1694227401266877,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 6.756,
+            "r": 59.1794871794872,
+            "ma20": 6.609,
+            "ma50": 6.679559999999999,
+            "ma200": 7.8929699999999965,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.14099999999999976,
+            "volRatio": 0.7086579742588471,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 6.596,
+            "r": 22.330097087378647,
+            "ma20": 7.378200000000001,
+            "ma50": 8.55212,
+            "ma200": 7.9336749999999965,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.5258571428571427,
+            "volRatio": 0.37112742602073784,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 6.809,
+          "time": 1795775768530
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.035999999999999935,
+          "multiplier": 1.5,
+          "atrPct": 0.003526818515797202,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "NEAR": {
+      "asset": "NEAR",
+      "market": "Binance Spot",
+      "price": 3.132,
+      "updatedAt": "2026-11-27T10:36:08.697Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "count": 4,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 3.126,
+            "r": 61.61616161616154,
+            "ma20": 3.1106999999999996,
+            "ma50": 3.0959799999999995,
+            "ma200": 3.0159949999999998,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.017785714285714103,
+            "volRatio": 0.8146217658984873,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 3.124,
+            "r": 58.3657587548638,
+            "ma20": 3.0877000000000003,
+            "ma50": 3.0153200000000004,
+            "ma200": 2.993404999999999,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0387857142857142,
+            "volRatio": 0.6079877430175664,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 3.085,
+            "r": 65.75121163166395,
+            "ma20": 2.9636500000000003,
+            "ma50": 2.9901400000000002,
+            "ma200": 3.641985000000001,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.10235714285714288,
+            "volRatio": 0.48480421573814114,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 3.05,
+            "r": 39.99999999999999,
+            "ma20": 3.251,
+            "ma50": 4.0929199999999994,
+            "ma200": 2.783279999999999,
+            "trend": "Baixa",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.3249999999999999,
+            "volRatio": 0.939158055825818,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 3.132,
+          "time": 1795775768697
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.02401071428571404,
+          "multiplier": 1.35,
+          "atrPct": 0.005689607896901505,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "ONDO": {
+      "asset": "ONDO",
+      "market": "Binance Spot",
+      "price": 0.2958,
+      "updatedAt": "2026-11-27T10:36:08.696Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "count": 4,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -2
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.2958,
+            "r": 42.50000000000034,
+            "ma20": 0.29698,
+            "ma50": 0.2932860000000001,
+            "ma200": 0.2844004999999998,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0012428571428571447,
+            "volRatio": 0.8659641783995703,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.2967,
+            "r": 72.78106508875749,
+            "ma20": 0.29097,
+            "ma50": 0.28425799999999996,
+            "ma200": 0.28524550000000004,
+            "trend": "Alta",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.00253571428571428,
+            "volRatio": 1.3667502059294148,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.297,
+            "r": 67.48120300751881,
+            "ma20": 0.282465,
+            "ma50": 0.284974,
+            "ma200": 0.3497645000000001,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.0074214285714285745,
+            "volRatio": 1.1775331673468596,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.2874,
+            "r": 25.846833578792342,
+            "ma20": 0.31598,
+            "ma50": 0.3855500000000002,
+            "ma200": 0.37868900000000016,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.02353571428571428,
+            "volRatio": 0.44558909587540935,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.2958,
+          "time": 1795775768696
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.0018642857142857172,
+          "multiplier": 1.5,
+          "atrPct": 0.0042016806722689135,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "PENDLE": {
+      "asset": "PENDLE",
+      "market": "Binance Spot",
+      "price": 1.236,
+      "updatedAt": "2026-11-27T10:36:08.695Z",
+      "result": {
+        "status": "PREPARAR SHORT",
+        "day": "PREPARAR SHORT",
+        "checks": [
+          true,
+          true,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 4,
+        "tracker": {
+          "force": 76,
+          "signal": "SHORT",
+          "direction": -1,
+          "weighted": -6
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 1.24,
+            "r": 60.416666666666714,
+            "ma20": 1.2347500000000002,
+            "ma50": 1.2264199999999996,
+            "ma200": 1.2247549999999996,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.006071428571428553,
+            "volRatio": 0.24958798063216522,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 1.242,
+            "r": 65.75342465753405,
+            "ma20": 1.2214500000000004,
+            "ma50": 1.2245,
+            "ma200": 1.28681,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.013428571428571425,
+            "volRatio": 0.8201974420660532,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 1.233,
+            "r": 46.78111587982834,
+            "ma20": 1.23775,
+            "ma50": 1.2860800000000003,
+            "ma200": 1.5876950000000003,
+            "trend": "Baixa forte",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.03364285714285715,
+            "volRatio": 1.4099693228046692,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 1.209,
+            "r": 26.025236593059972,
+            "ma20": 1.4179000000000002,
+            "ma50": 1.7563000000000004,
+            "ma200": 1.7155400000000014,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.11035714285714283,
+            "volRatio": 0.7945080473811984,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 1.236,
+          "time": 1795775768695
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.00910714285714283,
+          "multiplier": 1.5,
+          "atrPct": 0.004896313364055284,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "SUI": {
+      "asset": "SUI",
+      "market": "Binance Spot",
+      "price": 0.6916,
+      "updatedAt": "2026-11-27T10:36:08.859Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.6908,
+            "r": 72.2972972972972,
+            "ma20": 0.6869799999999998,
+            "ma50": 0.6801699999999999,
+            "ma200": 0.6644225000000001,
+            "trend": "Alta forte",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0029785714285714255,
+            "volRatio": 1.0411719525058956,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.6897,
+            "r": 70.18469656992073,
+            "ma20": 0.6754499999999999,
+            "ma50": 0.6640900000000002,
+            "ma200": 0.6666835,
+            "trend": "Alta",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0059642857142857076,
+            "volRatio": 1.0400746020675657,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.6838,
+            "r": 65.94399277326109,
+            "ma20": 0.6591499999999999,
+            "ma50": 0.6661919999999999,
+            "ma200": 0.8026835,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.01688571428571429,
+            "volRatio": 0.719338659360425,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.6685,
+            "r": 29.811653914067108,
+            "ma20": 0.7358,
+            "ma50": 0.8765619999999997,
+            "ma200": 0.8397310000000003,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.05771428571428572,
+            "volRatio": 0.9256195246586747,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.6916,
+          "time": 1795775768859
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.004467857142857138,
+          "multiplier": 1.5,
+          "atrPct": 0.00431177103151625,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "CKB": {
+      "asset": "CKB",
+      "market": "Binance Spot",
+      "price": 0.000859,
+      "updatedAt": "2026-11-27T10:36:08.857Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.00086,
+            "r": 61.53846153846141,
+            "ma20": 0.00085605,
+            "ma50": 0.0008492599999999997,
+            "ma200": 0.0008232599999999993,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.000004285714285714297,
+            "volRatio": 0.13626733882639058,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.000864,
+            "r": 70.42253521126754,
+            "ma20": 0.0008426999999999998,
+            "ma50": 0.0008226599999999997,
+            "ma200": 0.000805035,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.000008428571428571439,
+            "volRatio": 1.7479751330235551,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.000848,
+            "r": 76.66666666666663,
+            "ma20": 0.0008009,
+            "ma50": 0.00080402,
+            "ma200": 0.0010197599999999998,
+            "trend": "Lateral",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.000028142857142857145,
+            "volRatio": 0.29996868385012754,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.000837,
+            "r": 37.815126050420176,
+            "ma20": 0.0008650000000000001,
+            "ma50": 0.0011821800000000001,
+            "ma200": 0.0011085050000000003,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.00006607142857142857,
+            "volRatio": 2.339654923434521,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.000859,
+          "time": 1795775768857
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.000006428571428571446,
+          "multiplier": 1.5,
+          "atrPct": 0.0049833887043189504,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "INJ": {
+      "asset": "INJ",
+      "market": "Binance Spot",
+      "price": 6.495,
+      "updatedAt": "2026-11-27T10:36:08.858Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        "count": 2,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 6.489,
+            "r": 70.39274924471287,
+            "ma20": 6.45385,
+            "ma50": 6.350599999999998,
+            "ma200": 6.106635,
+            "trend": "Alta forte",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.05342857142857144,
+            "volRatio": 0.7444510357930942,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 6.554,
+            "r": 75.04078303425773,
+            "ma20": 6.2898499999999995,
+            "ma50": 6.103879999999999,
+            "ma200": 6.280435000000003,
+            "trend": "Alta",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.08614285714285717,
+            "volRatio": 1.0708437357122573,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 6.439,
+            "r": 74.28810720268005,
+            "ma20": 6.04425,
+            "ma50": 6.277020000000001,
+            "ma200": 7.296850000000001,
+            "trend": "Lateral",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.19842857142857134,
+            "volRatio": 0.8462167393265118,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 6.193,
+            "r": 38.31481481481481,
+            "ma20": 7.0307,
+            "ma50": 7.531599999999998,
+            "ma200": 5.972969999999996,
+            "trend": "Baixa",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.7675714285714285,
+            "volRatio": 0.7940781646744429,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 6.495,
+          "time": 1795775768858
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.07212857142857146,
+          "multiplier": 1.35,
+          "atrPct": 0.008233714197653173,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "AAVE": {
+      "asset": "AAVE",
+      "market": "Binance Spot",
+      "price": 97.24,
+      "updatedAt": "2026-11-27T10:36:09.021Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 97.32,
+            "r": 68.68327402135233,
+            "ma20": 96.81449999999998,
+            "ma50": 96.05519999999999,
+            "ma200": 94.75380000000003,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.49857142857142883,
+            "volRatio": 0.6457613426799002,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 97.38,
+            "r": 69.18767507002812,
+            "ma20": 95.2825,
+            "ma50": 94.68880000000003,
+            "ma200": 97.92160000000005,
+            "trend": "Alta",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.9621428571428561,
+            "volRatio": 0.6949658259300965,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 96.14,
+            "r": 57.103637611530566,
+            "ma20": 94.52900000000002,
+            "ma50": 97.88380000000001,
+            "ma200": 118.28340000000001,
+            "trend": "Lateral",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 2.4450000000000025,
+            "volRatio": 1.3727295760212026,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 94.53,
+            "r": 30.286521388216315,
+            "ma20": 109.025,
+            "ma50": 130.65959999999998,
+            "ma200": 110.35114999999996,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 8.333571428571428,
+            "volRatio": 1.073091308126889,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 97.24,
+          "time": 1795775769021
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.673071428571429,
+          "multiplier": 1.35,
+          "atrPct": 0.005123010979977691,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "ENA": {
+      "asset": "ENA",
+      "market": "Binance Spot",
+      "price": 0.1076,
+      "updatedAt": "2026-11-27T10:36:09.020Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.1071,
+            "r": 56.14035087719302,
+            "ma20": 0.106565,
+            "ma50": 0.10409799999999997,
+            "ma200": 0.10074349999999997,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0009142857142857167,
+            "volRatio": 0.5347597761535221,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.107,
+            "r": 79.56989247311827,
+            "ma20": 0.10284,
+            "ma50": 0.10067199999999998,
+            "ma200": 0.10112850000000005,
+            "trend": "Alta",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0014428571428571405,
+            "volRatio": 1.3952103033900243,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.1065,
+            "r": 64.04109589041094,
+            "ma20": 0.099825,
+            "ma50": 0.10111599999999996,
+            "ma200": 0.14787299999999995,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.003428571428571429,
+            "volRatio": 1.1246961147731955,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.1003,
+            "r": 21.316165951359096,
+            "ma20": 0.12088000000000002,
+            "ma50": 0.16604200000000005,
+            "ma200": 0.1318775,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.010842857142857142,
+            "volRatio": 0.664683137324825,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.1076,
+          "time": 1795775769020
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.0012342857142857175,
+          "multiplier": 1.35,
+          "atrPct": 0.008536748032546374,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "HYPE": {
+      "asset": "HYPE",
+      "status": "SEM DADOS",
+      "error": "Menos de 200 candles fechados em 1d",
+      "updatedAt": "2026-11-27T10:36:09.021Z",
+      "fullSetupDTApproval": false,
+      "execution": "NONE"
+    },
+    "SEI": {
+      "asset": "SEI",
+      "market": "Binance Spot",
+      "price": 0.03899,
+      "updatedAt": "2026-11-27T10:36:09.185Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 56,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.03899,
+            "r": 56.03715170278628,
+            "ma20": 0.038855999999999995,
+            "ma50": 0.0388034,
+            "ma200": 0.03587625,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0003907142857142854,
+            "volRatio": 0.26498228157307663,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.03926,
+            "r": 38.769230769230866,
+            "ma20": 0.03898599999999999,
+            "ma50": 0.0358436,
+            "ma200": 0.03527450000000001,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0008507142857142845,
+            "volRatio": 0.28641963281017396,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.03865,
+            "r": 76.55109489051097,
+            "ma20": 0.034783999999999995,
+            "ma50": 0.035241600000000005,
+            "ma200": 0.043308599999999975,
+            "trend": "Lateral",
+            "score": -3,
+            "signal": "S+",
+            "dir": "SHORT",
+            "atr": 0.00152,
+            "volRatio": 1.294610101866937,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.03872,
+            "r": 40.32048505846687,
+            "ma20": 0.039189999999999996,
+            "ma50": 0.049783600000000004,
+            "ma200": 0.05177374999999999,
+            "trend": "Baixa forte",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.003304999999999999,
+            "volRatio": 5.0125536634455745,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.03899,
+          "time": 1795775769185
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.0004883928571428567,
+          "multiplier": 1.25,
+          "atrPct": 0.010020884475872927,
+          "floorPct": 0.006,
+          "label": "ATR elevado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "TIA": {
+      "asset": "TIA",
+      "market": "Binance Spot",
+      "price": 0.3436,
+      "updatedAt": "2026-11-27T10:36:09.180Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          false
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 56,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -2
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.3436,
+            "r": 20.338983050847247,
+            "ma20": 0.34634,
+            "ma50": 0.343132,
+            "ma200": 0.33591649999999995,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0015571428571428641,
+            "volRatio": 1.2940139196021405,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.3446,
+            "r": 54.958677685950406,
+            "ma20": 0.342255,
+            "ma50": 0.335644,
+            "ma200": 0.3331339999999999,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.0031785714285714355,
+            "volRatio": 0.5673550772599424,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.3458,
+            "r": 64.48717948717949,
+            "ma20": 0.33277500000000004,
+            "ma50": 0.332896,
+            "ma200": 0.41473000000000027,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.011285714285714291,
+            "volRatio": 0.6690456755948276,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.3367,
+            "r": 23.52331606217615,
+            "ma20": 0.36903499999999995,
+            "ma50": 0.46986400000000006,
+            "ma200": 0.4025814999999999,
+            "trend": "Baixa",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.03140714285714286,
+            "volRatio": 1.3781450331292435,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.3436,
+          "time": 1795775769180
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.002335714285714296,
+          "multiplier": 1.5,
+          "atrPct": 0.0045318476633959956,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "WLD": {
+      "asset": "WLD",
+      "market": "Binance Spot",
+      "price": 0.253,
+      "updatedAt": "2026-11-27T10:36:09.184Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          false,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 2,
+        "tracker": {
+          "force": 58,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -2
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.2524,
+            "r": 52.56410256410265,
+            "ma20": 0.252765,
+            "ma50": 0.24865199999999998,
+            "ma200": 0.24155700000000008,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0013571428571428584,
+            "volRatio": 0.3698699886706606,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.2527,
+            "r": 76.4367816091954,
+            "ma20": 0.24644,
+            "ma50": 0.241398,
+            "ma200": 0.23918899999999998,
+            "trend": "Alta forte",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.002807142857142859,
+            "volRatio": 0.5576270304854056,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.2526,
+            "r": 68.34061135371176,
+            "ma20": 0.23887499999999995,
+            "ma50": 0.23896199999999998,
+            "ma200": 0.32264450000000017,
+            "trend": "Lateral",
+            "score": 0,
+            "signal": "N",
+            "dir": "NEUTRO",
+            "atr": 0.007085714285714292,
+            "volRatio": 1.225720158499512,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.2414,
+            "r": 28.673323823109854,
+            "ma20": 0.27034,
+            "ma50": 0.38770200000000005,
+            "ma200": 0.4011545000000002,
+            "trend": "Baixa forte",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.022071428571428575,
+            "volRatio": 0.7837413570353902,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.253,
+          "time": 1795775769184
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.001832142857142859,
+          "multiplier": 1.35,
+          "atrPct": 0.005376952682816396,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "PEPE": {
+      "asset": "PEPE",
+      "market": "Binance Spot",
+      "price": 0.00000363,
+      "updatedAt": "2026-11-27T10:36:09.346Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          true
+        ],
+        "count": 3,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.00000362,
+            "r": 50,
+            "ma20": 0.000003606,
+            "ma50": 0.0000035616000000000008,
+            "ma200": 0.000003499200000000002,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 3.00000000000001e-8,
+            "volRatio": 0.385633847632173,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.00000362,
+            "r": 63.636363636363555,
+            "ma20": 0.000003537,
+            "ma50": 0.0000034984,
+            "ma200": 0.000003499950000000002,
+            "trend": "Alta",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 5.071428571428577e-8,
+            "volRatio": 0.47459280029365836,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.00000361,
+            "r": 58.823529411764724,
+            "ma20": 0.0000034814999999999996,
+            "ma50": 0.0000034968,
+            "ma200": 0.000004362550000000001,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 1.3071428571428567e-7,
+            "volRatio": 0.8094569763781657,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.00000348,
+            "r": 9.230769230769212,
+            "ma20": 0.0000040465,
+            "ma50": 0.0000042808,
+            "ma200": 0.0000035196000000000027,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 3.414285714285714e-7,
+            "volRatio": 0.626852665568386,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 0.00000363,
+          "time": 1795775769346
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 4.0500000000000144e-8,
+          "multiplier": 1.35,
+          "atrPct": 0.008287292817679587,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "ADA": {
+      "asset": "ADA",
+      "market": "Binance Spot",
+      "price": 0.1528,
+      "updatedAt": "2026-11-27T10:36:09.344Z",
+      "result": {
+        "status": "AGUARDAR FLUXO",
+        "day": "LONG",
+        "checks": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "count": 6,
+        "tracker": {
+          "force": 54,
+          "signal": "NEUTRO",
+          "direction": 1,
+          "weighted": 1
+        },
+        "dailyAgainst": true,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 0.1526,
+            "r": 43.75000000000028,
+            "ma20": 0.15299000000000001,
+            "ma50": 0.151328,
+            "ma200": 0.14746549999999992,
+            "trend": "Lateral",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0006428571428571474,
+            "volRatio": 0.8845092567201812,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 0.1527,
+            "r": 63.513513513513495,
+            "ma20": 0.15058999999999997,
+            "ma50": 0.14743199999999995,
+            "ma200": 0.1465095,
+            "trend": "Alta forte",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0012357142857142883,
+            "volRatio": 1.2560354272636967,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 0.1531,
+            "r": 66.0377358490566,
+            "ma20": 0.14638500000000004,
+            "ma50": 0.14633000000000002,
+            "ma200": 0.17322000000000007,
+            "trend": "Alta",
+            "score": 1,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0037499999999999994,
+            "volRatio": 0.6553315236100005,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 0.1486,
+            "r": 30.33536585365856,
+            "ma20": 0.15805000000000002,
+            "ma50": 0.19135800000000003,
+            "ma200": 0.19802299999999995,
+            "trend": "Baixa forte",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.010835714285714287,
+            "volRatio": 0.826295607163906,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "EXAUSTÃO",
+          "label": "AGUARDAR FLUXO 15m",
+          "reason": "O candle fechado de 15m ainda não completou a sequência de fluxo exigida.",
+          "buyShare": 0.45772875437975363,
+          "volRatio": 0.8977940928083944,
+          "closed": 1795775399999
+        },
+        "quote": {
+          "price": 0.1528,
+          "time": 1795775769344
+        },
+        "levels": {
+          "entry": 0.1526,
+          "stop": 0.1516357142857143,
+          "t1": 0.15404642857142858,
+          "t2": 0.15452857142857146,
+          "t3": 0.15549285714285718
+        },
+        "stopModel": {
+          "risk": 0.0009642857142857211,
+          "multiplier": 1.5,
+          "atrPct": 0.004212694252012761,
+          "floorPct": 0.005,
+          "label": "ATR comprimido"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    },
+    "UNI": {
+      "asset": "UNI",
+      "market": "Binance Spot",
+      "price": 4.893,
+      "updatedAt": "2026-11-27T10:36:09.345Z",
+      "result": {
+        "status": "OBSERVAR",
+        "day": "AGUARDAR",
+        "checks": [
+          true,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "count": 4,
+        "tracker": {
+          "force": 52,
+          "signal": "NEUTRO",
+          "direction": -1,
+          "weighted": -1
+        },
+        "dailyAgainst": false,
+        "trackerAgainst": false,
+        "snapshots": {
+          "15m": {
+            "price": 4.893,
+            "r": 59.006211180124225,
+            "ma20": 4.8877500000000005,
+            "ma50": 4.804239999999999,
+            "ma200": 4.69669,
+            "trend": "Alta forte",
+            "score": 3,
+            "signal": "L+",
+            "dir": "LONG",
+            "atr": 0.02635714285714303,
+            "volRatio": 0.8127057055459083,
+            "candleClose": 1795775399999
+          },
+          "1h": {
+            "price": 4.901,
+            "r": 78.0361757105943,
+            "ma20": 4.74155,
+            "ma50": 4.69356,
+            "ma200": 4.739865000000003,
+            "trend": "Alta",
+            "score": 2,
+            "signal": "L",
+            "dir": "LONG",
+            "atr": 0.0604285714285715,
+            "volRatio": 0.6443966568956409,
+            "candleClose": 1795773599999
+          },
+          "4h": {
+            "price": 4.885,
+            "r": 58.06132542037584,
+            "ma20": 4.702400000000001,
+            "ma50": 4.7386,
+            "ma200": 6.120794999999998,
+            "trend": "Lateral",
+            "score": -1,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.14921428571428574,
+            "volRatio": 0.9786795886268471,
+            "candleClose": 1795766399999
+          },
+          "1d": {
+            "price": 4.658,
+            "r": 28.002489110143117,
+            "ma20": 5.464499999999999,
+            "ma50": 6.499840000000002,
+            "ma200": 5.040084999999998,
+            "trend": "Baixa",
+            "score": -2,
+            "signal": "S",
+            "dir": "SHORT",
+            "atr": 0.4670714285714287,
+            "volRatio": 0.6281454472704064,
+            "candleClose": 1795737599999
+          }
+        },
+        "flow": {
+          "confirmed": false,
+          "phase": "SEM DIREÇÃO",
+          "label": "Aguardar 6/6 técnico",
+          "reason": "A liberação do fluxo só é calculada após o checklist 6/6."
+        },
+        "quote": {
+          "price": 4.893,
+          "time": 1795775769346
+        },
+        "levels": null,
+        "stopModel": {
+          "risk": 0.03558214285714309,
+          "multiplier": 1.35,
+          "atrPct": 0.005386704037838347,
+          "floorPct": 0.0055,
+          "label": "ATR moderado"
+        },
+        "signalCandle": 1795775399999,
+        "fullSetupDTApproval": false,
+        "execution": "NONE",
+        "note": "Monitor LAB: filtros completos de risco/Triple Screen e ordens não são executados por este serviço."
+      }
+    }
+  },
+  "latestRun": {
+    "at": "2026-11-27T10:36:09.347Z",
+    "assetsOk": 20,
+    "assetsFailed": 1,
+    "candidates": 0,
+    "errors": [
+      {
+        "asset": "HYPE",
+        "error": "Menos de 200 candles fechados em 1d"
+      }
+    ]
+  },
   "signals": [],
-  "runs": [],
+  "runs": [
+    {
+      "at": "2026-11-27T10:36:09.347Z",
+      "assetsOk": 20,
+      "assetsFailed": 1,
+      "candidates": 0,
+      "errors": [
+        {
+          "asset": "HYPE",
+          "error": "Menos de 200 candles fechados em 1d"
+        }
+      ]
+    }
+  ],
+  "health": {
+    "lastSuccess": null,
+    "lastAttempt": "2026-11-27T10:36:09.347Z",
+    "status": "DEGRADED"
+  },
+  "dailyReports": {},
   "execution": "NONE",
-  "notification": "NOT_CONFIGURED",
+  "notification": {
+    "status": "DISABLED",
+    "sent": 0
+  },
   "scope": "Read-only signal monitoring; no exchange keys and no orders."
 }
