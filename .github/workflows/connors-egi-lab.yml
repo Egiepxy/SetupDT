@@ -1,0 +1,30 @@
+name: Connors EGI LAB
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: connors-egi-lab
+  cancel-in-progress: false
+jobs:
+  scan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lab/connors-egi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node lab/connors/robo.mjs
+      - name: Gravar auditoria na branch LAB
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lab/connors/estado.json
+          git commit -m "Atualiza auditoria Connors EGI LAB"
+          git push origin HEAD:refs/heads/lab/connors-egi
