@@ -1,0 +1,20 @@
+name: RadarRMC V1.2 LAB — testes
+on:
+  pull_request:
+    paths:
+      - 'public/index19.html'
+      - 'tests/radarrmc-v12.test.mjs'
+      - '.github/workflows/radarrmc-v12-lab.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar regras de liberação (sem chamadas externas)
+        run: node --test tests/radarrmc-v12.test.mjs
